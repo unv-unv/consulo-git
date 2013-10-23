@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="ini4j">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/ini4j/ini4j-0.5.2-patched.jar!/" />
+    </CLASSES>
+    <DOCUMENTATION />
+    <SOURCES>
+      <root url="zip://H:/github.com/consulo/!req/consulo-git/lib/ini4j/ini4j-0.5.2-patched-sources.zip!/" />
+    </SOURCES>
+    <jarDirectory url="zip://H:/github.com/consulo/!req/consulo-git/lib/ini4j/ini4j-0.5.2-patched-sources.zip!/" recursive="false" type="SOURCES" />
+  </library>
+</component>

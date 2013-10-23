@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="trilead-ssh2">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/trilead-ssh2.jar!/" />
+    </CLASSES>
+    <DOCUMENTATION />
+    <SOURCES>
+      <root url="zip://H:/github.com/consulo/!req/consulo-git/lib/trilead-ssh2-src.zip!/" />
+    </SOURCES>
+    <jarDirectory url="zip://H:/github.com/consulo/!req/consulo-git/lib/trilead-ssh2-src.zip!/" recursive="false" type="SOURCES" />
+  </library>
+</component>

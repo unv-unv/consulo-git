@@ -1,0 +1,21 @@
+<component name="ArtifactManager">
+  <artifact build-on-make="true" name="dist">
+    <output-path>$PROJECT_DIR$/out/artifacts/dist</output-path>
+    <root id="root">
+      <element id="directory" name="git">
+        <element id="directory" name="lib">
+          <element id="zip-archive" name="git.jar">
+            <element id="module-output" name="consulo-git" />
+            <element id="module-production-resource-output" name="consulo-git" />
+          </element>
+          <element id="library" level="project" name="org.eclipse.jgit" />
+          <element id="library" level="project" name="trilead-ssh2" />
+          <element id="library" level="project" name="ini4j" />
+          <element id="zip-archive" name="git_rt.jar">
+            <element id="module-output" name="rt" />
+          </element>
+        </element>
+      </element>
+    </root>
+  </artifact>
+</component>
