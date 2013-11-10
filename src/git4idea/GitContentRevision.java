@@ -15,6 +15,13 @@
  */
 package git4idea;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.List;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.Throwable2Computable;
@@ -29,207 +36,237 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.vcsUtil.VcsFileUtil;
 import com.intellij.vcsUtil.VcsUtil;
-import git4idea.util.GitFileUtils;
 import git4idea.history.wholeTree.GitBinaryMultipleContentsRevision;
 import git4idea.history.wholeTree.GitMultipleContentsRevision;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.List;
+import git4idea.util.GitFileUtils;
 
 /**
  * Git content revision
  */
-public class GitContentRevision implements ContentRevision {
-  /**
-   * the file path
-   */
-  @NotNull protected final FilePath myFile;
-  /**
-   * the revision number
-   */
-  @NotNull protected final GitRevisionNumber myRevision;
-  /**
-   * the context project
-   */
-  @NotNull protected final Project myProject;
-  /**
-   * The charset for the file
-   */
-  @Nullable private Charset myCharset;
+public class GitContentRevision implements ContentRevision
+{
+	/**
+	 * the file path
+	 */
+	@NotNull
+	protected final FilePath myFile;
+	/**
+	 * the revision number
+	 */
+	@NotNull
+	protected final GitRevisionNumber myRevision;
+	/**
+	 * the context project
+	 */
+	@NotNull
+	protected final Project myProject;
+	/**
+	 * The charset for the file
+	 */
+	@Nullable
+	private Charset myCharset;
 
-  protected GitContentRevision(@NotNull FilePath file, @NotNull GitRevisionNumber revision, @NotNull Project project,
-                               @Nullable Charset charset) {
-    myProject = project;
-    myFile = file;
-    myRevision = revision;
-    myCharset = charset;
-  }
+	protected GitContentRevision(@NotNull FilePath file, @NotNull GitRevisionNumber revision, @NotNull Project project, @Nullable Charset charset)
+	{
+		myProject = project;
+		myFile = file;
+		myRevision = revision;
+		myCharset = charset;
+	}
 
-  @Nullable
-  public String getContent() throws VcsException {
-    if (myFile.isDirectory()) {
-      return null;
-    }
-    try {
-      return ContentRevisionCache
-        .getOrLoadAsString(myProject, myFile, myRevision, GitVcs.getKey(), ContentRevisionCache.UniqueType.REPOSITORY_CONTENT,
-                           new Throwable2Computable<byte[], VcsException, IOException>() {
-                             @Override
-                             public byte[] compute() throws VcsException, IOException {
-                               return loadContent();
-                             }
-                           }, myCharset);
-    }
-    catch (IOException e) {
-      throw new VcsException(e);
-    }
-  }
+	public static ContentRevision createMultipleParentsRevision(@NotNull Project project, @NotNull final FilePath file, @NotNull GitRevisionNumber currentRevision, @NotNull final List<GitRevisionNumber> parentRevisions) throws VcsException
+	{
+		final GitContentRevision contentRevision = createRevisionImpl(file, currentRevision, project, null);
+		if(parentRevisions.size() == 1)
+		{
+			return contentRevision;
+		}
+		else
+		{
+			if(contentRevision instanceof GitBinaryContentRevision)
+			{
+				return new GitBinaryMultipleContentsRevision(file, parentRevisions, (GitBinaryContentRevision) contentRevision);
+			}
+			else
+			{
+				return new GitMultipleContentsRevision(file, parentRevisions, contentRevision);
+			}
+		}
+	}
 
-  private byte[] loadContent() throws VcsException {
-    VirtualFile root = GitUtil.getGitRoot(myFile);
-    return GitFileUtils.getFileContent(myProject, root, myRevision.getRev(), VcsFileUtil.relativePath(root, myFile));
-  }
+	/**
+	 * Create revision
+	 *
+	 * @param vcsRoot        a vcs root for the repository
+	 * @param path           an path inside with possibly escape sequences
+	 * @param revisionNumber a revision number, if null the current revision will be created
+	 * @param project        the context project
+	 * @param isDeleted      if true, the file is deleted
+	 * @param unescapePath
+	 * @return a created revision
+	 * @throws com.intellij.openapi.vcs.VcsException
+	 *          if there is a problem with creating revision
+	 */
+	public static ContentRevision createRevision(VirtualFile vcsRoot, String path, @Nullable VcsRevisionNumber revisionNumber, Project project, boolean isDeleted, final boolean canBeDeleted, boolean unescapePath) throws VcsException
+	{
+		final FilePath file;
+		if(project.isDisposed())
+		{
+			file = new FilePathImpl(new File(makeAbsolutePath(vcsRoot, path, unescapePath)), false);
+		}
+		else
+		{
+			file = createPath(vcsRoot, path, isDeleted, canBeDeleted, unescapePath);
+		}
+		return createRevision(file, revisionNumber, project);
+	}
 
-  @NotNull
-  public FilePath getFile() {
-    return myFile;
-  }
+	private static ContentRevision createRevision(@NotNull FilePath filePath, @Nullable VcsRevisionNumber revisionNumber, @NotNull Project project)
+	{
+		if(revisionNumber != null && revisionNumber != VcsRevisionNumber.NULL)
+		{
+			return createRevisionImpl(filePath, (GitRevisionNumber) revisionNumber, project, null);
+		}
+		else
+		{
+			return CurrentContentRevision.create(filePath);
+		}
+	}
 
-  @NotNull
-  public VcsRevisionNumber getRevisionNumber() {
-    return myRevision;
-  }
+	public static ContentRevision createRevisionForTypeChange(@NotNull Project project, @NotNull VirtualFile vcsRoot, @NotNull String path, @Nullable VcsRevisionNumber revisionNumber, boolean unescapePath) throws VcsException
+	{
+		final FilePath filePath;
+		if(revisionNumber == null)
+		{
+			File file = new File(makeAbsolutePath(vcsRoot, path, unescapePath));
+			VirtualFile virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
+			filePath = virtualFile == null ? new FilePathImpl(file, false) : new FilePathImpl(virtualFile);
+		}
+		else
+		{
+			filePath = createPath(vcsRoot, path, false, false, unescapePath);
+		}
+		return createRevision(filePath, revisionNumber, project);
+	}
 
-  public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if ((obj == null) || (obj.getClass() != getClass())) return false;
+	public static FilePath createPath(@NotNull VirtualFile vcsRoot, @NotNull String path, boolean isDeleted, boolean canBeDeleted, boolean unescapePath) throws VcsException
+	{
+		final String absolutePath = makeAbsolutePath(vcsRoot, path, unescapePath);
+		FilePath file = isDeleted ? VcsUtil.getFilePathForDeletedFile(absolutePath, false) : VcsUtil.getFilePath(absolutePath, false);
+		if(canBeDeleted && (!SystemInfo.isFileSystemCaseSensitive) && VcsUtil.caseDiffers(file.getPath(), absolutePath))
+		{
+			// as for deleted file
+			file = FilePathImpl.createForDeletedFile(new File(absolutePath), false);
+		}
+		return file;
+	}
 
-    GitContentRevision test = (GitContentRevision)obj;
-    return (myFile.equals(test.myFile) && myRevision.equals(test.myRevision));
-  }
+	private static String makeAbsolutePath(@NotNull VirtualFile vcsRoot, @NotNull String path, boolean unescapePath) throws VcsException
+	{
+		final String unescapedPath = unescapePath ? GitUtil.unescapePath(path) : path;
+		return vcsRoot.getPath() + "/" + unescapedPath;
+	}
 
-  public int hashCode() {
-    return myFile.hashCode() + myRevision.hashCode();
-  }
+	public static ContentRevision createRevision(@NotNull final VirtualFile file, @Nullable final VcsRevisionNumber revisionNumber, @NotNull final Project project)
+	{
+		return createRevision(file, revisionNumber, project, null);
+	}
 
-  public static ContentRevision createMultipleParentsRevision(@NotNull Project project, @NotNull final FilePath file,
-                                                              @NotNull GitRevisionNumber currentRevision,
-                                                              @NotNull final List<GitRevisionNumber> parentRevisions) throws VcsException {
-    final GitContentRevision contentRevision = createRevisionImpl(file, currentRevision, project, null);
-    if (parentRevisions.size() == 1) {
-      return contentRevision;
-    } else {
-      if (contentRevision instanceof GitBinaryContentRevision) {
-        return new GitBinaryMultipleContentsRevision(file, parentRevisions, (GitBinaryContentRevision) contentRevision);
-      } else {
-        return new GitMultipleContentsRevision(file, parentRevisions, contentRevision);
-      }
-    }
-  }
+	public static ContentRevision createRevision(@NotNull final VirtualFile file, @Nullable final VcsRevisionNumber revisionNumber, @NotNull final Project project, @Nullable final Charset charset)
+	{
+		final FilePathImpl filePath = new FilePathImpl(file);
+		return createRevision(filePath, revisionNumber, project, charset);
+	}
 
-  /**
-   * Create revision
-   *
-   *
-   * @param vcsRoot        a vcs root for the repository
-   * @param path           an path inside with possibly escape sequences
-   * @param revisionNumber a revision number, if null the current revision will be created
-   * @param project        the context project
-   * @param isDeleted      if true, the file is deleted
-   * @param unescapePath
-   * @return a created revision
-   * @throws com.intellij.openapi.vcs.VcsException
-   *          if there is a problem with creating revision
-   */
-  public static ContentRevision createRevision(VirtualFile vcsRoot,
-                                               String path,
-                                               @Nullable VcsRevisionNumber revisionNumber,
-                                               Project project,
-                                               boolean isDeleted, final boolean canBeDeleted, boolean unescapePath) throws VcsException {
-    final FilePath file;
-    if (project.isDisposed()) {
-      file = new FilePathImpl(new File(makeAbsolutePath(vcsRoot, path, unescapePath)), false);
-    } else {
-      file = createPath(vcsRoot, path, isDeleted, canBeDeleted, unescapePath);
-    }
-    return createRevision(file, revisionNumber, project);
-  }
-  
-  private static ContentRevision createRevision(@NotNull FilePath filePath, @Nullable VcsRevisionNumber revisionNumber, @NotNull Project project) {
-    if (revisionNumber != null && revisionNumber != VcsRevisionNumber.NULL) {
-      return createRevisionImpl(filePath, (GitRevisionNumber)revisionNumber, project, null);
-    }
-    else {
-      return CurrentContentRevision.create(filePath);
-    }
-  }
+	public static ContentRevision createRevision(@NotNull final FilePath filePath, @Nullable final VcsRevisionNumber revisionNumber, @NotNull final Project project, @Nullable final Charset charset)
+	{
+		if(revisionNumber != null && revisionNumber != VcsRevisionNumber.NULL)
+		{
+			return createRevisionImpl(filePath, (GitRevisionNumber) revisionNumber, project, charset);
+		}
+		else
+		{
+			return CurrentContentRevision.create(filePath);
+		}
+	}
 
-  public static ContentRevision createRevisionForTypeChange(@NotNull Project project, @NotNull VirtualFile vcsRoot,
-                                                            @NotNull String path, @Nullable VcsRevisionNumber revisionNumber,
-                                                            boolean unescapePath) throws VcsException {
-    final FilePath filePath;
-    if (revisionNumber == null) {
-      File file = new File(makeAbsolutePath(vcsRoot, path, unescapePath));
-      VirtualFile virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
-      filePath = virtualFile == null ? new FilePathImpl(file, false) : new FilePathImpl(virtualFile);
-    } else {
-      filePath = createPath(vcsRoot, path, false, false, unescapePath);
-    }
-    return createRevision(filePath, revisionNumber, project);
-  }
+	private static GitContentRevision createRevisionImpl(@NotNull FilePath path, @NotNull GitRevisionNumber revisionNumber, @NotNull Project project, @Nullable final Charset charset)
+	{
+		if(path.getFileType().isBinary())
+		{
+			return new GitBinaryContentRevision(path, revisionNumber, project);
+		}
+		else
+		{
+			return new GitContentRevision(path, revisionNumber, project, charset);
+		}
+	}
 
-  public static FilePath createPath(@NotNull VirtualFile vcsRoot, @NotNull String path,
-                                    boolean isDeleted, boolean canBeDeleted, boolean unescapePath) throws VcsException {
-    final String absolutePath = makeAbsolutePath(vcsRoot, path, unescapePath);
-    FilePath file = isDeleted ? VcsUtil.getFilePathForDeletedFile(absolutePath, false) : VcsUtil.getFilePath(absolutePath, false);
-    if (canBeDeleted && (! SystemInfo.isFileSystemCaseSensitive) && VcsUtil.caseDiffers(file.getPath(), absolutePath)) {
-      // as for deleted file
-      file = FilePathImpl.createForDeletedFile(new File(absolutePath), false);
-    }
-    return file;
-  }
+	@Nullable
+	public String getContent() throws VcsException
+	{
+		if(myFile.isDirectory())
+		{
+			return null;
+		}
+		try
+		{
+			return ContentRevisionCache.getOrLoadAsString(myProject, myFile, myRevision, GitVcs.getKey(), ContentRevisionCache.UniqueType.REPOSITORY_CONTENT, new Throwable2Computable<byte[], VcsException, IOException>()
+			{
+				@Override
+				public byte[] compute() throws VcsException, IOException
+				{
+					return loadContent();
+				}
+			}, myCharset);
+		}
+		catch(IOException e)
+		{
+			throw new VcsException(e);
+		}
+	}
 
-  private static String makeAbsolutePath(@NotNull VirtualFile vcsRoot, @NotNull String path, boolean unescapePath) throws VcsException {
-    final String unescapedPath = unescapePath ? GitUtil.unescapePath(path) : path;
-    return vcsRoot.getPath() + "/" + unescapedPath;
-  }
+	private byte[] loadContent() throws VcsException
+	{
+		VirtualFile root = GitUtil.getGitRoot(myFile);
+		return GitFileUtils.getFileContent(myProject, root, myRevision.getRev(), VcsFileUtil.relativePath(root, myFile));
+	}
 
-  public static ContentRevision createRevision(@NotNull final VirtualFile file, @Nullable final VcsRevisionNumber revisionNumber,
-                                               @NotNull final Project project) throws VcsException {
-    return createRevision(file, revisionNumber, project, null);
-  }
+	@NotNull
+	public FilePath getFile()
+	{
+		return myFile;
+	}
 
-  public static ContentRevision createRevision(@NotNull final VirtualFile file, @Nullable final VcsRevisionNumber revisionNumber,
-                                               @NotNull final Project project, @Nullable final Charset charset) throws VcsException {
-    final FilePathImpl filePath = new FilePathImpl(file);
-    return createRevision(filePath, revisionNumber, project, charset);
-  }
+	@NotNull
+	public VcsRevisionNumber getRevisionNumber()
+	{
+		return myRevision;
+	}
 
-  public static ContentRevision createRevision(@NotNull final FilePath filePath, @Nullable final VcsRevisionNumber revisionNumber,
-                                               @NotNull final Project project, @Nullable final Charset charset) {
-    if (revisionNumber != null && revisionNumber != VcsRevisionNumber.NULL) {
-      return createRevisionImpl(filePath, (GitRevisionNumber)revisionNumber, project, charset);
-    }
-    else {
-      return CurrentContentRevision.create(filePath);
-    }
-  }
+	public boolean equals(Object obj)
+	{
+		if(this == obj)
+		{
+			return true;
+		}
+		if((obj == null) || (obj.getClass() != getClass()))
+		{
+			return false;
+		}
 
-  private static GitContentRevision createRevisionImpl(@NotNull FilePath path, @NotNull GitRevisionNumber revisionNumber,
-                                                       @NotNull Project project, @Nullable final Charset charset) {
-    if (path.getFileType().isBinary()) {
-      return new GitBinaryContentRevision(path, revisionNumber, project);
-    } else {
-      return new GitContentRevision(path, revisionNumber, project, charset);
-    }
-  }
+		GitContentRevision test = (GitContentRevision) obj;
+		return (myFile.equals(test.myFile) && myRevision.equals(test.myRevision));
+	}
 
-  @Override
-  public String toString() {
-    return myFile.getPath();
-  }
+	public int hashCode()
+	{
+		return myFile.hashCode() + myRevision.hashCode();
+	}
+
+	@Override
+	public String toString()
+	{
+		return myFile.getPath();
+	}
 }

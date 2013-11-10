@@ -15,36 +15,39 @@
  */
 package git4idea;
 
-import git4idea.repo.GitRemote;
 import org.jetbrains.annotations.NotNull;
+import com.intellij.vcs.log.Hash;
+import git4idea.repo.GitRemote;
 
 /**
  * @author Kirill Likhodedov
  */
-public abstract class GitRemoteBranch extends GitBranch {
+public abstract class GitRemoteBranch extends GitBranch
+{
+	protected GitRemoteBranch(@NotNull String name, @NotNull Hash hash)
+	{
+		super(name, hash);
+	}
 
-  protected GitRemoteBranch(@NotNull String name, @NotNull Hash hash) {
-    super(name, hash);
-  }
+	/**
+	 * Returns the name of this remote branch to be used in remote operations: fetch, push, pull.
+	 * It is the name of this branch how it is defined on the remote.
+	 * For example, "master".
+	 *
+	 * @see #getNameForLocalOperations()
+	 */
+	@NotNull
+	public abstract String getNameForRemoteOperations();
 
-  /**
-   * Returns the name of this remote branch to be used in remote operations: fetch, push, pull.
-   * It is the name of this branch how it is defined on the remote.
-   * For example, "master".
-   * @see #getNameForLocalOperations()
-   */
-  @NotNull
-  public abstract String getNameForRemoteOperations();
+	/**
+	 * Returns the name of this remote branch to be used in local operations: checkout, merge, rebase.
+	 * It is the name of this branch how it is references in this local repository.
+	 * For example, "origin/master".
+	 */
+	@NotNull
+	public abstract String getNameForLocalOperations();
 
-  /**
-   * Returns the name of this remote branch to be used in local operations: checkout, merge, rebase.
-   * It is the name of this branch how it is references in this local repository.
-   * For example, "origin/master".
-   */
-  @NotNull
-  public abstract String getNameForLocalOperations();
-
-  @NotNull
-  public abstract GitRemote getRemote();
+	@NotNull
+	public abstract GitRemote getRemote();
 
 }

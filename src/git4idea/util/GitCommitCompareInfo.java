@@ -15,68 +15,103 @@
  */
 package git4idea.util;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.jetbrains.annotations.NotNull;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.vcs.changes.Change;
 import git4idea.GitCommit;
 import git4idea.repo.GitRepository;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.*;
 
 /**
  * @author Kirill Likhodedov
  */
-public class GitCommitCompareInfo {
-  
-  private static final Logger LOG = Logger.getInstance(GitCommitCompareInfo.class);
-  
-  private final Map<GitRepository, Pair<List<GitCommit>, List<GitCommit>>> myInfo = new HashMap<GitRepository, Pair<List<GitCommit>, List<GitCommit>>>();
-  private final Map<GitRepository, Collection<Change>> myTotalDiff = new HashMap<GitRepository, Collection<Change>>();
+public class GitCommitCompareInfo
+{
+	private static final Logger LOG = Logger.getInstance(GitCommitCompareInfo.class);
+	private final Map<GitRepository, Pair<List<GitCommit>, List<GitCommit>>> myInfo = new HashMap<GitRepository, Pair<List<GitCommit>, List<GitCommit>>>();
+	private final Map<GitRepository, Collection<Change>> myTotalDiff = new HashMap<GitRepository, Collection<Change>>();
+	private final InfoType myInfoType;
 
-  public void put(@NotNull GitRepository repository, @NotNull Pair<List<GitCommit>, List<GitCommit>> commits) {
-    myInfo.put(repository, commits);
-  }
+	public GitCommitCompareInfo()
+	{
+		this(InfoType.BOTH);
+	}
 
-  public void put(@NotNull GitRepository repository, @NotNull Collection<Change> totalDiff) {
-    myTotalDiff.put(repository, totalDiff);
-  }
+	public GitCommitCompareInfo(@NotNull InfoType infoType)
+	{
+		myInfoType = infoType;
+	}
 
-  @NotNull
-  public List<GitCommit> getHeadToBranchCommits(@NotNull GitRepository repo) {
-    return getCompareInfo(repo).getFirst();
-  }
-  
-  @NotNull
-  public List<GitCommit> getBranchToHeadCommits(@NotNull GitRepository repo) {
-    return getCompareInfo(repo).getSecond();
-  }
+	public void put(@NotNull GitRepository repository, @NotNull Pair<List<GitCommit>, List<GitCommit>> commits)
+	{
+		myInfo.put(repository, commits);
+	}
 
-  @NotNull
-  private Pair<List<GitCommit>, List<GitCommit>> getCompareInfo(@NotNull GitRepository repo) {
-    Pair<List<GitCommit>, List<GitCommit>> pair = myInfo.get(repo);
-    if (pair == null) {
-      LOG.error("Compare info not found for repository " + repo);
-      return Pair.create(Collections.<GitCommit>emptyList(), Collections.<GitCommit>emptyList());
-    }
-    return pair;
-  }
+	public void put(@NotNull GitRepository repository, @NotNull Collection<Change> totalDiff)
+	{
+		myTotalDiff.put(repository, totalDiff);
+	}
 
-  @NotNull
-  public Collection<GitRepository> getRepositories() {
-    return myInfo.keySet();
-  }
+	@NotNull
+	public List<GitCommit> getHeadToBranchCommits(@NotNull GitRepository repo)
+	{
+		return getCompareInfo(repo).getFirst();
+	}
 
-  public boolean isEmpty() {
-    return myInfo.isEmpty();
-  }
+	@NotNull
+	public List<GitCommit> getBranchToHeadCommits(@NotNull GitRepository repo)
+	{
+		return getCompareInfo(repo).getSecond();
+	}
 
-  @NotNull
-  public List<Change> getTotalDiff() {
-    List<Change> changes = new ArrayList<Change>();
-    for (Collection<Change> changeCollection : myTotalDiff.values()) {
-      changes.addAll(changeCollection);
-    }
-    return changes;
-  }
+	@NotNull
+	private Pair<List<GitCommit>, List<GitCommit>> getCompareInfo(@NotNull GitRepository repo)
+	{
+		Pair<List<GitCommit>, List<GitCommit>> pair = myInfo.get(repo);
+		if(pair == null)
+		{
+			LOG.error("Compare info not found for repository " + repo);
+			return Pair.create(Collections.<GitCommit>emptyList(), Collections.<GitCommit>emptyList());
+		}
+		return pair;
+	}
+
+	@NotNull
+	public Collection<GitRepository> getRepositories()
+	{
+		return myInfo.keySet();
+	}
+
+	public boolean isEmpty()
+	{
+		return myInfo.isEmpty();
+	}
+
+	public InfoType getInfoType()
+	{
+		return myInfoType;
+	}
+
+	@NotNull
+	public List<Change> getTotalDiff()
+	{
+		List<Change> changes = new ArrayList<Change>();
+		for(Collection<Change> changeCollection : myTotalDiff.values())
+		{
+			changes.addAll(changeCollection);
+		}
+		return changes;
+	}
+
+	public enum InfoType
+	{
+		BOTH, HEAD_TO_BRANCH, BRANCH_TO_HEAD
+	}
 }

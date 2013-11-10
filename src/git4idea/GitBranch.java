@@ -15,11 +15,13 @@
  */
 package git4idea;
 
-import com.intellij.openapi.diagnostic.Logger;
-import git4idea.branch.GitBranchUtil;
-import git4idea.repo.GitRepository;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.vcs.log.Hash;
+import com.intellij.vcs.log.impl.HashImpl;
+import git4idea.branch.GitBranchUtil;
+import git4idea.repo.GitRepository;
 
 /**
  * <p>Represents a Git branch, local or remote.</p>
@@ -39,53 +41,53 @@ import org.jetbrains.annotations.NotNull;
  */
 public abstract class GitBranch extends GitReference {
 
-  @NonNls public static final String REFS_HEADS_PREFIX = "refs/heads/"; // Prefix for local branches ({@value})
-  @NonNls public static final String REFS_REMOTES_PREFIX = "refs/remotes/"; // Prefix for remote branches ({@value})
+	@NonNls public static final String REFS_HEADS_PREFIX = "refs/heads/"; // Prefix for local branches ({@value})
+	@NonNls public static final String REFS_REMOTES_PREFIX = "refs/remotes/"; // Prefix for remote branches ({@value})
 
-  /**
-   * @deprecated All usages should be reviewed and substituted with actual GitBranch objects with Hashes retrieved from the GitRepository.
-   */
-  @Deprecated
-  public static final Hash DUMMY_HASH = Hash.create("");
+	/**
+	 * @deprecated All usages should be reviewed and substituted with actual GitBranch objects with Hashes retrieved from the GitRepository.
+	 */
+	@Deprecated
+	public static final Hash DUMMY_HASH = HashImpl.build("");
 
-  private static final Logger LOG = Logger.getInstance(GitBranch.class);
+	private static final Logger LOG = Logger.getInstance(GitBranch.class);
 
-  @NotNull private final Hash myHash;
+	@NotNull private final Hash myHash;
 
-  protected GitBranch(@NotNull String name, @NotNull Hash hash) {
-    super(GitBranchUtil.stripRefsPrefix(name));
-    myHash = hash;
-  }
+	protected GitBranch(@NotNull String name, @NotNull Hash hash) {
+		super(GitBranchUtil.stripRefsPrefix(name));
+		myHash = hash;
+	}
 
-  /**
-   * <p>Returns the hash on which this branch is reference to.</p>
-   *
-   * <p>In certain cases (which are to be eliminated in the future) it may be empty,
-   *    if this information wasn't supplied to the GitBranch constructor.</p>
-   */
-  @NotNull
-  public String getHash() {
-    return myHash.asString();
-  }
+	/**
+	 * <p>Returns the hash on which this branch is reference to.</p>
+	 *
+	 * <p>In certain cases (which are to be eliminated in the future) it may be empty,
+	 *    if this information wasn't supplied to the GitBranch constructor.</p>
+	 */
+	@NotNull
+	public String getHash() {
+		return myHash.asString();
+	}
 
-  /**
-   * @return true if the branch is remote
-   */
-  public abstract boolean isRemote();
+	/**
+	 * @return true if the branch is remote
+	 */
+	public abstract boolean isRemote();
 
-  @NotNull
-  public String getFullName() {
-    return (isRemote() ? REFS_REMOTES_PREFIX : REFS_HEADS_PREFIX) + myName;
-  }
+	@NotNull
+	public String getFullName() {
+		return (isRemote() ? REFS_REMOTES_PREFIX : REFS_HEADS_PREFIX) + myName;
+	}
 
-  @Override
-  public boolean equals(Object o) {
-    if (!super.equals(o)) {
-      return false;
-    }
+	@Override
+	public boolean equals(Object o) {
+		if (!super.equals(o)) {
+			return false;
+		}
 
-    // Reusing equals from super: only the name is important:
-    // branches are considered equal even if they point to different commits.
+		// Reusing equals from super: only the name is important:
+		// branches are considered equal even if they point to different commits.
 
     /*
       Commenting this for a while, because GitRepository has different update() methods: thus in certain cases only current branch is
@@ -104,22 +106,22 @@ public abstract class GitBranch extends GitReference {
     }
     */
 
-    return true;
-  }
+		return true;
+	}
 
-  @Override
-  public int hashCode() {
-    return super.hashCode();
-  }
+	@Override
+	public int hashCode() {
+		return super.hashCode();
+	}
 
-  @Override
-  public String toString() {
-    return super.toString();
-  }
+	@Override
+	public String toString() {
+		return super.toString();
+	}
 
-  @NotNull
-  public String toLogString() {
-    return String.format("%s:%s:%s", getFullName(), getHash(), isRemote() ? "remote" : "local");
-  }
+	@NotNull
+	public String toLogString() {
+		return String.format("%s:%s:%s", getFullName(), getHash(), isRemote() ? "remote" : "local");
+	}
 
 }

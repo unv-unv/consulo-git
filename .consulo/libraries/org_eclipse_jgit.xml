@@ -5,9 +5,9 @@
     </CLASSES>
     <DOCUMENTATION />
     <SOURCES>
-      <root url="zip://H:/github.com/consulo/!req/consulo-git/lib/jgit/org.eclipse.jgit-2.1.0.201209190230-r_source.zip!/" />
-      <root url="zip://H:/github.com/consulo/!req/consulo-git/lib/jgit/org.eclipse.jgit-2.1.0.201209190230-r_source.zip!/" />
+      <root url="zip://$PROJECT_DIR$/../!req/consulo-git/lib/jgit/org.eclipse.jgit-2.1.0.201209190230-r_source.zip!/" />
+      <root url="zip://$PROJECT_DIR$/../!req/consulo-git/lib/jgit/org.eclipse.jgit-2.1.0.201209190230-r_source.zip!/" />
     </SOURCES>
-    <jarDirectory url="zip://H:/github.com/consulo/!req/consulo-git/lib/jgit/org.eclipse.jgit-2.1.0.201209190230-r_source.zip!/" recursive="false" type="SOURCES" />
+    <jarDirectory url="zip://$PROJECT_DIR$/../!req/consulo-git/lib/jgit/org.eclipse.jgit-2.1.0.201209190230-r_source.zip!/" recursive="false" type="SOURCES" />
   </library>
 </component>

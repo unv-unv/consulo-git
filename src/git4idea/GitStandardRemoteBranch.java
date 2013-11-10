@@ -15,65 +15,78 @@
  */
 package git4idea;
 
+import org.jetbrains.annotations.NotNull;
+import com.intellij.vcs.log.Hash;
 import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRemote;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Kirill Likhodedov
  */
-public class GitStandardRemoteBranch extends GitRemoteBranch {
+public class GitStandardRemoteBranch extends GitRemoteBranch
+{
 
-  @NotNull private final GitRemote myRemote;
-  @NotNull private final String myNameAtRemote;
+	@NotNull
+	private final GitRemote myRemote;
+	@NotNull
+	private final String myNameAtRemote;
 
-  public GitStandardRemoteBranch(@NotNull GitRemote remote, @NotNull String nameAtRemote, @NotNull Hash hash) {
-    super(formStandardName(remote, GitBranchUtil.stripRefsPrefix(nameAtRemote)), hash);
-    myRemote = remote;
-    myNameAtRemote = GitBranchUtil.stripRefsPrefix(nameAtRemote);
-  }
+	public GitStandardRemoteBranch(@NotNull GitRemote remote, @NotNull String nameAtRemote, @NotNull Hash hash)
+	{
+		super(formStandardName(remote, GitBranchUtil.stripRefsPrefix(nameAtRemote)), hash);
+		myRemote = remote;
+		myNameAtRemote = GitBranchUtil.stripRefsPrefix(nameAtRemote);
+	}
 
-  @NotNull
-  private static String formStandardName(@NotNull GitRemote remote, @NotNull String nameAtRemote) {
-    return remote.getName() + "/" + nameAtRemote;
-  }
+	@NotNull
+	private static String formStandardName(@NotNull GitRemote remote, @NotNull String nameAtRemote)
+	{
+		return remote.getName() + "/" + nameAtRemote;
+	}
 
-  @Override
-  public boolean isRemote() {
-    return true;
-  }
+	@Override
+	public boolean isRemote()
+	{
+		return true;
+	}
 
-  @Override
-  @NotNull
-  public GitRemote getRemote() {
-    return myRemote;
-  }
+	@Override
+	@NotNull
+	public GitRemote getRemote()
+	{
+		return myRemote;
+	}
 
-  @Override
-  public boolean equals(Object o) {
-    return super.equals(o);
-  }
+	@Override
+	public boolean equals(Object o)
+	{
+		return super.equals(o);
+	}
 
-  @Override
-  public int hashCode() {
-    return super.hashCode();
-  }
+	@Override
+	public int hashCode()
+	{
+		return super.hashCode();
+	}
 
-  @Override
-  public String toString() {
-    return super.toString();
-  }
+	@Override
+	public String toString()
+	{
+		return super.toString();
+	}
 
-  @NotNull
-  @Override
-  public String getNameForRemoteOperations() {
-    return myNameAtRemote;
-  }
+	@NotNull
+	@Override
+	public String getNameForRemoteOperations()
+	{
+		return myNameAtRemote;
+	}
 
-  @NotNull
-  @Override
-  public String getNameForLocalOperations() {
-    return myName;
-  }
+	@NotNull
+	@Override
+	public String getNameForLocalOperations()
+	{
+		return myName;
+	}
 
 }

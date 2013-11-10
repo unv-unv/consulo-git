@@ -15,18 +15,20 @@
  */
 package git4idea.ui;
 
+import java.awt.BorderLayout;
+import java.util.Collections;
+import java.util.List;
+
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+
+import org.jetbrains.annotations.NotNull;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Splitter;
 import com.intellij.openapi.vcs.changes.Change;
 import com.intellij.openapi.vcs.changes.ui.ChangesBrowser;
 import com.intellij.util.Consumer;
 import git4idea.GitCommit;
-import org.jetbrains.annotations.NotNull;
-
-import javax.swing.*;
-import java.awt.*;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * List of commits at the left, the {@link ChangesBrowser} at the right.
@@ -34,38 +36,43 @@ import java.util.List;
  *
  * @author Kirill Likhodedov
  */
-public class GitCommitListWithDiffPanel extends JPanel {
+public class GitCommitListWithDiffPanel extends JPanel
+{
+	private final ChangesBrowser myChangesBrowser;
+	private final GitCommitListPanel myCommitListPanel;
 
-  private final ChangesBrowser myChangesBrowser;
-  private final GitCommitListPanel myCommitListPanel;
+	public GitCommitListWithDiffPanel(@NotNull Project project, @NotNull List<GitCommit> commits)
+	{
+		super(new BorderLayout());
 
-  public GitCommitListWithDiffPanel(@NotNull Project project, @NotNull List<GitCommit> commits) {
-    super(new BorderLayout());
+		myCommitListPanel = new GitCommitListPanel(commits, null);
+		myCommitListPanel.addListMultipleSelectionListener(new Consumer<List<Change>>()
+		{
+			@Override
+			public void consume(List<Change> changes)
+			{
+				myChangesBrowser.setChangesToDisplay(changes);
+			}
+		});
 
-    myCommitListPanel = new GitCommitListPanel(commits, null);
-    myCommitListPanel.addListSelectionListener(new Consumer<GitCommit>() {
-      @Override public void consume(GitCommit commit) {
-        myChangesBrowser.setChangesToDisplay(commit.getChanges());
-      }
-    });
+		myChangesBrowser = new ChangesBrowser(project, null, Collections.<Change>emptyList(), null, false, true, null, ChangesBrowser.MyUseCase.LOCAL_CHANGES, null);
+		myCommitListPanel.registerDiffAction(myChangesBrowser.getDiffAction());
 
-    myChangesBrowser = new ChangesBrowser(project, null, Collections.<Change>emptyList(), null, false, true, null, ChangesBrowser.MyUseCase.LOCAL_CHANGES, null);
-    myCommitListPanel.registerDiffAction(myChangesBrowser.getDiffAction());
+		Splitter splitter = new Splitter(false, 0.7f);
+		splitter.setHonorComponentsMinimumSize(false);
+		splitter.setFirstComponent(myCommitListPanel);
+		splitter.setSecondComponent(myChangesBrowser);
+		add(splitter);
+	}
 
-    Splitter splitter = new Splitter(false, 0.7f);
-    splitter.setHonorComponentsMinimumSize(false);
-    splitter.setFirstComponent(myCommitListPanel);
-    splitter.setSecondComponent(myChangesBrowser);
-    add(splitter);
-  }
+	@NotNull
+	public JComponent getPreferredFocusComponent()
+	{
+		return myCommitListPanel.getPreferredFocusComponent();
+	}
 
-  @NotNull
-  public JComponent getPreferredFocusComponent() {
-    return myCommitListPanel.getPreferredFocusComponent();
-  }
-  
-  public void setCommits(@NotNull List<GitCommit> commits) {
-    myCommitListPanel.setCommits(commits);
-  }
-
+	public void setCommits(@NotNull List<GitCommit> commits)
+	{
+		myCommitListPanel.setCommits(commits);
+	}
 }

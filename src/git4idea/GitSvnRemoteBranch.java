@@ -15,6 +15,7 @@
  */
 package git4idea;
 
+import com.intellij.vcs.log.Hash;
 import git4idea.repo.GitRemote;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,52 +31,52 @@ import org.jetbrains.annotations.NotNull;
  */
 public class GitSvnRemoteBranch extends GitRemoteBranch {
 
-  public GitSvnRemoteBranch(@NotNull String fullName, @NotNull Hash hash) {
-    super(fullName, hash);
-  }
+	public GitSvnRemoteBranch(@NotNull String fullName, @NotNull Hash hash) {
+		super(fullName, hash);
+	}
 
-  @NotNull
-  @Override
-  public String getNameForRemoteOperations() {
-    return getFullName();
-  }
+	@NotNull
+	@Override
+	public String getNameForRemoteOperations() {
+		return getFullName();
+	}
 
-  @NotNull
-  @Override
-  public String getNameForLocalOperations() {
-    return getFullName();
-  }
+	@NotNull
+	@Override
+	public String getNameForLocalOperations() {
+		return getFullName();
+	}
 
-  @NotNull
-  @Override
-  public GitRemote getRemote() {
-    return GitRemote.DOT;
-  }
+	@NotNull
+	@Override
+	public GitRemote getRemote() {
+		return GitRemote.DOT;
+	}
 
-  @Override
-  public boolean isRemote() {
-    return true;
-  }
+	@Override
+	public boolean isRemote() {
+		return true;
+	}
 
-  @NotNull
-  @Override
-  public String getFullName() {
-    return getName();
-  }
+	@NotNull
+	@Override
+	public String getFullName() {
+		return getName();
+	}
 
-  @Override
-  public boolean equals(Object o) {
-    return super.equals(o);
-  }
+	@Override
+	public boolean equals(Object o) {
+		return super.equals(o);
+	}
 
-  @Override
-  public int hashCode() {
-    return super.hashCode();
-  }
+	@Override
+	public int hashCode() {
+		return super.hashCode();
+	}
 
-  @Override
-  public String toString() {
-    return super.toString();
-  }
+	@Override
+	public String toString() {
+		return super.toString();
+	}
 
 }
