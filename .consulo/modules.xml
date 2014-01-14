@@ -3,8 +3,8 @@
   <component name="ModuleManager">
     <modules>
       <module name="consulo-git" dirurl="file://$PROJECT_DIR$">
-        <extension id="java" sdk-module-name="" sdk-name="1.7" language-level-module-name="" language-level-name="JDK_1_6" special-dir-location="SOURCE_DIR" />
         <extension id="consulo-plugin" sdk-module-name="" sdk-name="Consulo 1.SNAPSHOT" custom-plugin-dir-url="F:\github.com\consulo\!req\consulo-git\dep" />
+        <extension id="java" sdk-module-name="" sdk-name="1.7" language-level-module-name="" language-level-name="JDK_1_6" special-dir-location="SOURCE_DIR" />
         <content url="file://$MODULE_DIR$">
           <content-folder type="PRODUCTION" url="file://$MODULE_DIR$/src" />
           <content-folder type="PRODUCTION_RESOURCE" url="file://$MODULE_DIR$/resources" />
@@ -27,8 +27,8 @@
         </orderEntry>
       </module>
       <module name="rt" dirurl="file://$PROJECT_DIR$/rt">
-        <extension id="java" sdk-module-name="consulo-git" sdk-name="" language-level-module-name="consulo-git" language-level-name="" special-dir-location="SOURCE_DIR" />
         <extension id="consulo-plugin" sdk-module-name="consulo-git" sdk-name="" />
+        <extension id="java" sdk-module-name="consulo-git" sdk-name="" language-level-module-name="consulo-git" language-level-name="" special-dir-location="SOURCE_DIR" />
         <content url="file://$MODULE_DIR$">
           <content-folder type="PRODUCTION" url="file://$MODULE_DIR$/src" />
         </content>
