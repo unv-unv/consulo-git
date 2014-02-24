@@ -35,7 +35,7 @@ public class GitRebase extends GitRebaseActionBase {
    */
   @NotNull
   protected String getActionName() {
-    return GitBundle.getString("rebase.action.name");
+    return GitBundle.message("rebase.action.name");
   }
 
   /**

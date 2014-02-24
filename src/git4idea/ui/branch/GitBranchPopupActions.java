@@ -301,7 +301,7 @@ class GitBranchPopupActions {
       }
 
       private String guessBranchName() {
-        // TODO: check if we already have a branch with that name; check if that branch tracks this remote branch. Show different messages
+        // TODO: check if we already have a branch with that name; check if that branch tracks this remote branch. Show different message
         int slashPosition = myRemoteBranchName.indexOf("/");
         // if no slash is found (for example, in the case of git-svn remote branches), propose the whole name.
         return myRemoteBranchName.substring(slashPosition+1);

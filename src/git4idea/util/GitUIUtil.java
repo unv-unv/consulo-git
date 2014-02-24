@@ -49,7 +49,7 @@ public class GitUIUtil {
   /**
    * Text containing in the label when there is no current branch
    */
-  public static final String NO_CURRENT_BRANCH = GitBundle.getString("common.no.active.branch");
+  public static final String NO_CURRENT_BRANCH = GitBundle.message("common.no.active.branch");
 
   /**
    * A private constructor for utility class
@@ -235,7 +235,7 @@ public class GitUIUtil {
       showOperationError(project, operation, exs.iterator().next().getMessage());
     }
     else if (exs.size() > 1) {
-      // TODO use dialog in order to show big messages
+      // TODO use dialog in order to show big message
       StringBuilder b = new StringBuilder();
       for (VcsException ex : exs) {
         b.append(GitBundle.message("errors.message.item", ex.getMessage()));

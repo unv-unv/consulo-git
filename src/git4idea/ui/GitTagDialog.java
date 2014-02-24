@@ -111,8 +111,8 @@ public class GitTagDialog extends DialogWrapper {
    */
   public GitTagDialog(Project project, List<VirtualFile> roots, VirtualFile defaultRoot) {
     super(project, true);
-    setTitle(GitBundle.getString("tag.title"));
-    setOKButtonText(GitBundle.getString("tag.button"));
+    setTitle(GitBundle.message("tag.title"));
+    setOKButtonText(GitBundle.message("tag.button"));
     myProject = project;
     GitUIUtil.setupRootChooser(myProject, roots, defaultRoot, myGitRootComboBox, myCurrentBranch);
     myGitRootComboBox.addActionListener(new ActionListener() {
@@ -171,7 +171,7 @@ public class GitTagDialog extends DialogWrapper {
       }
       catch (IOException ex) {
         Messages.showErrorDialog(myProject, GitBundle.message("tag.error.creating.message.file.message", ex.toString()),
-                                 GitBundle.getString("tag.error.creating.message.file.title"));
+                                 GitBundle.message("tag.error.creating.message.file.title"));
         return;
       }
     }
@@ -195,7 +195,7 @@ public class GitTagDialog extends DialogWrapper {
         h.addParameters(object);
       }
       try {
-        GitHandlerUtil.doSynchronously(h, GitBundle.getString("tagging.title"), h.printableCommandLine());
+        GitHandlerUtil.doSynchronously(h, GitBundle.message("tagging.title"), h.printableCommandLine());
         GitUIUtil.notifySuccess(myProject, myTagNameTextField.getText(), "Created tag "  + myTagNameTextField.getText() + " successfully.");
       }
       finally {
@@ -220,7 +220,7 @@ public class GitTagDialog extends DialogWrapper {
     if (myExistingTags.contains(text)) {
       myForceCheckBox.setEnabled(true);
       if (!myForceCheckBox.isSelected()) {
-        setErrorText(GitBundle.getString("tag.error.tag.exists"));
+        setErrorText(GitBundle.message("tag.error.tag.exists"));
         setOKActionEnabled(false);
         return;
       }
@@ -230,7 +230,7 @@ public class GitTagDialog extends DialogWrapper {
       myForceCheckBox.setSelected(false);
     }
     if (myCommitTextFieldValidator.isInvalid()) {
-      setErrorText(GitBundle.getString("tag.error.invalid.commit"));
+      setErrorText(GitBundle.message("tag.error.invalid.commit"));
       setOKActionEnabled(false);
       return;
     }
@@ -250,7 +250,7 @@ public class GitTagDialog extends DialogWrapper {
     myExistingTags.clear();
     GitSimpleHandler h = new GitSimpleHandler(myProject, getGitRoot(), GitCommand.TAG);
     h.setSilent(true);
-    String output = GitHandlerUtil.doSynchronously(h, GitBundle.getString("tag.getting.existing.tags"), h.printableCommandLine());
+    String output = GitHandlerUtil.doSynchronously(h, GitBundle.message("tag.getting.existing.tags"), h.printableCommandLine());
     for (StringScanner s = new StringScanner(output); s.hasMoreData();) {
       String line = s.line();
       if (line.length() == 0) {

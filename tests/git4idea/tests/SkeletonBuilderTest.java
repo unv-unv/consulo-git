@@ -479,7 +479,7 @@ public class SkeletonBuilderTest extends TestCase {
     for (int i = 0; i < 5; i++) {
       final CommitI commitI = (CommitI)commits.get(i);
       // just because of the test data order
-      //Assert.assertEquals("" + (i + 1), commitI.getHash().getString());
+      //Assert.assertEquals("" + (i + 1), commitI.getHash().message());
       Assert.assertEquals(expectedWireNumbers[i], commitI.getWireNumber());
     }
 

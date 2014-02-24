@@ -50,7 +50,7 @@ public class GitPull extends GitRepositoryAction {
   @Override
   @NotNull
   protected String getActionName() {
-    return GitBundle.getString("pull.action.name");
+    return GitBundle.message("pull.action.name");
   }
 
   protected void perform(@NotNull final Project project,

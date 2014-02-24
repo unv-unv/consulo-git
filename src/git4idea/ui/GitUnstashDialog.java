@@ -130,8 +130,8 @@ public class GitUnstashDialog extends DialogWrapper {
     setModal(false);
     myProject = project;
     myVcs = GitVcs.getInstance(project);
-    setTitle(GitBundle.getString("unstash.title"));
-    setOKButtonText(GitBundle.getString("unstash.button.apply"));
+    setTitle(GitBundle.message("unstash.title"));
+    setOKButtonText(GitBundle.message("unstash.button.apply"));
     setCancelButtonText(CommonBundle.getCloseButtonText());
     GitUIUtil.setupRootChooser(project, roots, defaultRoot, myGitRootComboBox, myCurrentBranch);
     myStashList.setModel(new DefaultListModel());
@@ -164,7 +164,7 @@ public class GitUnstashDialog extends DialogWrapper {
                                                      GitBundle.message("git.unstash.clear.confirmation.title"), Messages.getWarningIcon())) {
           GitLineHandler h = new GitLineHandler(myProject, getGitRoot(), GitCommand.STASH);
           h.addParameters("clear");
-          GitHandlerUtil.doSynchronously(h, GitBundle.getString("unstash.clearing.stashes"), h.printableCommandLine());
+          GitHandlerUtil.doSynchronously(h, GitBundle.message("unstash.clearing.stashes"), h.printableCommandLine());
           refreshStashList();
           updateDialogState();
         }
@@ -250,18 +250,18 @@ public class GitUnstashDialog extends DialogWrapper {
   private void updateDialogState() {
     String branch = myBranchTextField.getText();
     if (branch.length() != 0) {
-      setOKButtonText(GitBundle.getString("unstash.button.branch"));
+      setOKButtonText(GitBundle.message("unstash.button.branch"));
       myPopStashCheckBox.setEnabled(false);
       myPopStashCheckBox.setSelected(true);
       myReinstateIndexCheckBox.setEnabled(false);
       myReinstateIndexCheckBox.setSelected(true);
       if (!GitBranchNameValidator.INSTANCE.checkInput(branch)) {
-        setErrorText(GitBundle.getString("unstash.error.invalid.branch.name"));
+        setErrorText(GitBundle.message("unstash.error.invalid.branch.name"));
         setOKActionEnabled(false);
         return;
       }
       if (myBranches.contains(branch)) {
-        setErrorText(GitBundle.getString("unstash.error.branch.exists"));
+        setErrorText(GitBundle.message("unstash.error.branch.exists"));
         setOKActionEnabled(false);
         return;
       }
@@ -272,7 +272,7 @@ public class GitUnstashDialog extends DialogWrapper {
       }
       myPopStashCheckBox.setEnabled(true);
       setOKButtonText(
-        myPopStashCheckBox.isSelected() ? GitBundle.getString("unstash.button.pop") : GitBundle.getString("unstash.button.apply"));
+        myPopStashCheckBox.isSelected() ? GitBundle.message("unstash.button.pop") : GitBundle.message("unstash.button.apply"));
       if (!myReinstateIndexCheckBox.isEnabled()) {
         myReinstateIndexCheckBox.setSelected(false);
       }
@@ -404,7 +404,7 @@ public class GitUnstashDialog extends DialogWrapper {
         }
       }
     });
-    int rc = GitHandlerUtil.doSynchronously(h, GitBundle.getString("unstash.unstashing"), h.printableCommandLine(), false);
+    int rc = GitHandlerUtil.doSynchronously(h, GitBundle.message("unstash.unstashing"), h.printableCommandLine(), false);
     ServiceManager.getService(myProject, GitPlatformFacade.class).hardRefresh(root);
 
     if (conflict.get()) {

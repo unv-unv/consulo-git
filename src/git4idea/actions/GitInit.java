@@ -58,8 +58,8 @@ public class GitInit extends DumbAwareAction {
     }
     FileChooserDescriptor fcd = FileChooserDescriptorFactory.createSingleFolderDescriptor();
     fcd.setShowFileSystemRoots(true);
-    fcd.setTitle(GitBundle.getString("init.destination.directory.title"));
-    fcd.setDescription(GitBundle.getString("init.destination.directory.description"));
+    fcd.setTitle(GitBundle.message("init.destination.directory.title"));
+    fcd.setDescription(GitBundle.message("init.destination.directory.description"));
     fcd.setHideIgnored(false);
     VirtualFile baseDir = e.getData(PlatformDataKeys.VIRTUAL_FILE);
     if (baseDir == null) {
@@ -73,7 +73,7 @@ public class GitInit extends DumbAwareAction {
       final int v = Messages.showYesNoDialog(project,
                                              GitBundle.message("init.warning.already.under.git",
                                                                StringUtil.escapeXml(root.getPresentableUrl())),
-                                             GitBundle.getString("init.warning.title"),
+                                             GitBundle.message("init.warning.title"),
                                              Messages.getWarningIcon());
       if (v != 0) {
         return;
@@ -96,7 +96,7 @@ public class GitInit extends DumbAwareAction {
     }
     final String path = root.equals(baseDir) ? "" : root.getPath();
     final Project finalProject = project;
-    GitVcs.runInBackground(new Task.Backgroundable(finalProject, GitBundle.getString("common.refreshing")) {
+    GitVcs.runInBackground(new Task.Backgroundable(finalProject, GitBundle.message("common.refreshing")) {
       public void run(@NotNull ProgressIndicator indicator) {
         refreshAndConfigureVcsMappings(finalProject, root, path);
       }

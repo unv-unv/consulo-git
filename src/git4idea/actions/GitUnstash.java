@@ -36,7 +36,7 @@ public class GitUnstash extends GitRepositoryAction {
    */
   @NotNull
   protected String getActionName() {
-    return GitBundle.getString("unstash.action.name");
+    return GitBundle.message("unstash.action.name");
   }
 
   /**

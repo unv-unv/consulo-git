@@ -507,7 +507,7 @@ class GitBranchWorkerTest extends GitLightTest {
             notifyErrorWithRollbackProposal: { String t, String m, String rp -> rollbackMsg = m ; false }
     ]);
 
-    assertNotNull "Rollback messages was not shown", rollbackMsg
+    assertNotNull "Rollback message was not shown", rollbackMsg
   }
 
   @Test
@@ -520,7 +520,7 @@ class GitBranchWorkerTest extends GitLightTest {
             notifyErrorWithRollbackProposal: { String t, String m, String rp -> rollbackMsg = m ; true }
     ]);
 
-    assertNotNull "Rollback messages was not shown", rollbackMsg
+    assertNotNull "Rollback message was not shown", rollbackMsg
     assertBranchExists(myUltimate, "todelete")
     assertBranchExists(myCommunity, "todelete")
     assertBranchExists(myContrib, "todelete")
@@ -536,7 +536,7 @@ class GitBranchWorkerTest extends GitLightTest {
             notifyErrorWithRollbackProposal: { String t, String m, String rp -> rollbackMsg = m ; false }
     ]);
 
-    assertNotNull "Rollback messages was not shown", rollbackMsg
+    assertNotNull "Rollback message was not shown", rollbackMsg
 
     assertBranchDeleted(myUltimate, "todelete")
     assertBranchExists(myCommunity, "todelete")

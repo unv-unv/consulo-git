@@ -35,7 +35,7 @@ public class GitTag extends GitRepositoryAction {
   @Override
   @NotNull
   protected String getActionName() {
-    return GitBundle.getString("tag.action.name");
+    return GitBundle.message("tag.action.name");
   }
 
   /**

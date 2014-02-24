@@ -77,8 +77,8 @@ public class GitCloneDialog extends DialogWrapper {
     myProject = project;
     init();
     initListeners();
-    setTitle(GitBundle.getString("clone.title"));
-    setOKButtonText(GitBundle.getString("clone.button"));
+    setTitle(GitBundle.message("clone.title"));
+    setOKButtonText(GitBundle.message("clone.button"));
   }
 
   public String getSourceRepositoryURL() {
@@ -99,8 +99,8 @@ public class GitCloneDialog extends DialogWrapper {
   private void initListeners() {
     FileChooserDescriptor fcd = FileChooserDescriptorFactory.createSingleFolderDescriptor();
     fcd.setShowFileSystemRoots(true);
-    fcd.setTitle(GitBundle.getString("clone.destination.directory.title"));
-    fcd.setDescription(GitBundle.getString("clone.destination.directory.description"));
+    fcd.setTitle(GitBundle.message("clone.destination.directory.title"));
+    fcd.setDescription(GitBundle.message("clone.destination.directory.description"));
     fcd.setHideIgnored(false);
     myParentDirectory.addActionListener(
       new ComponentWithBrowseButton.BrowseFolderActionListener<JTextField>(fcd.getTitle(), fcd.getDescription(), myParentDirectory,
@@ -149,7 +149,7 @@ public class GitCloneDialog extends DialogWrapper {
 
     if (testResult) {
       Messages.showInfoMessage(myTestButton, GitBundle.message("clone.test.success.message", myTestURL),
-                               GitBundle.getString("clone.test.connection.title"));
+                               GitBundle.message("clone.test.connection.title"));
       myTestResult = Boolean.TRUE;
     } else {
       myTestResult = Boolean.FALSE;
@@ -225,7 +225,7 @@ public class GitCloneDialog extends DialogWrapper {
     }
     if (myTestResult != null && repository.equals(myTestURL)) {
       if (!myTestResult.booleanValue()) {
-        setErrorText(GitBundle.getString("clone.test.failed.error"));
+        setErrorText(GitBundle.message("clone.test.failed.error"));
         setOKActionEnabled(false);
         return false;
       }
@@ -249,7 +249,7 @@ public class GitCloneDialog extends DialogWrapper {
       File file = new File(repository);
       if (file.exists()) {
         if (!file.isDirectory()) {
-          setErrorText(GitBundle.getString("clone.url.is.not.directory.error"));
+          setErrorText(GitBundle.message("clone.url.is.not.directory.error"));
           setOKActionEnabled(false);
         }
         return true;
@@ -258,7 +258,7 @@ public class GitCloneDialog extends DialogWrapper {
     catch (Exception fileExp) {
       // do nothing
     }
-    setErrorText(GitBundle.getString("clone.invalid.url"));
+    setErrorText(GitBundle.message("clone.invalid.url"));
     setOKActionEnabled(false);
     return false;
   }

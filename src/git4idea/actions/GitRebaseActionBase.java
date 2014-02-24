@@ -60,7 +60,7 @@ public abstract class GitRebaseActionBase extends GitRepositoryAction {
     affectedRoots.add(root);
 
     service.configureHandler(h, editor.getHandlerNo());
-    GitTask task = new GitTask(project, h, GitBundle.getString("rebasing.title"));
+    GitTask task = new GitTask(project, h, GitBundle.message("rebasing.title"));
     task.executeInBackground(false, new GitTaskResultHandlerAdapter() {
       @Override
       protected void run(GitTaskResult taskResult) {

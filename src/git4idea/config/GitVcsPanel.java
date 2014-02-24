@@ -22,6 +22,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JList;
 
 import org.jetbrains.annotations.NotNull;
 import com.intellij.openapi.application.ApplicationNamesInfo;
@@ -30,6 +31,7 @@ import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.ui.ListCellRendererWrapper;
 import com.intellij.ui.components.JBCheckBox;
 import git4idea.GitVcs;
 import git4idea.i18n.GitBundle;
@@ -41,10 +43,6 @@ import git4idea.ui.branch.GitBranchSyncSetting;
  */
 public class GitVcsPanel
 {
-
-	private static final String IDEA_SSH = GitBundle.getString("git.vcs.config.ssh.mode.idea"); // IDEA ssh value
-	private static final String NATIVE_SSH = GitBundle.getString("git.vcs.config.ssh.mode.native"); // Native SSH value
-
 	private final GitVcsApplicationSettings myAppSettings;
 	private final GitVcs myVcs;
 
@@ -61,10 +59,32 @@ public class GitVcsPanel
 	{
 		myVcs = GitVcs.getInstance(project);
 		myAppSettings = GitVcsApplicationSettings.getInstance();
+		mySSHExecutableComboBox.setRenderer(new ListCellRendererWrapper<GitVcsApplicationSettings.SshExecutable>()
+		{
+			@Override
+			public void customize(JList jList, GitVcsApplicationSettings.SshExecutable o, int i, boolean b, boolean b2)
+			{
+				switch(o)
+				{
+					case IDEA_SSH:
+						setText(GitBundle.message("git.vcs.config.ssh.mode.idea"));
+						break;
+					case NATIVE_SSH:
+						setText(GitBundle.message("git.vcs.config.ssh.mode.native"));
+						break;
+					case PUTTY:
+						setText(GitBundle.message("git.vcs.config.ssh.mode.putty"));
+						break;
+				}
+			}
+		});
 
-		mySSHExecutableComboBox.addItem(IDEA_SSH);
-		mySSHExecutableComboBox.addItem(NATIVE_SSH);
-		mySSHExecutableComboBox.setSelectedItem(IDEA_SSH);
+		for(GitVcsApplicationSettings.SshExecutable sshExecutable : GitVcsApplicationSettings.SshExecutable.values())
+		{
+			mySSHExecutableComboBox.addItem(sshExecutable);
+		}
+
+		mySSHExecutableComboBox.setSelectedItem(GitVcsApplicationSettings.SshExecutable.IDEA_SSH);
 		mySSHExecutableComboBox.setToolTipText(GitBundle.message("git.vcs.config.ssh.mode.tooltip",
 				ApplicationNamesInfo.getInstance().getFullProductName()));
 		myTestButton.addActionListener(new ActionListener()
@@ -74,7 +94,7 @@ public class GitVcsPanel
 				testConnection();
 			}
 		});
-		myGitField.addBrowseFolderListener(GitBundle.getString("find.git.title"), GitBundle.getString("find.git.description"), project,
+		myGitField.addBrowseFolderListener(GitBundle.message("find.git.title"), GitBundle.message("find.git.description"), project,
 				FileChooserDescriptorFactory.createSingleFileNoJarsDescriptor());
 		final GitRepositoryManager repositoryManager = ServiceManager.getService(project, GitRepositoryManager.class);
 		mySyncBranchControl.setVisible(repositoryManager != null && repositoryManager.moreThanOneRoot());
@@ -97,19 +117,19 @@ public class GitVcsPanel
 		}
 		catch(Exception e)
 		{
-			Messages.showErrorDialog(myRootPanel, e.getMessage(), GitBundle.getString("find.git.error.title"));
+			Messages.showErrorDialog(myRootPanel, e.getMessage(), GitBundle.message("find.git.error.title"));
 			return;
 		}
 
 		if(version.isSupported())
 		{
 			Messages.showInfoMessage(myRootPanel, String.format("<html>%s<br>Git version is %s</html>",
-					GitBundle.getString("find.git.success.title"), version.toString()), GitBundle.getString("find.git.success.title"));
+					GitBundle.message("find.git.success.title"), version.toString()), GitBundle.message("find.git.success.title"));
 		}
 		else
 		{
 			Messages.showWarningDialog(myRootPanel, GitBundle.message("find.git.unsupported.message", version.toString(), GitVersion.MIN),
-					GitBundle.getString("find.git.success.title"));
+					GitBundle.message("find.git.success.title"));
 		}
 	}
 
@@ -134,7 +154,7 @@ public class GitVcsPanel
 	public void load(@NotNull GitVcsSettings settings)
 	{
 		myGitField.setText(settings.getAppSettings().getPathToGit());
-		mySSHExecutableComboBox.setSelectedItem(settings.isIdeaSsh() ? IDEA_SSH : NATIVE_SSH);
+		mySSHExecutableComboBox.setSelectedItem(settings.getAppSettings().getIdeaSsh());
 		myAutoUpdateIfPushRejected.setSelected(settings.autoUpdateIfPushRejected());
 		mySyncBranchControl.setSelected(settings.getSyncSetting() == GitBranchSyncSetting.SYNC);
 		myAutoCommitOnCherryPick.setSelected(settings.isAutoCommitOnCherryPick());
@@ -149,7 +169,7 @@ public class GitVcsPanel
 	public boolean isModified(@NotNull GitVcsSettings settings)
 	{
 		return !settings.getAppSettings().getPathToGit().equals(getCurrentExecutablePath()) ||
-				(settings.isIdeaSsh() != IDEA_SSH.equals(mySSHExecutableComboBox.getSelectedItem())) ||
+				(settings.getAppSettings().getIdeaSsh() != mySSHExecutableComboBox.getSelectedItem()) ||
 				!settings.autoUpdateIfPushRejected() == myAutoUpdateIfPushRejected.isSelected() ||
 				((settings.getSyncSetting() == GitBranchSyncSetting.SYNC) != mySyncBranchControl.isSelected() ||
 						settings.isAutoCommitOnCherryPick() != myAutoCommitOnCherryPick.isSelected() ||
@@ -165,8 +185,7 @@ public class GitVcsPanel
 	{
 		settings.getAppSettings().setPathToGit(getCurrentExecutablePath());
 		myVcs.checkVersion();
-		settings.getAppSettings().setIdeaSsh(IDEA_SSH.equals(mySSHExecutableComboBox.getSelectedItem()) ? GitVcsApplicationSettings.SshExecutable
-				.IDEA_SSH : GitVcsApplicationSettings.SshExecutable.NATIVE_SSH);
+		settings.getAppSettings().setIdeaSsh((GitVcsApplicationSettings.SshExecutable) mySSHExecutableComboBox.getSelectedItem());
 		settings.setAutoUpdateIfPushRejected(myAutoUpdateIfPushRejected.isSelected());
 
 		settings.setSyncSetting(mySyncBranchControl.isSelected() ? GitBranchSyncSetting.SYNC : GitBranchSyncSetting.DONT);

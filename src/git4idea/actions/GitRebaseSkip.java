@@ -29,7 +29,7 @@ public class GitRebaseSkip extends GitAbstractRebaseResumeAction {
    */
   @NotNull
   protected String getActionName() {
-    return GitBundle.getString("rebase.skip.action.name");
+    return GitBundle.message("rebase.skip.action.name");
   }
 
   /**
@@ -44,6 +44,6 @@ public class GitRebaseSkip extends GitAbstractRebaseResumeAction {
    * {@inheritDoc}
    */
   protected String getActionTitle() {
-    return GitBundle.getString("rebase.skip.action.name");
+    return GitBundle.message("rebase.skip.action.name");
   }
 }

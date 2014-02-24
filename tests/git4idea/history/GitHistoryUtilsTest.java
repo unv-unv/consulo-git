@@ -50,7 +50,7 @@ import static org.testng.Assert.*;
 
 /**
  * Tests for low-level history methods in GitHistoryUtils.
- * There are some known problems with newlines and whitespaces in commit messages, these are ignored by the tests for now.
+ * There are some known problems with newlines and whitespaces in commit message, these are ignored by the tests for now.
  * (see #convertWhitespacesToSpacesAndRemoveDoubles).
  *
  * @author Kirill Likhodedov
@@ -73,7 +73,7 @@ public class GitHistoryUtilsTest extends GitTest {
     // 1. create a file
     // 2. simple edit with a simple comit message
     // 3. move & rename
-    // 4. make 4 edits with commit messages of different complexity
+    // 4. make 4 edits with commit message of different complexity
     // (note: after rename, because some GitHistoryUtils methods don't follow renames).
 
     final String[] commitMessages = {

@@ -75,10 +75,10 @@ public class GitUpdateLocallyModifiedDialog extends DialogWrapper {
   protected GitUpdateLocallyModifiedDialog(final Project project, final VirtualFile root, List<String> locallyModifiedFiles) {
     super(project, true);
     myLocallyModifiedFiles = locallyModifiedFiles;
-    setTitle(GitBundle.getString("update.locally.modified.title"));
+    setTitle(GitBundle.message("update.locally.modified.title"));
     myGitRoot.setText(root.getPresentableUrl());
     myFilesList.setModel(new DefaultListModel());
-    setOKButtonText(GitBundle.getString("update.locally.modified.revert"));
+    setOKButtonText(GitBundle.message("update.locally.modified.revert"));
     syncListModel();
     myRescanButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {

@@ -437,11 +437,11 @@ public class GitUtil {
   public static List<VirtualFile> getGitRoots(Project project, GitVcs vcs) throws VcsException {
     final VirtualFile[] contentRoots = ProjectLevelVcsManager.getInstance(project).getRootsUnderVcs(vcs);
     if (contentRoots == null || contentRoots.length == 0) {
-      throw new VcsException(GitBundle.getString("repository.action.missing.roots.unconfigured.message"));
+      throw new VcsException(GitBundle.message("repository.action.missing.roots.unconfigured.message"));
     }
     final List<VirtualFile> roots = new ArrayList<VirtualFile>(gitRootsForPaths(Arrays.asList(contentRoots)));
     if (roots.size() == 0) {
-      throw new VcsException(GitBundle.getString("repository.action.missing.roots.misconfigured"));
+      throw new VcsException(GitBundle.message("repository.action.missing.roots.misconfigured"));
     }
     Collections.sort(roots, VIRTUAL_FILE_COMPARATOR);
     return roots;

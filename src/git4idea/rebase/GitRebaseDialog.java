@@ -137,8 +137,8 @@ public class GitRebaseDialog extends DialogWrapper {
    */
   public GitRebaseDialog(Project project, List<VirtualFile> roots, VirtualFile defaultRoot) {
     super(project, true);
-    setTitle(GitBundle.getString("rebase.title"));
-    setOKButtonText(GitBundle.getString("rebase.button"));
+    setTitle(GitBundle.message("rebase.title"));
+    setOKButtonText(GitBundle.message("rebase.button"));
     init();
     myProject = project;
     final Runnable validateRunnable = new Runnable() {
@@ -219,17 +219,17 @@ public class GitRebaseDialog extends DialogWrapper {
       return;
     }
     else if (myOntoValidator.isInvalid()) {
-      setErrorText(GitBundle.getString("rebase.invalid.onto"));
+      setErrorText(GitBundle.message("rebase.invalid.onto"));
       setOKActionEnabled(false);
       return;
     }
     if (GitUIUtil.getTextField(myFromComboBox).getText().length() != 0 && myFromValidator.isInvalid()) {
-      setErrorText(GitBundle.getString("rebase.invalid.from"));
+      setErrorText(GitBundle.message("rebase.invalid.from"));
       setOKActionEnabled(false);
       return;
     }
     if (GitRebaseUtils.isRebaseInTheProgress(gitRoot())) {
-      setErrorText(GitBundle.getString("rebase.in.progress"));
+      setErrorText(GitBundle.message("rebase.in.progress"));
       setOKActionEnabled(false);
       return;
     }

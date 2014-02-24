@@ -29,7 +29,7 @@ public class GitRebaseContinue extends GitAbstractRebaseResumeAction {
    */
   @NotNull
   protected String getActionName() {
-    return GitBundle.getString("rebase.continue.action.name");
+    return GitBundle.message("rebase.continue.action.name");
   }
 
   /**
@@ -44,6 +44,6 @@ public class GitRebaseContinue extends GitAbstractRebaseResumeAction {
    * {@inheritDoc}
    */
   protected String getActionTitle() {
-    return GitBundle.getString("rebase.continue.action.name");
+    return GitBundle.message("rebase.continue.action.name");
   }
 }

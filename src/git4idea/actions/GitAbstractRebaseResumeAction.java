@@ -45,7 +45,7 @@ public abstract class GitAbstractRebaseResumeAction extends GitRebaseActionBase 
       }
     }
     if (gitRoots.size() == 0) {
-      Messages.showErrorDialog(project, GitBundle.getString("rebase.action.no.root"), GitBundle.getString("rebase.action.error"));
+      Messages.showErrorDialog(project, GitBundle.message("rebase.action.no.root"), GitBundle.message("rebase.action.error"));
       return null;
     }
     final VirtualFile root;

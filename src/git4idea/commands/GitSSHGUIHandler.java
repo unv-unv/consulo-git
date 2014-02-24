@@ -67,7 +67,7 @@ public class GitSSHGUIHandler {
     final AtomicBoolean rc = new AtomicBoolean();
     UIUtil.invokeAndWaitIfNeeded(new Runnable() {
       public void run() {
-        rc.set(0 == Messages.showYesNoDialog(myProject, message, GitBundle.getString("ssh.confirm.key.titile"), null));
+        rc.set(0 == Messages.showYesNoDialog(myProject, message, GitBundle.message("ssh.confirm.key.titile"), null));
       }
     });
     return rc.get();
@@ -76,7 +76,7 @@ public class GitSSHGUIHandler {
   @Nullable
   public String askPassphrase(final String username, final String keyPath, boolean resetPassword, final String lastError) {
     String error = processLastError(resetPassword, lastError);
-    return PasswordSafePromptDialog.askPassphrase(myProject, myState, GitBundle.getString("ssh.ask.passphrase.title"),
+    return PasswordSafePromptDialog.askPassphrase(myProject, myState, GitBundle.message("ssh.ask.passphrase.title"),
                                                   GitBundle.message("ssh.askPassphrase.message", keyPath, username),
                                                   GitSSHGUIHandler.class, "PASSPHRASE:" + keyPath, resetPassword, error
     );
@@ -108,7 +108,7 @@ public class GitSSHGUIHandler {
 
   private void showError(final String lastError) {
     if (lastError.length() != 0) {
-      Messages.showErrorDialog(myProject, lastError, GitBundle.getString("ssh.error.title"));
+      Messages.showErrorDialog(myProject, lastError, GitBundle.message("ssh.error.title"));
     }
   }
 
@@ -165,7 +165,7 @@ public class GitSSHGUIHandler {
   @Nullable
   public String askPassword(final String username, boolean resetPassword, final String lastError) {
     String error = processLastError(resetPassword, lastError);
-    return PasswordSafePromptDialog.askPassword(myProject, myState, GitBundle.getString("ssh.password.title"),
+    return PasswordSafePromptDialog.askPassword(myProject, myState, GitBundle.message("ssh.password.title"),
                                                 GitBundle.message("ssh.password.message", username),
                                                 GitSSHGUIHandler.class, "PASSWORD:" + username, resetPassword, error);
   }
@@ -280,7 +280,7 @@ public class GitSSHGUIHandler {
         c.anchor = GridBagConstraints.WEST;
         c.gridx = 0;
         c.gridy = line;
-        contents.add(new JLabel(GitBundle.getString("ssh.keyboard.interactive.username")), c);
+        contents.add(new JLabel(GitBundle.message("ssh.keyboard.interactive.username")), c);
         c = new GridBagConstraints();
         c.insets = insets;
         c.gridx = 1;

@@ -99,12 +99,12 @@ public class GitMergeDialog extends DialogWrapper {
    */
   public GitMergeDialog(@NotNull Project project, List<VirtualFile> roots, VirtualFile defaultRoot) {
     super(project, true);
-    setTitle(GitBundle.getString("merge.branch.title"));
+    setTitle(GitBundle.message("merge.branch.title"));
     myProject = project;
     myVcs = GitVcs.getInstance(project);
     initBranchChooser();
     setOKActionEnabled(false);
-    setOKButtonText(GitBundle.getString("merge.branch.button"));
+    setOKButtonText(GitBundle.message("merge.branch.button"));
     GitUIUtil.setupRootChooser(myProject, roots, defaultRoot, myGitRoot, myCurrentBranchText);
     GitUIUtil.imply(mySquashCommitCheckBox, true, myNoCommitCheckBox, true);
     GitUIUtil.imply(mySquashCommitCheckBox, true, myAddLogInformationCheckBox, false);
@@ -117,7 +117,7 @@ public class GitMergeDialog extends DialogWrapper {
         }
         catch (VcsException ex) {
           if (myVcs.getExecutableValidator().checkExecutableAndShowMessageIfNeeded(getRootPane())) {
-            myVcs.showErrors(Collections.singletonList(ex), GitBundle.getString("merge.retrieving.branches"));
+            myVcs.showErrors(Collections.singletonList(ex), GitBundle.message("merge.retrieving.branches"));
           }
         }
       }
@@ -130,7 +130,7 @@ public class GitMergeDialog extends DialogWrapper {
    */
   private void initBranchChooser() {
     myBranchChooser = new ElementsChooser<String>(true);
-    myBranchChooser.setToolTipText(GitBundle.getString("merge.branches.tooltip"));
+    myBranchChooser.setToolTipText(GitBundle.message("merge.branches.tooltip"));
     GridBagConstraints c = new GridBagConstraints();
     c.insets = new Insets(0, 0, 0, 0);
     c.gridx = 0;

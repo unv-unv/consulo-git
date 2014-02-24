@@ -38,7 +38,7 @@ public class GitResetHead extends GitRepositoryAction {
    */
   @NotNull
   protected String getActionName() {
-    return GitBundle.getString("reset.action.name");
+    return GitBundle.message("reset.action.name");
   }
 
   /**
@@ -56,7 +56,7 @@ public class GitResetHead extends GitRepositoryAction {
     }
     GitLineHandler h = d.handler();
     affectedRoots.add(d.getGitRoot());
-    GitHandlerUtil.doSynchronously(h, GitBundle.getString("resetting.title"), h.printableCommandLine());
+    GitHandlerUtil.doSynchronously(h, GitBundle.message("resetting.title"), h.printableCommandLine());
     GitRepositoryManager manager = GitUtil.getRepositoryManager(project);
     manager.updateRepository(d.getGitRoot());
   }

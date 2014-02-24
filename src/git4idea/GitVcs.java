@@ -395,7 +395,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList> {
 	}
 
 	/**
-	 * Show errors as popup and as messages in vcs view.
+	 * Show errors as popup and as message in vcs view.
 	 *
 	 * @param list   a list of errors
 	 * @param action an action
@@ -413,7 +413,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList> {
 			UIUtil.invokeLaterIfNeeded(new Runnable() {
 				@Override
 				public void run() {
-					Messages.showErrorDialog(myProject, msg, GitBundle.getString("error.dialog.title"));
+					Messages.showErrorDialog(myProject, msg, GitBundle.message("error.dialog.title"));
 				}
 			});
 		}

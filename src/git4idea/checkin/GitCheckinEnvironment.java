@@ -140,7 +140,7 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
   }
 
   public String getCheckinOperationName() {
-    return GitBundle.getString("commit.action.name");
+    return GitBundle.message("commit.action.name");
   }
 
   public List<VcsException> commit(@NotNull List<Change> changes,
@@ -294,7 +294,7 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
             String message = GitBundle.message("commit.partial.merge.message", partialOperation.getName());
             SelectFilePathsDialog dialog = new SelectFilePathsDialog(project, files, message,
                                                                      null, "Commit All Files", CommonBundle.getCancelButtonText(), false);
-            dialog.setTitle(GitBundle.getString("commit.partial.merge.title"));
+            dialog.setTitle(GitBundle.message("commit.partial.merge.title"));
             dialog.show();
             mergeAll.set(dialog.isOK());
           }
@@ -648,7 +648,7 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
       myAuthor.setSelectedItem("");
       myAuthor.setEditable(true);
       authorLabel.setLabelFor(myAuthor);
-      myAuthor.setToolTipText(GitBundle.getString("commit.author.tooltip"));
+      myAuthor.setToolTipText(GitBundle.message("commit.author.tooltip"));
       myPanel.add(myAuthor, c);
       // add amend checkbox
       c = new GridBagConstraints();
@@ -659,10 +659,10 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
       c.insets = insets;
       c.weightx = 1;
       c.fill = GridBagConstraints.HORIZONTAL;
-      myAmend = new NonFocusableCheckBox(GitBundle.getString("commit.amend"));
+      myAmend = new NonFocusableCheckBox(GitBundle.message("commit.amend"));
       myAmend.setMnemonic('m');
       myAmend.setSelected(false);
-      myAmend.setToolTipText(GitBundle.getString("commit.amend.tooltip"));
+      myAmend.setToolTipText(GitBundle.message("commit.amend.tooltip"));
       myPanel.add(myAmend, c);
     }
 

@@ -37,7 +37,7 @@ public class GitFetch extends GitRepositoryAction {
   @Override
   @NotNull
   protected String getActionName() {
-    return GitBundle.getString("fetch.action.name");
+    return GitBundle.message("fetch.action.name");
   }
 
   protected void perform(@NotNull final Project project,

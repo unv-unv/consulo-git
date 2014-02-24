@@ -47,7 +47,7 @@ public class GitMerge extends GitRepositoryAction {
   @Override
   @NotNull
   protected String getActionName() {
-    return GitBundle.getString("merge.action.name");
+    return GitBundle.message("merge.action.name");
   }
 
   /**
@@ -68,7 +68,7 @@ public class GitMerge extends GitRepositoryAction {
     }
     catch (VcsException e) {
       if (vcs.getExecutableValidator().checkExecutableAndShowMessageIfNeeded(null)) {
-        vcs.showErrors(Collections.singletonList(e), GitBundle.getString("merge.retrieving.branches"));
+        vcs.showErrors(Collections.singletonList(e), GitBundle.message("merge.retrieving.branches"));
       }
       return;
     }

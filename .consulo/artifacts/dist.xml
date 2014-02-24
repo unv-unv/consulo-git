@@ -1,5 +1,5 @@
 <component name="ArtifactManager">
-  <artifact build-on-make="true" name="dist">
+  <artifact name="dist">
     <output-path>$PROJECT_DIR$/out/artifacts/dist</output-path>
     <root id="root">
       <element id="directory" name="git">
@@ -15,6 +15,7 @@
             <element id="module-output" name="rt" />
           </element>
         </element>
+        <element id="dir-copy" path="$PROJECT_DIR$/dist" />
       </element>
     </root>
   </artifact>

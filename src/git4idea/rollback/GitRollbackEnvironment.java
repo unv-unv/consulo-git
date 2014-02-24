@@ -52,7 +52,7 @@ public class GitRollbackEnvironment implements RollbackEnvironment {
 
   @NotNull
   public String getRollbackOperationName() {
-    return GitBundle.getString("revert.action.name");
+    return GitBundle.message("revert.action.name");
   }
 
   public void rollbackModifiedWithoutCheckout(@NotNull List<VirtualFile> files,

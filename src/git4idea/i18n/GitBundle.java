@@ -27,41 +27,11 @@ package git4idea.i18n;
  * Author: Anatol Pomazu
  */
 
-import com.intellij.CommonBundle;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.PropertyKey;
-
-import java.lang.ref.Reference;
-import java.lang.ref.SoftReference;
-import java.util.ResourceBundle;
+import org.consulo.lombok.annotations.Bundle;
 
 /**
  * Git4Idea package I18N localization bundle helper
  */
+@Bundle("git4idea.i18n.GitBundle")
 public class GitBundle {
-  private static Reference<ResourceBundle> ourBundle;
-
-  @NonNls
-  private static final String BUNDLE = "git4idea.i18n.GitBundle";
-
-  private GitBundle() {
-  }
-
-  public static String message(@PropertyKey(resourceBundle = BUNDLE) String key, Object... params) {
-    return CommonBundle.message(getBundle(), key, params);
-  }
-
-  private static ResourceBundle getBundle() {
-    ResourceBundle bundle = null;
-    if (ourBundle != null) bundle = ourBundle.get();
-    if (bundle == null) {
-      bundle = ResourceBundle.getBundle(BUNDLE);
-      ourBundle = new SoftReference<ResourceBundle>(bundle);
-    }
-    return bundle;
-  }
-
-  public static String getString(@PropertyKey(resourceBundle = BUNDLE) final String key) {
-    return getBundle().getString(key);
-  }
 }

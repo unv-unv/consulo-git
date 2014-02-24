@@ -152,7 +152,7 @@ public abstract class GitRepositoryAction extends DumbAwareAction {
     }
     catch (VcsException e) {
       Messages.showErrorDialog(project, e.getMessage(),
-                               GitBundle.getString("repository.action.missing.roots.title"));
+                               GitBundle.message("repository.action.missing.roots.title"));
       return null;
     }
     return roots;

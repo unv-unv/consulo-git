@@ -60,7 +60,7 @@ public class GitRevert extends BasicAction {
   @Override
   @NotNull
   protected String getActionName() {
-    return UIUtil.removeMnemonic(GitBundle.getString("revert.action.name"));
+    return UIUtil.removeMnemonic(GitBundle.message("revert.action.name"));
   }
 
   @Override

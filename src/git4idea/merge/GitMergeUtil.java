@@ -55,7 +55,7 @@ public class GitMergeUtil {
   /**
    * The item representing default strategy
    */
-  public static final String DEFAULT_STRATEGY = GitBundle.getString("merge.default.strategy");
+  public static final String DEFAULT_STRATEGY = GitBundle.message("merge.default.strategy");
 
   /**
    * A private constructor for utility class

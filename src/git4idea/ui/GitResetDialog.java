@@ -33,15 +33,15 @@ public class GitResetDialog extends DialogWrapper {
   /**
    * The --soft reset type
    */
-  private static final String SOFT = GitBundle.getString("reset.type.soft");
+  private static final String SOFT = GitBundle.message("reset.type.soft");
   /**
    * The --mixed reset type
    */
-  private static final String MIXED = GitBundle.getString("reset.type.mixed");
+  private static final String MIXED = GitBundle.message("reset.type.mixed");
   /**
    * The --hard reset type
    */
-  private static final String HARD = GitBundle.getString("reset.type.hard");
+  private static final String HARD = GitBundle.message("reset.type.hard");
   /**
    * Git root selector
    */
@@ -86,8 +86,8 @@ public class GitResetDialog extends DialogWrapper {
   public GitResetDialog(final Project project, final List<VirtualFile> roots, final VirtualFile defaultRoot) {
     super(project, true);
     myProject = project;
-    setTitle(GitBundle.getString("reset.title"));
-    setOKButtonText(GitBundle.getString("reset.button"));
+    setTitle(GitBundle.message("reset.title"));
+    setOKButtonText(GitBundle.message("reset.button"));
     myResetTypeComboBox.addItem(MIXED);
     myResetTypeComboBox.addItem(SOFT);
     myResetTypeComboBox.addItem(HARD);
@@ -106,7 +106,7 @@ public class GitResetDialog extends DialogWrapper {
    */
   void validateFields() {
     if (myGitReferenceValidator.isInvalid()) {
-      setErrorText(GitBundle.getString("reset.commit.invalid"));
+      setErrorText(GitBundle.message("reset.commit.invalid"));
       setOKActionEnabled(false);
     }
     setErrorText(null);

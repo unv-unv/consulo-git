@@ -15,6 +15,15 @@
  */
 package git4idea.stash;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.jetbrains.annotations.NotNull;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
@@ -32,9 +41,6 @@ import git4idea.GitPlatformFacade;
 import git4idea.commands.Git;
 import git4idea.i18n.GitBundle;
 import git4idea.rollback.GitRollbackEnvironment;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.*;
 
 /**
  * @author Kirill Likhodedov
@@ -59,7 +65,7 @@ public class GitShelveChangesSaver extends GitChangesSaver {
       new LocalChangesUnderRoots(myChangeManager, myPlatformFacade.getVcsManager(myProject)).getChangesByLists(rootsToSave);
 
     String oldProgressTitle = myProgressIndicator.getText();
-    myProgressIndicator.setText(GitBundle.getString("update.shelving.changes"));
+    myProgressIndicator.setText(GitBundle.message("update.shelving.changes"));
     List<VcsException> exceptions = new ArrayList<VcsException>(1);
     myShelvedLists = new HashMap<String, ShelvedChangeList>();
 
@@ -91,7 +97,7 @@ public class GitShelveChangesSaver extends GitChangesSaver {
     if (myShelvedLists != null) {
       LOG.info("load ");
       final String oldProgressTitle = myProgressIndicator.getText();
-      myProgressIndicator.setText(GitBundle.getString("update.unshelving.changes"));
+      myProgressIndicator.setText(GitBundle.message("update.unshelving.changes"));
       context.next(new TaskDescriptor("", Where.AWT) {
         @Override
         public void run(ContinuationContext context) {

@@ -106,7 +106,7 @@ public class GitPullDialog extends DialogWrapper {
    */
   public GitPullDialog(Project project, List<VirtualFile> roots, VirtualFile defaultRoot) {
     super(project, true);
-    setTitle(GitBundle.getString("pull.title"));
+    setTitle(GitBundle.message("pull.title"));
     myProject = project;
     myRepositoryManager = GitUtil.getRepositoryManager(myProject);
     GitUIUtil.setupRootChooser(myProject, roots, defaultRoot, myGitRoot, myCurrentBranch);
@@ -115,7 +115,7 @@ public class GitPullDialog extends DialogWrapper {
         updateRemotes();
       }
     });
-    setOKButtonText(GitBundle.getString("pull.button"));
+    setOKButtonText(GitBundle.message("pull.button"));
     updateRemotes();
     updateBranches();
     myRemote.addActionListener(new ActionListener() {
@@ -311,10 +311,10 @@ public class GitPullDialog extends DialogWrapper {
       public void customize(final JList list, final GitRemote remote, final int index, final boolean selected, final boolean hasFocus) {
         final String text;
         if (remote == null) {
-          text = GitBundle.getString("util.remote.renderer.none");
+          text = GitBundle.message("util.remote.renderer.none");
         }
         else if (".".equals(remote.getName())) {
-          text = GitBundle.getString("util.remote.renderer.self");
+          text = GitBundle.message("util.remote.renderer.self");
         }
         else {
           String key;

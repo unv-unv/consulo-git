@@ -74,15 +74,15 @@ public class GitVFSListener extends VcsVFSListener {
   }
 
   protected String getAddTitle() {
-    return GitBundle.getString("vfs.listener.add.title");
+    return GitBundle.message("vfs.listener.add.title");
   }
 
   protected String getSingleFileAddTitle() {
-    return GitBundle.getString("vfs.listener.add.single.title");
+    return GitBundle.message("vfs.listener.add.single.title");
   }
 
   protected String getSingleFileAddPromptTemplate() {
-    return GitBundle.getString("vfs.listener.add.single.prompt");
+    return GitBundle.message("vfs.listener.add.single.prompt");
   }
 
   @Override
@@ -97,7 +97,7 @@ public class GitVFSListener extends VcsVFSListener {
     }
     final HashSet<VirtualFile> retainedFiles = new HashSet<VirtualFile>();
     final ProgressManager progressManager = ProgressManager.getInstance();
-    progressManager.run(new Task.Backgroundable(myProject, GitBundle.getString("vfs.listener.checking.ignored"), false) {
+    progressManager.run(new Task.Backgroundable(myProject, GitBundle.message("vfs.listener.checking.ignored"), false) {
       @Override
       public void run(@NotNull ProgressIndicator pi) {
         for (Map.Entry<VirtualFile, List<VirtualFile>> e : sortedFiles.entrySet()) {
@@ -147,7 +147,7 @@ public class GitVFSListener extends VcsVFSListener {
   }
 
   private void performAdding(Collection<FilePath> filesToAdd) {
-    performBackgroundOperation(filesToAdd, GitBundle.getString("add.adding"), new LongOperationPerRootExecutor() {
+    performBackgroundOperation(filesToAdd, GitBundle.message("add.adding"), new LongOperationPerRootExecutor() {
       @Override
       public void execute(@NotNull VirtualFile root, @NotNull List<FilePath> files) throws VcsException {
         GitFileUtils.addPaths(myProject, root, files);
@@ -162,19 +162,19 @@ public class GitVFSListener extends VcsVFSListener {
   }
 
   protected String getDeleteTitle() {
-    return GitBundle.getString("vfs.listener.delete.title");
+    return GitBundle.message("vfs.listener.delete.title");
   }
 
   protected String getSingleFileDeleteTitle() {
-    return GitBundle.getString("vfs.listener.delete.single.title");
+    return GitBundle.message("vfs.listener.delete.single.title");
   }
 
   protected String getSingleFileDeletePromptTemplate() {
-    return GitBundle.getString("vfs.listener.delete.single.prompt");
+    return GitBundle.message("vfs.listener.delete.single.prompt");
   }
 
   protected void performDeletion(final List<FilePath> filesToDelete) {
-    performBackgroundOperation(filesToDelete, GitBundle.getString("remove.removing"), new LongOperationPerRootExecutor() {
+    performBackgroundOperation(filesToDelete, GitBundle.message("remove.removing"), new LongOperationPerRootExecutor() {
       HashSet<File> filesToRefresh = new HashSet<File>();
 
       public void execute(@NotNull VirtualFile root, @NotNull List<FilePath> files) throws VcsException {

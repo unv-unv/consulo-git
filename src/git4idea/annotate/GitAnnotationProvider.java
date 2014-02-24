@@ -120,7 +120,7 @@ public class GitAnnotationProvider implements AnnotationProvider, VcsCacheableAn
     };
     if (ApplicationManager.getApplication().isDispatchThread()) {
       ProgressManager.getInstance()
-        .runProcessWithProgressSynchronously(command, GitBundle.getString("annotate.action.name"), false, myProject);
+        .runProcessWithProgressSynchronously(command, GitBundle.message("annotate.action.name"), false, myProject);
     }
     else {
       command.run();

@@ -15,67 +15,81 @@
  */
 package git4idea.config;
 
-import com.intellij.openapi.components.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import com.intellij.openapi.components.PersistentStateComponent;
+import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.components.State;
+import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.components.StoragePathMacros;
 
 /**
  * The application wide settings for the git
  */
 @State(
-  name = "Git.Application.Settings",
-  storages = {@Storage(file = StoragePathMacros.APP_CONFIG + "/vcs.xml")})
-public class GitVcsApplicationSettings implements PersistentStateComponent<GitVcsApplicationSettings.State> {
+		name = "Git.Application.Settings",
+		storages = {@Storage(file = StoragePathMacros.APP_CONFIG + "/vcs.xml")})
+public class GitVcsApplicationSettings implements PersistentStateComponent<GitVcsApplicationSettings.State>
+{
+	private State myState = new State();
 
+	/**
+	 * Kinds of SSH executable to be used with the git
+	 */
+	public enum SshExecutable
+	{
+		IDEA_SSH,
+		NATIVE_SSH,
+		PUTTY
+	}
 
-  private State myState = new State();
+	public static class State
+	{
+		public String myPathToGit = null;
+		public SshExecutable SSH_EXECUTABLE = null;
+	}
 
-  /**
-   * Kinds of SSH executable to be used with the git
-   */
-  public enum SshExecutable {
-    IDEA_SSH,
-    NATIVE_SSH,
-  }
+	public static GitVcsApplicationSettings getInstance()
+	{
+		return ServiceManager.getService(GitVcsApplicationSettings.class);
+	}
 
-  public static class State {
-    public String myPathToGit = null;
-    public SshExecutable SSH_EXECUTABLE = null;
-  }
+	@Override
+	public State getState()
+	{
+		return myState;
+	}
 
-  public static GitVcsApplicationSettings getInstance() {
-    return ServiceManager.getService(GitVcsApplicationSettings.class);
-  }
+	public void loadState(State state)
+	{
+		myState = state;
+	}
 
-  @Override
-  public State getState() {
-    return myState;
-  }
+	@NotNull
+	public String getPathToGit()
+	{
+		if(myState.myPathToGit == null)
+		{
+			// detecting right away, this can be called from the default project without a call to GitVcs#activate()
+			myState.myPathToGit = new GitExecutableDetector().detect();
+		}
+		return myState.myPathToGit;
+	}
 
-  public void loadState(State state) {
-    myState = state;
-  }
+	public void setPathToGit(String pathToGit)
+	{
+		myState.myPathToGit = pathToGit;
+	}
 
-  @NotNull
-  public String getPathToGit() {
-    if (myState.myPathToGit == null) {
-      // detecting right away, this can be called from the default project without a call to GitVcs#activate()
-      myState.myPathToGit = new GitExecutableDetector().detect();
-    }
-    return myState.myPathToGit;
-  }
+	public void setIdeaSsh(@NotNull SshExecutable executable)
+	{
+		myState.SSH_EXECUTABLE = executable;
+	}
 
-  public void setPathToGit(String pathToGit) {
-    myState.myPathToGit = pathToGit;
-  }
-
-  public void setIdeaSsh(@NotNull SshExecutable executable) {
-    myState.SSH_EXECUTABLE = executable;
-  }
-
-  @Nullable
-  SshExecutable getIdeaSsh() {
-    return myState.SSH_EXECUTABLE;
-  }
+	@Nullable
+	SshExecutable getIdeaSsh()
+	{
+		return myState.SSH_EXECUTABLE;
+	}
 
 }

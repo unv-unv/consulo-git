@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * <p>Handles UI interaction during various operations on branches: shows notifications, proposes to rollback, shows dialogs, messages, etc.
+ * <p>Handles UI interaction during various operations on branches: shows notifications, proposes to rollback, shows dialogs, message, etc.
  * Some methods return the choice selected by user to the calling code, if it is needed.</p>
  * <p>The purpose of this class is to separate UI interaction from the main code, which would in particular simplify testing.</p>
  *

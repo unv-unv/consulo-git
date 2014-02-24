@@ -57,7 +57,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Prohibits committing with an empty messages, warns if committing into detached HEAD, checks if user name and correct CRLF attributes
+ * Prohibits committing with an empty message, warns if committing into detached HEAD, checks if user name and correct CRLF attributes
  * are set.
  * @author Kirill Likhodedov
 */

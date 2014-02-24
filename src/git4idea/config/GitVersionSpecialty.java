@@ -85,7 +85,7 @@ public enum GitVersionSpecialty {
   },
 
   /**
-   * Old style of messages returned by Git in the following 2 situations:
+   * Old style of message returned by Git in the following 2 situations:
    * - untracked files would be overwritten by checkout/merge;
    * - local changes would be overwritten by checkout/merge;
    */

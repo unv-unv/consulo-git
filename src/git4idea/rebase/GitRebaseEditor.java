@@ -102,8 +102,8 @@ public class GitRebaseEditor extends DialogWrapper {
     super(project, true);
     myProject = project;
     myGitRoot = gitRoot;
-    setTitle(GitBundle.getString("rebase.editor.title"));
-    setOKButtonText(GitBundle.getString("rebase.editor.button"));
+    setTitle(GitBundle.message("rebase.editor.title"));
+    setOKButtonText(GitBundle.message("rebase.editor.button"));
 
     if (SystemInfo.isWindows && file.startsWith(CYGDRIVE_PREFIX)) {
       final int prefixSize = CYGDRIVE_PREFIX.length();
@@ -159,7 +159,7 @@ public class GitRebaseEditor extends DialogWrapper {
   private void validateFields() {
     final List<GitRebaseEntry> entries = myTableModel.myEntries;
     if (entries.size() == 0) {
-      setErrorText(GitBundle.getString("rebase.editor.invalid.entryset"));
+      setErrorText(GitBundle.message("rebase.editor.invalid.entryset"));
       setOKActionEnabled(false);
       return;
     }
@@ -168,7 +168,7 @@ public class GitRebaseEditor extends DialogWrapper {
       i++;
     }
     if (i < entries.size() && entries.get(i).getAction() == GitRebaseEntry.Action.squash) {
-      setErrorText(GitBundle.getString("rebase.editor.invalid.squash"));
+      setErrorText(GitBundle.message("rebase.editor.invalid.squash"));
       setOKActionEnabled(false);
       return;
     }
@@ -256,11 +256,11 @@ public class GitRebaseEditor extends DialogWrapper {
     public String getColumnName(final int column) {
       switch (column) {
         case ACTION:
-          return GitBundle.getString("rebase.editor.action.column");
+          return GitBundle.message("rebase.editor.action.column");
         case COMMIT:
-          return GitBundle.getString("rebase.editor.commit.column");
+          return GitBundle.message("rebase.editor.commit.column");
         case SUBJECT:
-          return GitBundle.getString("rebase.editor.comment.column");
+          return GitBundle.message("rebase.editor.comment.column");
         default:
           throw new IllegalArgumentException("Unsupported column index: " + column);
       }

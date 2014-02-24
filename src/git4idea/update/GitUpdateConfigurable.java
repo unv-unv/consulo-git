@@ -45,7 +45,7 @@ public class GitUpdateConfigurable implements Configurable {
    */
   @Nls
   public String getDisplayName() {
-    return GitBundle.getString("update.options.display.name");
+    return GitBundle.message("update.options.display.name");
   }
 
   /**

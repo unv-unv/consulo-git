@@ -53,7 +53,7 @@ public class GitStash extends GitRepositoryAction {
     VirtualFile root = d.getGitRoot();
     affectedRoots.add(root);
     final GitLineHandler h = d.handler();
-    GitHandlerUtil.doSynchronously(h, GitBundle.getString("stashing.title"), h.printableCommandLine());
+    GitHandlerUtil.doSynchronously(h, GitBundle.message("stashing.title"), h.printableCommandLine());
     ServiceManager.getService(project, GitPlatformFacade.class).hardRefresh(root);
   }
 
@@ -62,6 +62,6 @@ public class GitStash extends GitRepositoryAction {
    */
   @NotNull
   protected String getActionName() {
-    return GitBundle.getString("stash.action.name");
+    return GitBundle.message("stash.action.name");
   }
 }
