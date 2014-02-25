@@ -154,7 +154,7 @@ public class GitVcsPanel
 	public void load(@NotNull GitVcsSettings settings)
 	{
 		myGitField.setText(settings.getAppSettings().getPathToGit());
-		mySSHExecutableComboBox.setSelectedItem(settings.getAppSettings().getIdeaSsh());
+		mySSHExecutableComboBox.setSelectedItem(settings.getAppSettings().getSshExecutableType());
 		myAutoUpdateIfPushRejected.setSelected(settings.autoUpdateIfPushRejected());
 		mySyncBranchControl.setSelected(settings.getSyncSetting() == GitBranchSyncSetting.SYNC);
 		myAutoCommitOnCherryPick.setSelected(settings.isAutoCommitOnCherryPick());
@@ -169,7 +169,7 @@ public class GitVcsPanel
 	public boolean isModified(@NotNull GitVcsSettings settings)
 	{
 		return !settings.getAppSettings().getPathToGit().equals(getCurrentExecutablePath()) ||
-				(settings.getAppSettings().getIdeaSsh() != mySSHExecutableComboBox.getSelectedItem()) ||
+				(settings.getAppSettings().getSshExecutableType() != mySSHExecutableComboBox.getSelectedItem()) ||
 				!settings.autoUpdateIfPushRejected() == myAutoUpdateIfPushRejected.isSelected() ||
 				((settings.getSyncSetting() == GitBranchSyncSetting.SYNC) != mySyncBranchControl.isSelected() ||
 						settings.isAutoCommitOnCherryPick() != myAutoCommitOnCherryPick.isSelected() ||

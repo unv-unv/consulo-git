@@ -87,9 +87,19 @@ public class GitVcsApplicationSettings implements PersistentStateComponent<GitVc
 	}
 
 	@Nullable
-	SshExecutable getIdeaSsh()
+	@Deprecated
+	public SshExecutable getIdeaSsh()
 	{
-		return myState.SSH_EXECUTABLE;
+		return getSshExecutableType();
 	}
 
+	@NotNull
+	public SshExecutable getSshExecutableType()
+	{
+		if(myState.SSH_EXECUTABLE == null)
+		{
+			myState.SSH_EXECUTABLE = SshExecutable.IDEA_SSH;
+		}
+		return myState.SSH_EXECUTABLE;
+	}
 }

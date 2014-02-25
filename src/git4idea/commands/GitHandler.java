@@ -36,10 +36,14 @@ import org.jetbrains.git4idea.ssh.GitSSHHandler;
 import org.jetbrains.git4idea.ssh.GitXmlRpcSshService;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.configurations.GeneralCommandLine;
+import com.intellij.ide.plugins.IdeaPluginDescriptor;
+import com.intellij.ide.plugins.PluginManager;
+import com.intellij.ide.plugins.cl.PluginClassLoader;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.SystemInfo;
@@ -490,34 +494,49 @@ public abstract class GitHandler
 				System.out.println(printableCommandLine());
 			}
 
-			// setup environment
 			GitRemoteProtocol remoteProtocol = GitRemoteProtocol.fromUrl(myUrl);
-			if(remoteProtocol == GitRemoteProtocol.SSH && myProjectSettings.isIdeaSsh())
+			// setup environment
+			switch(myProjectSettings.getAppSettings().getSshExecutableType())
 			{
-				GitXmlRpcSshService ssh = ServiceManager.getService(GitXmlRpcSshService.class);
-				myEnv.put(GitSSHHandler.GIT_SSH_ENV, ssh.getScriptPath().getPath());
-				myHandlerNo = ssh.registerHandler(new GitSSHGUIHandler(myProject, myState));
-				myEnvironmentCleanedUp = false;
-				myEnv.put(GitSSHHandler.SSH_HANDLER_ENV, Integer.toString(myHandlerNo));
-				int port = ssh.getXmlRcpPort();
-				myEnv.put(GitSSHHandler.SSH_PORT_ENV, Integer.toString(port));
-				LOG.debug(String.format("handler=%s, port=%s", myHandlerNo, port));
-			}
-			else if(remoteProtocol == GitRemoteProtocol.HTTP)
-			{
-				GitHttpAuthService service = ServiceManager.getService(GitHttpAuthService.class);
-				myEnv.put(GitAskPassXmlRpcHandler.GIT_ASK_PASS_ENV, service.getScriptPath().getPath());
-				assert myUrl != null : "myUrl can't be null here";
-				GitHttpAuthenticator httpAuthenticator = service.createAuthenticator(myProject, myState, myCommand, myUrl);
-				myHandlerNo = service.registerHandler(httpAuthenticator);
-				myEnvironmentCleanedUp = false;
-				myEnv.put(GitAskPassXmlRpcHandler.GIT_ASK_PASS_HANDLER_ENV, Integer.toString(myHandlerNo));
-				int port = service.getXmlRcpPort();
-				myEnv.put(GitAskPassXmlRpcHandler.GIT_ASK_PASS_PORT_ENV, Integer.toString(port));
-				LOG.debug(String.format("handler=%s, port=%s", myHandlerNo, port));
-				addAuthListener(httpAuthenticator);
-			}
-			myCommandLine.getEnvironment().clear();
+				case PUTTY:
+					PluginId pluginId = ((PluginClassLoader) getClass().getClassLoader()).getPluginId();
+					IdeaPluginDescriptor plugin = PluginManager.getPlugin(pluginId);
+					assert plugin != null;
+
+					myEnv.put(GitSSHHandler.GIT_SSH_ENV, new File(plugin.getPath(), "putty/plink.exe").getAbsolutePath());
+					myEnv.put("PLINK_ARGS", "-noagent -i H:\\github.com\\privatekey.ppk");
+					break;
+				case IDEA_SSH:
+					if(remoteProtocol == GitRemoteProtocol.SSH)
+					{
+						GitXmlRpcSshService ssh = ServiceManager.getService(GitXmlRpcSshService.class);
+						myEnv.put(GitSSHHandler.GIT_SSH_ENV, ssh.getScriptPath().getPath());
+						myHandlerNo = ssh.registerHandler(new GitSSHGUIHandler(myProject, myState));
+						myEnvironmentCleanedUp = false;
+						myEnv.put(GitSSHHandler.SSH_HANDLER_ENV, Integer.toString(myHandlerNo));
+						int port = ssh.getXmlRcpPort();
+						myEnv.put(GitSSHHandler.SSH_PORT_ENV, Integer.toString(port));
+						LOG.debug(String.format("handler=%s, port=%s", myHandlerNo, port));
+						break;
+					}
+				case NATIVE_SSH:
+					if(remoteProtocol == GitRemoteProtocol.HTTP)
+					{
+						GitHttpAuthService service = ServiceManager.getService(GitHttpAuthService.class);
+						myEnv.put(GitAskPassXmlRpcHandler.GIT_ASK_PASS_ENV, service.getScriptPath().getPath());
+						assert myUrl != null : "myUrl can't be null here";
+						GitHttpAuthenticator httpAuthenticator = service.createAuthenticator(myProject, myState, myCommand, myUrl);
+						myHandlerNo = service.registerHandler(httpAuthenticator);
+						myEnvironmentCleanedUp = false;
+						myEnv.put(GitAskPassXmlRpcHandler.GIT_ASK_PASS_HANDLER_ENV, Integer.toString(myHandlerNo));
+						int port = service.getXmlRcpPort();
+						myEnv.put(GitAskPassXmlRpcHandler.GIT_ASK_PASS_PORT_ENV, Integer.toString(port));
+						LOG.debug(String.format("handler=%s, port=%s", myHandlerNo, port));
+						addAuthListener(httpAuthenticator);
+					}
+					break;
+
+			} myCommandLine.getEnvironment().clear();
 			myCommandLine.getEnvironment().putAll(myEnv);
 			// start process
 			myProcess = startProcess();
