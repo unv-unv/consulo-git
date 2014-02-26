@@ -328,6 +328,7 @@ int main(int argc, char **argv)
 	 * Override the default protocol if PLINK_PROTOCOL is set.
 	 */
 	char *p = getenv("PLINK_PROTOCOL");
+	char *arguments = getenv("PLINK_ARGS");
 	if (p) {
 	    const Backend *b = backend_from_name(p);
 	    if (b) {
@@ -336,6 +337,45 @@ int main(int argc, char **argv)
 		conf_set_int(conf, CONF_protocol, default_protocol);
 		conf_set_int(conf, CONF_port, default_port);
 	    }
+	}
+
+	if(arguments) {
+		char ** res  = NULL;
+		char *  r    = strtok (arguments, " ");
+		int newLenght = 0, i, index = 0;
+		char** newArray = NULL;
+
+		int n_spaces = 0;
+		while (r) {
+			res = realloc (res, sizeof (char*) * ++n_spaces);
+
+			if (res == NULL)
+			exit (-1);
+
+			res[n_spaces-1] = r;
+
+			r = strtok (NULL, " ");
+		}
+
+
+		newLenght = argc + n_spaces;
+		newArray = realloc(newArray, sizeof(char*) * newLenght);
+
+		// path
+		newArray[index ++] = argv[0];
+
+		for(i = 0; i < n_spaces; i++)
+		{
+			newArray[index ++] = res[i];
+		}
+
+		for(i = 1; i < argc; i++)
+		{
+			newArray[index ++] = argv[i];
+		}
+
+		argc = newLenght;
+		argv = newArray;
 	}
     }
     while (--argc) {

@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
@@ -49,6 +50,7 @@ import git4idea.commands.GitCommand;
 import git4idea.commands.GitLineHandlerPasswordRequestAware;
 import git4idea.commands.GitTask;
 import git4idea.commands.GitTaskResult;
+import git4idea.config.GitVcsApplicationSettings;
 import git4idea.i18n.GitBundle;
 import git4idea.remote.GitRememberedInputs;
 
@@ -80,6 +82,7 @@ public class GitCloneDialog extends DialogWrapper
 	private JButton myTestButton; // test repository
 	private JTextField myDirectoryName;
 	private TextFieldWithBrowseButton myPuttyKeyChooser;
+	private JLabel myPuttyLabel;
 
 	private String myTestURL; // the repository URL at the time of the last test
 	private Boolean myTestResult; // the test result of the last test or null if not tested
@@ -90,10 +93,13 @@ public class GitCloneDialog extends DialogWrapper
 	{
 		super(project, true);
 		myProject = project;
-		init();
-		initListeners();
 		setTitle(GitBundle.message("clone.title"));
 		setOKButtonText(GitBundle.message("clone.button"));
+
+		myPuttyKeyChooser.setVisible(GitVcsApplicationSettings.getInstance().getSshExecutableType() == GitVcsApplicationSettings.SshExecutable.PUTTY);
+		myPuttyLabel.setVisible(myPuttyKeyChooser.isVisible());
+		init();
+		initListeners();
 	}
 
 	public String getSourceRepositoryURL()
@@ -106,6 +112,11 @@ public class GitCloneDialog extends DialogWrapper
 		return myParentDirectory.getText();
 	}
 
+	public String getPuttyKeyFile()
+	{
+		return StringUtil.nullize(myPuttyKeyChooser.getText());
+	}
+
 	public String getDirectoryName()
 	{
 		return myDirectoryName.getText();
@@ -116,11 +127,17 @@ public class GitCloneDialog extends DialogWrapper
 	 */
 	private void initListeners()
 	{
+		FileChooserDescriptor singleFileDescriptor = FileChooserDescriptorFactory.createSingleFileNoJarsDescriptor();
+		myPuttyKeyChooser.addActionListener(new ComponentWithBrowseButton.BrowseFolderActionListener<JTextField>(singleFileDescriptor.getTitle(),
+				singleFileDescriptor.getDescription(), myPuttyKeyChooser, myProject, singleFileDescriptor,
+				TextComponentAccessor.TEXT_FIELD_WHOLE_TEXT));
+
 		FileChooserDescriptor fcd = FileChooserDescriptorFactory.createSingleFolderDescriptor();
 		fcd.setShowFileSystemRoots(true);
 		fcd.setTitle(GitBundle.message("clone.destination.directory.title"));
 		fcd.setDescription(GitBundle.message("clone.destination.directory.description"));
 		fcd.setHideIgnored(false);
+
 		myParentDirectory.addActionListener(new ComponentWithBrowseButton.BrowseFolderActionListener<JTextField>(fcd.getTitle(),
 				fcd.getDescription(), myParentDirectory, myProject, fcd, TextComponentAccessor.TEXT_FIELD_WHOLE_TEXT)
 		{
@@ -197,6 +214,7 @@ public class GitCloneDialog extends DialogWrapper
 	private boolean test(String url)
 	{
 		final GitLineHandlerPasswordRequestAware handler = new GitLineHandlerPasswordRequestAware(myProject, new File("."), GitCommand.LS_REMOTE);
+		handler.setPuttyKey(getPuttyKeyFile());
 		handler.setUrl(url);
 		handler.addParameters(url, "master");
 		GitTask task = new GitTask(myProject, handler, GitBundle.message("clone.testing", url));
@@ -355,6 +373,7 @@ public class GitCloneDialog extends DialogWrapper
 		final GitRememberedInputs rememberedInputs = GitRememberedInputs.getInstance();
 		rememberedInputs.addUrl(getSourceRepositoryURL());
 		rememberedInputs.setCloneParentDir(getParentDirectory());
+		rememberedInputs.setPuttyKey(getPuttyKeyFile());
 	}
 
 	/**

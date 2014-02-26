@@ -84,7 +84,6 @@ public class GitConfig
 
 	private static class Remote
 	{
-
 		private final String myName;
 		private final RemoteBean myRemoteBean;
 
@@ -120,6 +119,11 @@ public class GitConfig
 			return Arrays.asList(notNull(myRemoteBean.getFetch()));
 		}
 
+		@NotNull
+		private List<String> getPuttyKeyFiles()
+		{
+			return Arrays.asList(notNull(myRemoteBean.getPuttykeyfile()));
+		}
 	}
 
 	private static class Url
@@ -204,7 +208,8 @@ public class GitConfig
 	private static GitRemote convertRemoteToGitRemote(@NotNull Collection<Url> urls, @NotNull Remote remote)
 	{
 		UrlsAndPushUrls substitutedUrls = substituteUrls(urls, remote);
-		return new GitRemote(remote.myName, substitutedUrls.getUrls(), substitutedUrls.getPushUrls(), remote.getFetchSpecs(), computePushSpec(remote));
+		return new GitRemote(remote.myName, substitutedUrls.getUrls(), substitutedUrls.getPushUrls(), remote.getFetchSpecs(),
+				computePushSpec(remote), remote.getPuttyKeyFiles());
 	}
 
 	/**
@@ -571,6 +576,9 @@ public class GitConfig
 
 		@Nullable
 		String[] getPushUrl();
+
+		@Nullable
+		String[] getPuttykeyfile();
 	}
 
 	private interface UrlBean

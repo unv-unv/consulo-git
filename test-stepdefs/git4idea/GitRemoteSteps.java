@@ -48,7 +48,7 @@ public class GitRemoteSteps {
       @Override
       public void run() {
         String projectName = url.substring(url.lastIndexOf('/') + 1).replace(".git", "");
-        GitCheckoutProvider.doClone(myProject, new EmptyProgressIndicator(), myGit, projectName, myTestRoot, url);
+        GitCheckoutProvider.doClone(myProject, new EmptyProgressIndicator(), myGit, projectName, myTestRoot, url, puttyKey);
         myCloneCompleted.countDown();
       }
     });

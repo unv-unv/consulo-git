@@ -47,6 +47,7 @@ import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.SystemInfo;
+import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vcs.FilePath;
 import com.intellij.openapi.vcs.ProcessEventListener;
 import com.intellij.openapi.vcs.VcsException;
@@ -116,6 +117,8 @@ public abstract class GitHandler
 	private ModalityState myState;
 	@Nullable
 	private String myUrl;
+	@Nullable
+	private String myPuttyKey;
 
 
 	/**
@@ -499,12 +502,25 @@ public abstract class GitHandler
 			switch(myProjectSettings.getAppSettings().getSshExecutableType())
 			{
 				case PUTTY:
-					PluginId pluginId = ((PluginClassLoader) getClass().getClassLoader()).getPluginId();
-					IdeaPluginDescriptor plugin = PluginManager.getPlugin(pluginId);
-					assert plugin != null;
+					if(remoteProtocol != null)
+					{
+						PluginId pluginId = ((PluginClassLoader) getClass().getClassLoader()).getPluginId();
+						IdeaPluginDescriptor plugin = PluginManager.getPlugin(pluginId);
+						assert plugin != null;
 
-					myEnv.put(GitSSHHandler.GIT_SSH_ENV, new File(plugin.getPath(), "putty/plink.exe").getAbsolutePath());
-					myEnv.put("PLINK_ARGS", "-noagent -i H:\\github.com\\privatekey.ppk");
+						myEnv.put(GitSSHHandler.GIT_SSH_ENV, new File(plugin.getPath(), "putty/plink.exe").getAbsolutePath());
+						StringBuilder builder = new StringBuilder();
+						builder.append("-noagent ");
+						if(myPuttyKey != null)
+						{
+							builder.append("-i ").append(FileUtil.toSystemDependentName(myPuttyKey));
+						}
+						else
+						{
+							throw new IllegalAccessException("No private key set");
+						}
+						myEnv.put("PLINK_ARGS", builder.toString());
+					}
 					break;
 				case IDEA_SSH:
 					if(remoteProtocol == GitRemoteProtocol.SSH)
@@ -992,5 +1008,10 @@ public abstract class GitHandler
 	public String toString()
 	{
 		return myCommandLine.toString();
+	}
+
+	public void setPuttyKey(@Nullable String key)
+	{
+		myPuttyKey = key;
 	}
 }
