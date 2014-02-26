@@ -33,7 +33,6 @@ import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.containers.ContainerUtil;
 import com.intellij.vcsUtil.VcsFileUtil;
 import git4idea.GitBranch;
 import git4idea.GitCommit;
@@ -434,8 +433,8 @@ public class GitImpl implements Git
 		GitRemote remote = pushSpec.getRemote();
 		GitBranch remoteBranch = pushSpec.getDest();
 		String destination = remoteBranch.getName().replaceFirst(remote.getName() + "/", "");
-		List<String> puttyKeyFiles = pushSpec.getDest().getRemote().getPuttyKeyFiles();
-		return push(repository, remote.getName(), url, ContainerUtil.getFirstItem(puttyKeyFiles), pushSpec.getSource().getName() + ":" +
+		String puttyKeyFile = pushSpec.getDest().getRemote().getPuttyKeyFile();
+		return push(repository, remote.getName(), url, puttyKeyFile, pushSpec.getSource().getName() + ":" +
 				destination, listeners);
 	}
 

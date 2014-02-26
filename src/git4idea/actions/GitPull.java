@@ -15,6 +15,10 @@
  */
 package git4idea.actions;
 
+import java.util.List;
+import java.util.Set;
+
+import org.jetbrains.annotations.NotNull;
 import com.intellij.history.Label;
 import com.intellij.history.LocalHistory;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -37,10 +41,6 @@ import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import git4idea.util.GitUIUtil;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
-import java.util.Set;
 
 /**
  * Git "pull" action
@@ -81,7 +81,7 @@ public class GitPull extends GitRepositoryAction {
           return;
         }
 
-        final GitLineHandler handler = dialog.makeHandler(url);
+        final GitLineHandler handler = dialog.makeHandler(url, remote == null ? null : remote.getPuttyKeyFile());
 
         final VirtualFile root = dialog.gitRoot();
         affectedRoots.add(root);

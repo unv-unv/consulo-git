@@ -15,6 +15,22 @@
  */
 package git4idea.merge;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import com.intellij.ide.util.ElementsChooser;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
@@ -33,16 +49,6 @@ import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import git4idea.util.GitUIUtil;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Git pull dialog
@@ -153,11 +159,12 @@ public class GitPullDialog extends DialogWrapper {
   /**
    * @return a pull handler configured according to dialog options
    */
-  public GitLineHandler makeHandler(@NotNull String url) {
+  public GitLineHandler makeHandler(@NotNull String url, @Nullable String puttyKeyFile) {
     GitLineHandler h = new GitLineHandler(myProject, gitRoot(), GitCommand.PULL);
     // ignore merge failure for the pull
     h.ignoreErrorCode(1);
     h.setUrl(url);
+    h.setPuttyKey(puttyKeyFile);
     h.addProgressParameter();
     h.addParameters("--no-stat");
     if (myNoCommitCheckBox.isSelected()) {

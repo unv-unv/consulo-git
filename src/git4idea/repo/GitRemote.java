@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import com.intellij.util.containers.ContainerUtil;
 import git4idea.GitPlatformFacade;
 
 /**
@@ -181,9 +182,9 @@ public final class GitRemote implements Comparable<GitRemote>
 		return getName().compareTo(o.getName());
 	}
 
-	@NotNull
-	public List<String> getPuttyKeyFiles()
+	@Nullable
+	public String getPuttyKeyFile()
 	{
-		return myPuttyKeyFiles;
+		return ContainerUtil.getFirstItem(myPuttyKeyFiles);
 	}
 }
