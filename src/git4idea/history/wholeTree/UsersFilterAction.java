@@ -15,13 +15,27 @@
  */
 package git4idea.history.wholeTree;
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Point;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import javax.swing.border.CompoundBorder;
+
+import org.jetbrains.annotations.NotNull;
 import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonShortcuts;
 import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.fileTypes.FileTypes;
+import com.intellij.openapi.fileTypes.PlainTextLanguage;
 import com.intellij.openapi.keymap.KeymapUtil;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
@@ -39,14 +53,6 @@ import com.intellij.util.Consumer;
 import com.intellij.util.TextFieldCompletionProvider;
 import com.intellij.util.TextFieldCompletionProviderDumbAware;
 import git4idea.history.NewGitUsersComponent;
-import org.jetbrains.annotations.NotNull;
-
-import javax.swing.*;
-import javax.swing.border.CompoundBorder;
-import java.awt.*;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * @author irengrig
@@ -175,7 +181,7 @@ public class UsersFilterAction extends BasePopupAction {
     Set<EditorCustomization> features = new HashSet<EditorCustomization>();
     features.add(SoftWrapsEditorCustomization.ENABLED);
     features.add(SpellCheckingEditorCustomization.DISABLED);
-    myEditorField = service.getEditorField(FileTypes.PLAIN_TEXT.getLanguage(), project, features);
+    myEditorField = service.getEditorField(PlainTextLanguage.INSTANCE, project, features);
     myEditorField.setBorder(new CompoundBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2), myEditorField.getBorder()));
     myEditorField.setText("s");
     myEditorField.setText(myCurrentText);
