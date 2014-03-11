@@ -7,6 +7,15 @@
  */
 package git4idea.branch;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -26,15 +35,6 @@ import git4idea.push.GitSimplePushResult;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import git4idea.ui.branch.GitMultiRootBranchConfig;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Kirill Likhodedov
@@ -169,14 +169,14 @@ class GitDeleteRemoteBranchOperation extends GitBranchOperation {
       return convertSimplePushResultToCommandResult(simplePushResult);
     }
     else {
-      return pushDeletionNatively(repository, remoteName, remoteUrl, branchName);
+      return pushDeletionNatively(repository, remoteName, remoteUrl, branchName, remote.getPuttyKeyFile());
     }
   }
 
   @NotNull
   private GitCommandResult pushDeletionNatively(@NotNull GitRepository repository, @NotNull String remoteName, @NotNull String url,
-                                                @NotNull String branchName) {
-    return myGit.push(repository, remoteName, url, null, ":" + branchName);
+                                                @NotNull String branchName, @Nullable String puttyKey) {
+    return myGit.push(repository, remoteName, url, puttyKey, ":" + branchName);
   }
 
   @NotNull
