@@ -517,7 +517,7 @@ public abstract class GitHandler
 						}
 						else
 						{
-							throw new IllegalAccessException("No private key set");
+							throw new IllegalArgumentException("No private key set");
 						}
 						myEnv.put("PLINK_ARGS", builder.toString());
 					}
