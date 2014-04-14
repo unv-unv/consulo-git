@@ -313,7 +313,7 @@ public class GitPullDialog extends DialogWrapper {
    * @return a list cell renderer for virtual files (it renders presentable URL
    */
   public ListCellRendererWrapper<GitRemote> getGitRemoteListCellRenderer(final String defaultRemote) {
-    return new ListCellRendererWrapper<GitRemote>(myRemote) {
+    return new ListCellRendererWrapper<GitRemote>() {
       @Override
       public void customize(final JList list, final GitRemote remote, final int index, final boolean selected, final boolean hasFocus) {
         final String text;
