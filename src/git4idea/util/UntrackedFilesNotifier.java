@@ -15,80 +15,92 @@
  */
 package git4idea.util;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
+import javax.swing.Action;
+import javax.swing.event.HyperlinkEvent;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vcs.changes.ui.SelectFilesDialog;
 import com.intellij.openapi.vfs.VirtualFile;
-import git4idea.GitPlatformFacade;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import javax.swing.event.HyperlinkEvent;
-import java.util.ArrayList;
-import java.util.Collection;
+public class UntrackedFilesNotifier
+{
 
-/**
- * @author Kirill Likhodedov
- */
-public class UntrackedFilesNotifier {
+	private UntrackedFilesNotifier()
+	{
+	}
 
-  private UntrackedFilesNotifier() {
-  }
+	/**
+	 * Displays notification about {@code untracked files would be overwritten by checkout} error.
+	 * Clicking on the link in the notification opens a simple dialog with the list of these files.
+	 *
+	 * @param operation   the name of the Git operation that caused the error: {@code rebase, merge, checkout}.
+	 * @param description the content of the notification or null if the deafult content is to be used.
+	 */
+	public static void notifyUntrackedFilesOverwrittenBy(
+			@NotNull final Project project,
+			@NotNull final Collection<VirtualFile> untrackedFiles,
+			@NotNull final String operation,
+			@Nullable String description)
+	{
+		final String notificationTitle = StringUtil.capitalize(operation) + " failed";
+		final String notificationDesc = description == null ? createUntrackedFilesOverwrittenDescription(operation, true) : description;
 
-  /**
-   * Displays notification about {@code untracked files would be overwritten by checkout} error.
-   * Clicking on the link in the notification opens a simple dialog with the list of these files.
-   * @param operation   the name of the Git operation that caused the error: {@code rebase, merge, checkout}.
-   * @param description the content of the notification or null if the deafult content is to be used.
-   */
-  public static void notifyUntrackedFilesOverwrittenBy(@NotNull final Project project, @NotNull GitPlatformFacade platformFacade,
-                                                       @NotNull final Collection<VirtualFile> untrackedFiles,
-                                                       @NotNull final String operation, @Nullable String description) {
-    final String notificationTitle = StringUtil.capitalize(operation) + " failed";
-    final String notificationDesc = description == null ? createUntrackedFilesOverwrittenDescription(operation, true) : description;
+		VcsNotifier.getInstance(project).notifyError(notificationTitle, notificationDesc, new NotificationListener()
+		{
+			@Override
+			public void hyperlinkUpdate(@NotNull Notification notification, @NotNull HyperlinkEvent event)
+			{
+				if(event.getEventType() == HyperlinkEvent.EventType.ACTIVATED)
+				{
+					final String dialogDesc = createUntrackedFilesOverwrittenDescription(operation, false);
+					SelectFilesDialog dlg = new UntrackedFilesDialog(project, untrackedFiles, dialogDesc);
+					dlg.setTitle("Untracked Files Preventing " + StringUtil.capitalize(operation));
+					dlg.show();
+				}
+			}
+		});
+	}
 
-    platformFacade.getNotificator(project).notifyError(notificationTitle, notificationDesc,
-                                                  new NotificationListener() {
-      @Override
-      public void hyperlinkUpdate(@NotNull Notification notification, @NotNull HyperlinkEvent event) {
-        if (event.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
-          final String dialogDesc = createUntrackedFilesOverwrittenDescription(operation, false);
-          SelectFilesDialog dlg = new UntrackedFilesDialog(project, untrackedFiles, dialogDesc);
-          dlg.setTitle("Untracked Files Preventing " + StringUtil.capitalize(operation));
-          dlg.show();
-        }
-      }
-    });
-  }
-  
-  public static String createUntrackedFilesOverwrittenDescription(@NotNull final String operation, boolean addLinkToViewFiles) {
-    final String description1 = " untracked working tree files would be overwritten by " + operation + ".";
-    final String description2 = "Please move or remove them before you can " + operation + ".";
-    final String notificationDesc;
-    if (addLinkToViewFiles) {
-      notificationDesc = "Some" + description1 + "<br/>" + description2 + " <a href='view'>View them</a>";
-    }
-    else {
-      notificationDesc = "These" + description1 + "<br/>" + description2;
-    }
-    return notificationDesc;
-  }
+	public static String createUntrackedFilesOverwrittenDescription(@NotNull final String operation, boolean addLinkToViewFiles)
+	{
+		final String description1 = " untracked working tree files would be overwritten by " + operation + ".";
+		final String description2 = "Please move or remove them before you can " + operation + ".";
+		final String notificationDesc;
+		if(addLinkToViewFiles)
+		{
+			notificationDesc = "Some" + description1 + "<br/>" + description2 + " <a href='view'>View them</a>";
+		}
+		else
+		{
+			notificationDesc = "These" + description1 + "<br/>" + description2;
+		}
+		return notificationDesc;
+	}
 
-  private static class UntrackedFilesDialog extends SelectFilesDialog {
+	private static class UntrackedFilesDialog extends SelectFilesDialog
+	{
 
-    public UntrackedFilesDialog(Project project, Collection<VirtualFile> untrackedFiles, String dialogDesc) {
-      super(project, new ArrayList<VirtualFile>(untrackedFiles), StringUtil.stripHtml(dialogDesc, true), null, false, false, true);
-      init();
-    }
+		public UntrackedFilesDialog(Project project, Collection<VirtualFile> untrackedFiles, String dialogDesc)
+		{
+			super(project, new ArrayList<VirtualFile>(untrackedFiles), StringUtil.stripHtml(dialogDesc, true), null, false, false, true);
+			init();
+		}
 
-    @NotNull
-    @Override
-    protected Action[] createActions() {
-      return new Action[]{getOKAction()};
-    }
+		@NotNull
+		@Override
+		protected Action[] createActions()
+		{
+			return new Action[]{getOKAction()};
+		}
 
-  }
+	}
 }

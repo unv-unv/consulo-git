@@ -15,7 +15,11 @@
  */
 package git4idea.branch;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -29,13 +33,8 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
+import com.intellij.dvcs.DvcsUtil;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.openapi.fileEditor.FileEditor;
-import com.intellij.openapi.fileEditor.FileEditorManager;
-import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.LibraryOrderEntry;
 import com.intellij.openapi.roots.OrderEntry;
@@ -43,14 +42,13 @@ import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.roots.SdkOrderEntry;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vcs.AbstractVcs;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.wm.StatusBar;
-import com.intellij.openapi.wm.WindowManager;
-import com.intellij.openapi.wm.impl.status.StatusBarUtil;
+import com.intellij.util.containers.ContainerUtil;
 import com.intellij.vcs.log.Hash;
 import com.intellij.vcsUtil.VcsUtil;
 import git4idea.GitBranch;
@@ -68,6 +66,7 @@ import git4idea.repo.GitBranchTrackInfo;
 import git4idea.repo.GitConfig;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
+import git4idea.repo.GitRepositoryFiles;
 import git4idea.repo.GitRepositoryManager;
 import git4idea.ui.branch.GitMultiRootBranchConfig;
 import git4idea.validators.GitNewBranchNameValidator;
@@ -79,6 +78,7 @@ public class GitBranchUtil
 {
 
 	private static final Logger LOG = Logger.getInstance(GitBranchUtil.class);
+
 	private static final Function<GitBranch, String> BRANCH_TO_NAME = new Function<GitBranch, String>()
 	{
 		@Override
@@ -88,6 +88,8 @@ public class GitBranchUtil
 			return input.getName();
 		}
 	};
+	// The name that specifies that git is on specific commit rather then on some branch ({@value})
+	private static final String NO_BRANCH_NAME = "(no branch)";
 
 	private GitBranchUtil()
 	{
@@ -265,7 +267,8 @@ public class GitBranchUtil
 	}
 
 	/**
-	 * @return {@link git4idea.GitStandardRemoteBranch} or {@link GitSvnRemoteBranch}, or null in case of an error. The error is logged in this method.
+	 * @return {@link git4idea.GitStandardRemoteBranch} or {@link GitSvnRemoteBranch}, or null in case of an error. The error is logged in this
+	 * method.
 	 * @deprecated Should be used only in the GitRepositoryReader, i. e. moved there once all other usages are removed.
 	 */
 	@Deprecated
@@ -356,7 +359,10 @@ public class GitBranchUtil
 	 * @return remote branch or null if such branch couldn't be found.
 	 */
 	@Nullable
-	public static GitRemoteBranch findRemoteBranchByName(@NotNull String remoteBranchName, @NotNull final String remoteName, @NotNull final Collection<GitRemoteBranch> remoteBranches)
+	public static GitRemoteBranch findRemoteBranchByName(
+			@NotNull String remoteBranchName,
+			@NotNull final String remoteName,
+			@NotNull final Collection<GitRemoteBranch> remoteBranches)
 	{
 		final String branchName = stripRefsPrefix(remoteBranchName);
 		Optional<GitRemoteBranch> optional = Iterables.tryFind(remoteBranches, new Predicate<GitRemoteBranch>()
@@ -416,9 +422,13 @@ public class GitBranchUtil
 	 * @return name of new branch or {@code null} if user has cancelled the dialog.
 	 */
 	@Nullable
-	public static String getNewBranchNameFromUser(@NotNull Project project, @NotNull Collection<GitRepository> repositories, @NotNull String dialogTitle)
+	public static String getNewBranchNameFromUser(
+			@NotNull Project project,
+			@NotNull Collection<GitRepository> repositories,
+			@NotNull String dialogTitle)
 	{
-		return Messages.showInputDialog(project, "Enter the name of new branch:", dialogTitle, Messages.getQuestionIcon(), "", GitNewBranchNameValidator.newInstance(repositories));
+		return Messages.showInputDialog(project, "Enter the name of new branch:", dialogTitle, Messages.getQuestionIcon(), "",
+				GitNewBranchNameValidator.newInstance(repositories));
 	}
 
 	/**
@@ -447,48 +457,10 @@ public class GitBranchUtil
 	}
 
 	/**
-	 * Returns the currently selected file, based on which GitBranch components ({@link git4idea.ui.branch.GitBranchPopup}, {@link git4idea.ui.branch.GitBranchWidget})
-	 * will identify the current repository root.
-	 */
-	@Nullable
-	static VirtualFile getSelectedFile(@NotNull Project project)
-	{
-		StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
-		final FileEditor fileEditor = StatusBarUtil.getCurrentFileEditor(project, statusBar);
-		VirtualFile result = null;
-		if(fileEditor != null)
-		{
-			if(fileEditor instanceof TextEditor)
-			{
-				Document document = ((TextEditor) fileEditor).getEditor().getDocument();
-				result = FileDocumentManager.getInstance().getFile(document);
-			}
-			else
-			{
-				result = fileEditor.getVirtualFile();
-			}
-		}
-
-		if(result == null)
-		{
-			final FileEditorManager manager = FileEditorManager.getInstance(project);
-			if(manager != null)
-			{
-				Editor editor = manager.getSelectedTextEditor();
-				if(editor != null)
-				{
-					result = FileDocumentManager.getInstance().getFile(editor.getDocument());
-				}
-			}
-		}
-		return result;
-	}
-
-	/**
 	 * Guesses the Git root on which a Git action is to be invoked.
 	 * <ol>
 	 * <li>
-	 * Returns the root for the selected file. Selected file is determined by {@link #getSelectedFile(com.intellij.openapi.project.Project)}.
+	 * Returns the root for the selected file. Selected file is determined by {@link DvcsUtil#getSelectedFile(com.intellij.openapi.project.Project)}.
 	 * If selected file is unknown (for example, no file is selected in the Project View or Changes View and no file is open in the editor),
 	 * continues guessing. Otherwise returns the Git root for the selected file. If the file is not under a known Git root,
 	 * <code>null</code> will be returned - the file is definitely determined, but it is not under Git.
@@ -515,7 +487,7 @@ public class GitBranchUtil
 	public static GitRepository getCurrentRepository(@NotNull Project project)
 	{
 		GitRepositoryManager manager = GitUtil.getRepositoryManager(project);
-		VirtualFile file = getSelectedFile(project);
+		VirtualFile file = DvcsUtil.getSelectedFile(project);
 		VirtualFile root = getVcsRootOrGuess(project, file);
 		return manager.getRepositoryForRoot(root);
 	}
@@ -655,4 +627,132 @@ public class GitBranchUtil
 		return rootCandidate;
 	}
 
+	@NotNull
+	public static Collection<String> getCommonBranches(Collection<GitRepository> repositories, boolean local)
+	{
+		Collection<String> commonBranches = null;
+		for(GitRepository repository : repositories)
+		{
+			GitBranchesCollection branchesCollection = repository.getBranches();
+
+			Collection<String> names = local ? convertBranchesToNames(branchesCollection.getLocalBranches()) : getBranchNamesWithoutRemoteHead
+					(branchesCollection.getRemoteBranches());
+			if(commonBranches == null)
+			{
+				commonBranches = names;
+			}
+			else
+			{
+				commonBranches = ContainerUtil.intersection(commonBranches, names);
+			}
+		}
+
+		if(commonBranches != null)
+		{
+			ArrayList<String> common = new ArrayList<String>(commonBranches);
+			Collections.sort(common);
+			return common;
+		}
+		else
+		{
+			return Collections.emptyList();
+		}
+	}
+
+	/**
+	 * List branches containing a commit. Specify null if no commit filtering is needed.
+	 */
+	@NotNull
+	public static Collection<String> getBranches(
+			@NotNull Project project,
+			@NotNull VirtualFile root,
+			boolean localWanted,
+			boolean remoteWanted,
+			@Nullable String containingCommit) throws VcsException
+	{
+		// preparing native command executor
+		final GitSimpleHandler handler = new GitSimpleHandler(project, root, GitCommand.BRANCH);
+		handler.setSilent(true);
+		handler.addParameters("--no-color");
+		boolean remoteOnly = false;
+		if(remoteWanted && localWanted)
+		{
+			handler.addParameters("-a");
+			remoteOnly = false;
+		}
+		else if(remoteWanted)
+		{
+			handler.addParameters("-r");
+			remoteOnly = true;
+		}
+		if(containingCommit != null)
+		{
+			handler.addParameters("--contains", containingCommit);
+		}
+		final String output = handler.run();
+
+		if(output.trim().length() == 0)
+		{
+			// the case after git init and before first commit - there is no branch and no output, and we'll take refs/heads/master
+			String head;
+			try
+			{
+				head = FileUtil.loadFile(new File(root.getPath(), GitRepositoryFiles.GIT_HEAD), GitUtil.UTF8_ENCODING).trim();
+				final String prefix = "ref: refs/heads/";
+				return head.startsWith(prefix) ? Collections.singletonList(head.substring(prefix.length())) : Collections.<String>emptyList();
+			}
+			catch(IOException e)
+			{
+				LOG.info(e);
+				return Collections.emptyList();
+			}
+		}
+
+		Collection<String> branches = ContainerUtil.newArrayList();
+		// standard situation. output example:
+		//  master
+		//* my_feature
+		//  remotes/origin/HEAD -> origin/master
+		//  remotes/origin/eap
+		//  remotes/origin/feature
+		//  remotes/origin/master
+		// also possible:
+		//* (no branch)
+		// and if we call with -r instead of -a, remotes/ prefix is omitted:
+		// origin/HEAD -> origin/master
+		final String[] split = output.split("\n");
+		for(String b : split)
+		{
+			b = b.substring(2).trim();
+			if(b.equals(NO_BRANCH_NAME))
+			{
+				continue;
+			}
+
+			String remotePrefix = null;
+			if(b.startsWith("remotes/"))
+			{
+				remotePrefix = "remotes/";
+			}
+			else if(b.startsWith(GitBranch.REFS_REMOTES_PREFIX))
+			{
+				remotePrefix = GitBranch.REFS_REMOTES_PREFIX;
+			}
+			boolean isRemote = remotePrefix != null || remoteOnly;
+			if(isRemote)
+			{
+				if(!remoteOnly)
+				{
+					b = b.substring(remotePrefix.length());
+				}
+				final int idx = b.indexOf("HEAD ->");
+				if(idx > 0)
+				{
+					continue;
+				}
+			}
+			branches.add(b);
+		}
+		return branches;
+	}
 }

@@ -20,42 +20,47 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Information about a single file change as returned by {@code git log status --name-status}.
- *
- * @author Kirill Likhodedov
  */
-class GitLogStatusInfo {
-  
-  private final GitChangeType myType;
-  private final String myPath;
-  private final String mySecondPath;
+public class GitLogStatusInfo
+{
 
-  GitLogStatusInfo(@NotNull GitChangeType type, @NotNull String path, @Nullable String secondPath) {
-    mySecondPath = secondPath;
-    myPath = path;
-    myType = type;
-  }
+	private final GitChangeType myType;
+	private final String myPath;
+	private final String mySecondPath;
 
-  @NotNull
-  public String getFirstPath() {
-    return myPath;
-  }
+	GitLogStatusInfo(@NotNull GitChangeType type, @NotNull String path, @Nullable String secondPath)
+	{
+		mySecondPath = secondPath;
+		myPath = path;
+		myType = type;
+	}
 
-  @NotNull
-  public GitChangeType getType() {
-    return myType;
-  }
+	@NotNull
+	public String getFirstPath()
+	{
+		return myPath;
+	}
 
-  @Nullable
-  public String getSecondPath() {
-    return mySecondPath;
-  }
+	@NotNull
+	public GitChangeType getType()
+	{
+		return myType;
+	}
 
-  @Override
-  public String toString() {
-    String s = myType.toString() + " " + myPath;
-    if (mySecondPath != null) {
-      s += " -> " + mySecondPath;
-    }
-    return s;
-  }
+	@Nullable
+	public String getSecondPath()
+	{
+		return mySecondPath;
+	}
+
+	@Override
+	public String toString()
+	{
+		String s = myType.toString() + " " + myPath;
+		if(mySecondPath != null)
+		{
+			s += " -> " + mySecondPath;
+		}
+		return s;
+	}
 }

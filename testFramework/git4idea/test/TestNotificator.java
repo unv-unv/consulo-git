@@ -20,7 +20,6 @@ import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationListener;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.project.Project;
-import git4idea.Notificator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

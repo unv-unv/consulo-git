@@ -95,8 +95,6 @@
 		<logProvider implementation="git4idea.log.GitLogProvider"/>
 		<vcsChangesViewRefresher implementation="git4idea.changes.GitChangesViewRefresher"/>
 
-		<vcs.rootFinder implementation="git4idea.roots.GitRootFinder"/>
-
 		<projectService
 				serviceInterface="git4idea.history.wholeTree.LogFactoryService"
 				serviceImplementation="git4idea.history.wholeTree.LogFactoryService"/>
@@ -136,8 +134,6 @@
 		<projectService
 				serviceInterface="git4idea.MessageManager"
 				serviceImplementation="git4idea.MessageManager"/>
-		<projectService serviceInterface="git4idea.Notificator"
-						serviceImplementation="git4idea.Notificator"/>
 		<projectService serviceInterface="git4idea.history.wholeTree.GitLogSettings"
 						serviceImplementation="git4idea.history.wholeTree.GitLogSettings"/>
 		<projectService serviceInterface="git4idea.branch.GitBrancher"

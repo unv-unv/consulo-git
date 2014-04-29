@@ -71,94 +71,6 @@ import git4idea.repo.GitRepository;
  */
 class GitPushLog extends JPanel implements TypeSafeDataProvider
 {
-	private static class MyTreeCellRenderer extends CheckboxTree.CheckboxTreeCellRenderer
-	{
-		@Override
-		public void customizeRenderer(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus)
-		{
-			Object userObject;
-			if(value instanceof CheckedTreeNode)
-			{
-				userObject = ((CheckedTreeNode) value).getUserObject();
-			}
-			else if(value instanceof DefaultMutableTreeNode)
-			{
-				userObject = ((DefaultMutableTreeNode) value).getUserObject();
-			}
-			else
-			{
-				return;
-			}
-
-			ColoredTreeCellRenderer renderer = getTextRenderer();
-			if(userObject instanceof GitCommit)
-			{
-				GitCommit commit = (GitCommit) userObject;
-				renderer.append(commit.getSubject(), new SimpleTextAttributes(SimpleTextAttributes.STYLE_SMALLER, getTextRenderer().getForeground()));
-				renderer.setToolTipText(getHashString(commit) + " " + getDateString(commit));
-			}
-			else if(userObject instanceof GitRepository)
-			{
-				String repositoryPath = DvcsUtil.getShortRepositoryName((GitRepository) userObject);
-				renderer.append(repositoryPath, SimpleTextAttributes.GRAY_ATTRIBUTES);
-			}
-			else if(userObject instanceof GitPushBranchInfo)
-			{
-				GitPushBranchInfo branchInfo = (GitPushBranchInfo) userObject;
-				GitBranch fromBranch = branchInfo.getSourceBranch();
-				GitBranch dest = branchInfo.getDestBranch();
-
-				GitPushBranchInfo.Type type = branchInfo.getType();
-				final String showingRecentCommits = ", showing " + GitPusher.RECENT_COMMITS_NUMBER + " recent commits";
-				String text = fromBranch.getName();
-				SimpleTextAttributes attrs = SimpleTextAttributes.REGULAR_ATTRIBUTES;
-				String additionalText = "";
-				switch(type)
-				{
-					case STANDARD:
-						text += " -> " + dest.getName();
-						if(branchInfo.getCommits().isEmpty())
-						{
-							additionalText = " nothing to push";
-						}
-						break;
-					case NEW_BRANCH:
-						text += " -> +" + dest.getName();
-						attrs = SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES;
-						additionalText = " new branch will be created" + showingRecentCommits;
-						break;
-					case NO_TRACKED_OR_TARGET:
-						attrs = SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES;
-						additionalText = " no tracked branch. Use checkbox below to push branch to manually specified" + showingRecentCommits;
-						break;
-				}
-				renderer.append(text, attrs);
-				renderer.append(additionalText, new SimpleTextAttributes(SimpleTextAttributes.STYLE_SMALLER, UIUtil.getInactiveTextColor()));
-			}
-			else if(userObject instanceof FakeCommit)
-			{
-				int spaces = 6 + 15 + 3 + 30;
-				String s = String.format("%" + spaces + "s", " ");
-				renderer.append(s, new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, renderer.getBackground()));
-			}
-			else if(userObject instanceof MoreCommitsToShow)
-			{
-				renderer.append("...");
-			}
-			else
-			{
-				renderer.append(userObject == null ? "" : userObject.toString());
-			}
-		}
-	}
-
-	private static class FakeCommit
-	{
-	}
-
-	private static class MoreCommitsToShow
-	{
-	}
 
 	private final Project myProject;
 	private final Collection<GitRepository> myAllRepositories;
@@ -167,8 +79,8 @@ class GitPushLog extends JPanel implements TypeSafeDataProvider
 	private final DefaultTreeModel myTreeModel;
 	private final CheckedTreeNode myRootNode;
 	private final ReentrantReadWriteLock TREE_CONSTRUCTION_LOCK = new ReentrantReadWriteLock();
-	private final MyTreeCellRenderer myTreeCellRenderer;
 	private boolean myTreeWasConstructed;
+	private final MyTreeCellRenderer myTreeCellRenderer;
 
 	GitPushLog(@NotNull Project project, @NotNull Collection<GitRepository> repositories, @NotNull final Consumer<Boolean> checkboxListener)
 	{
@@ -241,7 +153,8 @@ class GitPushLog extends JPanel implements TypeSafeDataProvider
 		});
 		ToolTipManager.sharedInstance().registerComponent(myTree);
 
-		myChangesBrowser = new ChangesBrowser(project, null, Collections.<Change>emptyList(), null, false, true, null, ChangesBrowser.MyUseCase.LOCAL_CHANGES, null);
+		myChangesBrowser = new ChangesBrowser(project, null, Collections.<Change>emptyList(), null, false, true, null,
+				ChangesBrowser.MyUseCase.LOCAL_CHANGES, null);
 		myChangesBrowser.getDiffAction().registerCustomShortcutSet(CommonShortcuts.getDiff(), myTree);
 		setDefaultEmptyText();
 
@@ -251,70 +164,6 @@ class GitPushLog extends JPanel implements TypeSafeDataProvider
 
 		setLayout(new BorderLayout());
 		add(splitter);
-	}
-
-	@NotNull
-	private static List<GitRepository> sortRepositories(@NotNull final GitCommitsByRepoAndBranch commits)
-	{
-		List<GitRepository> repos = new ArrayList<GitRepository>(commits.getRepositories());
-		Collections.sort(repos, new Comparator<GitRepository>()
-		{
-			@Override
-			public int compare(GitRepository r1, GitRepository r2)
-			{
-				// empty repositories - to the end
-				if(commits.get(r1).isEmpty() && !commits.get(r2).isEmpty())
-				{
-					return 1;
-				}
-				if(commits.get(r2).isEmpty() && !commits.get(r1).isEmpty())
-				{
-					return -1;
-				}
-				return r1.getPresentableUrl().compareTo(r2.getPresentableUrl());
-			}
-		});
-		return repos;
-	}
-
-	private static List<GitBranch> sortBranches(@NotNull Collection<GitBranch> branches)
-	{
-		List<GitBranch> sortedBranches = new ArrayList<GitBranch>(branches);
-		Collections.sort(sortedBranches, new Comparator<GitBranch>()
-		{
-			@Override
-			public int compare(GitBranch o1, GitBranch o2)
-			{
-				return o1.getName().compareTo(o2.getName());
-			}
-		});
-		return sortedBranches;
-	}
-
-	private static DefaultMutableTreeNode createBranchNode(@NotNull GitBranch branch, @NotNull GitPushBranchInfo branchInfo)
-	{
-		DefaultMutableTreeNode branchNode = new DefaultMutableTreeNode(branchInfo);
-		for(GitCommit commit : branchInfo.getCommits())
-		{
-			branchNode.add(new DefaultMutableTreeNode(commit));
-		}
-		if(branchInfo.isNewBranchCreated())
-		{
-			branchNode.add(new DefaultMutableTreeNode(new MoreCommitsToShow()));
-		}
-		return branchNode;
-	}
-
-	@NotNull
-	private static String getDateString(@NotNull GitCommit commit)
-	{
-		return DateFormatUtil.formatPrettyDateTime(commit.getAuthorTime()) + " ";
-	}
-
-	@NotNull
-	private static String getHashString(@NotNull GitCommit commit)
-	{
-		return GitUtil.getShortHash(commit.getHash().toString());
 	}
 
 	private void setDefaultEmptyText()
@@ -427,11 +276,36 @@ class GitPushLog extends JPanel implements TypeSafeDataProvider
 		}
 	}
 
+	@NotNull
+	private static List<GitRepository> sortRepositories(@NotNull final GitCommitsByRepoAndBranch commits)
+	{
+		List<GitRepository> repos = new ArrayList<GitRepository>(commits.getRepositories());
+		Collections.sort(repos, new Comparator<GitRepository>()
+		{
+			@Override
+			public int compare(GitRepository r1, GitRepository r2)
+			{
+				// empty repositories - to the end
+				if(commits.get(r1).isEmpty() && !commits.get(r2).isEmpty())
+				{
+					return 1;
+				}
+				if(commits.get(r2).isEmpty() && !commits.get(r1).isEmpty())
+				{
+					return -1;
+				}
+				return r1.getPresentableUrl().compareTo(r2.getPresentableUrl());
+			}
+		});
+		return repos;
+	}
+
 	/**
 	 * Creates the node with subnodes for a repository and adds it to the rootNode.
 	 * If there is only one repo in the project, doesn't create a node for the repository, and adds subnodes directly to the rootNode.
 	 */
-	private void createRepoNode(@NotNull GitRepository repository, @NotNull GitCommitsByBranch commitsByBranch, @NotNull DefaultMutableTreeNode rootNode)
+	private void createRepoNode(
+			@NotNull GitRepository repository, @NotNull GitCommitsByBranch commitsByBranch, @NotNull DefaultMutableTreeNode rootNode)
 	{
 		DefaultMutableTreeNode parentNode;
 		if(GitUtil.justOneGitRepository(myProject))
@@ -453,6 +327,34 @@ class GitPushLog extends JPanel implements TypeSafeDataProvider
 			DefaultMutableTreeNode branchNode = createBranchNode(branch, commitsByBranch.get(branch));
 			parentNode.add(branchNode);
 		}
+	}
+
+	private static List<GitBranch> sortBranches(@NotNull Collection<GitBranch> branches)
+	{
+		List<GitBranch> sortedBranches = new ArrayList<GitBranch>(branches);
+		Collections.sort(sortedBranches, new Comparator<GitBranch>()
+		{
+			@Override
+			public int compare(GitBranch o1, GitBranch o2)
+			{
+				return o1.getName().compareTo(o2.getName());
+			}
+		});
+		return sortedBranches;
+	}
+
+	private static DefaultMutableTreeNode createBranchNode(@NotNull GitBranch branch, @NotNull GitPushBranchInfo branchInfo)
+	{
+		DefaultMutableTreeNode branchNode = new DefaultMutableTreeNode(branchInfo);
+		for(GitCommit commit : branchInfo.getCommits())
+		{
+			branchNode.add(new DefaultMutableTreeNode(commit));
+		}
+		if(branchInfo.isNewBranchCreated())
+		{
+			branchNode.add(new DefaultMutableTreeNode(new MoreCommitsToShow()));
+		}
+		return branchNode;
 	}
 
 	void displayError(String message)
@@ -513,5 +415,108 @@ class GitPushLog extends JPanel implements TypeSafeDataProvider
 		{
 			TREE_CONSTRUCTION_LOCK.readLock().unlock();
 		}
+	}
+
+	@NotNull
+	private static String getDateString(@NotNull GitCommit commit)
+	{
+		return DateFormatUtil.formatPrettyDateTime(commit.getTime()) + " ";
+	}
+
+	@NotNull
+	private static String getHashString(@NotNull GitCommit commit)
+	{
+		return GitUtil.getShortHash(commit.getHash().toString());
+	}
+
+	private static class MyTreeCellRenderer extends CheckboxTree.CheckboxTreeCellRenderer
+	{
+
+		@Override
+		public void customizeRenderer(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus)
+		{
+			Object userObject;
+			if(value instanceof CheckedTreeNode)
+			{
+				userObject = ((CheckedTreeNode) value).getUserObject();
+			}
+			else if(value instanceof DefaultMutableTreeNode)
+			{
+				userObject = ((DefaultMutableTreeNode) value).getUserObject();
+			}
+			else
+			{
+				return;
+			}
+
+			ColoredTreeCellRenderer renderer = getTextRenderer();
+			if(userObject instanceof GitCommit)
+			{
+				GitCommit commit = (GitCommit) userObject;
+				renderer.append(commit.getSubject(), new SimpleTextAttributes(SimpleTextAttributes.STYLE_SMALLER,
+						getTextRenderer().getForeground()));
+				renderer.setToolTipText(getHashString(commit) + " " + getDateString(commit));
+			}
+			else if(userObject instanceof GitRepository)
+			{
+				String repositoryPath = DvcsUtil.getShortRepositoryName((GitRepository) userObject);
+				renderer.append(repositoryPath, SimpleTextAttributes.GRAY_ATTRIBUTES);
+			}
+			else if(userObject instanceof GitPushBranchInfo)
+			{
+				GitPushBranchInfo branchInfo = (GitPushBranchInfo) userObject;
+				GitBranch fromBranch = branchInfo.getSourceBranch();
+				GitBranch dest = branchInfo.getDestBranch();
+
+				GitPushBranchInfo.Type type = branchInfo.getType();
+				final String showingRecentCommits = ", showing " + GitPusher.RECENT_COMMITS_NUMBER + " recent commits";
+				String text = fromBranch.getName();
+				SimpleTextAttributes attrs = SimpleTextAttributes.REGULAR_ATTRIBUTES;
+				String additionalText = "";
+				switch(type)
+				{
+					case STANDARD:
+						text += " -> " + dest.getName();
+						if(branchInfo.getCommits().isEmpty())
+						{
+							additionalText = " nothing to push";
+						}
+						break;
+					case NEW_BRANCH:
+						text += " -> +" + dest.getName();
+						attrs = SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES;
+						additionalText = " new branch will be created" + showingRecentCommits;
+						break;
+					case NO_TRACKED_OR_TARGET:
+						attrs = SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES;
+						additionalText = " no tracked branch. Use checkbox below to push branch to manually specified" + showingRecentCommits;
+						break;
+				}
+				renderer.append(text, attrs);
+				renderer.append(additionalText, new SimpleTextAttributes(SimpleTextAttributes.STYLE_SMALLER, UIUtil.getInactiveTextColor()));
+			}
+			else if(userObject instanceof FakeCommit)
+			{
+				int spaces = 6 + 15 + 3 + 30;
+				String s = String.format("%" + spaces + "s", " ");
+				renderer.append(s, new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, renderer.getBackground()));
+			}
+			else if(userObject instanceof MoreCommitsToShow)
+			{
+				renderer.append("...");
+			}
+			else
+			{
+				renderer.append(userObject == null ? "" : userObject.toString());
+			}
+		}
+	}
+
+	private static class FakeCommit
+	{
+	}
+
+	private static class MoreCommitsToShow
+	{
 	}
 }

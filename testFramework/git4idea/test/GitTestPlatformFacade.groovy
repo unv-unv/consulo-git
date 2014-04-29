@@ -21,7 +21,7 @@ import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.vcs.AbstractVcs
 import com.intellij.openapi.vcs.ProjectLevelVcsManager
 import git4idea.GitPlatformFacade
-import git4idea.Notificator
+
 import git4idea.config.GitVcsApplicationSettings
 import git4idea.config.GitVcsSettings
 import git4idea.repo.GitRepositoryManager

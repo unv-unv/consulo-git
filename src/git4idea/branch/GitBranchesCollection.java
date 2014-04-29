@@ -15,69 +15,79 @@
  */
 package git4idea.branch;
 
-import com.intellij.openapi.util.Condition;
-import com.intellij.util.containers.ContainerUtil;
-import git4idea.GitLocalBranch;
-import git4idea.GitRemoteBranch;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import com.intellij.openapi.util.Condition;
+import com.intellij.util.containers.ContainerUtil;
+import git4idea.GitBranch;
+import git4idea.GitLocalBranch;
+import git4idea.GitRemoteBranch;
 
 /**
  * <p>
- *   Storage for local, remote and current branches.
- *   The reason of creating this special collection is that
- *   in the terms of performance, they are detected by {@link git4idea.repo.GitRepositoryReader} at once;
- *   and also usually both sets of branches are needed by components, but are treated differently,
- *   so it is more convenient to have them separated, but in a single container.
- * </p> 
- * 
+ * Storage for local, remote and current branches.
+ * The reason of creating this special collection is that
+ * in the terms of performance, they are detected by {@link git4idea.repo.GitRepositoryReader} at once;
+ * and also usually both sets of branches are needed by components, but are treated differently,
+ * so it is more convenient to have them separated, but in a single container.
+ * </p>
+ *
  * @author Kirill Likhodedov
  */
-public final class GitBranchesCollection {
-  
-  public static final GitBranchesCollection EMPTY = new GitBranchesCollection(Collections.<GitLocalBranch>emptyList(),
-                                                                              Collections.<GitRemoteBranch>emptyList());
+public final class GitBranchesCollection
+{
 
-  private final Collection<GitLocalBranch> myLocalBranches;
-  private final Collection<GitRemoteBranch> myRemoteBranches;
+	public static final GitBranchesCollection EMPTY = new GitBranchesCollection(Collections.<GitLocalBranch>emptyList(),
+			Collections.<GitRemoteBranch>emptyList());
 
-  public GitBranchesCollection(@NotNull Collection<GitLocalBranch> localBranches, @NotNull Collection<GitRemoteBranch> remoteBranches) {
-    myRemoteBranches = remoteBranches;
-    myLocalBranches = localBranches;
-  }
+	private final Collection<GitLocalBranch> myLocalBranches;
+	private final Collection<GitRemoteBranch> myRemoteBranches;
 
-  /**
-   * Copy constructor. Sets inside are also copied.
-   */
-  public GitBranchesCollection(@NotNull GitBranchesCollection branches) {
-    this(branches.getLocalBranches(), branches.getRemoteBranches());
-  }
+	public GitBranchesCollection(@NotNull Collection<GitLocalBranch> localBranches, @NotNull Collection<GitRemoteBranch> remoteBranches)
+	{
+		myRemoteBranches = remoteBranches;
+		myLocalBranches = localBranches;
+	}
 
-  /**
-   * @return the copy of local branches set.
-   */
-  @NotNull
-  public Collection<GitLocalBranch> getLocalBranches() {
-    return new HashSet<GitLocalBranch>(myLocalBranches);
-  }
+	@NotNull
+	public Collection<GitLocalBranch> getLocalBranches()
+	{
+		return Collections.unmodifiableCollection(myLocalBranches);
+	}
 
-  /**
-   * @return the copy of remote branches set.
-   */
-  @NotNull
-  public Collection<GitRemoteBranch> getRemoteBranches() {
-    return new HashSet<GitRemoteBranch>(myRemoteBranches);
-  }
+	@NotNull
+	public Collection<GitRemoteBranch> getRemoteBranches()
+	{
+		return Collections.unmodifiableCollection(myRemoteBranches);
+	}
 
-  public GitLocalBranch findLocalBranch(@NotNull final String name) {
-    return ContainerUtil.find(myLocalBranches, new Condition<GitLocalBranch>() {
-      @Override
-      public boolean value(GitLocalBranch branch) {
-        return name.equals(branch.getName());
-      }
-    });
-  }
+	@Nullable
+	public GitLocalBranch findLocalBranch(@NotNull String name)
+	{
+		return findByName(myLocalBranches, name);
+	}
+
+	@Nullable
+	public GitBranch findBranchByName(@NotNull String name)
+	{
+		GitLocalBranch branch = findByName(myLocalBranches, name);
+		return branch != null ? branch : findByName(myRemoteBranches, name);
+	}
+
+	@Nullable
+	private static <T extends GitBranch> T findByName(Collection<T> branches, @NotNull final String name)
+	{
+		return ContainerUtil.find(branches, new Condition<T>()
+		{
+			@Override
+			public boolean value(T branch)
+			{
+				return name.equals(branch.getName());
+			}
+		});
+	}
+
 }

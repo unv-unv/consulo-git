@@ -729,7 +729,7 @@ public class GitLogUI implements Disposable {
 				final Rectangle rc = table.getCellRect(row, column, false);
 				int index = myDescriptionRenderer.myInner.findFragmentAt(e.getPoint().x - rc.x - myDescriptionRenderer.getCurrentWidth());
 				if (index >= 0) {
-					return myDescriptionRenderer.myInner.getFragmentTag(index);
+					return myDescriptionRenderer.myInner.getFragmentTagAt(index);
 				}
 				return null;
 			}

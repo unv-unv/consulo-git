@@ -15,35 +15,39 @@
  */
 package git4idea.commands;
 
-import com.intellij.notification.NotificationType;
 import com.intellij.openapi.project.Project;
-import git4idea.GitVcs;
+import com.intellij.openapi.vcs.VcsNotifier;
 
-/**
- * @author Kirill Likhodedov
- */
-public class GitTaskResultNotificationHandler extends GitTaskResultHandlerAdapter {
-  private final Project myProject;
-  private final String mySuccessMessage;
-  private final String myCancelMessage;
-  private final String myErrorMessage;
+public class GitTaskResultNotificationHandler extends GitTaskResultHandlerAdapter
+{
+	private final Project myProject;
+	private final String mySuccessMessage;
+	private final String myCancelMessage;
+	private final String myErrorMessage;
 
-  public GitTaskResultNotificationHandler(Project project, String successMessage, String cancelMessage, String errorMessage) {
-    myProject = project;
-    mySuccessMessage = successMessage;
-    myCancelMessage = cancelMessage;
-    myErrorMessage = errorMessage;
-  }
+	public GitTaskResultNotificationHandler(Project project, String successMessage, String cancelMessage, String errorMessage)
+	{
+		myProject = project;
+		mySuccessMessage = successMessage;
+		myCancelMessage = cancelMessage;
+		myErrorMessage = errorMessage;
+	}
 
-  @Override protected void onSuccess() {
-    GitVcs.NOTIFICATION_GROUP_ID.createNotification(mySuccessMessage, NotificationType.INFORMATION).notify(myProject);
-  }
+	@Override
+	protected void onSuccess()
+	{
+		VcsNotifier.getInstance(myProject).notifySuccess(mySuccessMessage);
+	}
 
-  @Override protected void onCancel() {
-    GitVcs.NOTIFICATION_GROUP_ID.createNotification(myCancelMessage, NotificationType.INFORMATION).notify(myProject);
-  }
+	@Override
+	protected void onCancel()
+	{
+		VcsNotifier.getInstance(myProject).notifySuccess(myCancelMessage);
+	}
 
-  @Override protected void onFailure() {
-    GitVcs.IMPORTANT_ERROR_NOTIFICATION.createNotification(myErrorMessage, NotificationType.ERROR).notify(myProject);
-  }
+	@Override
+	protected void onFailure()
+	{
+		VcsNotifier.getInstance(myProject).notifyError("", myErrorMessage);
+	}
 }
