@@ -49,7 +49,6 @@ import git4idea.commands.GitStandardProgressAnalyzer;
 import git4idea.commands.GitTask;
 import git4idea.commands.GitTaskResultHandlerAdapter;
 import git4idea.config.GitVersionSpecialty;
-import git4idea.jgit.GitHttpAdapter;
 import git4idea.repo.GitBranchTrackInfo;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
@@ -152,10 +151,6 @@ public class GitFetcher
 	@NotNull
 	private GitFetchResult fetchRemote(@NotNull GitRepository repository, @NotNull GitRemote remote, @NotNull String url)
 	{
-		if(GitHttpAdapter.shouldUseJGit(url))
-		{
-			return GitHttpAdapter.fetch(repository, remote, url, null);
-		}
 		return fetchNatively(repository.getRoot(), remote, url, null);
 	}
 
@@ -173,10 +168,6 @@ public class GitFetcher
 		GitRemote remote = fetchParams.getRemote();
 		String remoteBranch = fetchParams.getRemoteBranch().getNameForRemoteOperations();
 		String url = fetchParams.getUrl();
-		if(GitHttpAdapter.shouldUseJGit(url))
-		{
-			return GitHttpAdapter.fetch(repository, remote, url, remoteBranch);
-		}
 		return fetchNatively(repository.getRoot(), remote, url, remoteBranch);
 	}
 
@@ -222,26 +213,13 @@ public class GitFetcher
 				LOG.error("URL is null for remote " + remote.getName());
 				continue;
 			}
-			if(GitHttpAdapter.shouldUseJGit(url))
+
+			GitFetchResult res = fetchNatively(repository.getRoot(), remote, url, null);
+			res.addPruneInfo(fetchResult.getPrunedRefs());
+			fetchResult = res;
+			if(!fetchResult.isSuccess())
 			{
-				GitFetchResult res = GitHttpAdapter.fetch(repository, remote, url, null);
-				res.addPruneInfo(fetchResult.getPrunedRefs());
-				fetchResult = res;
-				myErrors.addAll(fetchResult.getErrors());
-				if(!fetchResult.isSuccess())
-				{
-					break;
-				}
-			}
-			else
-			{
-				GitFetchResult res = fetchNatively(repository.getRoot(), remote, url, null);
-				res.addPruneInfo(fetchResult.getPrunedRefs());
-				fetchResult = res;
-				if(!fetchResult.isSuccess())
-				{
-					break;
-				}
+				break;
 			}
 		}
 		return fetchResult;

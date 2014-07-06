@@ -53,7 +53,6 @@ import git4idea.config.GitConfigUtil;
 import git4idea.config.GitVcsSettings;
 import git4idea.config.UpdateMethod;
 import git4idea.history.GitHistoryUtils;
-import git4idea.jgit.GitHttpAdapter;
 import git4idea.repo.GitBranchTrackInfo;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
@@ -397,15 +396,7 @@ public final class GitPusher
 			return GitSimplePushResult.error("There are no URLs defined for remote " + remote.getName());
 		}
 		String url = pushUrls.iterator().next();
-		GitSimplePushResult pushResult;
-		if(GitHttpAdapter.shouldUseJGit(url))
-		{
-			pushResult = GitHttpAdapter.push(repository, remote.getName(), url, formPushSpec(pushSpec, remote));
-		}
-		else
-		{
-			pushResult = pushNatively(repository, pushSpec, url);
-		}
+		GitSimplePushResult pushResult = pushNatively(repository, pushSpec, url);
 
 		if(pushResult.getType() == GitSimplePushResult.Type.SUCCESS)
 		{

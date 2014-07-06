@@ -35,9 +35,6 @@ import git4idea.commands.GitCommandResult;
 import git4idea.commands.GitLineHandlerListener;
 import git4idea.commands.GitStandardProgressAnalyzer;
 import git4idea.i18n.GitBundle;
-import git4idea.jgit.GitHttpAdapter;
-import git4idea.update.GitFetchResult;
-import git4idea.update.GitFetcher;
 
 /**
  * Checkout provider for the Git
@@ -126,16 +123,7 @@ public class GitCheckoutProvider implements CheckoutProvider
 	public static boolean doClone(@NotNull Project project, @NotNull ProgressIndicator indicator, @NotNull Git git, @NotNull String directoryName,
 			@NotNull String parentDirectory, @NotNull String sourceRepositoryURL, String puttyKey)
 	{
-		if(GitHttpAdapter.shouldUseJGit(sourceRepositoryURL))
-		{
-			GitFetchResult result = GitHttpAdapter.cloneRepository(project, new File(parentDirectory, directoryName), sourceRepositoryURL);
-			GitFetcher.displayFetchResult(project, result, "Clone failed", result.getErrors());
-			return result.isSuccess();
-		}
-		else
-		{
-			return cloneNatively(project, indicator, git, new File(parentDirectory), sourceRepositoryURL, directoryName, puttyKey);
-		}
+		return cloneNatively(project, indicator, git, new File(parentDirectory), sourceRepositoryURL, directoryName, puttyKey);
 	}
 
 	private static boolean cloneNatively(@NotNull Project project, @NotNull final ProgressIndicator indicator, @NotNull Git git,

@@ -5,8 +5,7 @@
     </CLASSES>
     <DOCUMENTATION />
     <SOURCES>
-      <root url="zip://$PROJECT_DIR$/../!req/consulo-git/lib/trilead-ssh2-src.zip!/" />
+      <root url="zip://$PROJECT_DIR$/lib/trilead-ssh2-src.zip!/" />
     </SOURCES>
-    <jarDirectory url="zip://$PROJECT_DIR$/../!req/consulo-git/lib/trilead-ssh2-src.zip!/" recursive="false" type="SOURCES" />
   </library>
 </component>

@@ -5,8 +5,7 @@
     </CLASSES>
     <DOCUMENTATION />
     <SOURCES>
-      <root url="zip://$PROJECT_DIR$/../!req/consulo-git/lib/ini4j/ini4j-0.5.2-patched-sources.zip!/" />
+      <root url="zip://$PROJECT_DIR$/lib/ini4j/ini4j-0.5.2-patched-sources.zip!/" />
     </SOURCES>
-    <jarDirectory url="zip://$PROJECT_DIR$/../!req/consulo-git/lib/ini4j/ini4j-0.5.2-patched-sources.zip!/" recursive="false" type="SOURCES" />
   </library>
 </component>

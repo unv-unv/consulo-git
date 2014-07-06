@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package git4idea.jgit;
+package git4idea.remote;
 
-import com.intellij.openapi.extensions.ExtensionPointName;
-import com.intellij.util.AuthData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import com.intellij.openapi.extensions.ExtensionPointName;
+import com.intellij.util.AuthData;
 
 /**
- * Provides authentication information to the {@link GitHttpAdapter} on attempt to connect an HTTP remote.
+ * Provides authentication information to the {@link git4idea.commands.GitHttpAuthenticator} on attempt to connect an HTTP remote.
  * Useful for reusing Github credentials stored in the settings to connect the github remote (IDEA-87530).
  *
  * @author Kirill Likhodedov
