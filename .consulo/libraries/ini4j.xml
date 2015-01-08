@@ -1,11 +1,10 @@
 <component name="libraryTable">
   <library name="ini4j">
-    <CLASSES>
+    <binaries>
       <root url="jar://$PROJECT_DIR$/lib/ini4j/ini4j-0.5.2-patched.jar!/" />
-    </CLASSES>
-    <DOCUMENTATION />
-    <SOURCES>
+    </binaries>
+    <sources>
       <root url="zip://$PROJECT_DIR$/lib/ini4j/ini4j-0.5.2-patched-sources.zip!/" />
-    </SOURCES>
+    </sources>
   </library>
 </component>
