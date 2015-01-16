@@ -25,24 +25,27 @@ import git4idea.repo.GitRepository;
 
 /**
  * <p>Represents a Git branch, local or remote.</p>
- *
+ * <p/>
  * <p>Local and remote branches are different in that nature, that remote branch has complex name ("origin/master") containing both
- *    the name of the remote and the name of the branch. And while the standard name of the remote branch if origin/master,
- *    in certain cases we must operate with the name which the branch has at the remote: "master".</p>
- *
+ * the name of the remote and the name of the branch. And while the standard name of the remote branch if origin/master,
+ * in certain cases we must operate with the name which the branch has at the remote: "master".</p>
+ * <p/>
  * <p>It contains information about the branch name and the hash it points to.
- *    Note that the object (including the hash) is immutable. That means that if branch reference move along, you have to get new instance
- *    of the GitBranch object, probably from {@link GitRepository#getBranches()} or {@link git4idea.repo.GitRepository#getCurrentBranch()}.
+ * Note that the object (including the hash) is immutable. That means that if branch reference move along, you have to get new instance
+ * of the GitBranch object, probably from {@link GitRepository#getBranches()} or {@link git4idea.repo.GitRepository#getCurrentBranch()}.
  * </p>
- *
+ * <p/>
  * <p>GitBranches are equal, if their full names are equal. That means that if two GitBranch objects have different hashes, they
- *    are considered equal. But in this case an error if logged, becase it means that one of this GitBranch instances is out-of-date, and
- *    it is required to use an {@link GitRepository#update(TrackedTopic...) updated} version.</p>
+ * are considered equal. But in this case an error if logged, becase it means that one of this GitBranch instances is out-of-date, and
+ * it is required to use an {@link GitRepository#update(TrackedTopic...) updated} version.</p>
  */
-public abstract class GitBranch extends GitReference {
+public abstract class GitBranch extends GitReference
+{
 
-	@NonNls public static final String REFS_HEADS_PREFIX = "refs/heads/"; // Prefix for local branches ({@value})
-	@NonNls public static final String REFS_REMOTES_PREFIX = "refs/remotes/"; // Prefix for remote branches ({@value})
+	@NonNls
+	public static final String REFS_HEADS_PREFIX = "refs/heads/"; // Prefix for local branches ({@value})
+	@NonNls
+	public static final String REFS_REMOTES_PREFIX = "refs/remotes/"; // Prefix for remote branches ({@value})
 
 	/**
 	 * @deprecated All usages should be reviewed and substituted with actual GitBranch objects with Hashes retrieved from the GitRepository.
@@ -52,22 +55,25 @@ public abstract class GitBranch extends GitReference {
 
 	private static final Logger LOG = Logger.getInstance(GitBranch.class);
 
-	@NotNull private final Hash myHash;
+	@NotNull
+	private final Hash myHash;
 
-	protected GitBranch(@NotNull String name, @NotNull Hash hash) {
+	protected GitBranch(@NotNull String name, @NotNull Hash hash)
+	{
 		super(GitBranchUtil.stripRefsPrefix(name));
 		myHash = hash;
 	}
 
 	/**
 	 * <p>Returns the hash on which this branch is reference to.</p>
-	 *
+	 * <p/>
 	 * <p>In certain cases (which are to be eliminated in the future) it may be empty,
-	 *    if this information wasn't supplied to the GitBranch constructor.</p>
+	 * if this information wasn't supplied to the GitBranch constructor.</p>
 	 */
 	@NotNull
-	public String getHash() {
-		return myHash.asString();
+	public Hash getHash()
+	{
+		return myHash;
 	}
 
 	/**
@@ -75,14 +81,18 @@ public abstract class GitBranch extends GitReference {
 	 */
 	public abstract boolean isRemote();
 
+	@Override
 	@NotNull
-	public String getFullName() {
+	public String getFullName()
+	{
 		return (isRemote() ? REFS_REMOTES_PREFIX : REFS_HEADS_PREFIX) + myName;
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		if (!super.equals(o)) {
+	public boolean equals(Object o)
+	{
+		if(!super.equals(o))
+		{
 			return false;
 		}
 
@@ -90,7 +100,7 @@ public abstract class GitBranch extends GitReference {
 		// branches are considered equal even if they point to different commits.
 
     /*
-      Commenting this for a while, because GitRepository has different update() methods: thus in certain cases only current branch is
+	  Commenting this for a while, because GitRepository has different update() methods: thus in certain cases only current branch is
       updated => this branch in the branches collection has different hash.
       Need either to update everything always, either to have a GitBranches collection in GitRepository and not recreate it.
 
@@ -110,17 +120,20 @@ public abstract class GitBranch extends GitReference {
 	}
 
 	@Override
-	public int hashCode() {
+	public int hashCode()
+	{
 		return super.hashCode();
 	}
 
 	@Override
-	public String toString() {
+	public String toString()
+	{
 		return super.toString();
 	}
 
 	@NotNull
-	public String toLogString() {
+	public String toLogString()
+	{
 		return String.format("%s:%s:%s", getFullName(), getHash(), isRemote() ? "remote" : "local");
 	}
 

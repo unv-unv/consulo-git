@@ -15,7 +15,11 @@
  */
 package git4idea.ui.branch;
 
+import java.awt.event.MouseEvent;
+
+import org.jetbrains.annotations.NotNull;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.project.Project;
@@ -30,143 +34,175 @@ import git4idea.branch.GitBranchUtil;
 import git4idea.config.GitVcsSettings;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
-import org.jetbrains.annotations.NotNull;
-
-import java.awt.event.MouseEvent;
 
 /**
  * Status bar widget which displays the current branch for the file currently open in the editor.
+ *
  * @author Kirill Likhodedov
  */
-public class GitBranchWidget extends EditorBasedWidget implements StatusBarWidget.MultipleTextValuesPresentation,
-                                                                  StatusBarWidget.Multiframe,
-                                                                  GitRepositoryChangeListener {
-  private final GitVcsSettings mySettings;
-  private volatile String myText = "";
-  private volatile String myTooltip = "";
-  private final String myMaxString;
+public class GitBranchWidget extends EditorBasedWidget implements StatusBarWidget.MultipleTextValuesPresentation, StatusBarWidget.Multiframe,
+		GitRepositoryChangeListener
+{
+	private static final Logger LOG = Logger.getInstance(GitBranchWidget.class);
 
-  public GitBranchWidget(Project project) {
-    super(project);
-    project.getMessageBus().connect().subscribe(GitRepository.GIT_REPO_CHANGE, this);
-    mySettings = GitVcsSettings.getInstance(project);
-    myMaxString = "Git: Rebasing master";
-  }
+	private final GitVcsSettings mySettings;
+	private volatile String myText = "";
+	private volatile String myTooltip = "";
+	private final String myMaxString;
 
-  @Override
-  public StatusBarWidget copy() {
-    return new GitBranchWidget(getProject());
-  }
+	public GitBranchWidget(Project project)
+	{
+		super(project);
+		project.getMessageBus().connect().subscribe(GitRepository.GIT_REPO_CHANGE, this);
+		mySettings = GitVcsSettings.getInstance(project);
+		myMaxString = "Git: Rebasing master";
+	}
 
-  @NotNull
-  @Override
-  public String ID() {
-    return GitBranchWidget.class.getName();
-  }
+	@Override
+	public StatusBarWidget copy()
+	{
+		return new GitBranchWidget(getProject());
+	}
 
-  @Override
-  public WidgetPresentation getPresentation(@NotNull PlatformType type) {
-    return this;
-  }
+	@NotNull
+	@Override
+	public String ID()
+	{
+		return GitBranchWidget.class.getName();
+	}
 
-  @Override
-  public void selectionChanged(@NotNull FileEditorManagerEvent event) {
-    update();
-  }
+	@Override
+	public WidgetPresentation getPresentation(@NotNull PlatformType type)
+	{
+		return this;
+	}
 
-  @Override
-  public void fileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
-    update();
-  }
+	@Override
+	public void selectionChanged(@NotNull FileEditorManagerEvent event)
+	{
+		LOG.debug("selection changed");
+		update();
+	}
 
-  @Override
-  public void fileClosed(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
-    update();
-  }
+	@Override
+	public void fileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file)
+	{
+		LOG.debug("file opened");
+		update();
+	}
 
-  @Override
-  public void repositoryChanged(@NotNull GitRepository repository) {
-    update();
-  }
+	@Override
+	public void fileClosed(@NotNull FileEditorManager source, @NotNull VirtualFile file)
+	{
+		LOG.debug("file closed");
+		update();
+	}
 
-  @Override
-  public ListPopup getPopupStep() {
-    Project project = getProject();
-    if (project == null) {
-      return null;
-    }
-    GitRepository repo = GitBranchUtil.getCurrentRepository(project);
-    if (repo == null) {
-      return null;
-    }
-    return GitBranchPopup.getInstance(project, repo).asListPopup();
-  }
+	@Override
+	public void repositoryChanged(@NotNull GitRepository repository)
+	{
+		LOG.debug("repository changed");
+		ApplicationManager.getApplication().invokeLater(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				LOG.debug("update after repository change");
+				update();
+			}
+		});
+	}
 
-  @Override
-  public String getSelectedValue() {
-    final String text = myText;
-    return StringUtil.isEmpty(text) ? "" : "Git: " + text;
-  }
+	@Override
+	public ListPopup getPopupStep()
+	{
+		Project project = getProject();
+		if(project == null)
+		{
+			return null;
+		}
+		GitRepository repo = GitBranchUtil.getCurrentRepository(project);
+		if(repo == null)
+		{
+			return null;
+		}
+		update(); // update on click
+		return GitBranchPopup.getInstance(project, repo).asListPopup();
+	}
 
-  @NotNull
-  @Override
-  @Deprecated
-  public String getMaxValue() {
-    return myMaxString;
-  }
+	@Override
+	public String getSelectedValue()
+	{
+		final String text = myText;
+		return StringUtil.isEmpty(text) ? "" : "Git: " + text;
+	}
 
-  @Override
-  public String getTooltipText() {
-    return myTooltip;
-  }
+	@NotNull
+	@Override
+	@Deprecated
+	public String getMaxValue()
+	{
+		return myMaxString;
+	}
 
-  @Override
-  // Updates branch information on click
-  public Consumer<MouseEvent> getClickConsumer() {
-    return new Consumer<MouseEvent>() {
-      public void consume(MouseEvent mouseEvent) {
-          update();
-      }
-    };
-  }
+	@Override
+	public String getTooltipText()
+	{
+		return myTooltip;
+	}
 
-  private void update() {
-    ApplicationManager.getApplication().invokeLater(new Runnable() {
-      @Override
-      public void run() {
-        Project project = getProject();
-        if (project == null) {
-          emptyTextAndTooltip();
-          return;
-        }
+	@Override
+	// have no effect since the click opens a list popup, and the consumer is not called for the MultipleTextValuesPresentation
+	public Consumer<MouseEvent> getClickConsumer()
+	{
+		return new Consumer<MouseEvent>()
+		{
+			@Override
+			public void consume(MouseEvent mouseEvent)
+			{
+				update();
+			}
+		};
+	}
 
-        GitRepository repo = GitBranchUtil.getCurrentRepository(project);
-        if (repo == null) { // the file is not under version control => display nothing
-          emptyTextAndTooltip();
-          return;
-        }
+	private void update()
+	{
+		Project project = getProject();
+		if(project == null || project.isDisposed())
+		{
+			emptyTextAndTooltip();
+			return;
+		}
 
-        int maxLength = myMaxString.length() - 1; // -1, because there are arrows indicating that it is a popup
-        myText = StringUtil.shortenTextWithEllipsis(GitBranchUtil.getDisplayableBranchText(repo), maxLength, 5);
-        myTooltip = getDisplayableBranchTooltip(repo);
-        myStatusBar.updateWidget(ID());
-        mySettings.setRecentRoot(repo.getRoot().getPath());
-      }
-    });
-  }
+		GitRepository repo = GitBranchUtil.getCurrentRepository(project);
+		if(repo == null)
+		{ // the file is not under version control => display nothing
+			emptyTextAndTooltip();
+			return;
+		}
 
-  private void emptyTextAndTooltip() {
-    myText = "";
-    myTooltip = "";
-  }
+		int maxLength = myMaxString.length() - 1; // -1, because there are arrows indicating that it is a popup
+		myText = StringUtil.shortenTextWithEllipsis(GitBranchUtil.getDisplayableBranchText(repo), maxLength, 5);
+		myTooltip = getDisplayableBranchTooltip(repo);
+		myStatusBar.updateWidget(ID());
+		mySettings.setRecentRoot(repo.getRoot().getPath());
+	}
 
-  @NotNull
-  private static String getDisplayableBranchTooltip(GitRepository repo) {
-    String text = GitBranchUtil.getDisplayableBranchText(repo);
-    if (!GitUtil.justOneGitRepository(repo.getProject())) {
-      return text + "\n" + "Root: " + repo.getRoot().getName();
-    }
-    return text;
-  }
+	private void emptyTextAndTooltip()
+	{
+		myText = "";
+		myTooltip = "";
+	}
+
+	@NotNull
+	private static String getDisplayableBranchTooltip(GitRepository repo)
+	{
+		String text = GitBranchUtil.getDisplayableBranchText(repo);
+		if(!GitUtil.justOneGitRepository(repo.getProject()))
+		{
+			return text + "\n" + "Root: " + repo.getRoot().getName();
+		}
+		return text;
+	}
 
 }

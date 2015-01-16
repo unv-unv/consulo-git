@@ -26,11 +26,14 @@ import com.intellij.util.AuthData;
  *
  * @author Kirill Likhodedov
  */
-public interface GitHttpAuthDataProvider {
+public interface GitHttpAuthDataProvider
+{
 
-  ExtensionPointName<GitHttpAuthDataProvider> EP_NAME = ExtensionPointName.create("Git4Idea.GitHttpAuthDataProvider");
+	ExtensionPointName<GitHttpAuthDataProvider> EP_NAME = ExtensionPointName.create("Git4Idea.GitHttpAuthDataProvider");
 
-  @Nullable
-  AuthData getAuthData(@NotNull String url);
+	@Nullable
+	AuthData getAuthData(@NotNull String url);
+
+	void forgetPassword(@NotNull String url);
 
 }

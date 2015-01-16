@@ -28,6 +28,7 @@ import javax.swing.event.ListSelectionListener;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import com.intellij.dvcs.DvcsUtil;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.CommonShortcuts;
 import com.intellij.openapi.actionSystem.DataKey;
@@ -45,7 +46,6 @@ import com.intellij.util.ui.ColumnInfo;
 import com.intellij.util.ui.ListTableModel;
 import com.intellij.util.ui.UIUtil;
 import git4idea.GitCommit;
-import git4idea.GitUtil;
 
 /**
  * A table with the list of commits.
@@ -54,43 +54,6 @@ import git4idea.GitUtil;
  */
 public class GitCommitListPanel extends JPanel implements TypeSafeDataProvider
 {
-
-	private static class ItemAndWidth
-	{
-		private final String myItem;
-		private final int myWidth;
-
-		private ItemAndWidth(String item, int width)
-		{
-			myItem = item;
-			myWidth = width;
-		}
-	}
-
-	private abstract static class GitCommitColumnInfo extends ColumnInfo<GitCommit, String>
-	{
-
-		@NotNull
-		private final String myMaxString;
-
-		public GitCommitColumnInfo(@NotNull String name, @NotNull String maxString)
-		{
-			super(name);
-			myMaxString = maxString;
-		}
-
-		@Override
-		public String getMaxStringValue()
-		{
-			return myMaxString;
-		}
-
-		@Override
-		public int getAdditionalWidth()
-		{
-			return UIUtil.DEFAULT_HGAP;
-		}
-	}
 
 	private final List<GitCommit> myCommits;
 	private final TableView<GitCommit> myTable;
@@ -110,21 +73,6 @@ public class GitCommitListPanel extends JPanel implements TypeSafeDataProvider
 
 		setLayout(new BorderLayout());
 		add(ScrollPaneFactory.createScrollPane(myTable));
-	}
-
-	private static String getHash(GitCommit commit)
-	{
-		return GitUtil.getShortHash(commit.getHash().toString());
-	}
-
-	private static String getAuthor(GitCommit commit)
-	{
-		return commit.getAuthor().getName();
-	}
-
-	private static String getTime(GitCommit commit)
-	{
-		return DateFormatUtil.formatPrettyDateTime(commit.getAuthorTime());
 	}
 
 	/**
@@ -277,6 +225,58 @@ public class GitCommitListPanel extends JPanel implements TypeSafeDataProvider
 			return new ItemAndWidth(candidate, width);
 		}
 		return current;
+	}
+
+	private static class ItemAndWidth
+	{
+		private final String myItem;
+		private final int myWidth;
+
+		private ItemAndWidth(String item, int width)
+		{
+			myItem = item;
+			myWidth = width;
+		}
+	}
+
+	private static String getHash(GitCommit commit)
+	{
+		return DvcsUtil.getShortHash(commit.getId().toString());
+	}
+
+	private static String getAuthor(GitCommit commit)
+	{
+		return commit.getAuthor().getName();
+	}
+
+	private static String getTime(GitCommit commit)
+	{
+		return DateFormatUtil.formatPrettyDateTime(commit.getAuthorTime());
+	}
+
+	private abstract static class GitCommitColumnInfo extends ColumnInfo<GitCommit, String>
+	{
+
+		@NotNull
+		private final String myMaxString;
+
+		public GitCommitColumnInfo(@NotNull String name, @NotNull String maxString)
+		{
+			super(name);
+			myMaxString = maxString;
+		}
+
+		@Override
+		public String getMaxStringValue()
+		{
+			return myMaxString;
+		}
+
+		@Override
+		public int getAdditionalWidth()
+		{
+			return UIUtil.DEFAULT_HGAP;
+		}
 	}
 
 }

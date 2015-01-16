@@ -16,32 +16,22 @@
 package git4idea.update;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.jetbrains.annotations.NotNull;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vcs.update.UpdatedFiles;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.ui.UIUtil;
 import git4idea.GitBranch;
 import git4idea.GitUtil;
 import git4idea.branch.GitBranchPair;
 import git4idea.commands.Git;
-import git4idea.commands.GitCommand;
 import git4idea.commands.GitCommandResult;
-import git4idea.commands.GitLineHandler;
-import git4idea.commands.GitStandardProgressAnalyzer;
-import git4idea.commands.GitTask;
-import git4idea.commands.GitTaskResultHandlerAdapter;
-import git4idea.commands.GitUntrackedFilesOverwrittenByOperationDetector;
-import git4idea.rebase.GitRebaseProblemDetector;
 import git4idea.rebase.GitRebaser;
 import git4idea.repo.GitRepository;
 
@@ -53,13 +43,12 @@ public class GitRebaseUpdater extends GitUpdater
 	private static final Logger LOG = Logger.getInstance(GitRebaseUpdater.class.getName());
 	private final GitRebaser myRebaser;
 
-	public GitRebaseUpdater(
-			@NotNull Project project,
+	public GitRebaseUpdater(@NotNull Project project,
 			@NotNull Git git,
 			@NotNull VirtualFile root,
 			@NotNull final Map<VirtualFile, GitBranchPair> trackedBranches,
-			ProgressIndicator progressIndicator,
-			UpdatedFiles updatedFiles)
+			@NotNull ProgressIndicator progressIndicator,
+			@NotNull UpdatedFiles updatedFiles)
 	{
 		super(project, git, root, trackedBranches, progressIndicator, updatedFiles);
 		myRebaser = new GitRebaser(myProject, git, myProgressIndicator);
@@ -71,51 +60,21 @@ public class GitRebaseUpdater extends GitUpdater
 		return true;
 	}
 
+	@NotNull
+	@Override
 	protected GitUpdateResult doUpdate()
 	{
 		LOG.info("doUpdate ");
 		String remoteBranch = getRemoteBranchToMerge();
-
-		final GitLineHandler rebaseHandler = new GitLineHandler(myProject, myRoot, GitCommand.REBASE);
-		rebaseHandler.addParameters(remoteBranch);
-		final GitRebaseProblemDetector rebaseConflictDetector = new GitRebaseProblemDetector();
-		rebaseHandler.addLineListener(rebaseConflictDetector);
-		GitUntrackedFilesOverwrittenByOperationDetector untrackedFilesDetector = new GitUntrackedFilesOverwrittenByOperationDetector(myRoot);
-		rebaseHandler.addLineListener(untrackedFilesDetector);
-
-		String progressTitle = makeProgressTitle("Rebasing");
-		GitTask rebaseTask = new GitTask(myProject, rebaseHandler, progressTitle);
-		rebaseTask.setProgressIndicator(myProgressIndicator);
-		rebaseTask.setProgressAnalyzer(new GitStandardProgressAnalyzer());
-		final AtomicReference<GitUpdateResult> updateResult = new AtomicReference<GitUpdateResult>();
-		final AtomicBoolean failure = new AtomicBoolean();
-		rebaseTask.executeInBackground(true, new GitTaskResultHandlerAdapter()
+		List<String> params = Collections.singletonList(remoteBranch);
+		return myRebaser.rebase(myRoot, params, new Runnable()
 		{
 			@Override
-			protected void onSuccess()
-			{
-				updateResult.set(GitUpdateResult.SUCCESS);
-			}
-
-			@Override
-			protected void onCancel()
+			public void run()
 			{
 				cancel();
-				updateResult.set(GitUpdateResult.CANCEL);
 			}
-
-			@Override
-			protected void onFailure()
-			{
-				failure.set(true);
-			}
-		});
-
-		if(failure.get())
-		{
-			updateResult.set(myRebaser.handleRebaseFailure(rebaseHandler, myRoot, rebaseConflictDetector, untrackedFilesDetector));
-		}
-		return updateResult.get();
+		}, null);
 	}
 
 	@NotNull
@@ -128,45 +87,11 @@ public class GitRebaseUpdater extends GitUpdater
 		return dest.getName();
 	}
 
-	// TODO
-	//if (!checkLocallyModified(myRoot)) {
-	//  cancel();
-	//  updateSucceeded.set(false);
-	//}
-
-
-	// TODO: show at any case of update successfullibility, also don't show here but for all roots
-	//if (mySkippedCommits.size() > 0) {
-	//  GitSkippedCommits.showSkipped(myProject, mySkippedCommits);
-	//}
-
 	public void cancel()
 	{
 		myRebaser.abortRebase(myRoot);
 		myProgressIndicator.setText2("Refreshing files for the root " + myRoot.getPath());
 		myRoot.refresh(false, true);
-	}
-
-	/**
-	 * Check and process locally modified files
-	 *
-	 * @param root the project root
-	 * @param ex   the exception holder
-	 */
-	protected boolean checkLocallyModified(final VirtualFile root) throws VcsException
-	{
-		final Ref<Boolean> cancelled = new Ref<Boolean>(false);
-		UIUtil.invokeAndWaitIfNeeded(new Runnable()
-		{
-			public void run()
-			{
-				if(!GitUpdateLocallyModifiedDialog.showIfNeeded(myProject, root))
-				{
-					cancelled.set(true);
-				}
-			}
-		});
-		return !cancelled.get();
 	}
 
 	@Override
@@ -212,7 +137,7 @@ public class GitRebaseUpdater extends GitUpdater
 			LOG.info("Couldn't mark end for repository " + myRoot, e);
 			VcsNotifier.getInstance(myProject).
 					notifyMinorWarning("Couldn't collect the updated files info", String.format("Update of %s was successful, " +
-							"" + "but we couldn't collect the updated changes because of an error", myRoot), null);
+							"but we couldn't collect the updated changes because of an error", myRoot), null);
 		}
 		return result.success();
 	}

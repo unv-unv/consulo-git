@@ -23,17 +23,27 @@ import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.GitCommit;
-import git4idea.push.GitPushSpec;
+import git4idea.GitLocalBranch;
+import git4idea.GitRemoteBranch;
 import git4idea.repo.GitRepository;
+import git4idea.reset.GitResetMode;
 
-/**
- * @author Kirill Likhodedov
- */
 public interface Git
 {
+
+	/**
+	 * A generic method to run a Git command, when existing methods like {@link #fetch(GitRepository, String, String, List, String...)}
+	 * are not sufficient.
+	 *
+	 * @param handlerConstructor this is needed, since the operation may need to repeat (e.g. in case of authentication failure).
+	 *                           make sure to supply a stateless constructor.
+	 */
+	@NotNull
+	GitCommandResult runCommand(@NotNull Computable<GitLineHandler> handlerConstructor);
 
 	@NotNull
 	GitCommandResult init(@NotNull Project project, @NotNull VirtualFile root, @NotNull GitLineHandlerListener... listeners);
@@ -44,12 +54,17 @@ public interface Git
 
 	// relativePaths are guaranteed to fit into command line length limitations.
 	@NotNull
-	Collection<VirtualFile> untrackedFilesNoChunk(@NotNull Project project, @NotNull VirtualFile root, @Nullable List<String> relativePaths) throws
-			VcsException;
+	Collection<VirtualFile> untrackedFilesNoChunk(@NotNull Project project,
+			@NotNull VirtualFile root,
+			@Nullable List<String> relativePaths) throws VcsException;
 
 	@NotNull
-	GitCommandResult clone(@NotNull Project project, @NotNull File parentDirectory, @NotNull String url, String puttyKey,
-			@NotNull String clonedDirectoryName, @NotNull GitLineHandlerListener... progressListeners);
+	GitCommandResult clone(@NotNull Project project,
+			@NotNull File parentDirectory,
+			@NotNull String url,
+			@Nullable String puttyKey,
+			@NotNull String clonedDirectoryName,
+			@NotNull GitLineHandlerListener... progressListeners);
 
 	@NotNull
 	GitCommandResult config(@NotNull GitRepository repository, String... params);
@@ -58,22 +73,31 @@ public interface Git
 	GitCommandResult diff(@NotNull GitRepository repository, @NotNull List<String> parameters, @NotNull String range);
 
 	@NotNull
-	GitCommandResult merge(@NotNull GitRepository repository, @NotNull String branchToMerge, @Nullable List<String> additionalParams,
+	GitCommandResult merge(@NotNull GitRepository repository,
+			@NotNull String branchToMerge,
+			@Nullable List<String> additionalParams,
 			@NotNull GitLineHandlerListener... listeners);
 
 	@NotNull
-	GitCommandResult checkout(@NotNull GitRepository repository, @NotNull String reference, @Nullable String newBranch, boolean force,
+	GitCommandResult checkout(@NotNull GitRepository repository,
+			@NotNull String reference,
+			@Nullable String newBranch,
+			boolean force,
 			@NotNull GitLineHandlerListener... listeners);
 
 	@NotNull
 	GitCommandResult checkoutNewBranch(@NotNull GitRepository repository, @NotNull String branchName, @Nullable GitLineHandlerListener listener);
 
 	@NotNull
-	GitCommandResult createNewTag(@NotNull GitRepository repository, @NotNull String tagName, @Nullable GitLineHandlerListener listener,
+	GitCommandResult createNewTag(@NotNull GitRepository repository,
+			@NotNull String tagName,
+			@Nullable GitLineHandlerListener listener,
 			@NotNull String reference);
 
 	@NotNull
-	GitCommandResult branchDelete(@NotNull GitRepository repository, @NotNull String branchName, boolean force,
+	GitCommandResult branchDelete(@NotNull GitRepository repository,
+			@NotNull String branchName,
+			boolean force,
 			@NotNull GitLineHandlerListener... listeners);
 
 	@NotNull
@@ -83,7 +107,10 @@ public interface Git
 	GitCommandResult branchCreate(@NotNull GitRepository repository, @NotNull String branchName);
 
 	@NotNull
-	GitCommandResult resetHard(@NotNull GitRepository repository, @NotNull String revision);
+	GitCommandResult reset(@NotNull GitRepository repository,
+			@NotNull GitResetMode mode,
+			@NotNull String target,
+			@NotNull GitLineHandlerListener... listeners);
 
 	@NotNull
 	GitCommandResult resetMerge(@NotNull GitRepository repository, @Nullable String revision);
@@ -92,22 +119,38 @@ public interface Git
 	GitCommandResult tip(@NotNull GitRepository repository, @NotNull String branchName);
 
 	@NotNull
-	GitCommandResult push(@NotNull GitRepository repository, @NotNull String remote, @NotNull String url, String puttyKey, @NotNull String spec,
-			boolean updateTracking, @NotNull GitLineHandlerListener... listeners);
-
-	@NotNull
-	GitCommandResult push(@NotNull GitRepository repository, @NotNull String remote, @NotNull String url, String puttyKey, @NotNull String spec,
+	GitCommandResult push(@NotNull GitRepository repository,
+			@NotNull String remote,
+			@Nullable String url,
+			@Nullable String puttyKey,
+			@NotNull String spec,
+			boolean updateTracking,
 			@NotNull GitLineHandlerListener... listeners);
 
 	@NotNull
-	GitCommandResult push(@NotNull GitRepository repository, @NotNull GitPushSpec spec, @NotNull String url,
+	GitCommandResult push(@NotNull GitRepository repository,
+			@NotNull String remote,
+			@Nullable String url,
+			@Nullable String puttyKey,
+			@NotNull String spec,
 			@NotNull GitLineHandlerListener... listeners);
+
+	@NotNull
+	GitCommandResult push(@NotNull GitRepository repository,
+			@NotNull GitLocalBranch source,
+			@NotNull GitRemoteBranch target,
+			boolean force,
+			boolean updateTracking,
+			@Nullable String tagMode,
+			GitLineHandlerListener... listeners);
 
 	@NotNull
 	GitCommandResult show(@NotNull GitRepository repository, @NotNull String... params);
 
 	@NotNull
-	GitCommandResult cherryPick(@NotNull GitRepository repository, @NotNull String hash, boolean autoCommit,
+	GitCommandResult cherryPick(@NotNull GitRepository repository,
+			@NotNull String hash,
+			boolean autoCommit,
 			@NotNull GitLineHandlerListener... listeners);
 
 	@NotNull
@@ -124,4 +167,12 @@ public interface Git
 
 	@NotNull
 	List<GitCommit> history(@NotNull GitRepository repository, @NotNull String range);
+
+	@NotNull
+	GitCommandResult fetch(@NotNull GitRepository repository,
+			@NotNull String url,
+			@NotNull String remote,
+			@Nullable String puttyKey,
+			@NotNull List<GitLineHandlerListener> listeners,
+			String... params);
 }

@@ -40,7 +40,6 @@ import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.PluginManager;
 import com.intellij.ide.plugins.cl.PluginClassLoader;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.extensions.PluginId;
@@ -67,6 +66,9 @@ import git4idea.config.GitVersionSpecialty;
  */
 public abstract class GitHandler
 {
+	protected static final Logger LOG = Logger.getInstance(GitHandler.class);
+	protected static final Logger OUTPUT_LOG = Logger.getInstance("#output." + GitHandler.class.getName());
+
 	protected final Project myProject;
 	protected final GitCommand myCommand;
 
@@ -74,7 +76,6 @@ public abstract class GitHandler
 	private final List<VcsException> myErrors = Collections.synchronizedList(new ArrayList<VcsException>());
 	private final List<String> myLastOutput = Collections.synchronizedList(new ArrayList<String>());
 	private final int LAST_OUTPUT_SIZE = 5;
-	protected static final Logger LOG = Logger.getInstance(GitHandler.class.getName());
 	final GeneralCommandLine myCommandLine;
 	@SuppressWarnings({"FieldAccessedSynchronizedAndUnsynchronized"})
 	Process myProcess;
@@ -113,12 +114,12 @@ public abstract class GitHandler
 
 	private long myStartTime; // git execution start timestamp
 	private static final long LONG_TIME = 10 * 1000;
-	@Nullable
-	private ModalityState myState;
+
 	@Nullable
 	private String myUrl;
 	@Nullable
 	private String myPuttyKey;
+	private boolean myHttpAuthFailed;
 
 
 	/**
@@ -527,7 +528,7 @@ public abstract class GitHandler
 					{
 						GitXmlRpcSshService ssh = ServiceManager.getService(GitXmlRpcSshService.class);
 						myEnv.put(GitSSHHandler.GIT_SSH_ENV, ssh.getScriptPath().getPath());
-						myHandlerNo = ssh.registerHandler(new GitSSHGUIHandler(myProject, myState));
+						myHandlerNo = ssh.registerHandler(new GitSSHGUIHandler(myProject));
 						myEnvironmentCleanedUp = false;
 						myEnv.put(GitSSHHandler.SSH_HANDLER_ENV, Integer.toString(myHandlerNo));
 						int port = ssh.getXmlRcpPort();
@@ -541,7 +542,7 @@ public abstract class GitHandler
 						GitHttpAuthService service = ServiceManager.getService(GitHttpAuthService.class);
 						myEnv.put(GitAskPassXmlRpcHandler.GIT_ASK_PASS_ENV, service.getScriptPath().getPath());
 						assert myUrl != null : "myUrl can't be null here";
-						GitHttpAuthenticator httpAuthenticator = service.createAuthenticator(myProject, myState, myCommand, myUrl);
+						GitHttpAuthenticator httpAuthenticator = service.createAuthenticator(myProject, myCommand, myUrl);
 						myHandlerNo = service.registerHandler(httpAuthenticator);
 						myEnvironmentCleanedUp = false;
 						myEnv.put(GitAskPassXmlRpcHandler.GIT_ASK_PASS_HANDLER_ENV, Integer.toString(myHandlerNo));
@@ -552,7 +553,8 @@ public abstract class GitHandler
 					}
 					break;
 
-			} myCommandLine.getEnvironment().clear();
+			}
+			myCommandLine.getEnvironment().clear();
 			myCommandLine.getEnvironment().putAll(myEnv);
 			// start process
 			myProcess = startProcess();
@@ -572,32 +574,42 @@ public abstract class GitHandler
 		{
 			((GitLineHandler) this).addLineListener(new GitLineHandlerAdapter()
 			{
-
-				private boolean myAuthFailed;
-
 				@Override
-				public void onLineAvailable(String line, Key outputType)
+				public void onLineAvailable(@NonNls String line, Key outputType)
 				{
-					if(line.toLowerCase().contains("authentication failed"))
+					String lowerCaseLine = line.toLowerCase();
+					if(lowerCaseLine.contains("authentication failed") || lowerCaseLine.contains("403 forbidden"))
 					{
-						myAuthFailed = true;
+						myHttpAuthFailed = true;
 					}
 				}
 
 				@Override
 				public void processTerminated(int exitCode)
 				{
-					if(myAuthFailed)
+					if(!authenticator.wasCancelled())
 					{
-						authenticator.forgetPassword();
+						if(myHttpAuthFailed)
+						{
+							authenticator.forgetPassword();
+						}
+						else
+						{
+							authenticator.saveAuthData();
+						}
 					}
 					else
 					{
-						authenticator.saveAuthData();
+						myHttpAuthFailed = false;
 					}
 				}
 			});
 		}
+	}
+
+	public boolean hasHttpAuthFailed()
+	{
+		return myHttpAuthFailed;
 	}
 
 	protected abstract Process startProcess() throws ExecutionException;
@@ -824,11 +836,6 @@ public abstract class GitHandler
 	{
 		assert mySuspendAction != null;
 		myResumeAction.run();
-	}
-
-	public void setModalityState(@Nullable ModalityState state)
-	{
-		myState = state;
 	}
 
 	/**

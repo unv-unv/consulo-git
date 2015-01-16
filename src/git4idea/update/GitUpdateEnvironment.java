@@ -15,6 +15,17 @@
  */
 package git4idea.update;
 
+import static git4idea.GitUtil.getRepositoriesFromRoots;
+import static git4idea.GitUtil.getRepositoryManager;
+import static git4idea.GitUtil.gitRoots;
+import static git4idea.GitUtil.isUnderGit;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Set;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.options.Configurable;
@@ -32,63 +43,70 @@ import git4idea.GitPlatformFacade;
 import git4idea.GitVcs;
 import git4idea.config.GitVcsSettings;
 import git4idea.repo.GitRepositoryManager;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Set;
-
-import static git4idea.GitUtil.*;
 
 /**
  * Git update environment implementation. The environment does
  * {@code git pull -v} for each vcs root. Rebase variant is detected
  * and processed as well.
  */
-public class GitUpdateEnvironment implements UpdateEnvironment {
-  private final GitVcs myVcs;
-  private final Project myProject;
-  private final GitVcsSettings mySettings;
-  @NotNull private final GitPlatformFacade myPlatformFacade;
+public class GitUpdateEnvironment implements UpdateEnvironment
+{
+	private final GitVcs myVcs;
+	private final Project myProject;
+	private final GitVcsSettings mySettings;
+	@NotNull
+	private final GitPlatformFacade myPlatformFacade;
 
-  private static final Logger LOG = Logger.getInstance(GitUpdateEnvironment.class);
+	private static final Logger LOG = Logger.getInstance(GitUpdateEnvironment.class);
 
-  public GitUpdateEnvironment(@NotNull Project project, @NotNull GitVcs vcs, GitVcsSettings settings) {
-    myVcs = vcs;
-    myProject = project;
-    mySettings = settings;
-    myPlatformFacade = ServiceManager.getService(project, GitPlatformFacade.class);
-  }
+	public GitUpdateEnvironment(@NotNull Project project, @NotNull GitVcs vcs, GitVcsSettings settings)
+	{
+		myVcs = vcs;
+		myProject = project;
+		mySettings = settings;
+		myPlatformFacade = ServiceManager.getService(project, GitPlatformFacade.class);
+	}
 
-  public void fillGroups(UpdatedFiles updatedFiles) {
-    //unused, there are no custom categories yet
-  }
+	@Override
+	public void fillGroups(UpdatedFiles updatedFiles)
+	{
+		//unused, there are no custom categories yet
+	}
 
-  @NotNull
-  public UpdateSession updateDirectories(@NotNull FilePath[] filePaths, UpdatedFiles updatedFiles, ProgressIndicator progressIndicator, @NotNull Ref<SequentialUpdatesContext> sequentialUpdatesContextRef) throws ProcessCanceledException {
-    Set<VirtualFile> roots = gitRoots(Arrays.asList(filePaths));
-    GitRepositoryManager repositoryManager = getRepositoryManager(myProject);
-    final GitUpdateProcess gitUpdateProcess = new GitUpdateProcess(myProject, myPlatformFacade,
-                                                                   progressIndicator, getRepositoriesFromRoots(repositoryManager, roots),
-                                                                   updatedFiles);
-    boolean result = gitUpdateProcess.update(GitUpdateProcess.UpdateMethod.READ_FROM_SETTINGS).isSuccess();
-    return new GitUpdateSession(result);
-  }
+	@Override
+	@NotNull
+	public UpdateSession updateDirectories(@NotNull FilePath[] filePaths,
+			UpdatedFiles updatedFiles,
+			ProgressIndicator progressIndicator,
+			@NotNull Ref<SequentialUpdatesContext> sequentialUpdatesContextRef) throws ProcessCanceledException
+	{
+		Set<VirtualFile> roots = gitRoots(Arrays.asList(filePaths));
+		GitRepositoryManager repositoryManager = getRepositoryManager(myProject);
+		final GitUpdateProcess gitUpdateProcess = new GitUpdateProcess(myProject, myPlatformFacade, progressIndicator,
+				getRepositoriesFromRoots(repositoryManager, roots), updatedFiles, true);
+		boolean result = gitUpdateProcess.update(GitUpdateProcess.UpdateMethod.READ_FROM_SETTINGS).isSuccess();
+		return new GitUpdateSession(result);
+	}
 
 
-  public boolean validateOptions(Collection<FilePath> filePaths) {
-    for (FilePath p : filePaths) {
-      if (!isUnderGit(p)) {
-        return false;
-      }
-    }
-    return true;
-  }
+	@Override
+	public boolean validateOptions(Collection<FilePath> filePaths)
+	{
+		for(FilePath p : filePaths)
+		{
+			if(!isUnderGit(p))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
 
-  @Nullable
-  public Configurable createConfigurable(Collection<FilePath> files) {
-    return new GitUpdateConfigurable(mySettings);
-  }
+	@Override
+	@Nullable
+	public Configurable createConfigurable(Collection<FilePath> files)
+	{
+		return new GitUpdateConfigurable(mySettings);
+	}
 
 }

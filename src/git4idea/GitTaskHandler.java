@@ -15,149 +15,61 @@
  */
 package git4idea;
 
-import com.intellij.openapi.application.ApplicationManager;
+import java.util.Collection;
+import java.util.List;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import com.intellij.dvcs.branch.DvcsTaskHandler;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.Condition;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vcs.VcsTaskHandler;
-import com.intellij.util.NullableFunction;
-import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.containers.MultiMap;
+import git4idea.branch.GitBranchUtil;
 import git4idea.branch.GitBrancher;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Dmitry Avdeev
  *         Date: 17.07.13
  */
-public class GitTaskHandler extends VcsTaskHandler {
+public class GitTaskHandler extends DvcsTaskHandler<GitRepository>
+{
+	@NotNull
+	private final GitBrancher myBrancher;
 
-  private final GitBrancher myBrancher;
-  private final GitRepositoryManager myRepositoryManager;
-  private final Project myProject;
+	public GitTaskHandler(@NotNull GitBrancher brancher, @NotNull GitRepositoryManager repositoryManager, @NotNull Project project)
+	{
+		super(repositoryManager, project, "branch");
+		myBrancher = brancher;
+	}
 
-  public GitTaskHandler(GitBrancher brancher, GitRepositoryManager repositoryManager, Project project) {
-    myBrancher = brancher;
-    myRepositoryManager = repositoryManager;
-    myProject = project;
-  }
+	@Override
+	protected void checkout(@NotNull String taskName, @NotNull List<GitRepository> repos, @Nullable Runnable callInAwtLater)
+	{
+		myBrancher.checkout(taskName, repos, callInAwtLater);
+	}
 
-  @Override
-  public TaskInfo startNewTask(final String taskName) {
-    List<GitRepository> repositories = myRepositoryManager.getRepositories();
-    List<GitRepository> problems = ContainerUtil.filter(repositories, new Condition<GitRepository>() {
-      @Override
-      public boolean value(GitRepository repository) {
-        return repository.getBranches().findLocalBranch(taskName) != null;
-      }
-    });
-    MultiMap<String, String> map = new MultiMap<String, String>();
-    if (!problems.isEmpty()) {
-      if (ApplicationManager.getApplication().isUnitTestMode() ||
-          Messages.showDialog(myProject, "<html>The following repositories already have specified branch <b>" + taskName + "</b>:<br>" +
-                                  StringUtil.join(problems, "<br>") + ".<br>" +
-                                  "Do you want to checkout existing branch?", "Branch Already Exists",
-                                  new String[]{Messages.YES_BUTTON, Messages.NO_BUTTON}, 0,
-                                  Messages.getWarningIcon(), new DialogWrapper.PropertyDoNotAskOption("git.checkout.existing.branch")) == 0) {
-        myBrancher.checkout(taskName, problems, null);
-        fillMap(taskName, problems, map);
-      }
-    }
-    repositories.removeAll(problems);
-    if (!repositories.isEmpty()) {
-      myBrancher.checkoutNewBranch(taskName, repositories);
-    }
+	@Override
+	protected void checkoutAsNewBranch(@NotNull String name, @NotNull List<GitRepository> repositories)
+	{
+		myBrancher.checkoutNewBranch(name, repositories);
+	}
 
-    fillMap(taskName, repositories, map);
-    return new TaskInfo(map);
-  }
+	@Override
+	protected void mergeAndClose(@NotNull String branch, @NotNull List<GitRepository> repositories)
+	{
+		myBrancher.merge(branch, GitBrancher.DeleteOnMergeOption.DELETE, repositories);
+	}
 
-  private static void fillMap(String taskName, List<GitRepository> repositories, MultiMap<String, String> map) {
-    for (GitRepository repository : repositories) {
-      map.putValue(taskName, repository.getPresentableUrl());
-    }
-  }
+	@Override
+	protected boolean hasBranch(@NotNull GitRepository repository, @NotNull String name)
+	{
+		return repository.getBranches().findLocalBranch(name) != null;
+	}
 
-  @Override
-  public void switchToTask(TaskInfo taskInfo) {
-    for (final String branchName : taskInfo.branches.keySet()) {
-      List<GitRepository> repositories = getRepositories(taskInfo.branches.get(branchName));
-      List<GitRepository> notFound = ContainerUtil.filter(repositories, new Condition<GitRepository>() {
-        @Override
-        public boolean value(GitRepository repository) {
-          return repository.getBranches().findLocalBranch(branchName) == null;
-        }
-      });
-      if (!notFound.isEmpty()) {
-        myBrancher.checkoutNewBranch(branchName, notFound);
-      }
-      repositories.removeAll(notFound);
-      if (!repositories.isEmpty()) {
-        myBrancher.checkout(branchName, repositories, null);
-      }
-    }
-  }
-
-  @Override
-  public void closeTask(final TaskInfo taskInfo, TaskInfo original) {
-
-    Set<String> branches = original.branches.keySet();
-    final AtomicInteger counter = new AtomicInteger(branches.size());
-    for (final String originalBranch : branches) {
-      myBrancher.checkout(originalBranch, getRepositories(original.branches.get(originalBranch)), new Runnable() {
-        @Override
-        public void run() {
-          if (counter.decrementAndGet() == 0) {
-            merge(taskInfo);
-          }
-        }
-      });
-    }
-  }
-
-  private void merge(TaskInfo taskInfo) {
-    for (String featureBranch : taskInfo.branches.keySet()) {
-      myBrancher.merge(featureBranch, GitBrancher.DeleteOnMergeOption.DELETE, getRepositories(taskInfo.branches.get(featureBranch)));
-    }
-  }
-
-  @Override
-  public TaskInfo getActiveTask() {
-    List<GitRepository> repositories = myRepositoryManager.getRepositories();
-
-    MultiMap<String, String> branches = new MultiMap<String, String>();
-    for (GitRepository repository : repositories) {
-      GitLocalBranch branch = repository.getCurrentBranch();
-      if (branch != null) {
-        branches.putValue(branch.getName(), repository.getPresentableUrl());
-      }
-    }
-    return new TaskInfo(branches);
-  }
-
-  private List<GitRepository> getRepositories(Collection<String> urls) {
-    final List<GitRepository> repositories = myRepositoryManager.getRepositories();
-    return ContainerUtil.mapNotNull(urls, new NullableFunction<String, GitRepository>() {
-      @Nullable
-      @Override
-      public GitRepository fun(final String s) {
-
-        return ContainerUtil.find(repositories, new Condition<GitRepository>() {
-          @Override
-          public boolean value(GitRepository repository) {
-            return s.equals(repository.getPresentableUrl());
-          }
-        });
-      }
-    });
-  }
+	@NotNull
+	@Override
+	protected Collection<String> getCommonBranchNames(@NotNull List<GitRepository> repositories)
+	{
+		return GitBranchUtil.getCommonBranches(repositories, true);
+	}
 }

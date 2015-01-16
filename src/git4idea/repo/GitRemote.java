@@ -87,10 +87,10 @@ public final class GitRemote implements Comparable<GitRemote>
 	@NotNull
 	private final List<String> myPushRefSpecs;
 	@NotNull
-	private final List<String> myPuttyKeyFiles;
+	private final Collection<String> myPuttyKeyFiles;
 
 	GitRemote(@NotNull String name, @NotNull List<String> urls, @NotNull Collection<String> pushUrls, @NotNull List<String> fetchRefSpecs,
-			@NotNull List<String> pushRefSpecs, @NotNull List<String> puttyKeyFiles)
+			@NotNull List<String> pushRefSpecs, @NotNull Collection<String> puttyKeyFiles)
 	{
 		myName = name;
 		myUrls = urls;

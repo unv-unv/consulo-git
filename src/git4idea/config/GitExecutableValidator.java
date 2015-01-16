@@ -15,69 +15,74 @@
  */
 package git4idea.config;
 
+import org.jetbrains.annotations.NotNull;
 import com.intellij.execution.ExecutableValidator;
 import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.execution.process.CapturingProcessHandler;
 import com.intellij.execution.process.ProcessOutput;
-import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vfs.CharsetToolkit;
-import git4idea.GitVcs;
 import git4idea.i18n.GitBundle;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Project service that is used to check whether currently set git executable is valid (just calls 'git version' and parses the output),
  * and to display notification to the user proposing to fix the project set up.
+ *
  * @author Kirill Likhodedov
  */
-public class GitExecutableValidator extends ExecutableValidator {
+public class GitExecutableValidator extends ExecutableValidator
+{
 
-  private GitVcs myVcs;
+	public GitExecutableValidator(@NotNull Project project)
+	{
+		super(project, GitBundle.message("git.executable.notification.title"), GitBundle.message("git.executable.notification.description"));
+	}
 
-  public GitExecutableValidator(@NotNull Project project, @Nullable GitVcs vcs) {
-    super(project,
-          GitBundle.message("git.executable.notification.title"), GitBundle.message("git.executable.notification.description"));
-    myVcs = vcs;
-  }
+	@Override
+	protected String getCurrentExecutable()
+	{
+		return GitVcsApplicationSettings.getInstance().getPathToGit();
+	}
 
-  @Override
-  protected String getCurrentExecutable() {
-    return GitVcsApplicationSettings.getInstance().getPathToGit();
-  }
+	@NotNull
+	@Override
+	protected String getConfigurableDisplayName()
+	{
+		return GitVcsConfigurable.DISPLAY_NAME;
+	}
 
-  @NotNull
-  @Override
-  protected Configurable getConfigurable() {
-    return myVcs.getConfigurable();
-  }
+	@Override
+	public boolean isExecutableValid(@NotNull String executable)
+	{
+		try
+		{
+			GeneralCommandLine commandLine = new GeneralCommandLine();
+			commandLine.setExePath(executable);
+			commandLine.addParameter("--version");
+			CapturingProcessHandler handler = new CapturingProcessHandler(commandLine.createProcess(), CharsetToolkit.getDefaultSystemCharset());
+			ProcessOutput result = handler.runProcess(30 * 1000);
+			return !result.isTimeout() && (result.getExitCode() == 0) && result.getStderr().isEmpty();
+		}
+		catch(Throwable e)
+		{
+			return false;
+		}
+	}
 
-  @Override
-  public boolean isExecutableValid(@NotNull String executable) {
-    try {
-      GeneralCommandLine commandLine = new GeneralCommandLine();
-      commandLine.setExePath(executable);
-      commandLine.addParameter("--version");
-      CapturingProcessHandler handler = new CapturingProcessHandler(commandLine.createProcess(), CharsetToolkit.getDefaultSystemCharset());
-      ProcessOutput result = handler.runProcess(30 * 1000);
-      return !result.isTimeout() && (result.getExitCode() == 0) && result.getStderr().isEmpty();
-    } catch (Throwable e) {
-      return false;
-    }
-  }
-
-  /**
-   * Checks if git executable is valid. If not (which is a common case for low-level vcs exceptions), shows the
-   * notification. Otherwise throws the exception.
-   * This is to be used in catch-clauses
-   * @param e exception which was thrown.
-   * @throws VcsException if git executable is valid.
-   */
-   public void showNotificationOrThrow(VcsException e) throws VcsException {
-    if (checkExecutableAndNotifyIfNeeded()) {
-      throw e;
-    }
-  }
+	/**
+	 * Checks if git executable is valid. If not (which is a common case for low-level vcs exceptions), shows the
+	 * notification. Otherwise throws the exception.
+	 * This is to be used in catch-clauses
+	 *
+	 * @param e exception which was thrown.
+	 * @throws VcsException if git executable is valid.
+	 */
+	public void showNotificationOrThrow(VcsException e) throws VcsException
+	{
+		if(checkExecutableAndNotifyIfNeeded())
+		{
+			throw e;
+		}
+	}
 }

@@ -17,6 +17,9 @@ package git4idea.config;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -25,18 +28,26 @@ import javax.swing.JComponent;
 import javax.swing.JList;
 
 import org.jetbrains.annotations.NotNull;
+import com.intellij.dvcs.branch.DvcsSyncSettings;
+import com.intellij.dvcs.ui.DvcsBundle;
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.application.ApplicationNamesInfo;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.ui.EnumComboBoxModel;
 import com.intellij.ui.ListCellRendererWrapper;
 import com.intellij.ui.components.JBCheckBox;
+import com.intellij.ui.components.JBLabel;
+import com.intellij.util.containers.ContainerUtil;
+import com.intellij.util.execution.ParametersListUtil;
+import com.intellij.util.ui.UIUtil;
 import git4idea.GitVcs;
 import git4idea.i18n.GitBundle;
 import git4idea.repo.GitRepositoryManager;
-import git4idea.ui.branch.GitBranchSyncSetting;
 
 /**
  * Git VCS configuration panel
@@ -51,9 +62,14 @@ public class GitVcsPanel
 	private TextFieldWithBrowseButton myGitField;
 	private JComboBox mySSHExecutableComboBox; // Type of SSH executable to use
 	private JCheckBox myAutoUpdateIfPushRejected;
-	private JBCheckBox mySyncBranchControl;
+	private JBCheckBox mySyncControl;
 	private JCheckBox myAutoCommitOnCherryPick;
 	private JBCheckBox myWarnAboutCrlf;
+	private JCheckBox myWarnAboutDetachedHead;
+	private JCheckBox myEnableForcePush;
+	private TextFieldWithBrowseButton myProtectedBranchesButton;
+	private JBLabel myProtectedBranchesLabel;
+	private JComboBox myUpdateMethodComboBox;
 
 	public GitVcsPanel(@NotNull Project project)
 	{
@@ -97,7 +113,18 @@ public class GitVcsPanel
 		myGitField.addBrowseFolderListener(GitBundle.message("find.git.title"), GitBundle.message("find.git.description"), project,
 				FileChooserDescriptorFactory.createSingleFileNoJarsDescriptor());
 		final GitRepositoryManager repositoryManager = ServiceManager.getService(project, GitRepositoryManager.class);
-		mySyncBranchControl.setVisible(repositoryManager != null && repositoryManager.moreThanOneRoot());
+		mySyncControl.setVisible(repositoryManager != null && repositoryManager.moreThanOneRoot());
+		mySyncControl.setToolTipText(DvcsBundle.message("sync.setting.description", "Git"));
+		myProtectedBranchesLabel.setLabelFor(myProtectedBranchesButton);
+		myEnableForcePush.addItemListener(new ItemListener()
+		{
+			@Override
+			public void itemStateChanged(ItemEvent e)
+			{
+				UIUtil.setEnabled(myProtectedBranchesButton, myEnableForcePush.isSelected(), true);
+				UIUtil.setEnabled(myProtectedBranchesLabel, myEnableForcePush.isSelected(), false);
+			}
+		});
 	}
 
 	/**
@@ -151,14 +178,18 @@ public class GitVcsPanel
 	 *
 	 * @param settings the settings to load
 	 */
-	public void load(@NotNull GitVcsSettings settings)
+	public void load(@NotNull GitVcsSettings settings, @NotNull GitSharedSettings sharedSettings)
 	{
 		myGitField.setText(settings.getAppSettings().getPathToGit());
 		mySSHExecutableComboBox.setSelectedItem(settings.getAppSettings().getSshExecutableType());
 		myAutoUpdateIfPushRejected.setSelected(settings.autoUpdateIfPushRejected());
-		mySyncBranchControl.setSelected(settings.getSyncSetting() == GitBranchSyncSetting.SYNC);
+		mySyncControl.setSelected(settings.getSyncSetting() == DvcsSyncSettings.Value.SYNC);
 		myAutoCommitOnCherryPick.setSelected(settings.isAutoCommitOnCherryPick());
 		myWarnAboutCrlf.setSelected(settings.warnAboutCrlf());
+		myWarnAboutDetachedHead.setSelected(settings.warnAboutDetachedHead());
+		myEnableForcePush.setSelected(settings.isForcePushAllowed());
+		myUpdateMethodComboBox.setSelectedItem(settings.getUpdateType());
+		myProtectedBranchesButton.setText(ParametersListUtil.COLON_LINE_JOINER.fun(sharedSettings.getForcePushProhibitedPatterns()));
 	}
 
 	/**
@@ -166,14 +197,19 @@ public class GitVcsPanel
 	 *
 	 * @param settings the settings to load
 	 */
-	public boolean isModified(@NotNull GitVcsSettings settings)
+	public boolean isModified(@NotNull GitVcsSettings settings, @NotNull GitSharedSettings sharedSettings)
 	{
 		return !settings.getAppSettings().getPathToGit().equals(getCurrentExecutablePath()) ||
 				(settings.getAppSettings().getSshExecutableType() != mySSHExecutableComboBox.getSelectedItem()) ||
 				!settings.autoUpdateIfPushRejected() == myAutoUpdateIfPushRejected.isSelected() ||
-				((settings.getSyncSetting() == GitBranchSyncSetting.SYNC) != mySyncBranchControl.isSelected() ||
+				((settings.getSyncSetting() == DvcsSyncSettings.Value.SYNC) != mySyncControl.isSelected() ||
 						settings.isAutoCommitOnCherryPick() != myAutoCommitOnCherryPick.isSelected() ||
-						settings.warnAboutCrlf() != myWarnAboutCrlf.isSelected());
+						settings.warnAboutCrlf() != myWarnAboutCrlf.isSelected() ||
+						settings.warnAboutDetachedHead() != myWarnAboutDetachedHead.isSelected() ||
+						settings.isForcePushAllowed() != myEnableForcePush.isSelected() ||
+						settings.getUpdateType() != myUpdateMethodComboBox.getModel().getSelectedItem() ||
+						!ContainerUtil.sorted(sharedSettings.getForcePushProhibitedPatterns()).equals(ContainerUtil.sorted
+								(getProtectedBranchesPatterns())));
 	}
 
 	/**
@@ -181,16 +217,40 @@ public class GitVcsPanel
 	 *
 	 * @param settings the settings object
 	 */
-	public void save(@NotNull GitVcsSettings settings)
+	public void save(@NotNull GitVcsSettings settings, GitSharedSettings sharedSettings)
 	{
 		settings.getAppSettings().setPathToGit(getCurrentExecutablePath());
 		myVcs.checkVersion();
 		settings.getAppSettings().setIdeaSsh((GitVcsApplicationSettings.SshExecutable) mySSHExecutableComboBox.getSelectedItem());
 		settings.setAutoUpdateIfPushRejected(myAutoUpdateIfPushRejected.isSelected());
 
-		settings.setSyncSetting(mySyncBranchControl.isSelected() ? GitBranchSyncSetting.SYNC : GitBranchSyncSetting.DONT);
+		settings.setSyncSetting(mySyncControl.isSelected() ? DvcsSyncSettings.Value.SYNC : DvcsSyncSettings.Value.DONT_SYNC);
 		settings.setAutoCommitOnCherryPick(myAutoCommitOnCherryPick.isSelected());
 		settings.setWarnAboutCrlf(myWarnAboutCrlf.isSelected());
+		settings.setWarnAboutDetachedHead(myWarnAboutDetachedHead.isSelected());
+		settings.setForcePushAllowed(myEnableForcePush.isSelected());
+		settings.setUpdateType((UpdateMethod) myUpdateMethodComboBox.getSelectedItem());
+		sharedSettings.setForcePushProhibitedPatters(getProtectedBranchesPatterns());
 	}
 
+	@NotNull
+	private List<String> getProtectedBranchesPatterns()
+	{
+		return ParametersListUtil.COLON_LINE_PARSER.fun(myProtectedBranchesButton.getText());
+	}
+
+	private void createUIComponents()
+	{
+		myProtectedBranchesButton = new TextFieldWithBrowseButton.NoPathCompletion(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				Messages.showTextAreaDialog(myProtectedBranchesButton.getTextField(), "Protected Branches", "Git.Force.Push.Protected.Branches",
+						ParametersListUtil.COLON_LINE_PARSER, ParametersListUtil.COLON_LINE_JOINER);
+			}
+		});
+		myProtectedBranchesButton.setButtonIcon(AllIcons.Actions.ShowViewer);
+		myUpdateMethodComboBox = new ComboBox(new EnumComboBoxModel<UpdateMethod>(UpdateMethod.class));
+	}
 }

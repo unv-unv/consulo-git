@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2012 JetBrains s.r.o.
+ * Copyright 2000-2014 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import com.intellij.dvcs.DvcsUtil;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionPlaces;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -35,25 +36,22 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogBuilder;
 import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
-import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vcs.FilePath;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.changes.Change;
 import com.intellij.openapi.vcs.changes.ContentRevision;
-import com.intellij.openapi.vcs.changes.ui.ChangesBrowser;
-import com.intellij.openapi.vcs.history.CurrentRevision;
+import com.intellij.openapi.vcs.history.BaseDiffFromHistoryHandler;
 import com.intellij.openapi.vcs.history.DiffFromHistoryHandler;
 import com.intellij.openapi.vcs.history.VcsFileRevision;
-import com.intellij.openapi.vcs.history.VcsHistoryUtil;
 import com.intellij.openapi.vcs.ui.VcsBalloonProblemNotifier;
 import com.intellij.ui.awt.RelativePoint;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.Consumer;
+import com.intellij.util.containers.ContainerUtil;
 import git4idea.GitFileRevision;
 import git4idea.GitRevisionNumber;
 import git4idea.GitUtil;
@@ -64,7 +62,9 @@ import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 
 /**
- * {@link DiffFromHistoryHandler#showDiffForTwo(FilePath, VcsFileRevision, VcsFileRevision) "Show Diff" for 2 revision} calls the common code.
+ * {@link DiffFromHistoryHandler#showDiffForTwo(com.intellij.openapi.project.Project, com.intellij.openapi.vcs.FilePath,
+ * com.intellij.openapi.vcs.history.VcsFileRevision, com.intellij.openapi.vcs.history.VcsFileRevision) "Show Diff" for 2 revision} calls the common
+ * code.
  * {@link DiffFromHistoryHandler#showDiffForOne(com.intellij.openapi.actionSystem.AnActionEvent, com.intellij.openapi.vcs.FilePath,
  * com.intellij.openapi.vcs.history.VcsFileRevision, com.intellij.openapi.vcs.history.VcsFileRevision) "Show diff" for 1 revision}
  * behaves differently for merge commits: for them it shown a popup displaying the parents of the selected commit. Selecting a parent
@@ -73,13 +73,11 @@ import git4idea.repo.GitRepositoryManager;
  *
  * @author Kirill Likhodedov
  */
-public class GitDiffFromHistoryHandler implements DiffFromHistoryHandler
+public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFileRevision>
 {
 
 	private static final Logger LOG = Logger.getInstance(GitDiffFromHistoryHandler.class);
 
-	@NotNull
-	private final Project myProject;
 	@NotNull
 	private final Git myGit;
 	@NotNull
@@ -87,7 +85,7 @@ public class GitDiffFromHistoryHandler implements DiffFromHistoryHandler
 
 	public GitDiffFromHistoryHandler(@NotNull Project project)
 	{
-		myProject = project;
+		super(project);
 		myGit = ServiceManager.getService(project, Git.class);
 		myRepositoryManager = GitUtil.getRepositoryManager(project);
 	}
@@ -103,7 +101,7 @@ public class GitDiffFromHistoryHandler implements DiffFromHistoryHandler
 		Collection<String> parents = rev.getParents();
 		if(parents.size() < 2)
 		{
-			doShowDiff(filePath, previousRevision, revision, false);
+			super.showDiffForOne(e, project, filePath, previousRevision, revision);
 		}
 		else
 		{ // merge
@@ -111,57 +109,35 @@ public class GitDiffFromHistoryHandler implements DiffFromHistoryHandler
 		}
 	}
 
+	@NotNull
 	@Override
-	public void showDiffForTwo(@NotNull Project project,
-			@NotNull FilePath filePath,
-			@NotNull VcsFileRevision revision1,
-			@NotNull VcsFileRevision revision2)
-	{
-		doShowDiff(filePath, revision1, revision2, true);
-
-	}
-
-	private void doShowDiff(@NotNull FilePath filePath, @NotNull VcsFileRevision revision1, @NotNull VcsFileRevision revision2, boolean autoSort)
-	{
-		if(!filePath.isDirectory())
-		{
-			VcsHistoryUtil.showDifferencesInBackground(myProject, filePath, revision1, revision2, autoSort);
-		}
-		else if(revision2 instanceof CurrentRevision)
-		{
-			GitFileRevision left = (GitFileRevision) revision1;
-			showDiffForDirectory(filePath, left.getHash(), null);
-		}
-		else if(revision1.equals(VcsFileRevision.NULL))
-		{
-			GitFileRevision right = (GitFileRevision) revision2;
-			showDiffForDirectory(filePath, null, right.getHash());
-		}
-		else
-		{
-			GitFileRevision left = (GitFileRevision) revision1;
-			GitFileRevision right = (GitFileRevision) revision2;
-			if(autoSort)
-			{
-				Pair<VcsFileRevision, VcsFileRevision> pair = VcsHistoryUtil.sortRevisions(revision1, revision2);
-				left = (GitFileRevision) pair.first;
-				right = (GitFileRevision) pair.second;
-			}
-			showDiffForDirectory(filePath, left.getHash(), right.getHash());
-		}
-	}
-
-	private void showDiffForDirectory(@NotNull final FilePath path, @Nullable final String hash1, @Nullable final String hash2)
+	protected List<Change> getChangesBetweenRevisions(@NotNull FilePath path,
+			@NotNull GitFileRevision rev1,
+			@Nullable GitFileRevision rev2) throws VcsException
 	{
 		GitRepository repository = getRepository(path);
-		calculateDiffInBackground(repository, path, hash1, hash2, new Consumer<List<Change>>()
-		{
-			@Override
-			public void consume(List<Change> changes)
-			{
-				showDirDiffDialog(path, hash1, hash2, changes);
-			}
-		});
+		String hash1 = rev1.getHash();
+		String hash2 = rev2 != null ? rev2.getHash() : null;
+
+		return ContainerUtil.newArrayList(GitChangeUtils.getDiff(repository.getProject(), repository.getRoot(), hash1, hash2,
+				Collections.singletonList(path)));
+	}
+
+	@NotNull
+	@Override
+	protected List<Change> getAffectedChanges(@NotNull FilePath path, @NotNull GitFileRevision rev) throws VcsException
+	{
+		GitRepository repository = getRepository(path);
+
+		return ContainerUtil.newArrayList(GitChangeUtils.getRevisionChanges(repository.getProject(), repository.getRoot(), rev.getHash(), false,
+				true, true).getChanges());
+	}
+
+	@NotNull
+	@Override
+	protected String getPresentableName(@NotNull GitFileRevision revision)
+	{
+		return DvcsUtil.getShortHash(revision.getHash());
 	}
 
 	@NotNull
@@ -170,80 +146,6 @@ public class GitDiffFromHistoryHandler implements DiffFromHistoryHandler
 		GitRepository repository = myRepositoryManager.getRepositoryForFile(path);
 		LOG.assertTrue(repository != null, "Repository is null for " + path);
 		return repository;
-	}
-
-	// hash1 == null => hash2 is the initial commit
-	// hash2 == null => comparing hash1 with local
-	private void calculateDiffInBackground(@NotNull final GitRepository repository,
-			@NotNull final FilePath path,
-			@Nullable final String hash1,
-			@Nullable final String hash2,
-			final Consumer<List<Change>> successHandler)
-	{
-		new Task.Backgroundable(myProject, "Comparing revisions...")
-		{
-			private List<Change> myChanges;
-
-			@Override
-			public void run(@NotNull ProgressIndicator indicator)
-			{
-				try
-				{
-					if(hash1 != null)
-					{
-						// diff
-						myChanges = new ArrayList<Change>(GitChangeUtils.getDiff(repository.getProject(), repository.getRoot(), hash1, hash2,
-								Collections.singletonList(path)));
-					}
-					else
-					{
-						// show the initial commit
-						myChanges = new ArrayList<Change>(GitChangeUtils.getRevisionChanges(repository.getProject(), repository.getRoot(), hash2,
-								false, true, true).getChanges());
-					}
-				}
-				catch(VcsException e)
-				{
-					showError(e, "Error during requesting diff for directory");
-				}
-			}
-
-			@Override
-			public void onSuccess()
-			{
-				successHandler.consume(myChanges);
-			}
-		}.queue();
-	}
-
-	private void showDirDiffDialog(@NotNull FilePath path, @Nullable String hash1, @Nullable String hash2, @NotNull List<Change> diff)
-	{
-		DialogBuilder dialogBuilder = new DialogBuilder(myProject);
-		String title;
-		if(hash2 != null)
-		{
-			if(hash1 != null)
-			{
-				title = String.format("Difference between %s and %s in %s", GitUtil.getShortHash(hash1), GitUtil.getShortHash(hash2),
-						path.getName());
-			}
-			else
-			{
-				title = String.format("Initial commit %s in %s", GitUtil.getShortHash(hash2), path.getName());
-			}
-		}
-		else
-		{
-			LOG.assertTrue(hash1 != null, "hash1 and hash2 can't both be null. Path: " + path);
-			title = String.format("Difference between %s and local version in %s", GitUtil.getShortHash(hash1), path.getName());
-		}
-		dialogBuilder.setTitle(title);
-		dialogBuilder.setActionDescriptors(new DialogBuilder.ActionDescriptor[]{new DialogBuilder.CloseDialogAction()});
-		final ChangesBrowser changesBrowser = new ChangesBrowser(myProject, null, diff, null, false, true, null,
-				ChangesBrowser.MyUseCase.COMMITTED_CHANGES, null);
-		changesBrowser.setChangesToDisplay(diff);
-		dialogBuilder.setCenterPanel(changesBrowser);
-		dialogBuilder.showNotModal();
 	}
 
 	private void showDiffForMergeCommit(@NotNull final AnActionEvent event,
@@ -374,13 +276,6 @@ public class GitDiffFromHistoryHandler implements DiffFromHistoryHandler
 		return makeRevisionFromHash(currentRevisionPath, parentHash);
 	}
 
-
-	private void showError(VcsException e, String logMessage)
-	{
-		LOG.info(logMessage, e);
-		VcsBalloonProblemNotifier.showOverVersionControlView(this.myProject, e.getMessage(), MessageType.ERROR);
-	}
-
 	private void showPopup(@NotNull AnActionEvent event,
 			@NotNull GitFileRevision rev,
 			@NotNull FilePath filePath,
@@ -479,7 +374,7 @@ public class GitDiffFromHistoryHandler implements DiffFromHistoryHandler
 
 		public ShowDiffWithParentAction(@NotNull FilePath filePath, @NotNull GitFileRevision rev, @NotNull GitFileRevision parent)
 		{
-			super(GitUtil.getShortHash(parent.getHash()));
+			super(DvcsUtil.getShortHash(parent.getHash()));
 			myFilePath = filePath;
 			myRevision = rev;
 			myParentRevision = parent;

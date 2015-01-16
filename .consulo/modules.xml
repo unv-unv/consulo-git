@@ -8,6 +8,7 @@
           <extension id="java" sdk-module-name="" sdk-name="1.7" language-level-module-name="" language-level-name="JDK_1_6" special-dir-location="SOURCE_DIR" />
           <extension id="lombok" />
           <content url="file://$MODULE_DIR$">
+            <content-folder type="EXCLUDED" url="file://$MODULE_DIR$/.consulo/sandbox" />
             <content-folder type="PRODUCTION_RESOURCE" url="file://$MODULE_DIR$/resources" />
             <content-folder type="PRODUCTION" url="file://$MODULE_DIR$/src" />
           </content>
@@ -37,7 +38,6 @@
           <orderEntry type="module-extension-sdk" extension-id="consulo-plugin" />
           <orderEntry type="sourceFolder" />
           <orderEntry type="library" name="ini4j" level="project" />
-          <orderEntry type="library" name="org.eclipse.jgit" level="project" />
           <orderEntry type="library" name="trilead-ssh2" level="project" />
         </module-layer>
       </module>

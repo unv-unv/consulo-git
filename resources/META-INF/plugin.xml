@@ -13,13 +13,13 @@
 			<add-to-group group-id="Vcs.Import"/>
 		</action>
 
-		<action id="Git.Log" class="git4idea.history.wholeTree.SelectRepositoryAndShowLogAction">
+		<action id="Git.Log" class="git4idea.log.GitShowExternalLogAction" text="Show Git Repository Log...">
 			<add-to-group group-id="Vcs.Browse"/>
 		</action>
 
 		<group id="GitFileActions">
 			<reference ref="CheckinFiles"/>
-			<reference ref="ChangesView.AddUnversioned"/>
+			<action id="Git.Add" class="git4idea.actions.GitAdd" text="Add" icon="AllIcons.General.Add" use-shortcut-of="ChangesView.AddUnversioned"/>
 			<separator/>
 			<reference ref="Annotate"/>
 			<reference ref="Show.Current.Revision"/>
@@ -36,7 +36,7 @@
 
 		<group id="GitRepositoryActions">
 			<action id="Git.Branches" class="git4idea.ui.branch.GitBranchesAction" text="_Branches..." icon="Git4ideaIcons.Branch"/>
-			<action id="Git.Tag" class="git4idea.actions.GitTag" text="Tag Files..."/>
+			<action id="Git.Tag" class="git4idea.actions.GitTag" text="Tag..."/>
 			<action id="Git.Merge" class="git4idea.actions.GitMerge" text="Merge Changes..." icon="AllIcons.Vcs.MergeSourcesTree"/>
 			<action id="Git.Stash" class="git4idea.actions.GitStash" text="Stash Changes..."/>
 			<action id="Git.Unstash" class="git4idea.actions.GitUnstash" text="UnStash Changes..."/>
@@ -44,13 +44,16 @@
 			<separator/>
 			<action id="Git.Fetch" class="git4idea.actions.GitFetch" text="Fetch"/>
 			<action id="Git.Pull" class="git4idea.actions.GitPull" text="Pull..." icon="AllIcons.Actions.CheckOut"/>
-			<action id="Git.Push" class="git4idea.actions.GitPushAction" icon="AllIcons.Actions.Commit" text="Push..."/>
+			<action id="Git.Push" class="git4idea.actions.GitPushAction" icon="AllIcons.Actions.Commit" text="Push...">
+				<keyboard-shortcut first-keystroke="control shift K" keymap="$default"/>
+			</action>
 			<separator/>
 			<action id="Git.Rebase" class="git4idea.actions.GitRebase" text="Rebase..."/>
 			<action id="Git.Rebase.Abort" class="git4idea.actions.GitRebaseAbort" text="Abort Rebasing"/>
 			<action id="Git.Rebase.Continue" class="git4idea.actions.GitRebaseContinue" text="Continue Rebasing"/>
 			<action id="Git.Rebase.Skip" class="git4idea.actions.GitRebaseSkip" text="Skip Commit in Rebasing"/>
 			<separator/>
+			<action id="Git.Edit.Global.Message" class="git4idea.actions.GitEditGlobalMessageAction" text="Edit Global Message"/>
 		</group>
 
 		<group id="Git.Menu" class="git4idea.actions.GitMenu" popup="true" text="_Git">
@@ -74,18 +77,43 @@
 			<separator/>
 		</group>
 
-		<action id="Git.CherryPick" class="git4idea.cherrypick.GitCherryPickAction" text="Cherry-Pick" icon="Git4ideaIcons.CherryPick" anchor="First"/>
+		<action class="git4idea.actions.GitCheckoutRevisionAction" id="Git.CheckoutRevision" text="Checkout Revision"/>
+		<action class="git4idea.actions.GitCreateNewBranchAction" id="Git.CreateNewBranch" text="New Branch..."
+				description="Create new branch starting from the selected commit"/>
+		<action class="git4idea.actions.GitCreateTagAction" id="Git.CreateNewTag" text="New Tag..."
+				description="Create new tag pointing to this commit"/>
+		<action id="Git.Reset.In.Log" class="git4idea.reset.GitResetAction" text="Reset Current Branch to Here..."/>
+
+		<group id="Git.Log.ContextMenu">
+			<separator/>
+			<reference id="Git.CheckoutRevision"/>
+			<reference id="Git.CreateNewBranch"/>
+			<reference id="Git.CreateNewTag"/>
+			<separator/>
+			<reference id="Git.Reset.In.Log"/>
+			<add-to-group group-id="Vcs.Log.ContextMenu"/>
+		</group>
+
+		<group id="Git.Log.Toolbar">
+			<action id="Git.Log.DeepCompare" class="git4idea.branch.DeepCompareAction" text="Highlight non-picked commits"
+					icon="Git4ideaIcons.DeepCompare"
+					description="Dims those commits which have equivalent changes in the current branch"/>
+			<add-to-group group-id="Vcs.Log.Toolbar"/>
+		</group>
+
 
 	</actions>
 
 	<project-components>
 		<component>
+			<interface-class>git4idea.repo.GitRepositoryManager</interface-class>
 			<implementation-class>git4idea.repo.GitRepositoryManager</implementation-class>
 		</component>
 	</project-components>
 
 	<extensions defaultExtensionNs="com.intellij">
 		<errorHandler implementation="com.intellij.diagnostic.ITNReporter"/>
+		<search.topHitProvider implementation="git4idea.config.GitOptionsTopHitProvider"/>
 		<vcs name="Git" vcsClass="git4idea.GitVcs" displayName="Git" administrativeAreaName=".git"/>
 		<checkoutProvider implementation="git4idea.checkout.GitCheckoutProvider"/>
 		<vcsRootChecker implementation="git4idea.roots.GitRootChecker"/>
@@ -94,10 +122,9 @@
 		<checkinHandlerFactory implementation="git4idea.checkin.UnresolvedMergeCheckFactory"/>
 		<logProvider implementation="git4idea.log.GitLogProvider"/>
 		<vcsChangesViewRefresher implementation="git4idea.changes.GitChangesViewRefresher"/>
+		<pushSupport implementation="git4idea.push.GitPushSupport"/>
+		<cherryPicker implementation="git4idea.cherrypick.GitCherryPicker"/>
 
-		<projectService
-				serviceInterface="git4idea.history.wholeTree.LogFactoryService"
-				serviceImplementation="git4idea.history.wholeTree.LogFactoryService"/>
 		<projectService
 				serviceInterface="git4idea.annotate.GitAnnotationProvider"
 				serviceImplementation="git4idea.annotate.GitAnnotationProvider"/>
@@ -119,31 +146,19 @@
 		<projectService
 				serviceInterface="git4idea.config.GitVcsSettings"
 				serviceImplementation="git4idea.config.GitVcsSettings"/>
-		<projectService
-				serviceInterface="git4idea.settings.GitPushSettings"
-				serviceImplementation="git4idea.settings.GitPushSettings"/>
-		<projectService
-				serviceInterface="git4idea.history.NewGitUsersComponent"
-				serviceImplementation="git4idea.history.NewGitUsersComponent"/>
-		<projectService
-				serviceInterface="git4idea.history.browser.GitProjectLogManager"
-				serviceImplementation="git4idea.history.browser.GitProjectLogManager"/>
+		<projectService serviceImplementation="git4idea.config.GitSharedSettings"/>
 		<projectService
 				serviceInterface="git4idea.config.GitExecutableValidator"
 				serviceImplementation="git4idea.config.GitExecutableValidator"/>
 		<projectService
 				serviceInterface="git4idea.MessageManager"
 				serviceImplementation="git4idea.MessageManager"/>
-		<projectService serviceInterface="git4idea.history.wholeTree.GitLogSettings"
-						serviceImplementation="git4idea.history.wholeTree.GitLogSettings"/>
 		<projectService serviceInterface="git4idea.branch.GitBrancher"
 						serviceImplementation="git4idea.branch.GitBrancherImpl"/>
-		<projectService serviceImplementation="git4idea.GitUserRegistry" />
+		<projectService serviceImplementation="git4idea.GitUserRegistry"/>
 
-		<projectService serviceImplementation="git4idea.log.GitContentRevisionFactory"/>
+		<projectService serviceImplementation="git4idea.branch.DeepComparatorHolder"/>
 
-		<applicationService serviceImplementation="git4idea.history.wholeTree.GitCommitsSequentialIndex"
-							serviceInterface="git4idea.history.wholeTree.GitCommitsSequentially"/>
 		<applicationService serviceInterface="git4idea.config.GitVcsApplicationSettings"
 							serviceImplementation="git4idea.config.GitVcsApplicationSettings"/>
 		<applicationService serviceInterface="org.jetbrains.git4idea.ssh.GitXmlRpcSshService"
@@ -170,5 +185,4 @@
 	<extensionPoints>
 		<extensionPoint qualifiedName="Git4Idea.GitHttpAuthDataProvider" interface="git4idea.remote.GitHttpAuthDataProvider"/>
 	</extensionPoints>
-
 </idea-plugin>

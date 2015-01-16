@@ -15,33 +15,61 @@
  */
 package git4idea.actions;
 
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vfs.VirtualFile;
-import git4idea.GitPlatformFacade;
-import git4idea.push.GitPusher;
+import java.util.Collection;
+import java.util.Collections;
+
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import com.intellij.dvcs.DvcsUtil;
+import com.intellij.dvcs.push.ui.VcsPushDialog;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.project.DumbAwareAction;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.util.containers.ContainerUtil;
+import git4idea.GitUtil;
+import git4idea.branch.GitBranchUtil;
+import git4idea.repo.GitRepository;
+import git4idea.repo.GitRepositoryManager;
 
-import java.util.List;
-import java.util.Set;
+public class GitPushAction extends DumbAwareAction
+{
 
-/**
- * The action that pushes active branches
- */
-public class GitPushAction extends GitRepositoryAction {
+	@Override
+	public void actionPerformed(@NotNull AnActionEvent e)
+	{
+		Project project = e.getRequiredData(CommonDataKeys.PROJECT);
+		Collection<GitRepository> repositories = e.getData(CommonDataKeys.EDITOR) != null ? ContainerUtil.<GitRepository>emptyList() :
+				collectRepositories(project, e.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY));
+		new VcsPushDialog(project, DvcsUtil.sortRepositories(repositories), GitBranchUtil.getCurrentRepository(project)).show();
+	}
 
-  @Override
-  @NotNull
-  protected String getActionName() {
-    return "Push";
-  }
+	@NotNull
+	private static Collection<GitRepository> collectRepositories(@NotNull Project project, @Nullable VirtualFile[] files)
+	{
+		if(files == null)
+		{
+			return Collections.emptyList();
+		}
+		GitRepositoryManager manager = GitUtil.getRepositoryManager(project);
+		Collection<GitRepository> repositories = ContainerUtil.newHashSet();
+		for(VirtualFile file : files)
+		{
+			GitRepository repo = manager.getRepositoryForFile(file);
+			if(repo != null)
+			{
+				repositories.add(repo);
+			}
+		}
+		return repositories;
+	}
 
-  protected void perform(@NotNull final Project project,
-                         @NotNull final List<VirtualFile> gitRoots,
-                         @NotNull final VirtualFile defaultRoot,
-                         final Set<VirtualFile> affectedRoots,
-                         final List<VcsException> exceptions) throws VcsException {
-    GitPusher.showPushDialogAndPerformPush(project, ServiceManager.getService(project, GitPlatformFacade.class));
-  }
+	@Override
+	public void update(@NotNull AnActionEvent e)
+	{
+		super.update(e);
+		Project project = e.getProject();
+		e.getPresentation().setEnabledAndVisible(project != null && !GitUtil.getRepositoryManager(project).getRepositories().isEmpty());
+	}
 }

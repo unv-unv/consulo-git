@@ -9,7 +9,6 @@ package git4idea.branch;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -27,7 +26,6 @@ import git4idea.GitPlatformFacade;
 import git4idea.commands.Git;
 import git4idea.commands.GitCommandResult;
 import git4idea.commands.GitCompoundResult;
-import git4idea.push.GitSimplePushResult;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import git4idea.ui.branch.GitMultiRootBranchConfig;
@@ -195,14 +193,6 @@ class GitDeleteRemoteBranchOperation extends GitBranchOperation
 			@Nullable String puttyKey)
 	{
 		return myGit.push(repository, remoteName, url, puttyKey, ":" + branchName);
-	}
-
-	@NotNull
-	private static GitCommandResult convertSimplePushResultToCommandResult(@NotNull GitSimplePushResult result)
-	{
-		boolean success = result.getType() == GitSimplePushResult.Type.SUCCESS;
-		return new GitCommandResult(success, -1, success ? Collections.<String>emptyList() : Collections.singletonList(result.getOutput()),
-				success ? Collections.singletonList(result.getOutput()) : Collections.<String>emptyList(), null);
 	}
 
 	@Nullable

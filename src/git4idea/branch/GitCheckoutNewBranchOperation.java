@@ -41,8 +41,7 @@ class GitCheckoutNewBranchOperation extends GitBranchOperation
 	@NotNull
 	private final String myNewBranchName;
 
-	GitCheckoutNewBranchOperation(
-			@NotNull Project project,
+	GitCheckoutNewBranchOperation(@NotNull Project project,
 			GitPlatformFacade facade,
 			@NotNull Git git,
 			@NotNull GitBranchUiHandler uiHandler,
@@ -107,8 +106,7 @@ class GitCheckoutNewBranchOperation extends GitBranchOperation
 	{
 		return "However checkout has succeeded for the following " + repositories() + ":<br/>" +
 				successfulRepositoriesJoined() +
-				"<br/>You may rollback (checkout back to " + myCurrentBranchOrRev + " and delete " + myNewBranchName + ") not to let branches " +
-				"diverge.";
+				"<br/>You may rollback (checkout previous branch back, and delete " + myNewBranchName + ") not to let branches diverge.";
 	}
 
 	@NotNull
@@ -126,7 +124,7 @@ class GitCheckoutNewBranchOperation extends GitBranchOperation
 		Collection<GitRepository> repositories = getSuccessfulRepositories();
 		for(GitRepository repository : repositories)
 		{
-			GitCommandResult result = myGit.checkout(repository, myCurrentBranchOrRev, null, true);
+			GitCommandResult result = myGit.checkout(repository, myCurrentHeads.get(repository), null, true);
 			checkoutResult.append(repository, result);
 			if(result.success())
 			{
@@ -137,7 +135,7 @@ class GitCheckoutNewBranchOperation extends GitBranchOperation
 		if(checkoutResult.totalSuccess() && deleteResult.totalSuccess())
 		{
 			VcsNotifier.getInstance(myProject).notifySuccess("Rollback successful", String.format("Checked out %s and deleted %s on %s %s",
-					code(myCurrentBranchOrRev), code(myNewBranchName), StringUtil.pluralize("root", repositories.size()),
+					stringifyBranchesByRepos(myCurrentHeads), code(myNewBranchName), StringUtil.pluralize("root", repositories.size()),
 					successfulRepositoriesJoined()));
 		}
 		else

@@ -1,8 +1,12 @@
 package git4idea;
 
+import javax.swing.Icon;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.ui.DialogWrapper;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.ui.Messages;
 
 /**
  * Use {@link DialogManager#show(DialogWrapper) DialogManager.show(DialogWrapper)} instead of {@link DialogWrapper#show()}
@@ -12,14 +16,39 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Kirill Likhodedov
  */
-public class DialogManager {
+public class DialogManager
+{
 
-  public static void show(@NotNull DialogWrapper dialog) {
-    ServiceManager.getService(DialogManager.class).showDialog(dialog);
-  }
+	public static void show(@NotNull DialogWrapper dialog)
+	{
+		ServiceManager.getService(DialogManager.class).showDialog(dialog);
+	}
 
-  protected void showDialog(@NotNull DialogWrapper dialog) {
-    dialog.show();
-  }
+	public static int showMessage(@NotNull String description,
+			@NotNull String title,
+			@NotNull String[] options,
+			int defaultButtonIndex,
+			int focusedButtonIndex,
+			@Nullable Icon icon,
+			@Nullable DialogWrapper.DoNotAskOption dontAskOption)
+	{
+		return ServiceManager.getService(DialogManager.class).showMessageDialog(description, title, options, defaultButtonIndex, focusedButtonIndex,
+				icon, dontAskOption);
+	}
 
+	protected void showDialog(@NotNull DialogWrapper dialog)
+	{
+		dialog.show();
+	}
+
+	protected int showMessageDialog(@NotNull String description,
+			@NotNull String title,
+			@NotNull String[] options,
+			int defaultButtonIndex,
+			int focusedButtonIndex,
+			@Nullable Icon icon,
+			@Nullable DialogWrapper.DoNotAskOption dontAskOption)
+	{
+		return Messages.showDialog(description, title, options, defaultButtonIndex, focusedButtonIndex, icon, dontAskOption);
+	}
 }

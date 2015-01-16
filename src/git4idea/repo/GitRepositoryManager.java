@@ -16,29 +16,39 @@
 package git4idea.repo;
 
 import org.jetbrains.annotations.NotNull;
+import com.intellij.dvcs.branch.DvcsSyncSettings;
 import com.intellij.dvcs.repo.AbstractRepositoryManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.GitPlatformFacade;
 import git4idea.GitUtil;
+import git4idea.ui.branch.GitMultiRootBranchConfig;
 
-/**
- * @author Kirill Likhodedov
- */
-public class GitRepositoryManager extends AbstractRepositoryManager<GitRepository> {
+public class GitRepositoryManager extends AbstractRepositoryManager<GitRepository>
+{
 
-	@NotNull private final GitPlatformFacade myPlatformFacade;
+	@NotNull
+	private final GitPlatformFacade myPlatformFacade;
 
-	public GitRepositoryManager(@NotNull Project project, @NotNull GitPlatformFacade platformFacade,
-			@NotNull ProjectLevelVcsManager vcsManager) {
+	public GitRepositoryManager(@NotNull Project project, @NotNull GitPlatformFacade platformFacade, @NotNull ProjectLevelVcsManager vcsManager)
+	{
 		super(project, vcsManager, platformFacade.getVcs(project), GitUtil.DOT_GIT);
 		myPlatformFacade = platformFacade;
 	}
 
 	@NotNull
 	@Override
-	protected GitRepository createRepository(@NotNull VirtualFile root) {
+	protected GitRepository createRepository(@NotNull VirtualFile root)
+	{
 		return GitRepositoryImpl.getFullInstance(root, myProject, myPlatformFacade, this);
 	}
+
+	@Override
+	public boolean isSyncEnabled()
+	{
+		return myPlatformFacade.getSettings(myProject).getSyncSetting() == DvcsSyncSettings.Value.SYNC && !new GitMultiRootBranchConfig
+				(getRepositories()).diverged();
+	}
+
 }

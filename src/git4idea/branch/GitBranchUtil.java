@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2012 JetBrains s.r.o.
+ * Copyright 2000-2014 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,41 +21,31 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
-import com.google.common.collect.Iterables;
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.LibraryOrderEntry;
-import com.intellij.openapi.roots.OrderEntry;
-import com.intellij.openapi.roots.ProjectFileIndex;
-import com.intellij.openapi.roots.ProjectRootManager;
-import com.intellij.openapi.roots.SdkOrderEntry;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vcs.AbstractVcs;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.openapi.vcs.VcsException;
+import com.intellij.openapi.vfs.CharsetToolkit;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.containers.ContainerUtil;
-import com.intellij.vcs.log.Hash;
 import com.intellij.vcsUtil.VcsUtil;
 import git4idea.GitBranch;
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
 import git4idea.GitStandardRemoteBranch;
 import git4idea.GitSvnRemoteBranch;
+import git4idea.GitTag;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
 import git4idea.commands.GitCommand;
@@ -267,50 +257,6 @@ public class GitBranchUtil
 	}
 
 	/**
-	 * @return {@link git4idea.GitStandardRemoteBranch} or {@link GitSvnRemoteBranch}, or null in case of an error. The error is logged in this
-	 * method.
-	 * @deprecated Should be used only in the GitRepositoryReader, i. e. moved there once all other usages are removed.
-	 */
-	@Deprecated
-	@Nullable
-	public static GitRemoteBranch parseRemoteBranch(@NotNull String fullBranchName, @NotNull Hash hash, @NotNull Collection<GitRemote> remotes)
-	{
-		String stdName = stripRefsPrefix(fullBranchName);
-
-		int slash = stdName.indexOf('/');
-		if(slash == -1)
-		{ // .git/refs/remotes/my_branch => git-svn
-			return new GitSvnRemoteBranch(fullBranchName, hash);
-		}
-		else
-		{
-			String remoteName = stdName.substring(0, slash);
-			String branchName = stdName.substring(slash + 1);
-			GitRemote remote = findRemoteByName(remoteName, remotes);
-			if(remote == null)
-			{
-				return null;
-			}
-			return new GitStandardRemoteBranch(remote, branchName, hash);
-		}
-	}
-
-	@Nullable
-	private static GitRemote findRemoteByName(@NotNull String remoteName, @NotNull Collection<GitRemote> remotes)
-	{
-		for(GitRemote remote : remotes)
-		{
-			if(remote.getName().equals(remoteName))
-			{
-				return remote;
-			}
-		}
-		// user may remove the remote section from .git/config, but leave remote refs untouched in .git/refs/remotes
-		LOG.info(String.format("No remote found with the name [%s]. All remotes: %s", remoteName, remotes));
-		return null;
-	}
-
-	/**
 	 * Convert {@link git4idea.GitRemoteBranch GitRemoteBranches} to their names, and remove remote HEAD pointers: origin/HEAD.
 	 */
 	@NotNull
@@ -327,61 +273,6 @@ public class GitBranchUtil
 		});
 	}
 
-	/**
-	 * @deprecated Don't use names, use {@link GitLocalBranch} objects.
-	 */
-	@Deprecated
-	@Nullable
-	public static GitLocalBranch findLocalBranchByName(@NotNull GitRepository repository, @NotNull final String branchName)
-	{
-		Optional<GitLocalBranch> optional = Iterables.tryFind(repository.getBranches().getLocalBranches(), new Predicate<GitLocalBranch>()
-		{
-			@Override
-			public boolean apply(@Nullable GitLocalBranch input)
-			{
-				assert input != null;
-				return input.getName().equals(branchName);
-			}
-		});
-		if(optional.isPresent())
-		{
-			return optional.get();
-		}
-		LOG.info(String.format("Couldn't find branch with name %s in %s", branchName, repository));
-		return null;
-
-	}
-
-	/**
-	 * Looks through the remote branches in the given repository and tries to find the one from the given remote,
-	 * which the given name.
-	 *
-	 * @return remote branch or null if such branch couldn't be found.
-	 */
-	@Nullable
-	public static GitRemoteBranch findRemoteBranchByName(
-			@NotNull String remoteBranchName,
-			@NotNull final String remoteName,
-			@NotNull final Collection<GitRemoteBranch> remoteBranches)
-	{
-		final String branchName = stripRefsPrefix(remoteBranchName);
-		Optional<GitRemoteBranch> optional = Iterables.tryFind(remoteBranches, new Predicate<GitRemoteBranch>()
-		{
-			@Override
-			public boolean apply(@Nullable GitRemoteBranch input)
-			{
-				assert input != null;
-				return input.getNameForRemoteOperations().equals(branchName) && input.getRemote().getName().equals(remoteName);
-			}
-		});
-		if(optional.isPresent())
-		{
-			return optional.get();
-		}
-		LOG.info(String.format("Couldn't find branch with name %s", branchName));
-		return null;
-	}
-
 	@NotNull
 	public static String stripRefsPrefix(@NotNull String branchName)
 	{
@@ -392,6 +283,10 @@ public class GitBranchUtil
 		else if(branchName.startsWith(GitBranch.REFS_REMOTES_PREFIX))
 		{
 			return branchName.substring(GitBranch.REFS_REMOTES_PREFIX.length());
+		}
+		else if(branchName.startsWith(GitTag.REFS_TAGS_PREFIX))
+		{
+			return branchName.substring(GitTag.REFS_TAGS_PREFIX.length());
 		}
 		return branchName;
 	}
@@ -422,8 +317,7 @@ public class GitBranchUtil
 	 * @return name of new branch or {@code null} if user has cancelled the dialog.
 	 */
 	@Nullable
-	public static String getNewBranchNameFromUser(
-			@NotNull Project project,
+	public static String getNewBranchNameFromUser(@NotNull Project project,
 			@NotNull Collection<GitRepository> repositories,
 			@NotNull String dialogTitle)
 	{
@@ -480,8 +374,8 @@ public class GitBranchUtil
 	 *
 	 * @param project current project
 	 * @return Git root that may be considered as "current".
-	 *         <code>null</code> is returned if a file not under Git was explicitly selected, if there are no Git roots in the project,
-	 *         or if the current Git root couldn't be determined.
+	 * <code>null</code> is returned if a file not under Git was explicitly selected, if there are no Git roots in the project,
+	 * or if the current Git root couldn't be determined.
 	 */
 	@Nullable
 	public static GitRepository getCurrentRepository(@NotNull Project project)
@@ -495,71 +389,8 @@ public class GitBranchUtil
 	@Nullable
 	public static VirtualFile getVcsRootOrGuess(@NotNull Project project, @Nullable VirtualFile file)
 	{
-		VirtualFile root = null;
-		ProjectFileIndex fileIndex = ProjectRootManager.getInstance(project).getFileIndex();
-		if(file != null)
-		{
-			if(fileIndex.isInLibrarySource(file) || fileIndex.isInLibraryClasses(file))
-			{
-				LOG.debug("File is in library sources " + file);
-				root = getVcsRootForLibraryFile(project, file);
-			}
-			else
-			{
-				LOG.debug("File is not in library sources " + file);
-				root = ProjectLevelVcsManager.getInstance(project).getVcsRootFor(file);
-			}
-		}
+		VirtualFile root = DvcsUtil.getVcsRoot(project, file);
 		return root != null ? root : guessGitRoot(project);
-	}
-
-	@Nullable
-	private static VirtualFile getVcsRootForLibraryFile(@NotNull Project project, @NotNull VirtualFile file)
-	{
-		ProjectLevelVcsManager vcsManager = ProjectLevelVcsManager.getInstance(project);
-		// for a file inside .jar/.zip consider the .jar/.zip file itself
-		VirtualFile root = vcsManager.getVcsRootFor(VfsUtilCore.getVirtualFileForJar(file));
-		if(root != null)
-		{
-			LOG.debug("Found root for zip/jar file: " + root);
-			return root;
-		}
-
-		// for other libs which don't have jars inside the project dir (such as JDK) take the owner module of the lib
-		List<OrderEntry> entries = ProjectRootManager.getInstance(project).getFileIndex().getOrderEntriesForFile(file);
-		Set<VirtualFile> libraryRoots = new HashSet<VirtualFile>();
-		for(OrderEntry entry : entries)
-		{
-			if(entry instanceof LibraryOrderEntry || entry instanceof SdkOrderEntry)
-			{
-				VirtualFile moduleRoot = vcsManager.getVcsRootFor(entry.getOwnerModule().getModuleDir());
-				if(moduleRoot != null)
-				{
-					libraryRoots.add(moduleRoot);
-				}
-			}
-		}
-
-		if(libraryRoots.size() == 0)
-		{
-			LOG.debug("No library roots");
-			return null;
-		}
-
-		// if the lib is used in several modules, take the top module
-		// (for modules of the same level we can't guess anything => take the first one)
-		Iterator<VirtualFile> libIterator = libraryRoots.iterator();
-		VirtualFile topLibraryRoot = libIterator.next();
-		while(libIterator.hasNext())
-		{
-			VirtualFile libRoot = libIterator.next();
-			if(VfsUtilCore.isAncestor(libRoot, topLibraryRoot, true))
-			{
-				topLibraryRoot = libRoot;
-			}
-		}
-		LOG.debug("Several library roots, returning " + topLibraryRoot);
-		return topLibraryRoot;
 	}
 
 	@Nullable
@@ -623,6 +454,11 @@ public class GitBranchUtil
 				rootCandidate = root;
 			}
 		}
+		LOG.debug("The best candidate: " + rootCandidate);
+		if(rootCandidate == null)
+		{
+			rootCandidate = gitRoots[0];
+		}
 		LOG.debug("Returning the best candidate: " + rootCandidate);
 		return rootCandidate;
 	}
@@ -663,8 +499,7 @@ public class GitBranchUtil
 	 * List branches containing a commit. Specify null if no commit filtering is needed.
 	 */
 	@NotNull
-	public static Collection<String> getBranches(
-			@NotNull Project project,
+	public static Collection<String> getBranches(@NotNull Project project,
 			@NotNull VirtualFile root,
 			boolean localWanted,
 			boolean remoteWanted,
@@ -697,7 +532,7 @@ public class GitBranchUtil
 			String head;
 			try
 			{
-				head = FileUtil.loadFile(new File(root.getPath(), GitRepositoryFiles.GIT_HEAD), GitUtil.UTF8_ENCODING).trim();
+				head = FileUtil.loadFile(new File(root.getPath(), GitRepositoryFiles.GIT_HEAD), CharsetToolkit.UTF8_CHARSET).trim();
 				final String prefix = "ref: refs/heads/";
 				return head.startsWith(prefix) ? Collections.singletonList(head.substring(prefix.length())) : Collections.<String>emptyList();
 			}

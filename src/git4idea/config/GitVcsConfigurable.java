@@ -15,63 +15,76 @@
  */
 package git4idea.config;
 
+import javax.swing.JComponent;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import git4idea.GitVcs;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+public class GitVcsConfigurable implements Configurable
+{
 
-public class GitVcsConfigurable implements Configurable {
+	public static final String DISPLAY_NAME = GitVcs.NAME;
 
-  private final Project myProject;
-  private final GitVcsSettings mySettings;
-  private GitVcsPanel panel;
+	private final Project myProject;
+	private final GitVcsSettings mySettings;
+	@NotNull
+	private final GitSharedSettings mySharedSettings;
+	private GitVcsPanel panel;
 
-  public GitVcsConfigurable(@NotNull GitVcsSettings settings, @NotNull Project project) {
-    myProject = project;
-    mySettings = settings;
-  }
+	public GitVcsConfigurable(@NotNull Project project, @NotNull GitVcsSettings settings, @NotNull GitSharedSettings sharedSettings)
+	{
+		myProject = project;
+		mySettings = settings;
+		mySharedSettings = sharedSettings;
+	}
 
-  @NotNull
-  @Override
-  public String getDisplayName() {
-    return GitVcs.NAME;
-  }
+	@NotNull
+	@Override
+	public String getDisplayName()
+	{
+		return DISPLAY_NAME;
+	}
 
-  @Nullable
-  @Override
-  public String getHelpTopic() {
-    return "project.propVCSSupport.VCSs.Git";
-  }
+	@Nullable
+	@Override
+	public String getHelpTopic()
+	{
+		return "project.propVCSSupport.VCSs.Git";
+	}
 
-  @NotNull
-  @Override
-  public JComponent createComponent() {
-    panel = new GitVcsPanel(myProject);
-    panel.load(mySettings);
-    return panel.getPanel();
-  }
+	@NotNull
+	@Override
+	public JComponent createComponent()
+	{
+		panel = new GitVcsPanel(myProject);
+		panel.load(mySettings, mySharedSettings);
+		return panel.getPanel();
+	}
 
-  @Override
-  public boolean isModified() {
-    return panel.isModified(mySettings);
-  }
+	@Override
+	public boolean isModified()
+	{
+		return panel.isModified(mySettings, mySharedSettings);
+	}
 
-  @Override
-  public void apply() throws ConfigurationException {
-    panel.save(mySettings);
-  }
+	@Override
+	public void apply() throws ConfigurationException
+	{
+		panel.save(mySettings, mySharedSettings);
+	}
 
-  @Override
-  public void reset() {
-    panel.load(mySettings);
-  }
+	@Override
+	public void reset()
+	{
+		panel.load(mySettings, mySharedSettings);
+	}
 
-  @Override
-  public void disposeUIResources() {
-  }
-
+	@Override
+	public void disposeUIResources()
+	{
+	}
 }

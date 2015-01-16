@@ -31,6 +31,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.util.ArrayUtil;
+import com.intellij.util.containers.ContainerUtil;
 import git4idea.GitCommit;
 import git4idea.GitPlatformFacade;
 import git4idea.commands.Git;
@@ -54,8 +55,7 @@ class GitDeleteBranchOperation extends GitBranchOperation
 
 	private final String myBranchName;
 
-	GitDeleteBranchOperation(
-			@NotNull Project project,
+	GitDeleteBranchOperation(@NotNull Project project,
 			GitPlatformFacade facade,
 			@NotNull Git git,
 			@NotNull GitBranchUiHandler uiHandler,
@@ -88,7 +88,7 @@ class GitDeleteBranchOperation extends GitBranchOperation
 				String baseBranch = notMergedToUpstreamDetector.getBaseBranch();
 				if(baseBranch == null)
 				{ // GitBranchNotMergedToUpstreamDetector didn't happen
-					baseBranch = myCurrentBranchOrRev;
+					baseBranch = myCurrentHeads.get(repository);
 				}
 
 				Collection<GitRepository> remainingRepositories = getRemainingRepositories();
@@ -202,8 +202,9 @@ class GitDeleteBranchOperation extends GitBranchOperation
 	 *
 	 * @return true if the branch should be force deleted.
 	 */
-	private boolean showNotFullyMergedDialog(
-			@NotNull final String unmergedBranch, @NotNull final String baseBranch, @NotNull Collection<GitRepository> repositories)
+	private boolean showNotFullyMergedDialog(@NotNull final String unmergedBranch,
+			@NotNull final String baseBranch,
+			@NotNull Collection<GitRepository> repositories)
 	{
 		final List<String> mergedToBranches = getMergedToBranches(unmergedBranch);
 
@@ -245,7 +246,7 @@ class GitDeleteBranchOperation extends GitBranchOperation
 			}
 			else
 			{
-				mergedToBranches.retainAll(branches);
+				mergedToBranches = new ArrayList<String>(ContainerUtil.intersection(mergedToBranches, branches));
 			}
 		}
 		return mergedToBranches != null ? mergedToBranches : new ArrayList<String>();

@@ -22,33 +22,43 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Kirill Likhodedov
  */
-public interface GitHttpAuthenticator {
+public interface GitHttpAuthenticator
+{
 
-  /**
-   * Asks the password to access the specified URL.
-   * @param url URL which needs authentication.
-   * @return Password to access the URL.
-   */
-  @NotNull
-  String askPassword(@NotNull String url);
+	/**
+	 * Asks the password to access the specified URL.
+	 *
+	 * @param url URL which needs authentication.
+	 * @return Password to access the URL.
+	 */
+	@NotNull
+	String askPassword(@NotNull String url);
 
-  /**
-   * Asks the username to access the specified URL. Password request will follow.
-   * @param url URL which needs authentication, without username in it.
-   * @return Username to access the URL.
-   */
-  @NotNull
-  String askUsername(@NotNull String url);
+	/**
+	 * Asks the username to access the specified URL. Password request will follow.
+	 *
+	 * @param url URL which needs authentication, without username in it.
+	 * @return Username to access the URL.
+	 */
+	@NotNull
+	String askUsername(@NotNull String url);
 
-  /**
-   * Saves the entered username and password to the database for the future access.
-   * This is called when authentication succeeds.
-   */
-  void saveAuthData();
+	/**
+	 * Saves the entered username and password to the database for the future access.
+	 * This is called when authentication succeeds.
+	 */
+	void saveAuthData();
 
-  /**
-   * Makes sure the entered password is removed from the database.
-   * This is called when authentication fails.
-   */
-  void forgetPassword();
+	/**
+	 * Makes sure the entered password is removed from the database.
+	 * This is called when authentication fails.
+	 */
+	void forgetPassword();
+
+	/**
+	 * Checks if the authentication dialog was cancelled
+	 * (in which case the behavior might be different than if a wrong password was provided).
+	 */
+	boolean wasCancelled();
+
 }

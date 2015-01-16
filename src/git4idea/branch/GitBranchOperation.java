@@ -25,17 +25,21 @@ import java.util.Map;
 import java.util.Set;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import com.intellij.dvcs.DvcsUtil;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vcs.changes.Change;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.Function;
+import com.intellij.util.containers.ContainerUtil;
+import com.intellij.util.containers.MultiMap;
+import git4idea.GitLocalBranch;
 import git4idea.GitPlatformFacade;
 import git4idea.GitUtil;
 import git4idea.commands.Git;
@@ -63,7 +67,7 @@ abstract class GitBranchOperation
 	@NotNull
 	private final Collection<GitRepository> myRepositories;
 	@NotNull
-	protected final String myCurrentBranchOrRev;
+	protected final Map<GitRepository, String> myCurrentHeads;
 	private final GitVcsSettings mySettings;
 
 	@NotNull
@@ -71,8 +75,7 @@ abstract class GitBranchOperation
 	@NotNull
 	private final Collection<GitRepository> myRemainingRepositories;
 
-	protected GitBranchOperation(
-			@NotNull Project project,
+	protected GitBranchOperation(@NotNull Project project,
 			@NotNull GitPlatformFacade facade,
 			@NotNull Git git,
 			@NotNull GitBranchUiHandler uiHandler,
@@ -83,7 +86,15 @@ abstract class GitBranchOperation
 		myGit = git;
 		myUiHandler = uiHandler;
 		myRepositories = repositories;
-		myCurrentBranchOrRev = GitBranchUtil.getCurrentBranchOrRev(repositories);
+		myCurrentHeads = ContainerUtil.map2Map(repositories, new Function<GitRepository, Pair<GitRepository, String>>()
+		{
+			@Override
+			public Pair<GitRepository, String> fun(GitRepository repository)
+			{
+				GitLocalBranch currentBranch = repository.getCurrentBranch();
+				return Pair.create(repository, currentBranch == null ? repository.getCurrentRevision() : currentBranch.getName());
+			}
+		});
 		mySuccessfulRepositories = new ArrayList<GitRepository>();
 		myRemainingRepositories = new ArrayList<GitRepository>(myRepositories);
 		mySettings = myFacade.getSettings(myProject);
@@ -269,12 +280,34 @@ abstract class GitBranchOperation
 		if(getRepositories().size() == 1)
 		{
 			GitRepository repository = myRepositories.iterator().next();
-			mySettings.setRecentBranchOfRepository(repository.getRoot().getPath(), myCurrentBranchOrRev);
+			mySettings.setRecentBranchOfRepository(repository.getRoot().getPath(), myCurrentHeads.get(repository));
 		}
 		else
 		{
-			mySettings.setRecentCommonBranch(myCurrentBranchOrRev);
+			String recentCommonBranch = getRecentCommonBranch();
+			if(recentCommonBranch != null)
+			{
+				mySettings.setRecentCommonBranch(recentCommonBranch);
+			}
 		}
+	}
+
+	@Nullable
+	private String getRecentCommonBranch()
+	{
+		String recentCommonBranch = null;
+		for(String branch : myCurrentHeads.values())
+		{
+			if(recentCommonBranch == null)
+			{
+				recentCommonBranch = branch;
+			}
+			else if(!recentCommonBranch.equals(branch))
+			{
+				return null;
+			}
+		}
+		return recentCommonBranch;
 	}
 
 	private void showUnmergedFilesDialogWithRollback()
@@ -316,26 +349,26 @@ abstract class GitBranchOperation
 	 * If some repositories succeeded, shows a dialog with the list of these files and a proposal to rollback the operation of those
 	 * repositories.
 	 */
-	protected void fatalUntrackedFilesError(@NotNull Collection<VirtualFile> untrackedFiles)
+	protected void fatalUntrackedFilesError(@NotNull VirtualFile root, @NotNull Collection<String> relativePaths)
 	{
 		if(wereSuccessful())
 		{
-			showUntrackedFilesDialogWithRollback(untrackedFiles);
+			showUntrackedFilesDialogWithRollback(root, relativePaths);
 		}
 		else
 		{
-			showUntrackedFilesNotification(untrackedFiles);
+			showUntrackedFilesNotification(root, relativePaths);
 		}
 	}
 
-	private void showUntrackedFilesNotification(@NotNull Collection<VirtualFile> untrackedFiles)
+	private void showUntrackedFilesNotification(@NotNull VirtualFile root, @NotNull Collection<String> relativePaths)
 	{
-		myUiHandler.showUntrackedFilesNotification(getOperationName(), untrackedFiles);
+		myUiHandler.showUntrackedFilesNotification(getOperationName(), root, relativePaths);
 	}
 
-	private void showUntrackedFilesDialogWithRollback(@NotNull Collection<VirtualFile> untrackedFiles)
+	private void showUntrackedFilesDialogWithRollback(@NotNull VirtualFile root, @NotNull Collection<String> relativePaths)
 	{
-		boolean ok = myUiHandler.showUntrackedFilesDialogWithRollback(getOperationName(), getRollbackProposal(), untrackedFiles);
+		boolean ok = myUiHandler.showUntrackedFilesDialogWithRollback(getOperationName(), getRollbackProposal(), root, relativePaths);
 		if(ok)
 		{
 			rollback();
@@ -348,8 +381,9 @@ abstract class GitBranchOperation
 	 * local changes.
 	 */
 	@NotNull
-	Map<GitRepository, List<Change>> collectLocalChangesConflictingWithBranch(
-			@NotNull Collection<GitRepository> repositories, @NotNull String currentBranch, @NotNull String otherBranch)
+	Map<GitRepository, List<Change>> collectLocalChangesConflictingWithBranch(@NotNull Collection<GitRepository> repositories,
+			@NotNull String currentBranch,
+			@NotNull String otherBranch)
 	{
 		Map<GitRepository, List<Change>> changes = new HashMap<GitRepository, List<Change>>();
 		for(GitRepository repository : repositories)
@@ -357,7 +391,7 @@ abstract class GitBranchOperation
 			try
 			{
 				Collection<String> diff = GitUtil.getPathsDiffBetweenRefs(myGit, repository, currentBranch, otherBranch);
-				List<Change> changesInRepo = convertPathsToChanges(repository, diff, false);
+				List<Change> changesInRepo = GitUtil.findLocalChangesForPaths(myProject, repository.getRoot(), diff, false);
 				if(!changesInRepo.isEmpty())
 				{
 					changes.put(repository, changesInRepo);
@@ -386,15 +420,15 @@ abstract class GitBranchOperation
 	 * @return Repositories that have failed or would fail with the "local changes" error, together with these local changes.
 	 */
 	@NotNull
-	protected Pair<List<GitRepository>, List<Change>> getConflictingRepositoriesAndAffectedChanges(
-			@NotNull GitRepository currentRepository,
+	protected Pair<List<GitRepository>, List<Change>> getConflictingRepositoriesAndAffectedChanges(@NotNull GitRepository currentRepository,
 			@NotNull GitMessageWithFilesDetector localChangesOverwrittenBy,
 			String currentBranch,
 			String nextBranch)
 	{
 
 		// get changes overwritten by checkout from the error message captured from Git
-		List<Change> affectedChanges = convertPathsToChanges(currentRepository, localChangesOverwrittenBy.getRelativeFilePaths(), true);
+		List<Change> affectedChanges = GitUtil.findLocalChangesForPaths(myProject, currentRepository.getRoot(),
+				localChangesOverwrittenBy.getRelativeFilePaths(), true);
 		// get all other conflicting changes
 		// get changes in all other repositories (except those which already have succeeded) to avoid multiple dialogs proposing smart checkout
 		Map<GitRepository, List<Change>> conflictingChangesInRepositories = collectLocalChangesConflictingWithBranch
@@ -411,40 +445,42 @@ abstract class GitBranchOperation
 		return Pair.create(allConflictingRepositories, affectedChanges);
 	}
 
-	/**
-	 * Given the list of paths converts them to the list of {@link com.intellij.openapi.vcs.changes.Change Changes} found in the {@link com.intellij
-	 * .openapi.vcs.changes.ChangeListManager},
-	 * i.e. this works only for local changes.
-	 * Paths can be absolute or relative to the repository.
-	 * If a path is not in the local changes, it is ignored.
-	 */
 	@NotNull
-	private List<Change> convertPathsToChanges(
-			@NotNull GitRepository repository, @NotNull Collection<String> affectedPaths, boolean relativePaths)
+	protected static String stringifyBranchesByRepos(@NotNull Map<GitRepository, String> heads)
 	{
-		List<Change> affectedChanges = new ArrayList<Change>();
-		for(String path : affectedPaths)
+		MultiMap<String, VirtualFile> grouped = groupByBranches(heads);
+		if(grouped.size() == 1)
 		{
-			VirtualFile file;
-			if(relativePaths)
-			{
-				file = repository.getRoot().findFileByRelativePath(FileUtil.toSystemIndependentName(path));
-			}
-			else
-			{
-				file = myFacade.getVirtualFileByPath(path);
-			}
-
-			if(file != null)
-			{
-				Change change = myFacade.getChangeListManager(myProject).getChange(file);
-				if(change != null)
-				{
-					affectedChanges.add(change);
-				}
-			}
+			return grouped.keySet().iterator().next();
 		}
-		return affectedChanges;
+		return StringUtil.join(grouped.entrySet(), new Function<Map.Entry<String, Collection<VirtualFile>>, String>()
+		{
+			@Override
+			public String fun(Map.Entry<String, Collection<VirtualFile>> entry)
+			{
+				String roots = StringUtil.join(entry.getValue(), new Function<VirtualFile, String>()
+				{
+					@Override
+					public String fun(VirtualFile file)
+					{
+						return file.getName();
+					}
+				}, ", ");
+				return entry.getKey() + " (in " + roots + ")";
+			}
+		}, "<br/>");
+	}
+
+	@NotNull
+	private static MultiMap<String, VirtualFile> groupByBranches(@NotNull Map<GitRepository, String> heads)
+	{
+		MultiMap<String, VirtualFile> result = MultiMap.createLinked();
+		List<GitRepository> sortedRepos = DvcsUtil.sortRepositories(heads.keySet());
+		for(GitRepository repo : sortedRepos)
+		{
+			result.putValue(heads.get(repo), repo.getRoot());
+		}
+		return result;
 	}
 
 }
