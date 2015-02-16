@@ -44,9 +44,7 @@
 			<separator/>
 			<action id="Git.Fetch" class="git4idea.actions.GitFetch" text="Fetch"/>
 			<action id="Git.Pull" class="git4idea.actions.GitPull" text="Pull..." icon="AllIcons.Actions.CheckOut"/>
-			<action id="Git.Push" class="git4idea.actions.GitPushAction" icon="AllIcons.Actions.Commit" text="Push...">
-				<keyboard-shortcut first-keystroke="control shift K" keymap="$default"/>
-			</action>
+			<reference ref="Vcs.Push"/>
 			<separator/>
 			<action id="Git.Rebase" class="git4idea.actions.GitRebase" text="Rebase..."/>
 			<action id="Git.Rebase.Abort" class="git4idea.actions.GitRebaseAbort" text="Abort Rebasing"/>
@@ -116,6 +114,7 @@
 		<search.topHitProvider implementation="git4idea.config.GitOptionsTopHitProvider"/>
 		<vcs name="Git" vcsClass="git4idea.GitVcs" displayName="Git" administrativeAreaName=".git"/>
 		<checkoutProvider implementation="git4idea.checkout.GitCheckoutProvider"/>
+		<vcsRepositoryCreator implementation="git4idea.repo.GitRepositoryCreator"/>
 		<vcsRootChecker implementation="git4idea.roots.GitRootChecker"/>
 		<vcsPopupProvider implementation="git4idea.actions.GitQuickListContentProvider"/>
 		<vcsCheckinHandlerFactory implementation="git4idea.checkin.GitCheckinHandlerFactory"/>
