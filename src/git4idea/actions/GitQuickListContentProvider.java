@@ -15,6 +15,12 @@
  */
 package git4idea.actions;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnSeparator;
@@ -24,12 +30,6 @@ import com.intellij.openapi.vcs.AbstractVcs;
 import com.intellij.openapi.vcs.actions.VcsQuickListContentProvider;
 import git4idea.GitVcs;
 import git4idea.i18n.GitBundle;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author Roman.Chernyatchik
@@ -57,7 +57,7 @@ public class GitQuickListContentProvider implements VcsQuickListContentProvider 
 
     addSeparator(actions);
     add("Git.Branches", manager, actions);
-    add("Git.Push", manager, actions);
+    add("Vcs.Push", manager, actions);
     add("Git.Stash", manager, actions);
     add("Git.Unstash", manager, actions);
 
