@@ -62,11 +62,10 @@ import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 
 /**
- * {@link DiffFromHistoryHandler#showDiffForTwo(com.intellij.openapi.project.Project, com.intellij.openapi.vcs.FilePath,
- * com.intellij.openapi.vcs.history.VcsFileRevision, com.intellij.openapi.vcs.history.VcsFileRevision) "Show Diff" for 2 revision} calls the common
- * code.
- * {@link DiffFromHistoryHandler#showDiffForOne(com.intellij.openapi.actionSystem.AnActionEvent, com.intellij.openapi.vcs.FilePath,
- * com.intellij.openapi.vcs.history.VcsFileRevision, com.intellij.openapi.vcs.history.VcsFileRevision) "Show diff" for 1 revision}
+ * {@link DiffFromHistoryHandler#showDiffForTwo(com.intellij.openapi.project.Project, com.intellij.openapi.vcs.FilePath, com.intellij.openapi.vcs.history.VcsFileRevision,
+ * com.intellij.openapi.vcs.history.VcsFileRevision) "Show Diff" for 2 revision} calls the common code.
+ * {@link DiffFromHistoryHandler#showDiffForOne(com.intellij.openapi.actionSystem.AnActionEvent, com.intellij.openapi.vcs.FilePath, com.intellij.openapi.vcs.history.VcsFileRevision,
+ * com.intellij.openapi.vcs.history.VcsFileRevision) "Show diff" for 1 revision}
  * behaves differently for merge commits: for them it shown a popup displaying the parents of the selected commit. Selecting a parent
  * from the popup shows the difference with this parent.
  * If an ordinary (not merge) revision with 1 parent, it is the same as usual: just compare with the parent;
@@ -91,11 +90,7 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
 	}
 
 	@Override
-	public void showDiffForOne(@NotNull AnActionEvent e,
-			@NotNull Project project,
-			@NotNull FilePath filePath,
-			@NotNull VcsFileRevision previousRevision,
-			@NotNull VcsFileRevision revision)
+	public void showDiffForOne(@NotNull AnActionEvent e, @NotNull Project project, @NotNull FilePath filePath, @NotNull VcsFileRevision previousRevision, @NotNull VcsFileRevision revision)
 	{
 		GitFileRevision rev = (GitFileRevision) revision;
 		Collection<String> parents = rev.getParents();
@@ -111,16 +106,13 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
 
 	@NotNull
 	@Override
-	protected List<Change> getChangesBetweenRevisions(@NotNull FilePath path,
-			@NotNull GitFileRevision rev1,
-			@Nullable GitFileRevision rev2) throws VcsException
+	protected List<Change> getChangesBetweenRevisions(@NotNull FilePath path, @NotNull GitFileRevision rev1, @Nullable GitFileRevision rev2) throws VcsException
 	{
 		GitRepository repository = getRepository(path);
 		String hash1 = rev1.getHash();
 		String hash2 = rev2 != null ? rev2.getHash() : null;
 
-		return ContainerUtil.newArrayList(GitChangeUtils.getDiff(repository.getProject(), repository.getRoot(), hash1, hash2,
-				Collections.singletonList(path)));
+		return ContainerUtil.newArrayList(GitChangeUtils.getDiff(repository.getProject(), repository.getRoot(), hash1, hash2, Collections.singletonList(path)));
 	}
 
 	@NotNull
@@ -129,8 +121,7 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
 	{
 		GitRepository repository = getRepository(path);
 
-		return ContainerUtil.newArrayList(GitChangeUtils.getRevisionChanges(repository.getProject(), repository.getRoot(), rev.getHash(), false,
-				true, true).getChanges());
+		return ContainerUtil.newArrayList(GitChangeUtils.getRevisionChanges(repository.getProject(), repository.getRoot(), rev.getHash(), false, true, true).getChanges());
 	}
 
 	@NotNull
@@ -148,10 +139,7 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
 		return repository;
 	}
 
-	private void showDiffForMergeCommit(@NotNull final AnActionEvent event,
-			@NotNull final FilePath filePath,
-			@NotNull final GitFileRevision rev,
-			@NotNull final Collection<String> parents)
+	private void showDiffForMergeCommit(@NotNull final AnActionEvent event, @NotNull final FilePath filePath, @NotNull final GitFileRevision rev, @NotNull final Collection<String> parents)
 	{
 
 		checkIfFileWasTouchedAndFindParentsInBackground(filePath, rev, parents, new Consumer<MergeCommitPreCheckInfo>()
@@ -161,8 +149,7 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
 			{
 				if(!info.wasFileTouched())
 				{
-					String message = String.format("There were no changes in %s in this merge commit, besides those which were made in both " +
-							"branches", filePath.getName());
+					String message = String.format("There were no changes in %s in this merge commit, besides those which were made in both branches", filePath.getName());
 					VcsBalloonProblemNotifier.showOverVersionControlView(GitDiffFromHistoryHandler.this.myProject, message, MessageType.INFO);
 				}
 				showPopup(event, rev, filePath, info.getParents());
@@ -197,7 +184,7 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
 			@NotNull final Collection<String> parentHashes,
 			@NotNull final Consumer<MergeCommitPreCheckInfo> resultHandler)
 	{
-		new Task.Backgroundable(myProject, "Loading changes...", false)
+		new Task.Backgroundable(myProject, "Loading changes...", true)
 		{
 			private MergeCommitPreCheckInfo myInfo;
 
@@ -230,9 +217,7 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
 	}
 
 	@NotNull
-	private Collection<GitFileRevision> findParentRevisions(@NotNull GitRepository repository,
-			@NotNull GitFileRevision currentRevision,
-			@NotNull Collection<String> parentHashes) throws VcsException
+	private Collection<GitFileRevision> findParentRevisions(@NotNull GitRepository repository, @NotNull GitFileRevision currentRevision, @NotNull Collection<String> parentHashes) throws VcsException
 	{
 		// currentRevision is a merge revision.
 		// the file could be renamed in one of the branches, i.e. the name in one of the parent revisions may be different from the name
@@ -247,9 +232,7 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
 	}
 
 	@NotNull
-	private GitFileRevision createParentRevision(@NotNull GitRepository repository,
-			@NotNull GitFileRevision currentRevision,
-			@NotNull String parentHash) throws VcsException
+	private GitFileRevision createParentRevision(@NotNull GitRepository repository, @NotNull GitFileRevision currentRevision, @NotNull String parentHash) throws VcsException
 	{
 		FilePath currentRevisionPath = currentRevision.getPath();
 		if(currentRevisionPath.isDirectory())
@@ -271,20 +254,15 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
 				return new GitFileRevision(myProject, path, new GitRevisionNumber(parentHash));
 			}
 		}
-		LOG.error(String.format("Could not find parent revision. Will use the path from parent revision. Current revision: %s, parent hash: %s",
-				currentRevision, parentHash));
+		LOG.error(String.format("Could not find parent revision. Will use the path from parent revision. Current revision: %s, parent hash: %s", currentRevision, parentHash));
 		return makeRevisionFromHash(currentRevisionPath, parentHash);
 	}
 
-	private void showPopup(@NotNull AnActionEvent event,
-			@NotNull GitFileRevision rev,
-			@NotNull FilePath filePath,
-			@NotNull Collection<GitFileRevision> parents)
+	private void showPopup(@NotNull AnActionEvent event, @NotNull GitFileRevision rev, @NotNull FilePath filePath, @NotNull Collection<GitFileRevision> parents)
 	{
 		ActionGroup parentActions = createActionGroup(rev, filePath, parents);
 		DataContext dataContext = SimpleDataContext.getProjectContext(myProject);
-		ListPopup popup = JBPopupFactory.getInstance().createActionGroupPopup("Choose parent to compare", parentActions, dataContext,
-				JBPopupFactory.ActionSelectionAid.NUMBERING, true);
+		ListPopup popup = JBPopupFactory.getInstance().createActionGroupPopup("Choose parent to compare", parentActions, dataContext, JBPopupFactory.ActionSelectionAid.NUMBERING, true);
 		showPopupInBestPosition(popup, event, dataContext);
 	}
 
@@ -383,7 +361,7 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
 		@Override
 		public void actionPerformed(AnActionEvent e)
 		{
-			doShowDiff(myFilePath, myParentRevision, myRevision, false);
+			doShowDiff(myFilePath, myParentRevision, myRevision);
 		}
 
 	}
