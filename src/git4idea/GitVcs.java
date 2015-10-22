@@ -28,7 +28,6 @@ import javax.swing.event.HyperlinkEvent;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import com.intellij.dvcs.DvcsUtil;
 import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.notification.Notification;
@@ -344,7 +343,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 		if(!ApplicationManager.getApplication().isHeadlessEnvironment())
 		{
 			myBranchWidget = new GitBranchWidget(myProject);
-			DvcsUtil.installStatusBarWidget(myProject, myBranchWidget);
+			myBranchWidget.activate();
 		}
 		if(myRepositoryForAnnotationsListener == null)
 		{
@@ -387,7 +386,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 
 		if(myBranchWidget != null)
 		{
-			DvcsUtil.removeStatusBarWidget(myProject, myBranchWidget);
+			myBranchWidget.deactivate();
 			myBranchWidget = null;
 		}
 	}
