@@ -34,6 +34,7 @@ import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vcs.VcsException;
+import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.vcsUtil.VcsFileUtil;
 import git4idea.GitCommit;
@@ -90,9 +91,7 @@ public class GitImpl implements Git
 	 */
 	@Override
 	@NotNull
-	public Set<VirtualFile> untrackedFiles(@NotNull Project project,
-			@NotNull VirtualFile root,
-			@Nullable Collection<VirtualFile> files) throws VcsException
+	public Set<VirtualFile> untrackedFiles(@NotNull Project project, @NotNull VirtualFile root, @Nullable Collection<VirtualFile> files) throws VcsException
 	{
 		final Set<VirtualFile> untrackedFiles = new HashSet<VirtualFile>();
 
@@ -114,9 +113,7 @@ public class GitImpl implements Git
 	// relativePaths are guaranteed to fit into command line length limitations.
 	@Override
 	@NotNull
-	public Collection<VirtualFile> untrackedFilesNoChunk(@NotNull Project project,
-			@NotNull VirtualFile root,
-			@Nullable List<String> relativePaths) throws VcsException
+	public Collection<VirtualFile> untrackedFilesNoChunk(@NotNull Project project, @NotNull VirtualFile root, @Nullable List<String> relativePaths) throws VcsException
 	{
 		final Set<VirtualFile> untrackedFiles = new HashSet<VirtualFile>();
 		GitSimpleHandler h = new GitSimpleHandler(project, root, GitCommand.LS_FILES);
@@ -203,9 +200,7 @@ public class GitImpl implements Git
 
 	@NotNull
 	@Override
-	public GitCommandResult checkAttr(@NotNull GitRepository repository,
-			@NotNull Collection<String> attributes,
-			@NotNull Collection<VirtualFile> files)
+	public GitCommandResult checkAttr(@NotNull GitRepository repository, @NotNull Collection<String> attributes, @NotNull Collection<VirtualFile> files)
 	{
 		final GitLineHandler h = new GitLineHandler(repository.getProject(), repository.getRoot(), GitCommand.CHECK_ATTR);
 		h.addParameters(new ArrayList<String>(attributes));
@@ -251,10 +246,7 @@ public class GitImpl implements Git
 
 	@Override
 	@NotNull
-	public GitCommandResult merge(@NotNull GitRepository repository,
-			@NotNull String branchToMerge,
-			@Nullable List<String> additionalParams,
-			@NotNull GitLineHandlerListener... listeners)
+	public GitCommandResult merge(@NotNull GitRepository repository, @NotNull String branchToMerge, @Nullable List<String> additionalParams, @NotNull GitLineHandlerListener... listeners)
 	{
 		final GitLineHandler mergeHandler = new GitLineHandler(repository.getProject(), repository.getRoot(), GitCommand.MERGE);
 		mergeHandler.setSilent(false);
@@ -277,11 +269,7 @@ public class GitImpl implements Git
 	 */
 	@NotNull
 	@Override
-	public GitCommandResult checkout(@NotNull GitRepository repository,
-			@NotNull String reference,
-			@Nullable String newBranch,
-			boolean force,
-			@NotNull GitLineHandlerListener... listeners)
+	public GitCommandResult checkout(@NotNull GitRepository repository, @NotNull String reference, @Nullable String newBranch, boolean force, @NotNull GitLineHandlerListener... listeners)
 	{
 		final GitLineHandler h = new GitLineHandler(repository.getProject(), repository.getRoot(), GitCommand.CHECKOUT);
 		h.setSilent(false);
@@ -310,9 +298,7 @@ public class GitImpl implements Git
 	 */
 	@NotNull
 	@Override
-	public GitCommandResult checkoutNewBranch(@NotNull GitRepository repository,
-			@NotNull String branchName,
-			@Nullable GitLineHandlerListener listener)
+	public GitCommandResult checkoutNewBranch(@NotNull GitRepository repository, @NotNull String branchName, @Nullable GitLineHandlerListener listener)
 	{
 		final GitLineHandler h = new GitLineHandler(repository.getProject(), repository.getRoot(), GitCommand.CHECKOUT.readLockingCommand());
 		h.setSilent(false);
@@ -328,10 +314,7 @@ public class GitImpl implements Git
 
 	@NotNull
 	@Override
-	public GitCommandResult createNewTag(@NotNull GitRepository repository,
-			@NotNull String tagName,
-			@Nullable GitLineHandlerListener listener,
-			@NotNull String reference)
+	public GitCommandResult createNewTag(@NotNull GitRepository repository, @NotNull String tagName, @Nullable GitLineHandlerListener listener, @NotNull String reference)
 	{
 		final GitLineHandler h = new GitLineHandler(repository.getProject(), repository.getRoot(), GitCommand.TAG);
 		h.setSilent(false);
@@ -352,10 +335,7 @@ public class GitImpl implements Git
 	 */
 	@NotNull
 	@Override
-	public GitCommandResult branchDelete(@NotNull GitRepository repository,
-			@NotNull String branchName,
-			boolean force,
-			@NotNull GitLineHandlerListener... listeners)
+	public GitCommandResult branchDelete(@NotNull GitRepository repository, @NotNull String branchName, boolean force, @NotNull GitLineHandlerListener... listeners)
 	{
 		final GitLineHandler h = new GitLineHandler(repository.getProject(), repository.getRoot(), GitCommand.BRANCH);
 		h.setSilent(false);
@@ -398,10 +378,7 @@ public class GitImpl implements Git
 
 	@Override
 	@NotNull
-	public GitCommandResult reset(@NotNull GitRepository repository,
-			@NotNull GitResetMode mode,
-			@NotNull String target,
-			@NotNull GitLineHandlerListener... listeners)
+	public GitCommandResult reset(@NotNull GitRepository repository, @NotNull GitResetMode mode, @NotNull String target, @NotNull GitLineHandlerListener... listeners)
 	{
 		return reset(repository, mode.getArgument(), target, listeners);
 	}
@@ -414,10 +391,7 @@ public class GitImpl implements Git
 	}
 
 	@NotNull
-	private static GitCommandResult reset(@NotNull GitRepository repository,
-			@NotNull String argument,
-			@Nullable String target,
-			@NotNull GitLineHandlerListener... listeners)
+	private static GitCommandResult reset(@NotNull GitRepository repository, @NotNull String argument, @Nullable String target, @NotNull GitLineHandlerListener... listeners)
 	{
 		final GitLineHandler handler = new GitLineHandler(repository.getProject(), repository.getRoot(), GitCommand.RESET);
 		handler.addParameters(argument);
@@ -554,10 +528,7 @@ public class GitImpl implements Git
 
 	@Override
 	@NotNull
-	public GitCommandResult cherryPick(@NotNull GitRepository repository,
-			@NotNull String hash,
-			boolean autoCommit,
-			@NotNull GitLineHandlerListener... listeners)
+	public GitCommandResult cherryPick(@NotNull GitRepository repository, @NotNull String hash, boolean autoCommit, @NotNull GitLineHandlerListener... listeners)
 	{
 		final GitLineHandler handler = new GitLineHandler(repository.getProject(), repository.getRoot(), GitCommand.CHERRY_PICK);
 		handler.addParameters("-x");
@@ -614,6 +585,50 @@ public class GitImpl implements Git
 					h.addParameters("--prune");
 				}
 				addListeners(h, listeners);
+				return h;
+			}
+		});
+	}
+
+	@NotNull
+	@Override
+	public GitCommandResult addRemote(@NotNull GitRepository repository, @NotNull String name, @NotNull String url)
+	{
+		GitLineHandler h = new GitLineHandler(repository.getProject(), repository.getRoot(), GitCommand.REMOTE);
+		h.addParameters("add", name, url);
+		return run(h);
+	}
+
+	@NotNull
+	@Override
+	public GitCommandResult lsRemote(@NotNull final Project project, @NotNull final File workingDir, @NotNull final String url)
+	{
+		return doLsRemote(project, workingDir, url, url);
+	}
+
+	@NotNull
+	@Override
+	public GitCommandResult lsRemote(@NotNull Project project, @NotNull VirtualFile workingDir, @NotNull GitRemote remote, String... additionalParameters)
+	{
+		return doLsRemote(project, VfsUtilCore.virtualToIoFile(workingDir), remote.getName(), remote.getFirstUrl(), additionalParameters);
+	}
+
+	@NotNull
+	private static GitCommandResult doLsRemote(@NotNull final Project project,
+			@NotNull final File workingDir,
+			@NotNull final String remoteId,
+			@NotNull final String authenticationUrls,
+			final String... additionalParameters)
+	{
+		return run(new Computable<GitLineHandler>()
+		{
+			@Override
+			public GitLineHandler compute()
+			{
+				GitLineHandler h = new GitLineHandler(project, workingDir, GitCommand.LS_REMOTE);
+				h.addParameters(additionalParameters);
+				h.addParameters(remoteId);
+				h.setUrl(authenticationUrls);
 				return h;
 			}
 		});

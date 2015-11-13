@@ -30,7 +30,7 @@ import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.vcs.AbstractVcs;
-import com.intellij.util.ObjectUtils;
+import com.intellij.util.ObjectUtil;
 import com.intellij.util.containers.ContainerUtil;
 import git4idea.GitBranch;
 import git4idea.GitLocalBranch;
@@ -69,7 +69,7 @@ public class GitPushSupport extends PushSupport<GitRepository, GitPushSource, Gi
 	private GitPushSupport(@NotNull Project project, @NotNull GitRepositoryManager repositoryManager)
 	{
 		myRepositoryManager = repositoryManager;
-		myVcs = ObjectUtils.assertNotNull(GitVcs.getInstance(project));
+		myVcs = ObjectUtil.assertNotNull(GitVcs.getInstance(project));
 		mySettings = GitVcsSettings.getInstance(project);
 		myPusher = new GitPusher(project, mySettings, this);
 		myOutgoingCommitsProvider = new GitOutgoingCommitsProvider(project);
@@ -156,9 +156,7 @@ public class GitPushSupport extends PushSupport<GitRepository, GitPushSource, Gi
 	}
 
 	@NotNull
-	private static GitPushTarget makeTargetForNewBranch(@NotNull GitRepository repository,
-			@NotNull GitRemote remote,
-			@NotNull GitLocalBranch currentBranch)
+	private static GitPushTarget makeTargetForNewBranch(@NotNull GitRepository repository, @NotNull GitRemote remote, @NotNull GitLocalBranch currentBranch)
 	{
 		GitRemoteBranch existingRemoteBranch = GitUtil.findRemoteBranch(repository, remote, currentBranch.getName());
 		if(existingRemoteBranch != null)
@@ -173,8 +171,7 @@ public class GitPushSupport extends PushSupport<GitRepository, GitPushSource, Gi
 	public GitPushSource getSource(@NotNull GitRepository repository)
 	{
 		GitLocalBranch currentBranch = repository.getCurrentBranch();
-		return currentBranch != null ? GitPushSource.create(currentBranch) : GitPushSource.create(ObjectUtils.assertNotNull(repository
-				.getCurrentRevision())); // fresh repository is on branch
+		return currentBranch != null ? GitPushSource.create(currentBranch) : GitPushSource.create(ObjectUtil.assertNotNull(repository.getCurrentRevision())); // fresh repository is on branch
 	}
 
 	@NotNull
@@ -188,7 +185,7 @@ public class GitPushSupport extends PushSupport<GitRepository, GitPushSource, Gi
 	@Override
 	public PushTargetPanel<GitPushTarget> createTargetPanel(@NotNull GitRepository repository, @Nullable GitPushTarget defaultTarget)
 	{
-		return new GitPushTargetPanel(repository, defaultTarget);
+		return new GitPushTargetPanel(this, repository, defaultTarget);
 	}
 
 	@Override
@@ -221,13 +218,18 @@ public class GitPushSupport extends PushSupport<GitRepository, GitPushSource, Gi
 	@Override
 	public boolean isSilentForcePushAllowed(@NotNull GitPushTarget target)
 	{
-		return myCommonPushSettings.containsForcePushTarget(target.getBranch().getRemote().getName(), target.getBranch().getNameForRemoteOperations
-				());
+		return myCommonPushSettings.containsForcePushTarget(target.getBranch().getRemote().getName(), target.getBranch().getNameForRemoteOperations());
 	}
 
 	@Override
 	public void saveSilentForcePushTarget(@NotNull GitPushTarget target)
 	{
 		myCommonPushSettings.addForcePushTarget(target.getBranch().getRemote().getName(), target.getBranch().getNameForRemoteOperations());
+	}
+
+	@Override
+	public boolean mayChangeTargetsSync()
+	{
+		return true;
 	}
 }
