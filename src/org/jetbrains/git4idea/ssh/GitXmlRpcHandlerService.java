@@ -15,9 +15,11 @@
  */
 package org.jetbrains.git4idea.ssh;
 
-import com.intellij.ide.XmlRpcServer;
-import com.intellij.openapi.util.io.FileUtilRt;
 import gnu.trove.THashMap;
+
+import java.io.File;
+import java.io.IOException;
+
 import org.apache.commons.codec.DecoderException;
 import org.apache.xmlrpc.XmlRpcClientLite;
 import org.jetbrains.annotations.NotNull;
@@ -25,9 +27,8 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.git4idea.GitExternalApp;
 import org.jetbrains.git4idea.util.ScriptGenerator;
 import org.jetbrains.ide.BuiltInServerManager;
-
-import java.io.File;
-import java.io.IOException;
+import com.intellij.ide.XmlRpcServer;
+import com.intellij.openapi.util.io.FileUtilRt;
 
 /**
  * <p>The provider of external application scripts called by Git when a remote operation needs communication with the user.</p>
@@ -74,7 +75,7 @@ public abstract class GitXmlRpcHandlerService<T> {
    * @return the port number for XML RCP
    */
   public int getXmlRcpPort() {
-    return BuiltInServerManager.getInstance().waitForStart().getPort();
+    return BuiltInServerManager.getInstance().getPort();
   }
 
   /**
