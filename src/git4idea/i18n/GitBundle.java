@@ -27,7 +27,7 @@ package git4idea.i18n;
  * Author: Anatol Pomazu
  */
 
-import org.consulo.lombok.annotations.Bundle;
+import consulo.lombok.annotations.Bundle;
 
 /**
  * Git4Idea package I18N localization bundle helper
