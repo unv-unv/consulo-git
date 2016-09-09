@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.intellij.lang.annotations.MagicConstant;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -64,10 +65,7 @@ public interface GitBranchUiHandler
 	 */
 	void showUntrackedFilesNotification(@NotNull String operationName, @NotNull VirtualFile root, @NotNull Collection<String> relativePaths);
 
-	boolean showUntrackedFilesDialogWithRollback(@NotNull String operationName,
-			@NotNull String rollbackProposal,
-			@NotNull VirtualFile root,
-			@NotNull Collection<String> relativePaths);
+	boolean showUntrackedFilesDialogWithRollback(@NotNull String operationName, @NotNull String rollbackProposal, @NotNull VirtualFile root, @NotNull Collection<String> relativePaths);
 
 	/**
 	 * Shows the dialog proposing to execute the operation (checkout or merge) smartly, i.e. stash-execute-unstash.
@@ -80,16 +78,15 @@ public interface GitBranchUiHandler
 	 *                         specify the title of the force button; otherwise (force merge is not possible) pass null.
 	 * @return the code of the decision.
 	 */
-	int showSmartOperationDialog(@NotNull Project project,
-			@NotNull List<Change> changes,
-			@NotNull Collection<String> paths,
-			@NotNull String operation,
-			@Nullable String forceButtonTitle);
+	@MagicConstant(valuesFromClass = GitSmartOperationDialog.class)
+	int showSmartOperationDialog(@NotNull Project project, @NotNull List<Change> changes, @NotNull Collection<String> paths, @NotNull String operation, @Nullable String forceButtonTitle);
 
+	/**
+	 * @return true if user decided to restore the branch.
+	 */
 	boolean showBranchIsNotFullyMergedDialog(@NotNull Project project,
 			@NotNull Map<GitRepository, List<GitCommit>> history,
-			@NotNull String unmergedBranch,
-			@NotNull List<String> mergedToBranches,
-			@NotNull String baseBranch);
+			@NotNull Map<GitRepository, String> baseBranches,
+			@NotNull String removedBranch);
 
 }

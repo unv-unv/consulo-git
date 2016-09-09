@@ -15,6 +15,8 @@
  */
 package git4idea.branch;
 
+import static com.intellij.util.ObjectUtils.assertNotNull;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,14 +34,10 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vcs.AbstractVcs;
-import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vfs.CharsetToolkit;
-import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.containers.ContainerUtil;
-import com.intellij.vcsUtil.VcsUtil;
 import git4idea.GitBranch;
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
@@ -47,7 +45,6 @@ import git4idea.GitStandardRemoteBranch;
 import git4idea.GitSvnRemoteBranch;
 import git4idea.GitTag;
 import git4idea.GitUtil;
-import git4idea.GitVcs;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitSimpleHandler;
 import git4idea.config.GitConfigUtil;
@@ -56,8 +53,6 @@ import git4idea.repo.GitBranchTrackInfo;
 import git4idea.repo.GitConfig;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
-import git4idea.repo.GitRepositoryFiles;
-import git4idea.repo.GitRepositoryManager;
 import git4idea.ui.branch.GitMultiRootBranchConfig;
 import git4idea.validators.GitNewBranchNameValidator;
 
@@ -100,6 +95,12 @@ public class GitBranchUtil
 			}
 		}
 		return null;
+	}
+
+	@Nullable
+	public static GitBranchTrackInfo getTrackInfo(@NotNull GitRepository repository, @NotNull String localBranchName)
+	{
+		return ContainerUtil.find(repository.getBranchTrackInfos(), it -> it.getLocalBranch().getName().equals(localBranchName));
 	}
 
 	@NotNull
@@ -158,7 +159,7 @@ public class GitBranchUtil
 			String name = handler.run();
 			if(!name.equals("HEAD"))
 			{
-				return new GitLocalBranch(name, GitBranch.DUMMY_HASH);
+				return new GitLocalBranch(name);
 			}
 			else
 			{
@@ -211,7 +212,7 @@ public class GitBranchUtil
 	@Nullable
 	public static GitRemoteBranch tracked(@NotNull Project project, @NotNull VirtualFile root, @NotNull String branchName) throws VcsException
 	{
-		final HashMap<String, String> result = new HashMap<String, String>();
+		final HashMap<String, String> result = new HashMap<>();
 		GitConfigUtil.getValues(project, root, null, result);
 		String remoteName = result.get(trackedRemoteKey(branchName));
 		if(remoteName == null)
@@ -226,7 +227,7 @@ public class GitBranchUtil
 
 		if(".".equals(remoteName))
 		{
-			return new GitSvnRemoteBranch(branch, GitBranch.DUMMY_HASH);
+			return new GitSvnRemoteBranch(branch);
 		}
 
 		GitRemote remote = findRemoteByNameOrLogError(project, root, remoteName);
@@ -234,7 +235,7 @@ public class GitBranchUtil
 		{
 			return null;
 		}
-		return new GitStandardRemoteBranch(remote, branch, GitBranch.DUMMY_HASH);
+		return new GitStandardRemoteBranch(remote, branch);
 	}
 
 	@Nullable
@@ -317,18 +318,16 @@ public class GitBranchUtil
 	 * @return name of new branch or {@code null} if user has cancelled the dialog.
 	 */
 	@Nullable
-	public static String getNewBranchNameFromUser(@NotNull Project project,
-			@NotNull Collection<GitRepository> repositories,
-			@NotNull String dialogTitle)
+	public static String getNewBranchNameFromUser(@NotNull Project project, @NotNull Collection<GitRepository> repositories, @NotNull String dialogTitle)
 	{
-		return Messages.showInputDialog(project, "Enter the name of new branch:", dialogTitle, Messages.getQuestionIcon(), "",
-				GitNewBranchNameValidator.newInstance(repositories));
+		return Messages.showInputDialog(project, "Enter the name of new branch:", dialogTitle, Messages.getQuestionIcon(), "", GitNewBranchNameValidator.newInstance(repositories));
 	}
 
 	/**
 	 * Returns the text that is displaying current branch.
 	 * In the simple case it is just the branch name, but in detached HEAD state it displays the hash or "rebasing master".
 	 */
+	@NotNull
 	public static String getDisplayableBranchText(@NotNull GitRepository repository)
 	{
 		GitRepository.State state = repository.getState();
@@ -336,7 +335,7 @@ public class GitBranchUtil
 		{
 			String currentRevision = repository.getCurrentRevision();
 			assert currentRevision != null : "Current revision can't be null in DETACHED state, only on the fresh repository.";
-			return currentRevision.substring(0, 7);
+			return DvcsUtil.getShortHash(currentRevision);
 		}
 
 		String prefix = "";
@@ -354,10 +353,11 @@ public class GitBranchUtil
 	 * Guesses the Git root on which a Git action is to be invoked.
 	 * <ol>
 	 * <li>
-	 * Returns the root for the selected file. Selected file is determined by {@link DvcsUtil#getSelectedFile(com.intellij.openapi.project.Project)}.
+	 * Returns the root for the selected file. Selected file is determined by {@link DvcsUtil#getSelectedFile(Project)}.
 	 * If selected file is unknown (for example, no file is selected in the Project View or Changes View and no file is open in the editor),
 	 * continues guessing. Otherwise returns the Git root for the selected file. If the file is not under a known Git root,
-	 * <code>null</code> will be returned - the file is definitely determined, but it is not under Git.
+	 * but there is at least one git root,  continues guessing, otherwise
+	 * <code>null</code> will be returned - the file is definitely determined, but it is not under Git and no git roots exists in project.
 	 * </li>
 	 * <li>
 	 * Takes all Git roots registered in the Project. If there is only one, it is returned.
@@ -366,7 +366,7 @@ public class GitBranchUtil
 	 * If there are several Git roots,
 	 * </li>
 	 * </ol>
-	 * <p/>
+	 * <p>
 	 * <p>
 	 * NB: This method has to be accessed from the <b>read action</b>, because it may query
 	 * {@link com.intellij.openapi.fileEditor.FileEditorManager#getSelectedTextEditor()}.
@@ -380,87 +380,17 @@ public class GitBranchUtil
 	@Nullable
 	public static GitRepository getCurrentRepository(@NotNull Project project)
 	{
-		GitRepositoryManager manager = GitUtil.getRepositoryManager(project);
-		VirtualFile file = DvcsUtil.getSelectedFile(project);
-		VirtualFile root = getVcsRootOrGuess(project, file);
-		return manager.getRepositoryForRoot(root);
+		return getRepositoryOrGuess(project, DvcsUtil.getSelectedFile(project));
 	}
 
 	@Nullable
-	public static VirtualFile getVcsRootOrGuess(@NotNull Project project, @Nullable VirtualFile file)
+	public static GitRepository getRepositoryOrGuess(@NotNull Project project, @Nullable VirtualFile file)
 	{
-		VirtualFile root = DvcsUtil.getVcsRoot(project, file);
-		return root != null ? root : guessGitRoot(project);
-	}
-
-	@Nullable
-	private static VirtualFile guessGitRoot(@NotNull Project project)
-	{
-		LOG.debug("Guessing Git root...");
-		ProjectLevelVcsManager vcsManager = ProjectLevelVcsManager.getInstance(project);
-		AbstractVcs gitVcs = GitVcs.getInstance(project);
-		if(gitVcs == null)
+		if(project.isDisposed())
 		{
-			LOG.debug("GitVcs not found.");
 			return null;
 		}
-		VirtualFile[] gitRoots = vcsManager.getRootsUnderVcs(gitVcs);
-		if(gitRoots.length == 0)
-		{
-			LOG.debug("No Git roots in the project.");
-			return null;
-		}
-
-		if(gitRoots.length == 1)
-		{
-			VirtualFile onlyRoot = gitRoots[0];
-			LOG.debug("Only one Git root in the project, returning: " + onlyRoot);
-			return onlyRoot;
-		}
-
-		// remember the last visited Git root
-		GitVcsSettings settings = GitVcsSettings.getInstance(project);
-		if(settings != null)
-		{
-			String recentRootPath = settings.getRecentRootPath();
-			if(recentRootPath != null)
-			{
-				VirtualFile recentRoot = VcsUtil.getVirtualFile(recentRootPath);
-				if(recentRoot != null)
-				{
-					LOG.debug("Returning the recent root: " + recentRoot);
-					return recentRoot;
-				}
-			}
-		}
-
-		// otherwise return the root of the project dir or the root containing the project dir, if there is such
-		VirtualFile projectBaseDir = project.getBaseDir();
-		if(projectBaseDir == null)
-		{
-			VirtualFile firstRoot = gitRoots[0];
-			LOG.debug("Project base dir is null, returning the first root: " + firstRoot);
-			return firstRoot;
-		}
-		VirtualFile rootCandidate = null;
-		for(VirtualFile root : gitRoots)
-		{
-			if(root.equals(projectBaseDir))
-			{
-				return root;
-			}
-			else if(VfsUtilCore.isAncestor(root, projectBaseDir, true))
-			{
-				rootCandidate = root;
-			}
-		}
-		LOG.debug("The best candidate: " + rootCandidate);
-		if(rootCandidate == null)
-		{
-			rootCandidate = gitRoots[0];
-		}
-		LOG.debug("Returning the best candidate: " + rootCandidate);
-		return rootCandidate;
+		return DvcsUtil.guessRepositoryForFile(project, GitUtil.getRepositoryManager(project), file, GitVcsSettings.getInstance(project).getRecentRootPath());
 	}
 
 	@NotNull
@@ -471,8 +401,7 @@ public class GitBranchUtil
 		{
 			GitBranchesCollection branchesCollection = repository.getBranches();
 
-			Collection<String> names = local ? convertBranchesToNames(branchesCollection.getLocalBranches()) : getBranchNamesWithoutRemoteHead
-					(branchesCollection.getRemoteBranches());
+			Collection<String> names = local ? convertBranchesToNames(branchesCollection.getLocalBranches()) : getBranchNamesWithoutRemoteHead(branchesCollection.getRemoteBranches());
 			if(commonBranches == null)
 			{
 				commonBranches = names;
@@ -485,7 +414,7 @@ public class GitBranchUtil
 
 		if(commonBranches != null)
 		{
-			ArrayList<String> common = new ArrayList<String>(commonBranches);
+			ArrayList<String> common = new ArrayList<>(commonBranches);
 			Collections.sort(common);
 			return common;
 		}
@@ -499,11 +428,7 @@ public class GitBranchUtil
 	 * List branches containing a commit. Specify null if no commit filtering is needed.
 	 */
 	@NotNull
-	public static Collection<String> getBranches(@NotNull Project project,
-			@NotNull VirtualFile root,
-			boolean localWanted,
-			boolean remoteWanted,
-			@Nullable String containingCommit) throws VcsException
+	public static Collection<String> getBranches(@NotNull Project project, @NotNull VirtualFile root, boolean localWanted, boolean remoteWanted, @Nullable String containingCommit) throws VcsException
 	{
 		// preparing native command executor
 		final GitSimpleHandler handler = new GitSimpleHandler(project, root, GitCommand.BRANCH);
@@ -532,7 +457,8 @@ public class GitBranchUtil
 			String head;
 			try
 			{
-				head = FileUtil.loadFile(new File(root.getPath(), GitRepositoryFiles.GIT_HEAD), CharsetToolkit.UTF8_CHARSET).trim();
+				File headFile = assertNotNull(GitUtil.getRepositoryManager(project).getRepositoryForRoot(root)).getRepositoryFiles().getHeadFile();
+				head = FileUtil.loadFile(headFile, CharsetToolkit.UTF8_CHARSET).trim();
 				final String prefix = "ref: refs/heads/";
 				return head.startsWith(prefix) ? Collections.singletonList(head.substring(prefix.length())) : Collections.<String>emptyList();
 			}

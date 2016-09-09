@@ -16,7 +16,6 @@
 package git4idea;
 
 import org.jetbrains.annotations.NotNull;
-import com.intellij.vcs.log.Hash;
 import git4idea.repo.GitRemote;
 
 /**
@@ -24,9 +23,10 @@ import git4idea.repo.GitRemote;
  */
 public abstract class GitRemoteBranch extends GitBranch
 {
-	protected GitRemoteBranch(@NotNull String name, @NotNull Hash hash)
+
+	protected GitRemoteBranch(@NotNull String name)
 	{
-		super(name, hash);
+		super(name);
 	}
 
 	/**
@@ -49,5 +49,11 @@ public abstract class GitRemoteBranch extends GitBranch
 
 	@NotNull
 	public abstract GitRemote getRemote();
+
+	@Override
+	public boolean isRemote()
+	{
+		return true;
+	}
 
 }

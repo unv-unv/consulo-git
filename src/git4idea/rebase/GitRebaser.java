@@ -28,14 +28,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.openapi.application.AccessToken;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
@@ -43,46 +42,43 @@ import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vfs.CharsetToolkit;
 import com.intellij.openapi.vfs.VirtualFile;
-import git4idea.GitPlatformFacade;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
 import git4idea.commands.*;
 import git4idea.merge.GitConflictResolver;
 import git4idea.update.GitUpdateResult;
 import git4idea.util.GitUIUtil;
+import git4idea.util.GitUntrackedFilesHelper;
 import git4idea.util.LocalChangesWouldBeOverwrittenHelper;
 import git4idea.util.StringScanner;
-import git4idea.util.UntrackedFilesNotifier;
 
-/**
- * @author Kirill Likhodedov
- */
 public class GitRebaser
 {
 
-	private final Project myProject;
-	private GitVcs myVcs;
-	private List<GitRebaseUtils.CommitInfo> mySkippedCommits;
 	private static final Logger LOG = Logger.getInstance(GitRebaser.class);
+
+	@NotNull
+	private final Project myProject;
 	@NotNull
 	private final Git myGit;
-	private
-	@Nullable
-	ProgressIndicator myProgressIndicator;
+	@NotNull
+	private GitVcs myVcs;
+	@NotNull
+	private ProgressIndicator myProgressIndicator;
 
-	public GitRebaser(Project project, @NotNull Git git, @Nullable ProgressIndicator progressIndicator)
+	@NotNull
+	private List<GitRebaseUtils.CommitInfo> mySkippedCommits;
+
+	public GitRebaser(@NotNull Project project, @NotNull Git git, @NotNull ProgressIndicator progressIndicator)
 	{
 		myProject = project;
 		myGit = git;
 		myProgressIndicator = progressIndicator;
 		myVcs = GitVcs.getInstance(project);
-		mySkippedCommits = new ArrayList<GitRebaseUtils.CommitInfo>();
+		mySkippedCommits = new ArrayList<>();
 	}
 
-	public GitUpdateResult rebase(@NotNull VirtualFile root,
-			@NotNull List<String> parameters,
-			@Nullable final Runnable onCancel,
-			@Nullable GitLineHandlerListener lineListener)
+	public GitUpdateResult rebase(@NotNull VirtualFile root, @NotNull List<String> parameters, @Nullable final Runnable onCancel, @Nullable GitLineHandlerListener lineListener)
 	{
 		final GitLineHandler rebaseHandler = createHandler(root);
 		rebaseHandler.setStdoutSuppressed(false);
@@ -98,51 +94,29 @@ public class GitRebaser
 		GitLocalChangesWouldBeOverwrittenDetector localChangesDetector = new GitLocalChangesWouldBeOverwrittenDetector(root, CHECKOUT);
 		rebaseHandler.addLineListener(untrackedFilesDetector);
 		rebaseHandler.addLineListener(localChangesDetector);
+		rebaseHandler.addLineListener(GitStandardProgressAnalyzer.createListener(myProgressIndicator));
 
-		String progressTitle = "Rebasing";
-		GitTask rebaseTask = new GitTask(myProject, rebaseHandler, progressTitle);
-		rebaseTask.setProgressIndicator(myProgressIndicator);
-		rebaseTask.setProgressAnalyzer(new GitStandardProgressAnalyzer());
-		final AtomicReference<GitUpdateResult> updateResult = new AtomicReference<GitUpdateResult>();
-		final AtomicBoolean failure = new AtomicBoolean();
 		AccessToken token = DvcsUtil.workingTreeChangeStarted(myProject);
 		try
 		{
-			rebaseTask.executeInBackground(true, new GitTaskResultHandlerAdapter()
+			String oldText = myProgressIndicator.getText();
+			myProgressIndicator.setText("Rebasing...");
+			GitCommandResult result = myGit.runCommand(rebaseHandler);
+			myProgressIndicator.setText(oldText);
+			return result.success() ? GitUpdateResult.SUCCESS : handleRebaseFailure(rebaseHandler, root, rebaseConflictDetector, untrackedFilesDetector, localChangesDetector);
+		}
+		catch(ProcessCanceledException pce)
+		{
+			if(onCancel != null)
 			{
-				@Override
-				protected void onSuccess()
-				{
-					updateResult.set(GitUpdateResult.SUCCESS);
-				}
-
-				@Override
-				protected void onCancel()
-				{
-					if(onCancel != null)
-					{
-						onCancel.run();
-					}
-					updateResult.set(GitUpdateResult.CANCEL);
-				}
-
-				@Override
-				protected void onFailure()
-				{
-					failure.set(true);
-				}
-			});
-
-			if(failure.get())
-			{
-				updateResult.set(handleRebaseFailure(rebaseHandler, root, rebaseConflictDetector, untrackedFilesDetector, localChangesDetector));
+				onCancel.run();
 			}
+			return GitUpdateResult.CANCEL;
 		}
 		finally
 		{
 			DvcsUtil.workingTreeChangeFinished(myProject, token);
 		}
-		return updateResult.get();
 	}
 
 	protected GitLineHandler createHandler(VirtualFile root)
@@ -223,10 +197,10 @@ public class GitRebaser
 	@NotNull
 	Collection<VirtualFile> getRebasingRoots()
 	{
-		final Collection<VirtualFile> rebasingRoots = new HashSet<VirtualFile>();
+		final Collection<VirtualFile> rebasingRoots = new HashSet<>();
 		for(VirtualFile root : ProjectLevelVcsManager.getInstance(myProject).getRootsUnderVcs(myVcs))
 		{
-			if(GitRebaseUtils.isRebaseInTheProgress(root))
+			if(GitRebaseUtils.isRebaseInTheProgress(myProject, root))
 			{
 				rebasingRoots.add(root);
 			}
@@ -241,11 +215,9 @@ public class GitRebaser
 	 * NB: If there are merges in the unpushed commits being reordered, a conflict would happen. The calling code should probably
 	 * prohibit reordering merge commits.
 	 */
-	public boolean reoderCommitsIfNeeded(@NotNull final VirtualFile root,
-			@NotNull String parentCommit,
-			@NotNull List<String> olderCommits) throws VcsException
+	public boolean reoderCommitsIfNeeded(@NotNull final VirtualFile root, @NotNull String parentCommit, @NotNull List<String> olderCommits) throws VcsException
 	{
-		List<String> allCommits = new ArrayList<String>(); //TODO
+		List<String> allCommits = new ArrayList<>(); //TODO
 		if(olderCommits.isEmpty() || olderCommits.size() == allCommits.size())
 		{
 			LOG.info("Nothing to reorder. olderCommits: " + olderCommits + " allCommits: " + allCommits);
@@ -282,10 +254,7 @@ public class GitRebaser
 		}
 	}
 
-	private boolean executeRebaseTaskInBackground(VirtualFile root,
-			GitLineHandler h,
-			GitRebaseProblemDetector rebaseConflictDetector,
-			GitTask rebaseTask)
+	private boolean executeRebaseTaskInBackground(VirtualFile root, GitLineHandler h, GitRebaseProblemDetector rebaseConflictDetector, GitTask rebaseTask)
 	{
 		final AtomicBoolean result = new AtomicBoolean();
 		final AtomicBoolean failure = new AtomicBoolean();
@@ -324,8 +293,7 @@ public class GitRebaser
 		if(rebaseConflictDetector.isMergeConflict())
 		{
 			LOG.info("handleRebaseFailure merge conflict");
-			return new GitConflictResolver(myProject, myGit, ServiceManager.getService(GitPlatformFacade.class), Collections.singleton(root),
-					makeParamsForRebaseConflict())
+			return new GitConflictResolver(myProject, myGit, Collections.singleton(root), makeParamsForRebaseConflict())
 			{
 				@Override
 				protected boolean proceedIfNothingToMerge()
@@ -358,7 +326,7 @@ public class GitRebaser
 				}
 				else
 				{
-					GitRebaseUtils.CommitInfo commit = GitRebaseUtils.getCurrentRebaseCommit(root);
+					GitRebaseUtils.CommitInfo commit = GitRebaseUtils.getCurrentRebaseCommit(myProject, root);
 					LOG.info("no changes confirmed. Skipping commit " + commit);
 					mySkippedCommits.add(commit);
 					return continueRebase(root, "--skip");
@@ -394,16 +362,12 @@ public class GitRebaser
 				setReverse(true).
 				setErrorNotificationTitle("Can't continue rebase").
 				setMergeDescription("Merge conflicts detected. Resolve them before continuing rebase.").
-				setErrorNotificationAdditionalDescription("Then you may <b>continue rebase</b>. <br/> " + "You also may <b>abort rebase</b> to " +
-						"restore the original branch and stop rebasing.");
+				setErrorNotificationAdditionalDescription("Then you may <b>continue rebase</b>. <br/> " + "You also may <b>abort rebase</b> to restore the original branch and stop rebasing.");
 	}
 
 	public static class TrivialEditor extends GitInteractiveRebaseEditorHandler
 	{
-		public TrivialEditor(@NotNull GitRebaseEditorService service,
-				@NotNull Project project,
-				@NotNull VirtualFile root,
-				@NotNull GitHandler handler)
+		public TrivialEditor(@NotNull GitRebaseEditorService service, @NotNull Project project, @NotNull VirtualFile root, @NotNull GitHandler handler)
 		{
 			super(service, project, root, handler);
 		}
@@ -431,8 +395,7 @@ public class GitRebaser
 		else if(untrackedWouldBeOverwrittenDetector.wasMessageDetected())
 		{
 			LOG.info("handleRebaseFailure: untracked files would be overwritten by checkout");
-			UntrackedFilesNotifier.notifyUntrackedFilesOverwrittenBy(myProject, root, untrackedWouldBeOverwrittenDetector.getRelativeFilePaths(),
-					"rebase", null);
+			GitUntrackedFilesHelper.notifyUntrackedFilesOverwrittenBy(myProject, root, untrackedWouldBeOverwrittenDetector.getRelativeFilePaths(), "rebase", null);
 			return GitUpdateResult.ERROR;
 		}
 		else if(localChangesDetector.wasMessageDetected())
@@ -457,7 +420,7 @@ public class GitRebaser
 
 		public ConflictResolver(@NotNull Project project, @NotNull Git git, @NotNull VirtualFile root, @NotNull GitRebaser rebaser)
 		{
-			super(project, git, ServiceManager.getService(GitPlatformFacade.class), Collections.singleton(root), makeParams());
+			super(project, git, Collections.singleton(root), makeParams());
 			myRebaser = rebaser;
 			myRoot = root;
 		}
@@ -468,8 +431,7 @@ public class GitRebaser
 			params.setReverse(true);
 			params.setMergeDescription("Merge conflicts detected. Resolve them before continuing rebase.");
 			params.setErrorNotificationTitle("Can't continue rebase");
-			params.setErrorNotificationAdditionalDescription("Then you may <b>continue rebase</b>. <br/> You also may <b>abort rebase</b> to restore" +
-					" the original branch and stop rebasing.");
+			params.setErrorNotificationAdditionalDescription("Then you may <b>continue rebase</b>. <br/> You also may <b>abort rebase</b> to restore the original branch and stop rebasing.");
 			return params;
 		}
 
@@ -504,11 +466,7 @@ public class GitRebaser
 		 * @param commits             the reordered commits
 		 * @param hasMerges           if true, the vcs root has merges
 		 */
-		public PushRebaseEditor(GitRebaseEditorService rebaseEditorService,
-				final VirtualFile root,
-				List<String> commits,
-				boolean hasMerges,
-				GitHandler h)
+		public PushRebaseEditor(GitRebaseEditorService rebaseEditorService, final VirtualFile root, List<String> commits, boolean hasMerges, GitHandler h)
 		{
 			super(rebaseEditorService, myProject, root, h);
 			myCommits = commits;
@@ -526,7 +484,7 @@ public class GitRebaser
 				}
 				try
 				{
-					TreeMap<String, String> pickLines = new TreeMap<String, String>();
+					TreeMap<String, String> pickLines = new TreeMap<>();
 					StringScanner s = new StringScanner(new String(FileUtil.loadFileText(new File(path), CharsetToolkit.UTF8)));
 					while(s.hasMoreData())
 					{

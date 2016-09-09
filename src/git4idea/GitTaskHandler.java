@@ -15,17 +15,20 @@
  */
 package git4idea;
 
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.intellij.dvcs.branch.DvcsTaskHandler;
 import com.intellij.openapi.project.Project;
-import git4idea.branch.GitBranchUtil;
+import com.intellij.util.Function;
+import com.intellij.util.containers.ContainerUtil;
 import git4idea.branch.GitBrancher;
+import git4idea.branch.GitBranchesCollection;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
+import git4idea.validators.GitRefNameValidator;
 
 /**
  * @author Dmitry Avdeev
@@ -33,19 +36,23 @@ import git4idea.repo.GitRepositoryManager;
  */
 public class GitTaskHandler extends DvcsTaskHandler<GitRepository>
 {
+
 	@NotNull
 	private final GitBrancher myBrancher;
+	@NotNull
+	private final GitRefNameValidator myNameValidator;
 
 	public GitTaskHandler(@NotNull GitBrancher brancher, @NotNull GitRepositoryManager repositoryManager, @NotNull Project project)
 	{
 		super(repositoryManager, project, "branch");
 		myBrancher = brancher;
+		myNameValidator = GitRefNameValidator.getInstance();
 	}
 
 	@Override
 	protected void checkout(@NotNull String taskName, @NotNull List<GitRepository> repos, @Nullable Runnable callInAwtLater)
 	{
-		myBrancher.checkout(taskName, repos, callInAwtLater);
+		myBrancher.checkout(taskName, false, repos, callInAwtLater);
 	}
 
 	@Override
@@ -55,21 +62,65 @@ public class GitTaskHandler extends DvcsTaskHandler<GitRepository>
 	}
 
 	@Override
+	protected String getActiveBranch(GitRepository repository)
+	{
+		return repository.getCurrentBranchName();
+	}
+
+	@Override
 	protected void mergeAndClose(@NotNull String branch, @NotNull List<GitRepository> repositories)
 	{
 		myBrancher.merge(branch, GitBrancher.DeleteOnMergeOption.DELETE, repositories);
 	}
 
 	@Override
-	protected boolean hasBranch(@NotNull GitRepository repository, @NotNull String name)
+	protected boolean hasBranch(@NotNull GitRepository repository, @NotNull TaskInfo info)
 	{
-		return repository.getBranches().findLocalBranch(name) != null;
+		GitBranchesCollection branches = repository.getBranches();
+		return info.isRemote() ? branches.getRemoteBranches().stream().anyMatch(branch -> info.getName().equals(branch.getName())) : branches.findLocalBranch(info.getName()) != null;
 	}
 
 	@NotNull
 	@Override
-	protected Collection<String> getCommonBranchNames(@NotNull List<GitRepository> repositories)
+	protected Iterable<TaskInfo> getAllBranches(@NotNull GitRepository repository)
 	{
-		return GitBranchUtil.getCommonBranches(repositories, true);
+		GitBranchesCollection branches = repository.getBranches();
+		List<TaskInfo> list = ContainerUtil.map(branches.getLocalBranches(), new Function<GitBranch, TaskInfo>()
+		{
+			@Override
+			public TaskInfo fun(GitBranch branch)
+			{
+				return new TaskInfo(branch.getName(), Collections.singleton(repository.getPresentableUrl()));
+			}
+		});
+		list.addAll(ContainerUtil.map(branches.getRemoteBranches(), new Function<GitBranch, TaskInfo>()
+		{
+			@Override
+			public TaskInfo fun(GitBranch branch)
+			{
+				return new TaskInfo(branch.getName(), Collections.singleton(repository.getPresentableUrl()))
+				{
+					@Override
+					public boolean isRemote()
+					{
+						return true;
+					}
+				};
+			}
+		}));
+		return list;
+	}
+
+	@Override
+	public boolean isBranchNameValid(@NotNull String branchName)
+	{
+		return myNameValidator.checkInput(branchName);
+	}
+
+	@NotNull
+	@Override
+	public String cleanUpBranchName(@NotNull String suggestedName)
+	{
+		return myNameValidator.cleanUpBranchName(suggestedName);
 	}
 }

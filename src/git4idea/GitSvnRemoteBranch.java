@@ -15,67 +15,70 @@
  */
 package git4idea;
 
-import com.intellij.vcs.log.Hash;
-import git4idea.repo.GitRemote;
 import org.jetbrains.annotations.NotNull;
+import git4idea.repo.GitRemote;
 
 /**
  * <p>The naming conventions of SVN remote branches are slightly different from the ordinary remote branches.</p>
- *
+ * <p>
  * <p>No remote is specified: dot (".") is used as a remote.</p>
  * <p>Remote branch name has "refs/remotes/branch" format, i. e. it doesn't have a remote prefix.</p>
- *
+ * <p>
  * <p>Because of these differences, GitSvnRemoteBranch doesn't {@link GitStandardRemoteBranch}. </p>
  *
  * @author Kirill Likhodedov
  */
-public class GitSvnRemoteBranch extends GitRemoteBranch {
+public class GitSvnRemoteBranch extends GitRemoteBranch
+{
 
-	public GitSvnRemoteBranch(@NotNull String fullName, @NotNull Hash hash) {
-		super(fullName, hash);
+	public GitSvnRemoteBranch(@NotNull String fullName)
+	{
+		super(fullName);
 	}
 
 	@NotNull
 	@Override
-	public String getNameForRemoteOperations() {
+	public String getNameForRemoteOperations()
+	{
 		return getFullName();
 	}
 
 	@NotNull
 	@Override
-	public String getNameForLocalOperations() {
+	public String getNameForLocalOperations()
+	{
 		return getFullName();
 	}
 
 	@NotNull
 	@Override
-	public GitRemote getRemote() {
+	public GitRemote getRemote()
+	{
 		return GitRemote.DOT;
 	}
 
-	@Override
-	public boolean isRemote() {
-		return true;
-	}
-
 	@NotNull
 	@Override
-	public String getFullName() {
+	public String getFullName()
+	{
 		return getName();
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(Object o)
+	{
 		return super.equals(o);
 	}
 
 	@Override
-	public int hashCode() {
+	public int hashCode()
+	{
 		return super.hashCode();
 	}
 
 	@Override
-	public String toString() {
+	public String toString()
+	{
 		return super.toString();
 	}
 

@@ -26,6 +26,7 @@ import com.intellij.openapi.vcs.AbstractVcsHelper;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.update.UpdatedFiles;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.util.ObjectUtils;
 import git4idea.GitBranch;
 import git4idea.GitLocalBranch;
 import git4idea.GitRevisionNumber;
@@ -37,8 +38,9 @@ import git4idea.commands.Git;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitSimpleHandler;
 import git4idea.config.GitConfigUtil;
-import git4idea.config.GitVcsSettings;
+import git4idea.config.UpdateMethod;
 import git4idea.merge.MergeChangeCollector;
+import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 
 /**
@@ -57,6 +59,8 @@ public abstract class GitUpdater
 	protected final Git myGit;
 	@NotNull
 	protected final VirtualFile myRoot;
+	@NotNull
+	protected final GitRepository myRepository;
 	@NotNull
 	protected final Map<VirtualFile, GitBranchPair> myTrackedBranches;
 	@NotNull
@@ -87,6 +91,7 @@ public abstract class GitUpdater
 		myVcsHelper = AbstractVcsHelper.getInstance(project);
 		myVcs = GitVcs.getInstance(project);
 		myRepositoryManager = GitUtil.getRepositoryManager(myProject);
+		myRepository = ObjectUtils.assertNotNull(myRepositoryManager.getRepositoryForRoot(myRoot));
 	}
 
 	/**
@@ -100,53 +105,35 @@ public abstract class GitUpdater
 			@NotNull Map<VirtualFile, GitBranchPair> trackedBranches,
 			@NotNull VirtualFile root,
 			@NotNull ProgressIndicator progressIndicator,
-			@NotNull UpdatedFiles updatedFiles)
+			@NotNull UpdatedFiles updatedFiles,
+			@NotNull UpdateMethod updateMethod)
 	{
-		final GitVcsSettings settings = GitVcsSettings.getInstance(project);
-		if(settings == null)
+		if(updateMethod == UpdateMethod.BRANCH_DEFAULT)
 		{
-			return getDefaultUpdaterForBranch(project, git, root, trackedBranches, progressIndicator, updatedFiles);
+			updateMethod = resolveUpdateMethod(project, root);
 		}
-		switch(settings.getUpdateType())
-		{
-			case REBASE:
-				return new GitRebaseUpdater(project, git, root, trackedBranches, progressIndicator, updatedFiles);
-			case MERGE:
-				return new GitMergeUpdater(project, git, root, trackedBranches, progressIndicator, updatedFiles);
-			case BRANCH_DEFAULT:
-				// use default for the branch
-				return getDefaultUpdaterForBranch(project, git, root, trackedBranches, progressIndicator, updatedFiles);
-		}
-		return getDefaultUpdaterForBranch(project, git, root, trackedBranches, progressIndicator, updatedFiles);
+		return updateMethod == UpdateMethod.REBASE ? new GitRebaseUpdater(project, git, root, trackedBranches, progressIndicator, updatedFiles) : new GitMergeUpdater(project, git, root,
+				trackedBranches, progressIndicator, updatedFiles);
 	}
 
 	@NotNull
-	private static GitUpdater getDefaultUpdaterForBranch(@NotNull Project project,
-			@NotNull Git git,
-			@NotNull VirtualFile root,
-			@NotNull Map<VirtualFile, GitBranchPair> trackedBranches,
-			@NotNull ProgressIndicator progressIndicator,
-			@NotNull UpdatedFiles updatedFiles)
+	public static UpdateMethod resolveUpdateMethod(@NotNull Project project, @NotNull VirtualFile root)
 	{
-		try
+		GitLocalBranch branch = GitBranchUtil.getCurrentBranch(project, root);
+		boolean rebase = false;
+		if(branch != null)
 		{
-			GitLocalBranch branch = GitBranchUtil.getCurrentBranch(project, root);
-			boolean rebase = false;
-			if(branch != null)
+			try
 			{
 				String rebaseValue = GitConfigUtil.getValue(project, root, "branch." + branch.getName() + ".rebase");
 				rebase = rebaseValue != null && rebaseValue.equalsIgnoreCase("true");
 			}
-			if(rebase)
+			catch(VcsException e)
 			{
-				return new GitRebaseUpdater(project, git, root, trackedBranches, progressIndicator, updatedFiles);
+				LOG.warn("Couldn't get git config branch." + branch.getName() + ".rebase", e);
 			}
 		}
-		catch(VcsException e)
-		{
-			LOG.info("getDefaultUpdaterForBranch branch", e);
-		}
-		return new GitMergeUpdater(project, git, root, trackedBranches, progressIndicator, updatedFiles);
+		return rebase ? UpdateMethod.REBASE : UpdateMethod.MERGE;
 	}
 
 	@NotNull
@@ -214,7 +201,7 @@ public abstract class GitUpdater
 	{
 		// find out what have changed, this is done even if the process was cancelled.
 		final MergeChangeCollector collector = new MergeChangeCollector(myProject, root, myBefore);
-		final ArrayList<VcsException> exceptions = new ArrayList<VcsException>();
+		final ArrayList<VcsException> exceptions = new ArrayList<>();
 		collector.collect(myUpdatedFiles, exceptions);
 		if(!exceptions.isEmpty())
 		{
@@ -231,11 +218,4 @@ public abstract class GitUpdater
 		String output = handler.run();
 		return output != null && !output.isEmpty();
 	}
-
-	@NotNull
-	protected String makeProgressTitle(@NotNull String operation)
-	{
-		return myRepositoryManager.moreThanOneRoot() ? String.format("%s %s...", operation, myRoot.getName()) : operation + "...";
-	}
-
 }

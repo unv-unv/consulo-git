@@ -28,24 +28,24 @@ import javax.swing.JPanel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.diff.impl.dir.FrameDialogWrapper;
 import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.WindowWrapper;
+import com.intellij.openapi.ui.WindowWrapperBuilder;
 import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.Condition;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.openapi.vcs.VcsRoot;
-import com.intellij.openapi.vcs.changes.BackgroundFromStartOption;
 import com.intellij.openapi.vcs.changes.ui.ChangesViewContentManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
@@ -60,17 +60,14 @@ import com.intellij.vcs.log.VcsLogSettings;
 import com.intellij.vcs.log.data.VcsLogUiProperties;
 import com.intellij.vcs.log.impl.VcsLogContentProvider;
 import com.intellij.vcs.log.impl.VcsLogManager;
-import git4idea.GitPlatformFacade;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
 import git4idea.config.GitVersion;
 import git4idea.repo.GitRepositoryImpl;
 import git4idea.repo.GitRepositoryManager;
 
-public class GitShowExternalLogAction extends AnAction
+public class GitShowExternalLogAction extends DumbAwareAction
 {
-
-	private static final Logger LOG = Logger.getInstance(GitShowExternalLogAction.class);
 
 	@Override
 	public void update(@NotNull AnActionEvent e)
@@ -137,19 +134,14 @@ public class GitShowExternalLogAction extends AnAction
 	}
 
 	@NotNull
-	private static MyContentComponent createManagerAndContent(@NotNull Project project,
-			@NotNull final GitVcs vcs,
-			@NotNull final List<VirtualFile> roots,
-			@Nullable String tabName)
+	private static MyContentComponent createManagerAndContent(@NotNull Project project, @NotNull final GitVcs vcs, @NotNull final List<VirtualFile> roots, @Nullable String tabName)
 	{
 		final GitRepositoryManager repositoryManager = ServiceManager.getService(project, GitRepositoryManager.class);
-		GitPlatformFacade facade = ServiceManager.getService(GitPlatformFacade.class);
 		for(VirtualFile root : roots)
 		{
-			repositoryManager.addExternalRepository(root, GitRepositoryImpl.getFullInstance(root, project, facade, project));
+			repositoryManager.addExternalRepository(root, GitRepositoryImpl.getInstance(root, project, true));
 		}
-		VcsLogManager manager = new VcsLogManager(project, ServiceManager.getService(project, VcsLogSettings.class),
-				ServiceManager.getService(project, VcsLogUiProperties.class));
+		VcsLogManager manager = new VcsLogManager(project, ServiceManager.getService(project, VcsLogSettings.class), ServiceManager.getService(project, VcsLogUiProperties.class));
 		Collection<VcsRoot> vcsRoots = ContainerUtil.map(roots, new Function<VirtualFile, VcsRoot>()
 		{
 			@Override
@@ -224,10 +216,7 @@ public class GitShowExternalLogAction extends AnAction
 		return correctRoots;
 	}
 
-	private static boolean checkIfProjectLogMatches(@NotNull Project project,
-			@NotNull GitVcs vcs,
-			@NotNull ContentManager cm,
-			@NotNull List<VirtualFile> requestedRoots)
+	private static boolean checkIfProjectLogMatches(@NotNull Project project, @NotNull GitVcs vcs, @NotNull ContentManager cm, @NotNull List<VirtualFile> requestedRoots)
 	{
 		VirtualFile[] projectRoots = ProjectLevelVcsManager.getInstance(project).getRootsUnderVcs(vcs);
 		if(Comparing.haveEqualElements(requestedRoots, Arrays.asList(projectRoots)))
@@ -290,7 +279,7 @@ public class GitShowExternalLogAction extends AnAction
 
 		private ShowLogInDialogTask(@NotNull Project project, @NotNull List<VirtualFile> roots, @NotNull GitVcs vcs)
 		{
-			super(project, "Loading Git Log...", true, BackgroundFromStartOption.getInstance());
+			super(project, "Loading Git Log...", true);
 			myProject = project;
 			myRoots = roots;
 			myVcs = vcs;
@@ -312,64 +301,11 @@ public class GitShowExternalLogAction extends AnAction
 		{
 			if(!myVersion.isNull() && !myProject.isDisposed())
 			{
-				new MyDialog(myProject, myVcs, myRoots).show();
+				MyContentComponent content = createManagerAndContent(myProject, myVcs, myRoots, null);
+				WindowWrapper window = new WindowWrapperBuilder(WindowWrapper.Mode.FRAME, content).setProject(myProject).setTitle("Git Log").setPreferredFocusedComponent(content).build();
+				Disposer.register(window, content.myDisposable);
+				window.show();
 			}
-		}
-	}
-
-	private static class MyDialog extends FrameDialogWrapper
-	{
-		@NotNull
-		private final MyContentComponent myContent;
-		@NotNull
-		private final Project myProject;
-
-		private MyDialog(@NotNull Project project, @NotNull GitVcs vcs, @NotNull final List<VirtualFile> roots)
-		{
-			myProject = project;
-			myContent = createManagerAndContent(project, vcs, roots, null);
-		}
-
-		@NotNull
-		@Override
-		protected Mode getMode()
-		{
-			return Mode.FRAME;
-		}
-
-		@NotNull
-		@Override
-		public Project getProject()
-		{
-			return myProject;
-		}
-
-		@Nullable
-		@Override
-		protected String getTitle()
-		{
-			return "Git Log";
-		}
-
-		@NotNull
-		@Override
-		protected JComponent getPanel()
-		{
-			return myContent;
-		}
-
-		@Nullable
-		@Override
-		protected JComponent getPreferredFocusedComponent()
-		{
-			return myContent;
-		}
-
-		@Nullable
-		@Override
-		protected Disposable getDisposable()
-		{
-			return myContent.myDisposable;
 		}
 	}
 }

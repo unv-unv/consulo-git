@@ -15,13 +15,20 @@
  */
 package git4idea;
 
+import gnu.trove.TObjectHashingStrategy;
+
 import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.util.SystemInfo;
+import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.util.text.FilePathHashingStrategy;
 
 /**
  * The base class for named git references, like branches and tags.
  */
 public abstract class GitReference implements Comparable<GitReference>
 {
+
+	public static final TObjectHashingStrategy<String> BRANCH_NAME_HASHING_STRATEGY = FilePathHashingStrategy.create();
 
 	@NotNull
 	protected final String myName;
@@ -54,24 +61,28 @@ public abstract class GitReference implements Comparable<GitReference>
 	}
 
 	@Override
-	public boolean equals(Object obj)
+	public boolean equals(Object o)
 	{
-		if(this == obj)
+		if(this == o)
 		{
 			return true;
 		}
-
-		return obj instanceof GitReference && getFullName().equals(((GitReference) obj).getFullName());
+		if(o == null || getClass() != o.getClass())
+		{
+			return false;
+		}
+		GitReference reference = (GitReference) o;
+		return BRANCH_NAME_HASHING_STRATEGY.equals(myName, reference.myName);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return toString().hashCode();
+		return BRANCH_NAME_HASHING_STRATEGY.computeHashCode(myName);
 	}
 
 	public int compareTo(GitReference o)
 	{
-		return o == null ? 1 : getFullName().compareTo(o.getFullName());
+		return o == null ? 1 : StringUtil.compare(getFullName(), o.getFullName(), SystemInfo.isFileSystemCaseSensitive);
 	}
 }

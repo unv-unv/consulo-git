@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2010 JetBrains s.r.o.
+ * Copyright 2000-2015 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,12 +32,10 @@ import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationListener;
-import com.intellij.notification.impl.NotificationsConfigurationImpl;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.diff.impl.patch.formove.FilePathComparator;
-import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.progress.Task;
@@ -98,17 +96,15 @@ import git4idea.vfs.GitVFSListener;
 public class GitVcs extends AbstractVcs<CommittedChangeList>
 {
 
-	static
-	{
-		NotificationsConfigurationImpl.remove("Git");
-	}
-
 	public static final String NAME = "Git";
+	public static final String ID = "git";
 
 	private static final Logger log = Logger.getInstance(GitVcs.class.getName());
 	private static final VcsKey ourKey = createKey(NAME);
 
+	@Nullable
 	private final ChangeProvider myChangeProvider;
+	@Nullable
 	private final GitCheckinEnvironment myCheckinEnvironment;
 	private final RollbackEnvironment myRollbackEnvironment;
 	private final GitUpdateEnvironment myUpdateEnvironment;
@@ -127,6 +123,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 
 	private final ReadWriteLock myCommandLock = new ReentrantReadWriteLock(true); // The command read/write lock
 	private final TreeDiffProvider myTreeDiffProvider;
+	@Nullable
 	private final GitCommitAndPushExecutor myCommitAndPushExecutor;
 	private final GitExecutableValidator myExecutableValidator;
 	private GitBranchWidget myBranchWidget;
@@ -168,11 +165,11 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 		myRollbackEnvironment = gitRollbackEnvironment;
 		myRevSelector = new GitRevisionSelector();
 		myConfigurable = new GitVcsConfigurable(myProject, gitProjectSettings, sharedSettings);
-		myUpdateEnvironment = new GitUpdateEnvironment(myProject, this, gitProjectSettings);
+		myUpdateEnvironment = new GitUpdateEnvironment(myProject, gitProjectSettings);
 		myCommittedChangeListProvider = new GitCommittedChangeListProvider(myProject);
 		myOutgoingChangesProvider = new GitOutgoingChangesProvider(myProject);
 		myTreeDiffProvider = new GitTreeDiffProvider(myProject);
-		myCommitAndPushExecutor = new GitCommitAndPushExecutor(myCheckinEnvironment);
+		myCommitAndPushExecutor = myCheckinEnvironment != null ? new GitCommitAndPushExecutor(myCheckinEnvironment) : null;
 		myExecutableValidator = new GitExecutableValidator(myProject);
 	}
 
@@ -206,7 +203,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 	}
 
 	@Override
-	@NotNull
+	@Nullable
 	public CheckinEnvironment createCheckinEnvironment()
 	{
 		return myCheckinEnvironment;
@@ -349,7 +346,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 		{
 			myRepositoryForAnnotationsListener = new GitRepositoryForAnnotationsListener(myProject);
 		}
-		ServiceManager.getService(myProject, GitUserRegistry.class).activate();
+		GitUserRegistry.getInstance(myProject).activate();
 	}
 
 	private void checkExecutableAndVersion()
@@ -443,22 +440,22 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 		{
 			return;
 		}
-		showMessage(message, ConsoleViewContentType.NORMAL_OUTPUT.getAttributes());
+		showMessage(message, ConsoleViewContentType.NORMAL_OUTPUT);
 	}
 
 	/**
 	 * Show message in the Version Control Console
 	 *
-	 * @param message a message to show
-	 * @param style   a style to use
+	 * @param message     a message to show
+	 * @param contentType a style to use
 	 */
-	private void showMessage(@NotNull String message, final TextAttributes style)
+	private void showMessage(@NotNull String message, @NotNull ConsoleViewContentType contentType)
 	{
 		if(message.length() > MAX_CONSOLE_OUTPUT_SIZE)
 		{
 			message = message.substring(0, MAX_CONSOLE_OUTPUT_SIZE);
 		}
-		myVcsManager.addMessageToConsoleWindow(message, style);
+		myVcsManager.addMessageToConsoleWindow(message, contentType);
 	}
 
 	/**
@@ -504,7 +501,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 				String message = GitBundle.message("vcs.unable.to.run.git", executable, reason);
 				if(!myProject.isDefault())
 				{
-					showMessage(message, ConsoleViewContentType.SYSTEM_OUTPUT.getAttributes());
+					showMessage(message, ConsoleViewContentType.SYSTEM_OUTPUT);
 				}
 				VcsBalloonProblemNotifier.showOverVersionControlView(myProject, message, MessageType.ERROR);
 			}
@@ -526,7 +523,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 	public void showCommandLine(final String cmdLine)
 	{
 		SimpleDateFormat f = new SimpleDateFormat("HH:mm:ss.SSS");
-		showMessage(f.format(new Date()) + ": " + cmdLine, ConsoleViewContentType.SYSTEM_OUTPUT.getAttributes());
+		showMessage(f.format(new Date()) + ": " + cmdLine, ConsoleViewContentType.SYSTEM_OUTPUT);
 	}
 
 	/**
@@ -534,7 +531,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 	 */
 	public void showErrorMessages(final String line)
 	{
-		showMessage(line, ConsoleViewContentType.ERROR_OUTPUT.getAttributes());
+		showMessage(line, ConsoleViewContentType.ERROR_OUTPUT);
 	}
 
 	@Override
@@ -546,7 +543,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 	@Override
 	public <S> List<S> filterUniqueRoots(final List<S> in, final Convertor<S, VirtualFile> convertor)
 	{
-		Collections.sort(in, new ComparatorDelegate<S, VirtualFile>(convertor, FilePathComparator.getInstance()));
+		Collections.sort(in, new ComparatorDelegate<>(convertor, FilePathComparator.getInstance()));
 
 		for(int i = 1; i < in.size(); i++)
 		{
@@ -615,7 +612,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 	@Override
 	public List<CommitExecutor> getCommitExecutors()
 	{
-		return Collections.<CommitExecutor>singletonList(myCommitAndPushExecutor);
+		return myCommitAndPushExecutor != null ? Collections.<CommitExecutor>singletonList(myCommitAndPushExecutor) : Collections.<CommitExecutor>emptyList();
 	}
 
 	@NotNull

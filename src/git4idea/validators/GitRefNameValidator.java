@@ -15,54 +15,70 @@
  */
 package git4idea.validators;
 
-import com.intellij.openapi.ui.InputValidator;
-
 import java.util.regex.Pattern;
+
+import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.ui.InputValidator;
+import com.intellij.openapi.util.text.StringUtil;
 
 /**
  * Checks that the specified String is a valid Git reference name.
  * See <a href="http://www.kernel.org/pub/software/scm/git/docs/git-check-ref-format.html">
  * http://www.kernel.org/pub/software/scm/git/docs/git-check-ref-format.html</a>
- *
- * @author Kirill Likhodedov
  */
-public final class GitRefNameValidator implements InputValidator {
+public final class GitRefNameValidator implements InputValidator
+{
 
-  private static final GitRefNameValidator INSTANCE = new GitRefNameValidator();
+	private static final GitRefNameValidator INSTANCE = new GitRefNameValidator();
 
-  // illegal control characters - from 0 to 31 and 7F (DEL)
-  private static String CONTROL_CHARS;
-  static {
-    StringBuilder sb = new StringBuilder();
-    sb.append("[");
-    for (char c = 0; c < 32; c++) {
-      sb.append(c);
-    }
-    sb.append('\u007F');
-    sb.append("]");
-    CONTROL_CHARS = sb.toString();
-  }
-  private static final Pattern ILLEGAL = Pattern.compile(
-    "(^\\.)|" +                             // begins with a dot
-    "[ ~:\\^\\?\\*\\[\\\\]+|(@\\{)+|" +     // contains invalid character: space, one of ~:^?*[\ or @{ sequence
-    "(\\.\\.)+|" +                          // two dots in a row
-    "(([\\./]|\\.lock)$)|" +                // ends with dot, slash or ".lock"
-    CONTROL_CHARS                           // contains a control character
-  );
+	// illegal control characters - from 0 to 31 and 7F (DEL)
+	private static String CONTROL_CHARS;
 
-  public static GitRefNameValidator getInstance() {
-    return INSTANCE;
-  }
+	static
+	{
+		StringBuilder sb = new StringBuilder();
+		sb.append("[");
+		for(char c = 0; c < 32; c++)
+		{
+			sb.append(c);
+		}
+		sb.append('\u007F');
+		sb.append("]");
+		CONTROL_CHARS = sb.toString();
+	}
 
-  private GitRefNameValidator() {}
+	private static final Pattern ILLEGAL = Pattern.compile("(^\\.)|" +                             // begins with a dot
+			"(^-)|" +                                 // begins with '-'
+			"[ ~:\\^\\?\\*\\[\\\\]+|(@\\{)+|" +     // contains invalid character: space, one of ~:^?*[\ or @{ sequence
+			"(\\.\\.)+|" +                          // two dots in a row
+			"(([\\./]|\\.lock)$)|" +                // ends with dot, slash or ".lock"
+			CONTROL_CHARS                           // contains a control character
+	);
 
-  @Override
-  public boolean checkInput(String inputString) {
-    return !ILLEGAL.matcher(inputString).find();
-  }
+	public static GitRefNameValidator getInstance()
+	{
+		return INSTANCE;
+	}
 
-  @Override
-  public boolean canClose(String inputString) {
-    return checkInput(inputString);
-  }
+	private GitRefNameValidator()
+	{
+	}
+
+	@Override
+	public boolean checkInput(String inputString)
+	{
+		return !StringUtil.isEmptyOrSpaces(inputString) && !ILLEGAL.matcher(inputString).find();
+	}
+
+	@Override
+	public boolean canClose(String inputString)
+	{
+		return checkInput(inputString);
+	}
+
+	@NotNull
+	public String cleanUpBranchName(@NotNull String branchName)
+	{
+		return branchName.replaceAll(ILLEGAL.pattern(), "_");
+	}
 }

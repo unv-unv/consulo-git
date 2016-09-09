@@ -15,6 +15,8 @@
  */
 package git4idea.ui.branch;
 
+import static git4idea.GitStatisticsCollectorKt.reportUsage;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -30,6 +32,8 @@ import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.util.Condition;
+import com.intellij.util.containers.ContainerUtil;
 import git4idea.GitBranch;
 import git4idea.branch.GitBranchUtil;
 import git4idea.branch.GitBrancher;
@@ -51,9 +55,10 @@ class GitBranchPopupActions
 	ActionGroup createActions(@Nullable DefaultActionGroup toInsert)
 	{
 		DefaultActionGroup popupGroup = new DefaultActionGroup(null, false);
+		List<GitRepository> repositoryList = Collections.singletonList(myRepository);
 
-		popupGroup.addAction(new GitNewBranchAction(myProject, Collections.singletonList(myRepository)));
-		popupGroup.addAction(new CheckoutRevisionActions(myProject, myRepository));
+		popupGroup.addAction(new GitNewBranchAction(myProject, repositoryList));
+		popupGroup.addAction(new CheckoutRevisionActions(myProject, repositoryList));
 
 		if(toInsert != null)
 		{
@@ -61,22 +66,22 @@ class GitBranchPopupActions
 		}
 
 		popupGroup.addSeparator("Local Branches");
-		List<GitBranch> localBranches = new ArrayList<GitBranch>(myRepository.getBranches().getLocalBranches());
+		List<GitBranch> localBranches = new ArrayList<>(myRepository.getBranches().getLocalBranches());
 		Collections.sort(localBranches);
 		for(GitBranch localBranch : localBranches)
 		{
 			if(!localBranch.equals(myRepository.getCurrentBranch()))
 			{ // don't show current branch in the list
-				popupGroup.add(new LocalBranchActions(myProject, Collections.singletonList(myRepository), localBranch.getName(), myRepository));
+				popupGroup.add(new LocalBranchActions(myProject, repositoryList, localBranch.getName(), myRepository));
 			}
 		}
 
 		popupGroup.addSeparator("Remote Branches");
-		List<GitBranch> remoteBranches = new ArrayList<GitBranch>(myRepository.getBranches().getRemoteBranches());
+		List<GitBranch> remoteBranches = new ArrayList<>(myRepository.getBranches().getRemoteBranches());
 		Collections.sort(remoteBranches);
 		for(GitBranch remoteBranch : remoteBranches)
 		{
-			popupGroup.add(new RemoteBranchActions(myProject, Collections.singletonList(myRepository), remoteBranch.getName(), myRepository));
+			popupGroup.add(new RemoteBranchActions(myProject, repositoryList, remoteBranch.getName(), myRepository));
 		}
 
 		return popupGroup;
@@ -98,6 +103,7 @@ class GitBranchPopupActions
 			{
 				GitBrancher brancher = ServiceManager.getService(myProject, GitBrancher.class);
 				brancher.checkoutNewBranch(name, myRepositories);
+				reportUsage("git.branch.create.new");
 			}
 		}
 	}
@@ -105,16 +111,16 @@ class GitBranchPopupActions
 	/**
 	 * Checkout manually entered tag or revision number.
 	 */
-	private static class CheckoutRevisionActions extends DumbAwareAction
+	public static class CheckoutRevisionActions extends DumbAwareAction
 	{
 		private final Project myProject;
-		private final GitRepository myRepository;
+		private final List<GitRepository> myRepositories;
 
-		CheckoutRevisionActions(Project project, GitRepository repository)
+		CheckoutRevisionActions(Project project, List<GitRepository> repositories)
 		{
-			super("Checkout Tag or Revision");
+			super("Checkout Tag or Revision...");
 			myProject = project;
-			myRepository = repository;
+			myRepositories = repositories;
 		}
 
 		@Override
@@ -122,19 +128,27 @@ class GitBranchPopupActions
 		{
 			// TODO autocomplete branches, tags.
 			// on type check ref validity, on OK check ref existence.
-			String reference = Messages.showInputDialog(myProject, "Enter reference (branch, tag) name or commit hash", "Checkout",
-					Messages.getQuestionIcon());
+			String reference = Messages.showInputDialog(myProject, "Enter reference (branch, tag) name or commit hash", "Checkout", Messages.getQuestionIcon());
 			if(reference != null)
 			{
 				GitBrancher brancher = ServiceManager.getService(myProject, GitBrancher.class);
-				brancher.checkout(reference, Collections.singletonList(myRepository), null);
+				brancher.checkout(reference, true, myRepositories, null);
+				reportUsage("git.branch.checkout.revision");
 			}
 		}
 
 		@Override
 		public void update(AnActionEvent e)
 		{
-			if(myRepository.isFresh())
+			boolean isFresh = ContainerUtil.and(myRepositories, new Condition<GitRepository>()
+			{
+				@Override
+				public boolean value(GitRepository repository)
+				{
+					return repository.isFresh();
+				}
+			});
+			if(isFresh)
 			{
 				e.getPresentation().setEnabled(false);
 				e.getPresentation().setDescription("Checkout is not possible before the first commit");
@@ -154,10 +168,7 @@ class GitBranchPopupActions
 		@NotNull
 		private final GitRepository mySelectedRepository;
 
-		LocalBranchActions(@NotNull Project project,
-				@NotNull List<GitRepository> repositories,
-				@NotNull String branchName,
-				@NotNull GitRepository selectedRepository)
+		LocalBranchActions(@NotNull Project project, @NotNull List<GitRepository> repositories, @NotNull String branchName, @NotNull GitRepository selectedRepository)
 		{
 			super("", true);
 			myProject = project;
@@ -201,12 +212,15 @@ class GitBranchPopupActions
 					new CheckoutAction(myProject, myRepositories, myBranchName),
 					new CheckoutAsNewBranch(myProject, myRepositories, myBranchName),
 					new CompareAction(myProject, myRepositories, myBranchName, mySelectedRepository),
+					new RebaseAction(myProject, myRepositories, myBranchName),
+					new CheckoutWithRebaseAction(myProject, myRepositories, myBranchName),
 					new MergeAction(myProject, myRepositories, myBranchName, true),
+					new RenameBranchAction(myProject, myRepositories, myBranchName),
 					new DeleteAction(myProject, myRepositories, myBranchName)
 			};
 		}
 
-		private static class CheckoutAction extends DumbAwareAction
+		static class CheckoutAction extends DumbAwareAction
 		{
 			private final Project myProject;
 			private final List<GitRepository> myRepositories;
@@ -224,9 +238,9 @@ class GitBranchPopupActions
 			public void actionPerformed(AnActionEvent e)
 			{
 				GitBrancher brancher = ServiceManager.getService(myProject, GitBrancher.class);
-				brancher.checkout(myBranchName, myRepositories, null);
+				brancher.checkout(myBranchName, false, myRepositories, null);
+				reportUsage("git.branch.checkout.local");
 			}
-
 		}
 
 		private static class CheckoutAsNewBranch extends DumbAwareAction
@@ -237,7 +251,7 @@ class GitBranchPopupActions
 
 			CheckoutAsNewBranch(@NotNull Project project, @NotNull List<GitRepository> repositories, @NotNull String branchName)
 			{
-				super("Checkout as new branch");
+				super("Checkout as New Branch");
 				myProject = project;
 				myRepositories = repositories;
 				myBranchName = branchName;
@@ -246,15 +260,46 @@ class GitBranchPopupActions
 			@Override
 			public void actionPerformed(AnActionEvent e)
 			{
-				final String name = Messages.showInputDialog(myProject, "Enter name of new branch", "Checkout New Branch From " + myBranchName,
-						Messages.getQuestionIcon(), "", GitNewBranchNameValidator.newInstance(myRepositories));
+				final String name = Messages.showInputDialog(myProject, "Enter name of new branch", "Checkout New Branch From " + myBranchName, Messages.getQuestionIcon(), "",
+						GitNewBranchNameValidator.newInstance(myRepositories));
 				if(name != null)
 				{
 					GitBrancher brancher = ServiceManager.getService(myProject, GitBrancher.class);
 					brancher.checkoutNewBranchStartingFrom(name, myBranchName, myRepositories, null);
 				}
+				reportUsage("git.checkout.as.new.branch");
+			}
+		}
+
+		private static class RenameBranchAction extends DumbAwareAction
+		{
+			@NotNull
+			private final Project myProject;
+			@NotNull
+			private final List<GitRepository> myRepositories;
+			@NotNull
+			private final String myCurrentBranchName;
+
+			public RenameBranchAction(@NotNull Project project, @NotNull List<GitRepository> repositories, @NotNull String currentBranchName)
+			{
+				super("Rename");
+				myProject = project;
+				myRepositories = repositories;
+				myCurrentBranchName = currentBranchName;
 			}
 
+			@Override
+			public void actionPerformed(@NotNull AnActionEvent e)
+			{
+				String newName = Messages.showInputDialog(myProject, "Enter new name for the branch " + myCurrentBranchName, "Rename Branch " + myCurrentBranchName, Messages.getQuestionIcon(),
+						myCurrentBranchName, GitNewBranchNameValidator.newInstance(myRepositories));
+				if(newName != null)
+				{
+					GitBrancher brancher = ServiceManager.getService(myProject, GitBrancher.class);
+					brancher.renameBranch(myCurrentBranchName, newName, myRepositories);
+					reportUsage("git.branch.rename");
+				}
+			}
 		}
 
 		private static class DeleteAction extends DumbAwareAction
@@ -276,6 +321,7 @@ class GitBranchPopupActions
 			{
 				GitBrancher brancher = ServiceManager.getService(myProject, GitBrancher.class);
 				brancher.deleteBranch(myBranchName, myRepositories);
+				reportUsage("git.branch.delete.local");
 			}
 		}
 	}
@@ -292,10 +338,7 @@ class GitBranchPopupActions
 		@NotNull
 		private final GitRepository mySelectedRepository;
 
-		RemoteBranchActions(@NotNull Project project,
-				@NotNull List<GitRepository> repositories,
-				@NotNull String branchName,
-				@NotNull GitRepository selectedRepository)
+		RemoteBranchActions(@NotNull Project project, @NotNull List<GitRepository> repositories, @NotNull String branchName, @NotNull GitRepository selectedRepository)
 		{
 			super("", true);
 			myProject = project;
@@ -312,12 +355,13 @@ class GitBranchPopupActions
 			return new AnAction[]{
 					new CheckoutRemoteBranchAction(myProject, myRepositories, myBranchName),
 					new CompareAction(myProject, myRepositories, myBranchName, mySelectedRepository),
+					new RebaseAction(myProject, myRepositories, myBranchName),
 					new MergeAction(myProject, myRepositories, myBranchName, false),
 					new RemoteDeleteAction(myProject, myRepositories, myBranchName)
 			};
 		}
 
-		private static class CheckoutRemoteBranchAction extends DumbAwareAction
+		static class CheckoutRemoteBranchAction extends DumbAwareAction
 		{
 			private final Project myProject;
 			private final List<GitRepository> myRepositories;
@@ -334,12 +378,13 @@ class GitBranchPopupActions
 			@Override
 			public void actionPerformed(AnActionEvent e)
 			{
-				final String name = Messages.showInputDialog(myProject, "Enter name of new branch", "Checkout Remote Branch",
-						Messages.getQuestionIcon(), guessBranchName(), GitNewBranchNameValidator.newInstance(myRepositories));
+				final String name = Messages.showInputDialog(myProject, "Enter name of new branch", "Checkout Remote Branch", Messages.getQuestionIcon(), guessBranchName(),
+						GitNewBranchNameValidator.newInstance(myRepositories));
 				if(name != null)
 				{
 					GitBrancher brancher = ServiceManager.getService(myProject, GitBrancher.class);
 					brancher.checkoutNewBranchStartingFrom(name, myRemoteBranchName, myRepositories, null);
+					reportUsage("git.branch.checkout.remote");
 				}
 			}
 
@@ -371,9 +416,9 @@ class GitBranchPopupActions
 			{
 				GitBrancher brancher = ServiceManager.getService(myProject, GitBrancher.class);
 				brancher.deleteRemoteBranch(myBranchName, myRepositories);
+				reportUsage("git.branch.delete.remote");
 			}
 		}
-
 	}
 
 	private static class CompareAction extends DumbAwareAction
@@ -384,10 +429,7 @@ class GitBranchPopupActions
 		private final String myBranchName;
 		private final GitRepository mySelectedRepository;
 
-		public CompareAction(@NotNull Project project,
-				@NotNull List<GitRepository> repositories,
-				@NotNull String branchName,
-				@NotNull GitRepository selectedRepository)
+		public CompareAction(@NotNull Project project, @NotNull List<GitRepository> repositories, @NotNull String branchName, @NotNull GitRepository selectedRepository)
 		{
 			super("Compare");
 			myProject = project;
@@ -401,8 +443,8 @@ class GitBranchPopupActions
 		{
 			GitBrancher brancher = ServiceManager.getService(myProject, GitBrancher.class);
 			brancher.compare(myBranchName, myRepositories, mySelectedRepository);
+			reportUsage("git.branch.compare");
 		}
-
 	}
 
 	private static class MergeAction extends DumbAwareAction
@@ -427,6 +469,7 @@ class GitBranchPopupActions
 		{
 			GitBrancher brancher = ServiceManager.getService(myProject, GitBrancher.class);
 			brancher.merge(myBranchName, deleteOnMerge(), myRepositories);
+			reportUsage("git.branch.merge");
 		}
 
 		private GitBrancher.DeleteOnMergeOption deleteOnMerge()
@@ -436,6 +479,53 @@ class GitBranchPopupActions
 				return GitBrancher.DeleteOnMergeOption.PROPOSE;
 			}
 			return GitBrancher.DeleteOnMergeOption.NOTHING;
+		}
+	}
+
+	private static class RebaseAction extends DumbAwareAction
+	{
+		private final Project myProject;
+		private final List<GitRepository> myRepositories;
+		private final String myBranchName;
+
+		public RebaseAction(@NotNull Project project, @NotNull List<GitRepository> repositories, @NotNull String branchName)
+		{
+			super("Rebase onto");
+			myProject = project;
+			myRepositories = repositories;
+			myBranchName = branchName;
+		}
+
+		@Override
+		public void actionPerformed(AnActionEvent e)
+		{
+			GitBrancher brancher = ServiceManager.getService(myProject, GitBrancher.class);
+			brancher.rebase(myRepositories, myBranchName);
+			reportUsage("git.branch.rebase");
+		}
+	}
+
+	private static class CheckoutWithRebaseAction extends DumbAwareAction
+	{
+		private final Project myProject;
+		private final List<GitRepository> myRepositories;
+		private final String myBranchName;
+
+		public CheckoutWithRebaseAction(@NotNull Project project, @NotNull List<GitRepository> repositories, @NotNull String branchName)
+		{
+			super("Checkout with Rebase", "Checkout the given branch, and rebase it on current branch in one step, " +
+					"just like `git rebase " + branchName + " HEAD would do.", null);
+			myProject = project;
+			myRepositories = repositories;
+			myBranchName = branchName;
+		}
+
+		@Override
+		public void actionPerformed(AnActionEvent e)
+		{
+			GitBrancher brancher = ServiceManager.getService(myProject, GitBrancher.class);
+			brancher.rebaseOnCurrent(myRepositories, myBranchName);
+			reportUsage("git.branch.checkout.with.rebase");
 		}
 	}
 }

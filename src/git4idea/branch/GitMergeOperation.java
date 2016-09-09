@@ -40,7 +40,6 @@ import com.intellij.openapi.vcs.changes.Change;
 import com.intellij.openapi.vcs.changes.ChangeListManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ui.UIUtil;
-import git4idea.GitPlatformFacade;
 import git4idea.GitUtil;
 import git4idea.commands.Git;
 import git4idea.commands.GitCommandResult;
@@ -49,6 +48,7 @@ import git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector;
 import git4idea.commands.GitMessageWithFilesDetector;
 import git4idea.commands.GitSimpleEventDetector;
 import git4idea.commands.GitUntrackedFilesOverwrittenByOperationDetector;
+import git4idea.config.GitVcsSettings;
 import git4idea.merge.GitMergeCommittingConflictResolver;
 import git4idea.merge.GitMerger;
 import git4idea.repo.GitRepository;
@@ -66,28 +66,23 @@ class GitMergeOperation extends GitBranchOperation
 	@NotNull
 	private final String myBranchToMerge;
 	private final GitBrancher.DeleteOnMergeOption myDeleteOnMerge;
-	@NotNull
-	private final Map<GitRepository, String> myCurrentRevisionsBeforeMerge;
 
 	// true in value, if we've stashed local changes before merge and will need to unstash after resolving conflicts.
 	@NotNull
-	private final Map<GitRepository, Boolean> myConflictedRepositories = new HashMap<GitRepository, Boolean>();
+	private final Map<GitRepository, Boolean> myConflictedRepositories = new HashMap<>();
 	private GitPreservingProcess myPreservingProcess;
 
 	GitMergeOperation(@NotNull Project project,
-			GitPlatformFacade facade,
 			@NotNull Git git,
 			@NotNull GitBranchUiHandler uiHandler,
 			@NotNull Collection<GitRepository> repositories,
 			@NotNull String branchToMerge,
-			GitBrancher.DeleteOnMergeOption deleteOnMerge,
-			@NotNull Map<GitRepository, String> currentRevisionsBeforeMerge)
+			GitBrancher.DeleteOnMergeOption deleteOnMerge)
 	{
-		super(project, facade, git, uiHandler, repositories);
+		super(project, git, uiHandler, repositories);
 		myBranchToMerge = branchToMerge;
 		myDeleteOnMerge = deleteOnMerge;
-		myCurrentRevisionsBeforeMerge = currentRevisionsBeforeMerge;
-		myChangeListManager = myFacade.getChangeListManager(myProject);
+		myChangeListManager = ChangeListManager.getInstance(myProject);
 	}
 
 	@Override
@@ -106,16 +101,14 @@ class GitMergeOperation extends GitBranchOperation
 				LOG.info("next repository: " + repository);
 
 				VirtualFile root = repository.getRoot();
-				GitLocalChangesWouldBeOverwrittenDetector localChangesDetector = new GitLocalChangesWouldBeOverwrittenDetector(root,
-						GitLocalChangesWouldBeOverwrittenDetector.Operation.MERGE);
+				GitLocalChangesWouldBeOverwrittenDetector localChangesDetector = new GitLocalChangesWouldBeOverwrittenDetector(root, GitLocalChangesWouldBeOverwrittenDetector.Operation.MERGE);
 				GitSimpleEventDetector unmergedFiles = new GitSimpleEventDetector(GitSimpleEventDetector.Event.UNMERGED_PREVENTING_MERGE);
-				GitUntrackedFilesOverwrittenByOperationDetector untrackedOverwrittenByMerge = new GitUntrackedFilesOverwrittenByOperationDetector
-						(root);
+				GitUntrackedFilesOverwrittenByOperationDetector untrackedOverwrittenByMerge = new GitUntrackedFilesOverwrittenByOperationDetector(root);
 				GitSimpleEventDetector mergeConflict = new GitSimpleEventDetector(GitSimpleEventDetector.Event.MERGE_CONFLICT);
 				GitSimpleEventDetector alreadyUpToDateDetector = new GitSimpleEventDetector(GitSimpleEventDetector.Event.ALREADY_UP_TO_DATE);
 
-				GitCommandResult result = myGit.merge(repository, myBranchToMerge, Collections.<String>emptyList(), localChangesDetector,
-						unmergedFiles, untrackedOverwrittenByMerge, mergeConflict, alreadyUpToDateDetector);
+				GitCommandResult result = myGit.merge(repository, myBranchToMerge, Collections.<String>emptyList(), localChangesDetector, unmergedFiles, untrackedOverwrittenByMerge, mergeConflict,
+						alreadyUpToDateDetector);
 				if(result.success())
 				{
 					LOG.info("Merged successfully");
@@ -211,7 +204,7 @@ class GitMergeOperation extends GitBranchOperation
 					public void run()
 					{
 						GitBrancher brancher = ServiceManager.getService(myProject, GitBrancher.class);
-						brancher.deleteBranch(myBranchToMerge, new ArrayList<GitRepository>(getRepositories()));
+						brancher.deleteBranch(myBranchToMerge, new ArrayList<>(getRepositories()));
 					}
 				});
 				break;
@@ -234,11 +227,10 @@ class GitMergeOperation extends GitBranchOperation
 		return true;
 	}
 
-	private boolean proposeSmartMergePerformAndNotify(@NotNull GitRepository repository,
-			@NotNull GitMessageWithFilesDetector localChangesOverwrittenByMerge)
+	private boolean proposeSmartMergePerformAndNotify(@NotNull GitRepository repository, @NotNull GitMessageWithFilesDetector localChangesOverwrittenByMerge)
 	{
-		Pair<List<GitRepository>, List<Change>> conflictingRepositoriesAndAffectedChanges = getConflictingRepositoriesAndAffectedChanges(repository,
-				localChangesOverwrittenByMerge, myCurrentHeads.get(repository), myBranchToMerge);
+		Pair<List<GitRepository>, List<Change>> conflictingRepositoriesAndAffectedChanges = getConflictingRepositoriesAndAffectedChanges(repository, localChangesOverwrittenByMerge,
+				myCurrentHeads.get(repository), myBranchToMerge);
 		List<GitRepository> allConflictingRepositories = conflictingRepositoriesAndAffectedChanges.getFirst();
 		List<Change> affectedChanges = conflictingRepositoriesAndAffectedChanges.getSecond();
 
@@ -266,8 +258,8 @@ class GitMergeOperation extends GitBranchOperation
 	private boolean doSmartMerge(@NotNull final Collection<GitRepository> repositories)
 	{
 		final AtomicBoolean success = new AtomicBoolean();
-		myPreservingProcess = new GitPreservingProcess(myProject, myFacade, myGit, repositories, "merge", myBranchToMerge, getIndicator(),
-				new Runnable()
+		myPreservingProcess = new GitPreservingProcess(myProject, myGit, GitUtil.getRootsFromRepositories(repositories), "merge", myBranchToMerge, GitVcsSettings.UpdateChangesPolicy.STASH,
+				getIndicator(), new Runnable()
 		{
 			@Override
 			public void run()
@@ -334,9 +326,9 @@ class GitMergeOperation extends GitBranchOperation
 	protected void rollback()
 	{
 		LOG.info("starting rollback...");
-		Collection<GitRepository> repositoriesForSmartRollback = new ArrayList<GitRepository>();
-		Collection<GitRepository> repositoriesForSimpleRollback = new ArrayList<GitRepository>();
-		Collection<GitRepository> repositoriesForMergeRollback = new ArrayList<GitRepository>();
+		Collection<GitRepository> repositoriesForSmartRollback = new ArrayList<>();
+		Collection<GitRepository> repositoriesForSimpleRollback = new ArrayList<>();
+		Collection<GitRepository> repositoriesForMergeRollback = new ArrayList<>();
 		for(GitRepository repository : getSuccessfulRepositories())
 		{
 			if(myConflictedRepositories.containsKey(repository))
@@ -380,8 +372,8 @@ class GitMergeOperation extends GitBranchOperation
 	{
 		LOG.info("Starting smart rollback...");
 		final GitCompoundResult result = new GitCompoundResult(myProject);
-		GitPreservingProcess preservingProcess = new GitPreservingProcess(myProject, myFacade, myGit, repositories, "merge", myBranchToMerge,
-				getIndicator(), new Runnable()
+		Collection<VirtualFile> roots = GitUtil.getRootsFromRepositories(repositories);
+		GitPreservingProcess preservingProcess = new GitPreservingProcess(myProject, myGit, roots, "merge", myBranchToMerge, GitVcsSettings.UpdateChangesPolicy.STASH, getIndicator(), new Runnable()
 		{
 			@Override
 			public void run()
@@ -400,7 +392,7 @@ class GitMergeOperation extends GitBranchOperation
 	@NotNull
 	private GitCommandResult rollback(@NotNull GitRepository repository)
 	{
-		return myGit.reset(repository, GitResetMode.HARD, myCurrentRevisionsBeforeMerge.get(repository));
+		return myGit.reset(repository, GitResetMode.HARD, getInitialRevision(repository));
 	}
 
 	@NotNull
@@ -452,15 +444,15 @@ class GitMergeOperation extends GitBranchOperation
 	{
 		public MyMergeConflictResolver()
 		{
-			super(GitMergeOperation.this.myProject, myGit, new GitMerger(GitMergeOperation.this.myProject),
-					GitUtil.getRootsFromRepositories(GitMergeOperation.this.myConflictedRepositories.keySet()), new Params(), true);
+			super(GitMergeOperation.this.myProject, myGit, new GitMerger(GitMergeOperation.this.myProject), GitUtil.getRootsFromRepositories(GitMergeOperation.this.myConflictedRepositories.keySet())
+					, new Params(), true);
 		}
 
 		@Override
 		protected void notifyUnresolvedRemain()
 		{
-			VcsNotifier.getInstance(myProject).notifyImportantWarning("Merged branch " + myBranchToMerge + " with conflicts",
-					"Unresolved conflicts remain in the project. <a href='resolve'>Resolve now.</a>", getResolveLinkListener());
+			VcsNotifier.getInstance(myProject).notifyImportantWarning("Merged branch " + myBranchToMerge + " with conflicts", "Unresolved conflicts remain in the project. <a href='resolve'>Resolve " +
+					"now.</a>", getResolveLinkListener());
 		}
 	}
 
@@ -472,7 +464,7 @@ class GitMergeOperation extends GitBranchOperation
 			if(event.getEventType() == HyperlinkEvent.EventType.ACTIVATED && event.getDescription().equalsIgnoreCase("delete"))
 			{
 				GitBrancher brancher = ServiceManager.getService(myProject, GitBrancher.class);
-				brancher.deleteBranch(myBranchToMerge, new ArrayList<GitRepository>(getRepositories()));
+				brancher.deleteBranch(myBranchToMerge, new ArrayList<>(getRepositories()));
 			}
 		}
 	}

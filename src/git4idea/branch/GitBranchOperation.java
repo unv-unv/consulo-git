@@ -15,7 +15,9 @@
  */
 package git4idea.branch;
 
+import static com.intellij.openapi.application.ModalityState.defaultModalityState;
 import static com.intellij.openapi.util.text.StringUtil.pluralize;
+import static com.intellij.util.ObjectUtils.chooseNotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,8 +28,11 @@ import java.util.Set;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import com.google.common.collect.Maps;
 import com.intellij.dvcs.DvcsUtil;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
@@ -35,12 +40,10 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vcs.changes.Change;
+import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.Function;
-import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.containers.MultiMap;
-import git4idea.GitLocalBranch;
-import git4idea.GitPlatformFacade;
 import git4idea.GitUtil;
 import git4idea.commands.Git;
 import git4idea.commands.GitMessageWithFilesDetector;
@@ -59,8 +62,6 @@ abstract class GitBranchOperation
 	@NotNull
 	protected final Project myProject;
 	@NotNull
-	protected final GitPlatformFacade myFacade;
-	@NotNull
 	protected final Git myGit;
 	@NotNull
 	protected final GitBranchUiHandler myUiHandler;
@@ -68,36 +69,30 @@ abstract class GitBranchOperation
 	private final Collection<GitRepository> myRepositories;
 	@NotNull
 	protected final Map<GitRepository, String> myCurrentHeads;
+	@NotNull
+	protected final Map<GitRepository, String> myInitialRevisions;
+	@NotNull
 	private final GitVcsSettings mySettings;
 
 	@NotNull
 	private final Collection<GitRepository> mySuccessfulRepositories;
 	@NotNull
+	private final Collection<GitRepository> mySkippedRepositories;
+	@NotNull
 	private final Collection<GitRepository> myRemainingRepositories;
 
-	protected GitBranchOperation(@NotNull Project project,
-			@NotNull GitPlatformFacade facade,
-			@NotNull Git git,
-			@NotNull GitBranchUiHandler uiHandler,
-			@NotNull Collection<GitRepository> repositories)
+	protected GitBranchOperation(@NotNull Project project, @NotNull Git git, @NotNull GitBranchUiHandler uiHandler, @NotNull Collection<GitRepository> repositories)
 	{
 		myProject = project;
-		myFacade = facade;
 		myGit = git;
 		myUiHandler = uiHandler;
 		myRepositories = repositories;
-		myCurrentHeads = ContainerUtil.map2Map(repositories, new Function<GitRepository, Pair<GitRepository, String>>()
-		{
-			@Override
-			public Pair<GitRepository, String> fun(GitRepository repository)
-			{
-				GitLocalBranch currentBranch = repository.getCurrentBranch();
-				return Pair.create(repository, currentBranch == null ? repository.getCurrentRevision() : currentBranch.getName());
-			}
-		});
-		mySuccessfulRepositories = new ArrayList<GitRepository>();
-		myRemainingRepositories = new ArrayList<GitRepository>(myRepositories);
-		mySettings = myFacade.getSettings(myProject);
+		myCurrentHeads = Maps.toMap(repositories, repo -> chooseNotNull(repo.getCurrentBranchName(), repo.getCurrentRevision()));
+		myInitialRevisions = Maps.toMap(repositories, GitRepository::getCurrentRevision);
+		mySuccessfulRepositories = new ArrayList<>();
+		mySkippedRepositories = new ArrayList<>();
+		myRemainingRepositories = new ArrayList<>(myRepositories);
+		mySettings = GitVcsSettings.getInstance(myProject);
 	}
 
 	protected abstract void execute();
@@ -148,11 +143,28 @@ abstract class GitBranchOperation
 	}
 
 	/**
+	 * Marks repositories as successful, i.e. they won't be handled again.
+	 */
+	protected void markSkip(GitRepository... repositories)
+	{
+		for(GitRepository repository : repositories)
+		{
+			mySkippedRepositories.add(repository);
+			myRemainingRepositories.remove(repository);
+		}
+	}
+
+	/**
 	 * @return true if the operation has already succeeded in at least one of repositories.
 	 */
 	protected boolean wereSuccessful()
 	{
 		return !mySuccessfulRepositories.isEmpty();
+	}
+
+	protected boolean wereSkipped()
+	{
+		return !mySkippedRepositories.isEmpty();
 	}
 
 	@NotNull
@@ -162,16 +174,15 @@ abstract class GitBranchOperation
 	}
 
 	@NotNull
+	protected Collection<GitRepository> getSkippedRepositories()
+	{
+		return mySkippedRepositories;
+	}
+
+	@NotNull
 	protected String successfulRepositoriesJoined()
 	{
-		return StringUtil.join(mySuccessfulRepositories, new Function<GitRepository, String>()
-		{
-			@Override
-			public String fun(GitRepository repository)
-			{
-				return repository.getPresentableUrl();
-			}
-		}, "<br/>");
+		return GitUtil.joinToHtml(mySuccessfulRepositories);
 	}
 
 	@NotNull
@@ -189,7 +200,7 @@ abstract class GitBranchOperation
 	@NotNull
 	protected List<GitRepository> getRemainingRepositoriesExceptGiven(@NotNull final GitRepository currentRepository)
 	{
-		List<GitRepository> repositories = new ArrayList<GitRepository>(myRemainingRepositories);
+		List<GitRepository> repositories = new ArrayList<>(myRemainingRepositories);
 		repositories.remove(currentRepository);
 		return repositories;
 	}
@@ -199,14 +210,14 @@ abstract class GitBranchOperation
 		VcsNotifier.getInstance(myProject).notifySuccess(message);
 	}
 
-	protected final void notifySuccess()
+	protected void notifySuccess()
 	{
 		notifySuccess(getSuccessMessage());
 	}
 
 	protected final void saveAllDocuments()
 	{
-		myFacade.saveAllDocuments();
+		ApplicationManager.getApplication().invokeAndWait(() -> FileDocumentManager.getInstance().saveAllDocuments(), defaultModalityState());
 	}
 
 	/**
@@ -280,7 +291,15 @@ abstract class GitBranchOperation
 		if(getRepositories().size() == 1)
 		{
 			GitRepository repository = myRepositories.iterator().next();
-			mySettings.setRecentBranchOfRepository(repository.getRoot().getPath(), myCurrentHeads.get(repository));
+			String currentHead = myCurrentHeads.get(repository);
+			if(currentHead != null)
+			{
+				mySettings.setRecentBranchOfRepository(repository.getRoot().getPath(), currentHead);
+			}
+			else
+			{
+				LOG.error("Current head is not known for " + repository.getRoot().getPath());
+			}
 		}
 		else
 		{
@@ -290,6 +309,15 @@ abstract class GitBranchOperation
 				mySettings.setRecentCommonBranch(recentCommonBranch);
 			}
 		}
+	}
+
+	/**
+	 * Returns the hash of the revision which was current before the start of this GitBranchOperation.
+	 */
+	@NotNull
+	protected String getInitialRevision(@NotNull GitRepository repository)
+	{
+		return myInitialRevisions.get(repository);
 	}
 
 	@Nullable
@@ -331,7 +359,7 @@ abstract class GitBranchOperation
 	{
 		// marking all files dirty, because sometimes FileWatcher is unable to process such a large set of changes that can happen during
 		// checkout on a large repository: IDEA-89944
-		myFacade.hardRefresh(repository.getRoot());
+		VfsUtil.markDirtyAndRefresh(false, true, false, repository.getRoot());
 	}
 
 	protected void fatalLocalChangesError(@NotNull String reference)
@@ -381,11 +409,9 @@ abstract class GitBranchOperation
 	 * local changes.
 	 */
 	@NotNull
-	Map<GitRepository, List<Change>> collectLocalChangesConflictingWithBranch(@NotNull Collection<GitRepository> repositories,
-			@NotNull String currentBranch,
-			@NotNull String otherBranch)
+	Map<GitRepository, List<Change>> collectLocalChangesConflictingWithBranch(@NotNull Collection<GitRepository> repositories, @NotNull String currentBranch, @NotNull String otherBranch)
 	{
-		Map<GitRepository, List<Change>> changes = new HashMap<GitRepository, List<Change>>();
+		Map<GitRepository, List<Change>> changes = new HashMap<>();
 		for(GitRepository repository : repositories)
 		{
 			try
@@ -427,15 +453,14 @@ abstract class GitBranchOperation
 	{
 
 		// get changes overwritten by checkout from the error message captured from Git
-		List<Change> affectedChanges = GitUtil.findLocalChangesForPaths(myProject, currentRepository.getRoot(),
-				localChangesOverwrittenBy.getRelativeFilePaths(), true);
+		List<Change> affectedChanges = GitUtil.findLocalChangesForPaths(myProject, currentRepository.getRoot(), localChangesOverwrittenBy.getRelativeFilePaths(), true);
 		// get all other conflicting changes
 		// get changes in all other repositories (except those which already have succeeded) to avoid multiple dialogs proposing smart checkout
-		Map<GitRepository, List<Change>> conflictingChangesInRepositories = collectLocalChangesConflictingWithBranch
-				(getRemainingRepositoriesExceptGiven(currentRepository), currentBranch, nextBranch);
+		Map<GitRepository, List<Change>> conflictingChangesInRepositories = collectLocalChangesConflictingWithBranch(getRemainingRepositoriesExceptGiven(currentRepository), currentBranch,
+				nextBranch);
 
 		Set<GitRepository> otherProblematicRepositories = conflictingChangesInRepositories.keySet();
-		List<GitRepository> allConflictingRepositories = new ArrayList<GitRepository>(otherProblematicRepositories);
+		List<GitRepository> allConflictingRepositories = new ArrayList<>(otherProblematicRepositories);
 		allConflictingRepositories.add(currentRepository);
 		for(List<Change> changes : conflictingChangesInRepositories.values())
 		{
@@ -482,5 +507,4 @@ abstract class GitBranchOperation
 		}
 		return result;
 	}
-
 }

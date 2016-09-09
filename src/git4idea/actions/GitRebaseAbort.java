@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2009 JetBrains s.r.o.
+ * Copyright 2000-2014 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,77 +15,30 @@
  */
 package git4idea.actions;
 
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vfs.VirtualFile;
-import git4idea.commands.GitCommand;
-import git4idea.commands.GitHandlerUtil;
-import git4idea.commands.GitSimpleHandler;
-import git4idea.i18n.GitBundle;
-import git4idea.rebase.GitRebaseActionDialog;
-import git4idea.rebase.GitRebaseUtils;
 import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.project.Project;
+import git4idea.rebase.GitRebaseUtils;
+import git4idea.repo.GitRepository;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+public class GitRebaseAbort extends GitAbstractRebaseAction
+{
+	@NotNull
+	@Override
+	protected String getProgressTitle()
+	{
+		return "Aborting Rebase Process...";
+	}
 
-/**
- * Rebase abort action
- */
-public class GitRebaseAbort extends GitRepositoryAction {
+	@Override
+	protected void performActionForProject(@NotNull Project project, @NotNull ProgressIndicator indicator)
+	{
+		GitRebaseUtils.abort(project, indicator);
+	}
 
-  /**
-   * {@inheritDoc}
-   */
-  protected void perform(@NotNull Project project,
-                         @NotNull List<VirtualFile> gitRoots,
-                         @NotNull VirtualFile defaultRoot,
-                         Set<VirtualFile> affectedRoots,
-                         List<VcsException> exceptions) throws VcsException {
-    // remote all roots where there are no rebase in progress
-    for (Iterator<VirtualFile> i = gitRoots.iterator(); i.hasNext();) {
-      if (!GitRebaseUtils.isRebaseInTheProgress(i.next())) {
-        i.remove();
-      }
-    }
-    if (gitRoots.size() == 0) {
-      Messages.showErrorDialog(project, GitBundle.message("rebase.action.no.root"), GitBundle.message("rebase.action.error"));
-      return;
-    }
-    final VirtualFile root;
-    if (gitRoots.size() == 1) {
-      root = gitRoots.get(0);
-    }
-    else {
-      if (!gitRoots.contains(defaultRoot)) {
-        defaultRoot = gitRoots.get(0);
-      }
-      GitRebaseActionDialog d = new GitRebaseActionDialog(project, getActionName(), gitRoots, defaultRoot);
-      d.show();
-      root = d.selectRoot();
-      if (root == null) {
-        return;
-      }
-    }
-    affectedRoots.add(root);
-    GitSimpleHandler h = new GitSimpleHandler(project, root, GitCommand.REBASE);
-    h.addParameters("--abort");
-    GitHandlerUtil.doSynchronously(h, getActionName(), h.printableCommandLine());
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @NotNull
-  protected String getActionName() {
-    return GitBundle.message("rebase.abort.action.name");
-  }
-
-  @Override
-  protected boolean isEnabled(AnActionEvent e) {
-    return super.isEnabled(e) && isRebasing(e);
-  }
+	@Override
+	protected void performActionForRepository(@NotNull Project project, @NotNull GitRepository repository, @NotNull ProgressIndicator indicator)
+	{
+		GitRebaseUtils.abort(project, repository, indicator);
+	}
 }

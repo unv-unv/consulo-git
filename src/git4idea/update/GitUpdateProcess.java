@@ -21,7 +21,6 @@ import static git4idea.util.GitUIUtil.notifyImportantError;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 import org.jetbrains.annotations.NotNull;
@@ -33,7 +32,8 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.EmptyProgressIndicator;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Clock;
+import com.intellij.openapi.util.Computable;
+import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.changes.Change;
@@ -41,28 +41,24 @@ import com.intellij.openapi.vcs.changes.ChangeListManager;
 import com.intellij.openapi.vcs.impl.LocalChangesUnderRoots;
 import com.intellij.openapi.vcs.update.UpdatedFiles;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.Consumer;
 import com.intellij.util.Function;
 import com.intellij.util.ObjectUtils;
 import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.continuation.ContinuationContext;
-import com.intellij.util.continuation.ContinuationFinalTasksInserter;
-import com.intellij.util.continuation.TaskDescriptor;
-import com.intellij.util.continuation.Where;
-import com.intellij.util.text.DateFormatUtil;
 import git4idea.GitLocalBranch;
-import git4idea.GitPlatformFacade;
 import git4idea.GitUtil;
 import git4idea.branch.GitBranchPair;
 import git4idea.branch.GitBranchUtil;
 import git4idea.commands.Git;
+import git4idea.config.GitVcsSettings;
+import git4idea.config.GitVersionSpecialty;
+import git4idea.config.UpdateMethod;
 import git4idea.merge.GitConflictResolver;
 import git4idea.merge.GitMergeCommittingConflictResolver;
 import git4idea.merge.GitMerger;
 import git4idea.rebase.GitRebaser;
 import git4idea.repo.GitBranchTrackInfo;
 import git4idea.repo.GitRepository;
-import git4idea.stash.GitChangesSaver;
+import git4idea.util.GitPreservingProcess;
 
 /**
  * Handles update process (pull via merge or rebase) for several roots.
@@ -81,23 +77,13 @@ public class GitUpdateProcess
 	private final Collection<GitRepository> myRepositories;
 	private final boolean myCheckRebaseOverMergeProblem;
 	private final UpdatedFiles myUpdatedFiles;
+	@NotNull
 	private final ProgressIndicator myProgressIndicator;
 	private final GitMerger myMerger;
-	private final GitChangesSaver mySaver;
 
-	private final Map<VirtualFile, GitBranchPair> myTrackedBranches = new HashMap<VirtualFile, GitBranchPair>();
-	private GitUpdateResult myResult;
-	private final Collection<VirtualFile> myRootsToSave;
-
-	public enum UpdateMethod
-	{
-		MERGE,
-		REBASE,
-		READ_FROM_SETTINGS
-	}
+	private final Map<VirtualFile, GitBranchPair> myTrackedBranches = new HashMap<>();
 
 	public GitUpdateProcess(@NotNull Project project,
-			@NotNull GitPlatformFacade platformFacade,
 			@Nullable ProgressIndicator progressIndicator,
 			@NotNull Collection<GitRepository> repositories,
 			@NotNull UpdatedFiles updatedFiles,
@@ -110,15 +96,12 @@ public class GitUpdateProcess
 		myUpdatedFiles = updatedFiles;
 		myProgressIndicator = progressIndicator == null ? new EmptyProgressIndicator() : progressIndicator;
 		myMerger = new GitMerger(myProject);
-		mySaver = GitChangesSaver.getSaver(myProject, platformFacade, myGit, myProgressIndicator, "Uncommitted changes before update operation at "
-				+ DateFormatUtil.formatDateTime(Clock.getTime()));
-		myRootsToSave = new HashSet<VirtualFile>(1);
 	}
 
 	/**
 	 * Checks if update is possible, saves local changes and updates all roots.
 	 * In case of error shows notification and returns false. If update completes without errors, returns true.
-	 * <p/>
+	 * <p>
 	 * Perform update on all roots.
 	 * 0. Blocks reloading project on external change, saving/syncing on frame deactivation.
 	 * 1. Checks if update is possible (rebase/merge in progress, no tracked branches...) and provides merge dialog to solve problems.
@@ -151,30 +134,22 @@ public class GitUpdateProcess
 			return GitUpdateResult.NOT_READY;
 		}
 
-		GitComplexProcess.Operation updateOperation = new GitComplexProcess.Operation()
+		AccessToken token = DvcsUtil.workingTreeChangeStarted(myProject);
+		GitUpdateResult result;
+		try
 		{
-			@Override
-			public void run(ContinuationContext continuationContext)
-			{
-				AccessToken token = DvcsUtil.workingTreeChangeStarted(myProject);
-				try
-				{
-					myResult = updateImpl(updateMethod, continuationContext);
-				}
-				finally
-				{
-					DvcsUtil.workingTreeChangeFinished(myProject, token);
-				}
-			}
-		};
-		GitComplexProcess.execute(myProject, "update", updateOperation);
-
+			result = updateImpl(updateMethod);
+		}
+		finally
+		{
+			DvcsUtil.workingTreeChangeFinished(myProject, token);
+		}
 		myProgressIndicator.setText(oldText);
-		return myResult;
+		return result;
 	}
 
 	@NotNull
-	private GitUpdateResult updateImpl(@NotNull UpdateMethod updateMethod, ContinuationContext context)
+	private GitUpdateResult updateImpl(@NotNull UpdateMethod updateMethod)
 	{
 		Map<VirtualFile, GitUpdater> updaters;
 		try
@@ -222,6 +197,7 @@ public class GitUpdateProcess
 		}
 
 		// save local changes if needed (update via merge may perform without saving).
+		final Collection<VirtualFile> myRootsToSave = ContainerUtil.newArrayList();
 		LOG.info("updateImpl: identifying if save is needed...");
 		for(Map.Entry<VirtualFile, GitUpdater> entry : updaters.entrySet())
 		{
@@ -235,62 +211,52 @@ public class GitUpdateProcess
 		}
 
 		LOG.info("updateImpl: saving local changes...");
-		try
-		{
-			mySaver.saveLocalChanges(myRootsToSave);
-		}
-		catch(VcsException e)
-		{
-			LOG.info("Couldn't save local changes", e);
-			notifyError(myProject, "Git update failed", "Tried to save uncommitted changes in " + mySaver.getSaverName() + " before update, " +
-					"but failed with an error.<br/>" +
-					"Update was cancelled.", true, e);
-			return GitUpdateResult.ERROR;
-		}
+		final Ref<Boolean> incomplete = Ref.create(false);
+		final Ref<GitUpdateResult> compoundResult = Ref.create();
+		final Map<VirtualFile, GitUpdater> finalUpdaters = updaters;
 
-		// update each root
-		LOG.info("updateImpl: updating...");
-		boolean incomplete = false;
-		GitUpdateResult compoundResult = null;
-		VirtualFile currentlyUpdatedRoot = null;
-		try
+		new GitPreservingProcess(myProject, myGit, myRootsToSave, "Update", "Remote", GitVcsSettings.getInstance(myProject).updateChangesPolicy(), myProgressIndicator, new Runnable()
 		{
-			for(Map.Entry<VirtualFile, GitUpdater> entry : updaters.entrySet())
+			@Override
+			public void run()
 			{
-				currentlyUpdatedRoot = entry.getKey();
-				GitUpdater updater = entry.getValue();
-				GitUpdateResult res = updater.update();
-				LOG.info("updating root " + currentlyUpdatedRoot + " finished: " + res);
-				if(res == GitUpdateResult.INCOMPLETE)
+				LOG.info("updateImpl: updating...");
+				VirtualFile currentlyUpdatedRoot = null;
+				try
 				{
-					incomplete = true;
+					for(Map.Entry<VirtualFile, GitUpdater> entry : finalUpdaters.entrySet())
+					{
+						currentlyUpdatedRoot = entry.getKey();
+						GitUpdater updater = entry.getValue();
+						GitUpdateResult res = updater.update();
+						LOG.info("updating root " + currentlyUpdatedRoot + " finished: " + res);
+						if(res == GitUpdateResult.INCOMPLETE)
+						{
+							incomplete.set(true);
+						}
+						compoundResult.set(joinResults(compoundResult.get(), res));
+					}
 				}
-				compoundResult = joinResults(compoundResult, res);
+				catch(VcsException e)
+				{
+					String rootName = (currentlyUpdatedRoot == null) ? "" : currentlyUpdatedRoot.getName();
+					LOG.info("Error updating changes for root " + currentlyUpdatedRoot, e);
+					notifyImportantError(myProject, "Error updating " + rootName, "Updating " + rootName + " failed with an error: " + e.getLocalizedMessage());
+				}
 			}
-		}
-		catch(VcsException e)
+		}).execute(new Computable<Boolean>()
 		{
-			String rootName = (currentlyUpdatedRoot == null) ? "" : currentlyUpdatedRoot.getName();
-			LOG.info("Error updating changes for root " + currentlyUpdatedRoot, e);
-			notifyImportantError(myProject, "Error updating " + rootName, "Updating " + rootName + " failed with an error: " + e.getLocalizedMessage
-					());
-		}
-		finally
-		{
-			// Note: compoundResult normally should not be null, because the updaters map was checked for non-emptiness.
-			// But if updater.update() fails with exception for the first root, then the value would not be assigned.
-			// In this case we don't restore local changes either, because update failed.
-			if(incomplete || compoundResult == null || !compoundResult.isSuccess())
+			@Override
+			public Boolean compute()
 			{
-				mySaver.notifyLocalChangesAreNotRestored();
+				// Note: compoundResult normally should not be null, because the updaters map was checked for non-emptiness.
+				// But if updater.update() fails with exception for the first root, then the value would not be assigned.
+				// In this case we don't restore local changes either, because update failed.
+				return !incomplete.get() && !compoundResult.isNull() && compoundResult.get().isSuccess();
 			}
-			else
-			{
-				LOG.info("updateImpl: restoring local changes...");
-				restoreLocalChanges(context);
-			}
-		}
-		return compoundResult;
+		});
+		// GitPreservingProcess#save may fail due index.lock presence
+		return ObjectUtils.notNull(compoundResult.get(), GitUpdateResult.ERROR);
 	}
 
 	@NotNull
@@ -316,9 +282,8 @@ public class GitUpdateProcess
 	@NotNull
 	private Map<VirtualFile, GitUpdater> tryFastForwardMergeForRebaseUpdaters(@NotNull Map<VirtualFile, GitUpdater> updaters)
 	{
-		Map<VirtualFile, GitUpdater> modifiedUpdaters = new HashMap<VirtualFile, GitUpdater>();
-		Map<VirtualFile, Collection<Change>> changesUnderRoots = new LocalChangesUnderRoots(ChangeListManager.getInstance(myProject),
-				ProjectLevelVcsManager.getInstance(myProject)).
+		Map<VirtualFile, GitUpdater> modifiedUpdaters = new HashMap<>();
+		Map<VirtualFile, Collection<Change>> changesUnderRoots = new LocalChangesUnderRoots(ChangeListManager.getInstance(myProject), ProjectLevelVcsManager.getInstance(myProject)).
 				getChangesUnderRoots(updaters.keySet());
 		for(Map.Entry<VirtualFile, GitUpdater> updaterEntry : updaters.entrySet())
 		{
@@ -342,25 +307,12 @@ public class GitUpdateProcess
 	@NotNull
 	private Map<VirtualFile, GitUpdater> defineUpdaters(@NotNull UpdateMethod updateMethod) throws VcsException
 	{
-		final Map<VirtualFile, GitUpdater> updaters = new HashMap<VirtualFile, GitUpdater>();
+		final Map<VirtualFile, GitUpdater> updaters = new HashMap<>();
 		LOG.info("updateImpl: defining updaters...");
 		for(GitRepository repository : myRepositories)
 		{
 			VirtualFile root = repository.getRoot();
-			final GitUpdater updater;
-			if(updateMethod == UpdateMethod.MERGE)
-			{
-				updater = new GitMergeUpdater(myProject, myGit, root, myTrackedBranches, myProgressIndicator, myUpdatedFiles);
-			}
-			else if(updateMethod == UpdateMethod.REBASE)
-			{
-				updater = new GitRebaseUpdater(myProject, myGit, root, myTrackedBranches, myProgressIndicator, myUpdatedFiles);
-			}
-			else
-			{
-				updater = GitUpdater.getUpdater(myProject, myGit, myTrackedBranches, root, myProgressIndicator, myUpdatedFiles);
-			}
-
+			GitUpdater updater = GitUpdater.getUpdater(myProject, myGit, myTrackedBranches, root, myProgressIndicator, myUpdatedFiles, updateMethod);
 			if(updater.isUpdateNeeded())
 			{
 				updaters.put(root, updater);
@@ -378,35 +330,6 @@ public class GitUpdateProcess
 			return result;
 		}
 		return compoundResult.join(result);
-	}
-
-	private void restoreLocalChanges(ContinuationContext context)
-	{
-		context.addExceptionHandler(VcsException.class, new Consumer<VcsException>()
-		{
-			@Override
-			public void consume(VcsException e)
-			{
-				LOG.info("Couldn't restore local changes after update", e);
-				notifyImportantError(myProject, "Couldn't restore local changes after update", "Restoring changes saved before update failed with an" +
-						" error.<br/>" + e.getLocalizedMessage());
-			}
-		});
-		// try restore changes under all circumstances
-		final ContinuationFinalTasksInserter finalTasksInserter = new ContinuationFinalTasksInserter(context);
-		finalTasksInserter.allNextAreFinal();
-		// !!!! this task is put NEXT, i.e. if unshelve/unstash will be done synchronously or scheduled on context,
-		// it is unimportant -> files will be refreshed after
-		context.next(new TaskDescriptor("Refresh local files", Where.POOLED)
-		{
-			@Override
-			public void run(ContinuationContext context)
-			{
-				mySaver.refresh();
-			}
-		});
-		mySaver.restoreLocalChanges(context);
-		finalTasksInserter.removeFinalPropertyAdder();
 	}
 
 	// fetch all roots. If an error happens, return false and notify about errors.
@@ -431,8 +354,7 @@ public class GitUpdateProcess
 			if(branch == null)
 			{
 				LOG.info("checkTrackedBranchesConfigured: current branch is null in " + repository);
-				notifyImportantError(myProject, "Can't update: no current branch", "You are in 'detached HEAD' state, " +
-						"which means that you're not on any branch" +
+				notifyImportantError(myProject, "Can't update: no current branch", "You are in 'detached HEAD' state, which means that you're not on any branch" +
 						rootStringIfNeeded(root) +
 						"Checkout a branch to make update possible.");
 				return false;
@@ -442,10 +364,12 @@ public class GitUpdateProcess
 			{
 				final String branchName = branch.getName();
 				LOG.info(String.format("checkTrackedBranchesConfigured: no track info for current branch %s in %s", branch, repository));
+				String recommendedCommand = String.format(GitVersionSpecialty.KNOWS_SET_UPSTREAM_TO.existsIn(repository.getVcs().getVersion()) ? "git branch --set-upstream-to origin/%1$s %1$s" :
+						"git branch --set-upstream %1$s origin/%1$s", branchName);
 				notifyImportantError(myProject, "Can't update: no tracked branch", "No tracked branch configured for branch " + code(branchName) +
 						rootStringIfNeeded(root) +
 						"To make your branch track a remote branch call, for example,<br/>" +
-						"<code>git branch --set-upstream " + branchName + " origin/" + branchName + "</code>");
+						"<code>" + recommendedCommand + "</code>");
 				return false;
 			}
 			myTrackedBranches.put(root, new GitBranchPair(branch, trackInfo.getRemoteBranch()));
@@ -493,8 +417,7 @@ public class GitUpdateProcess
 		GitConflictResolver.Params params = new GitConflictResolver.Params();
 		params.setErrorNotificationTitle("Update was not started");
 		params.setMergeDescription("Unmerged files detected. These conflicts must be resolved before update.");
-		return !new GitMergeCommittingConflictResolver(myProject, myGit, myMerger, GitUtil.getRootsFromRepositories(myRepositories), params,
-				false).merge();
+		return !new GitMergeCommittingConflictResolver(myProject, myGit, myMerger, GitUtil.getRootsFromRepositories(myRepositories), params, false).merge();
 	}
 
 	/**
@@ -516,10 +439,9 @@ public class GitUpdateProcess
 		GitConflictResolver.Params params = new GitConflictResolver.Params();
 		params.setErrorNotificationTitle("Can't update");
 		params.setMergeDescription("You have unfinished rebase process. These conflicts must be resolved before update.");
-		params.setErrorNotificationAdditionalDescription("Then you may <b>continue rebase</b>. <br/> You also may <b>abort rebase</b> to restore the" +
-				" original branch and stop rebasing.");
+		params.setErrorNotificationAdditionalDescription("Then you may <b>continue rebase</b>. <br/> You also may <b>abort rebase</b> to restore the original branch and stop rebasing.");
 		params.setReverse(true);
-		return !new GitConflictResolver(myProject, myGit, ServiceManager.getService(GitPlatformFacade.class), rebasingRoots, params)
+		return !new GitConflictResolver(myProject, myGit, rebasingRoots, params)
 		{
 			@Override
 			protected boolean proceedIfNothingToMerge()

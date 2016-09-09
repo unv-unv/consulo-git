@@ -17,24 +17,23 @@ package git4idea;
 
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import com.intellij.openapi.diagnostic.Logger;
+import org.jetbrains.annotations.Nullable;
 import com.intellij.vcs.log.Hash;
-import com.intellij.vcs.log.impl.HashImpl;
 import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRepository;
 
 /**
  * <p>Represents a Git branch, local or remote.</p>
- * <p/>
+ * <p>
  * <p>Local and remote branches are different in that nature, that remote branch has complex name ("origin/master") containing both
  * the name of the remote and the name of the branch. And while the standard name of the remote branch if origin/master,
  * in certain cases we must operate with the name which the branch has at the remote: "master".</p>
- * <p/>
+ * <p>
  * <p>It contains information about the branch name and the hash it points to.
  * Note that the object (including the hash) is immutable. That means that if branch reference move along, you have to get new instance
  * of the GitBranch object, probably from {@link GitRepository#getBranches()} or {@link git4idea.repo.GitRepository#getCurrentBranch()}.
  * </p>
- * <p/>
+ * <p>
  * <p>GitBranches are equal, if their full names are equal. That means that if two GitBranch objects have different hashes, they
  * are considered equal. But in this case an error if logged, becase it means that one of this GitBranch instances is out-of-date, and
  * it is required to use an {@link GitRepository#update(TrackedTopic...) updated} version.</p>
@@ -51,29 +50,12 @@ public abstract class GitBranch extends GitReference
 	 * @deprecated All usages should be reviewed and substituted with actual GitBranch objects with Hashes retrieved from the GitRepository.
 	 */
 	@Deprecated
-	public static final Hash DUMMY_HASH = HashImpl.build("");
+	@Nullable
+	public static final Hash DUMMY_HASH = null;
 
-	private static final Logger LOG = Logger.getInstance(GitBranch.class);
-
-	@NotNull
-	private final Hash myHash;
-
-	protected GitBranch(@NotNull String name, @NotNull Hash hash)
+	protected GitBranch(@NotNull String name)
 	{
 		super(GitBranchUtil.stripRefsPrefix(name));
-		myHash = hash;
-	}
-
-	/**
-	 * <p>Returns the hash on which this branch is reference to.</p>
-	 * <p/>
-	 * <p>In certain cases (which are to be eliminated in the future) it may be empty,
-	 * if this information wasn't supplied to the GitBranch constructor.</p>
-	 */
-	@NotNull
-	public Hash getHash()
-	{
-		return myHash;
 	}
 
 	/**
@@ -81,60 +63,9 @@ public abstract class GitBranch extends GitReference
 	 */
 	public abstract boolean isRemote();
 
-	@Override
 	@NotNull
 	public String getFullName()
 	{
 		return (isRemote() ? REFS_REMOTES_PREFIX : REFS_HEADS_PREFIX) + myName;
 	}
-
-	@Override
-	public boolean equals(Object o)
-	{
-		if(!super.equals(o))
-		{
-			return false;
-		}
-
-		// Reusing equals from super: only the name is important:
-		// branches are considered equal even if they point to different commits.
-
-    /*
-	  Commenting this for a while, because GitRepository has different update() methods: thus in certain cases only current branch is
-      updated => this branch in the branches collection has different hash.
-      Need either to update everything always, either to have a GitBranches collection in GitRepository and not recreate it.
-
-    // But if equal branches point to different commits (or have different local/remote nature), then it is a programmer bug:
-    // one if GitBranch instances in the calling code is out-of-date.
-    // throwing assertion in that case forcing the programmer to update before comparing.
-    GitBranch that = (GitBranch)o;
-    if (!myHash.equals(that.myHash)) {
-      LOG.error("Branches have equal names, but different hash codes. This: " + toLogString() + ", that: " + that.toLogString());
-    }
-    else if (isRemote() != that.isRemote()) {
-      LOG.error("Branches have equal names, but different local/remote type. This: " + toLogString() + ", that: " + that.toLogString());
-    }
-    */
-
-		return true;
-	}
-
-	@Override
-	public int hashCode()
-	{
-		return super.hashCode();
-	}
-
-	@Override
-	public String toString()
-	{
-		return super.toString();
-	}
-
-	@NotNull
-	public String toLogString()
-	{
-		return String.format("%s:%s:%s", getFullName(), getHash(), isRemote() ? "remote" : "local");
-	}
-
 }

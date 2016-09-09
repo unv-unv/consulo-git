@@ -15,54 +15,67 @@
  */
 package git4idea.commands;
 
+import org.jetbrains.annotations.NotNull;
 import com.intellij.openapi.util.Key;
+import com.intellij.openapi.util.text.StringUtil;
 
 /**
  * @author Kirill Likhodedov
  */
-public class GitSimpleEventDetector implements GitLineHandlerListener {
+public class GitSimpleEventDetector implements GitLineHandlerListener
+{
 
-  private final Event myEvent;
-  private boolean myHappened;
+	@NotNull
+	private final Event myEvent;
+	private boolean myHappened;
 
-  public enum Event {
-    CHERRY_PICK_CONFLICT("fter resolving the conflicts"), // a is uppercase in 1.7.0.5 and lowercase in 1.7.9.2
-    LOCAL_CHANGES_OVERWRITTEN_BY_CHERRY_PICK("would be overwritten by merge"),
-    UNMERGED_PREVENTING_CHECKOUT("you need to resolve your current index first"),
-    UNMERGED_PREVENTING_MERGE("is not possible because you have unmerged files"),
-    BRANCH_NOT_FULLY_MERGED("is not fully merged"),
-    MERGE_CONFLICT("Automatic merge failed; fix conflicts and then commit the result"),
-    MERGE_CONFLICT_ON_UNSTASH("Merge conflict"),
-    ALREADY_UP_TO_DATE("Already up-to-date");
+	public enum Event
+	{
+		CHERRY_PICK_CONFLICT("after resolving the conflicts"),
+		LOCAL_CHANGES_OVERWRITTEN_BY_CHERRY_PICK("would be overwritten by merge"),
+		UNMERGED_PREVENTING_CHECKOUT("you need to resolve your current index first"),
+		UNMERGED_PREVENTING_MERGE("is not possible because you have unmerged files"),
+		BRANCH_NOT_FULLY_MERGED("is not fully merged"),
+		MERGE_CONFLICT("Automatic merge failed; fix conflicts and then commit the result"),
+		MERGE_CONFLICT_ON_UNSTASH("conflict"),
+		ALREADY_UP_TO_DATE("Already up-to-date"),
+		INVALID_REFERENCE("invalid reference:");
 
-    private final String myDetectionString;
+		private final String myDetectionString;
 
-    private Event(String detectionString) {
-      myDetectionString = detectionString;
-    }
-  }
+		Event(@NotNull String detectionString)
+		{
+			myDetectionString = detectionString;
+		}
+	}
 
-  public GitSimpleEventDetector(Event event) {
-    myEvent = event;
-  }
+	public GitSimpleEventDetector(@NotNull Event event)
+	{
+		myEvent = event;
+	}
 
-  @Override
-  public void onLineAvailable(String line, Key outputType) {
-    if (line.contains(myEvent.myDetectionString)) {
-      myHappened = true;
-    }
-  }
+	@Override
+	public void onLineAvailable(@NotNull String line, Key outputType)
+	{
+		if(StringUtil.containsIgnoreCase(line, myEvent.myDetectionString))
+		{
+			myHappened = true;
+		}
+	}
 
-  @Override
-  public void processTerminated(int exitCode) {
-  }
+	@Override
+	public void processTerminated(int exitCode)
+	{
+	}
 
-  @Override
-  public void startFailed(Throwable exception) {
-  }
+	@Override
+	public void startFailed(Throwable exception)
+	{
+	}
 
-  public boolean hasHappened() {
-    return myHappened;
-  }
+	public boolean hasHappened()
+	{
+		return myHappened;
+	}
 
 }

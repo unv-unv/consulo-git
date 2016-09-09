@@ -41,6 +41,8 @@ public class GitRevisionNumber implements ShortVcsRevisionNumber
 	 */
 	public static final String NOT_COMMITTED_HASH = StringUtil.repeat("0", 40);
 
+	public static final GitRevisionNumber HEAD = new GitRevisionNumber("HEAD");
+
 	/**
 	 * the revision number (40 character hashcode, tag, or reference). In some cases incomplete hashcode could be used.
 	 */
@@ -109,8 +111,7 @@ public class GitRevisionNumber implements ShortVcsRevisionNumber
 	}
 
 	/**
-	 * @return the short revision number. The revision number likely unambiguously identify local revision, however in rare cases there could be
-	 * conflicts.
+	 * @return the short revision number. The revision number likely unambiguously identify local revision, however in rare cases there could be conflicts.
 	 */
 	@NotNull
 	public String getShortRev()
@@ -244,6 +245,7 @@ public class GitRevisionNumber implements ShortVcsRevisionNumber
 	 * @return a resolved revision number with correct time
 	 * @throws VcsException if there is a problem with running git
 	 */
+	@NotNull
 	public static GitRevisionNumber resolve(Project project, VirtualFile vcsRoot, @NonNls String rev) throws VcsException
 	{
 		GitSimpleHandler h = new GitSimpleHandler(project, vcsRoot, GitCommand.REV_LIST);
@@ -255,12 +257,19 @@ public class GitRevisionNumber implements ShortVcsRevisionNumber
 	}
 
 	@NotNull
-	public static GitRevisionNumber parseRevlistOutputAsRevisionNumber(@NotNull GitSimpleHandler h, @NotNull String output)
+	public static GitRevisionNumber parseRevlistOutputAsRevisionNumber(@NotNull GitSimpleHandler h, @NotNull String output) throws VcsException
 	{
-		StringTokenizer tokenizer = new StringTokenizer(output, "\n\r \t", false);
-		LOG.assertTrue(tokenizer.hasMoreTokens(), "No required tokens in the output: \n" + output);
-		Date timestamp = GitUtil.parseTimestampWithNFEReport(tokenizer.nextToken(), h, output);
-		return new GitRevisionNumber(tokenizer.nextToken(), timestamp);
+		try
+		{
+			StringTokenizer tokenizer = new StringTokenizer(output, "\n\r \t", false);
+			LOG.assertTrue(tokenizer.hasMoreTokens(), "No required tokens in the output: \n" + output);
+			Date timestamp = GitUtil.parseTimestampWithNFEReport(tokenizer.nextToken(), h, output);
+			return new GitRevisionNumber(tokenizer.nextToken(), timestamp);
+		}
+		catch(Exception e)
+		{
+			throw new VcsException("Couldn't parse the output: [" + output + "]", e);
+		}
 	}
 
 	@Override

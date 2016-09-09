@@ -16,13 +16,11 @@
 package git4idea;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import com.intellij.vcs.log.Hash;
 import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRemote;
 
-/**
- * @author Kirill Likhodedov
- */
 public class GitStandardRemoteBranch extends GitRemoteBranch
 {
 
@@ -31,9 +29,15 @@ public class GitStandardRemoteBranch extends GitRemoteBranch
 	@NotNull
 	private final String myNameAtRemote;
 
-	public GitStandardRemoteBranch(@NotNull GitRemote remote, @NotNull String nameAtRemote, @NotNull Hash hash)
+	@Deprecated
+	public GitStandardRemoteBranch(@NotNull GitRemote remote, @NotNull String nameAtRemote, @Nullable Hash hash)
 	{
-		super(formStandardName(remote, GitBranchUtil.stripRefsPrefix(nameAtRemote)), hash);
+		this(remote, nameAtRemote);
+	}
+
+	public GitStandardRemoteBranch(@NotNull GitRemote remote, @NotNull String nameAtRemote)
+	{
+		super(formStandardName(remote, GitBranchUtil.stripRefsPrefix(nameAtRemote)));
 		myRemote = remote;
 		myNameAtRemote = GitBranchUtil.stripRefsPrefix(nameAtRemote);
 	}
@@ -42,12 +46,6 @@ public class GitStandardRemoteBranch extends GitRemoteBranch
 	private static String formStandardName(@NotNull GitRemote remote, @NotNull String nameAtRemote)
 	{
 		return remote.getName() + "/" + nameAtRemote;
-	}
-
-	@Override
-	public boolean isRemote()
-	{
-		return true;
 	}
 
 	@Override
@@ -60,13 +58,40 @@ public class GitStandardRemoteBranch extends GitRemoteBranch
 	@Override
 	public boolean equals(Object o)
 	{
-		return super.equals(o);
+		if(this == o)
+		{
+			return true;
+		}
+		if(o == null || getClass() != o.getClass())
+		{
+			return false;
+		}
+		if(!super.equals(o))
+		{
+			return false;
+		}
+
+		GitStandardRemoteBranch branch = (GitStandardRemoteBranch) o;
+
+		if(!myNameAtRemote.equals(branch.myNameAtRemote))
+		{
+			return false;
+		}
+		if(!myRemote.equals(branch.myRemote))
+		{
+			return false;
+		}
+
+		return true;
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return super.hashCode();
+		int result = super.hashCode();
+		result = 31 * result + myRemote.hashCode();
+		result = 31 * result + myNameAtRemote.hashCode();
+		return result;
 	}
 
 	@Override

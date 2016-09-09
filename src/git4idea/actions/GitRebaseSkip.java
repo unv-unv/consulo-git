@@ -15,35 +15,30 @@
  */
 package git4idea.actions;
 
-import git4idea.i18n.GitBundle;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.project.Project;
+import git4idea.rebase.GitRebaseUtils;
+import git4idea.repo.GitRepository;
 
-/**
- * Rebase abort action
- */
-public class GitRebaseSkip extends GitAbstractRebaseResumeAction {
+public class GitRebaseSkip extends GitAbstractRebaseAction
+{
+	@NotNull
+	@Override
+	protected String getProgressTitle()
+	{
+		return "Skip Commit during Rebase...";
+	}
 
-  /**
-   * {@inheritDoc}
-   */
-  @NotNull
-  protected String getActionName() {
-    return GitBundle.message("rebase.skip.action.name");
-  }
+	@Override
+	protected void performActionForProject(@NotNull Project project, @NotNull ProgressIndicator indicator)
+	{
+		GitRebaseUtils.skipRebase(project);
+	}
 
-  /**
-   * {@inheritDoc}
-   */
-  @NonNls
-  protected String getOptionName() {
-    return "--skip";
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  protected String getActionTitle() {
-    return GitBundle.message("rebase.skip.action.name");
-  }
+	@Override
+	protected void performActionForRepository(@NotNull Project project, @NotNull GitRepository repository, @NotNull ProgressIndicator indicator)
+	{
+		GitRebaseUtils.skipRebase(project, repository, indicator);
+	}
 }

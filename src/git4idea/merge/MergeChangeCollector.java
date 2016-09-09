@@ -15,6 +15,8 @@
  */
 package git4idea.merge;
 
+import static com.intellij.util.ObjectUtils.assertNotNull;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -38,7 +40,7 @@ import git4idea.GitUtil;
 import git4idea.GitVcs;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitSimpleHandler;
-import git4idea.repo.GitRepositoryFiles;
+import git4idea.repo.GitRepository;
 import git4idea.util.StringScanner;
 
 /**
@@ -46,16 +48,19 @@ import git4idea.util.StringScanner;
  */
 public class MergeChangeCollector
 {
-	private final HashSet<String> myUnmergedPaths = new HashSet<String>();
+	private final HashSet<String> myUnmergedPaths = new HashSet<>();
 	private final Project myProject;
 	private final VirtualFile myRoot;
 	private final GitRevisionNumber myStart; // Revision number before update (used for diff)
+	@NotNull
+	private final GitRepository myRepository;
 
 	public MergeChangeCollector(final Project project, final VirtualFile root, final GitRevisionNumber start)
 	{
 		myStart = start;
 		myProject = project;
 		myRoot = root;
+		myRepository = assertNotNull(GitUtil.getRepositoryManager(project).getRepositoryForRoot(root));
 	}
 
 	/**
@@ -70,9 +75,9 @@ public class MergeChangeCollector
 			addAll(updates, FileGroup.MERGED_WITH_CONFLICT_ID, paths);
 
 			// collect other changes (ignoring unmerged)
-			TreeSet<String> updated = new TreeSet<String>();
-			TreeSet<String> created = new TreeSet<String>();
-			TreeSet<String> removed = new TreeSet<String>();
+			TreeSet<String> updated = new TreeSet<>();
+			TreeSet<String> created = new TreeSet<>();
+			TreeSet<String> removed = new TreeSet<>();
 
 			String revisionsForDiff = getRevisionsForDiff();
 			if(revisionsForDiff == null)
@@ -103,7 +108,7 @@ public class MergeChangeCollector
 		h.addParameters("--unmerged");
 		final String result = h.run();
 
-		final Set<String> paths = new HashSet<String>();
+		final Set<String> paths = new HashSet<>();
 		for(StringScanner s = new StringScanner(result); s.hasMoreData(); )
 		{
 			if(s.isEol())
@@ -139,7 +144,7 @@ public class MergeChangeCollector
 			// should be available. In case of --no-commit option, the MERGE_HEAD might contain
 			// multiple heads separated by newline. The changes are collected separately for each head
 			// and they are merged using TreeSet class (that also sorts the changes).
-			File mergeHeadsFile = new File(root, GitRepositoryFiles.GIT_MERGE_HEAD);
+			File mergeHeadsFile = myRepository.getRepositoryFiles().getMergeHeadFile();
 			try
 			{
 				if(mergeHeadsFile.exists())
@@ -177,10 +182,7 @@ public class MergeChangeCollector
 	 * Populates the supplied collections of modified, created and removed files returned by 'git diff #revisions' command,
 	 * where revisions is the range of revisions to check.
 	 */
-	public void getChangedFilesExceptUnmerged(Collection<String> updated,
-			Collection<String> created,
-			Collection<String> removed,
-			String revisions) throws VcsException
+	public void getChangedFilesExceptUnmerged(Collection<String> updated, Collection<String> created, Collection<String> removed, String revisions) throws VcsException
 	{
 		if(revisions == null)
 		{
@@ -190,7 +192,7 @@ public class MergeChangeCollector
 		GitSimpleHandler h = new GitSimpleHandler(myProject, myRoot, GitCommand.DIFF);
 		h.setSilent(true);
 		// note that moves are not detected here
-		h.addParameters("--name-status", "--diff-filter=ADMRUX", revisions);
+		h.addParameters("--name-status", "--diff-filter=ADMRUX", "--no-renames", revisions);
 		for(StringScanner s = new StringScanner(h.run()); s.hasMoreData(); )
 		{
 			if(s.isEol())

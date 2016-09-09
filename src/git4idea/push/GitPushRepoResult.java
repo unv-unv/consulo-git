@@ -29,7 +29,7 @@ import git4idea.update.GitUpdateResult;
 
 /**
  * Result of pushing one repository.
- * <p/>
+ * <p>
  * Includes information about the number of pushed commits (or -1 if undefined),
  * and tells whether the repository was updated after the push was rejected.
  *
@@ -44,7 +44,8 @@ class GitPushRepoResult
 		NEW_BRANCH,
 		UP_TO_DATE,
 		FORCED,
-		REJECTED,
+		REJECTED_NO_FF,
+		REJECTED_OTHER,
 		ERROR,
 		NOT_PUSHED;
 	}
@@ -89,29 +90,26 @@ class GitPushRepoResult
 				return result.getSourceRef();
 			}
 		});
-		return new GitPushRepoResult(convertType(result.getType()), commits, source.getFullName(), target.getFullName(),
-				target.getRemote().getName(), tags, null, null);
+		return new GitPushRepoResult(convertType(result), commits, source.getFullName(), target.getFullName(), target.getRemote().getName(), tags, null, null);
 	}
 
 	@NotNull
 	static GitPushRepoResult error(@NotNull GitLocalBranch source, @NotNull GitRemoteBranch target, @NotNull String error)
 	{
-		return new GitPushRepoResult(Type.ERROR, -1, source.getFullName(), target.getFullName(), target.getRemote().getName(),
-				Collections.<String>emptyList(), error, null);
+		return new GitPushRepoResult(Type.ERROR, -1, source.getFullName(), target.getFullName(), target.getRemote().getName(), Collections.<String>emptyList(), error, null);
 	}
 
 	@NotNull
 	static GitPushRepoResult notPushed(GitLocalBranch source, GitRemoteBranch target)
 	{
-		return new GitPushRepoResult(Type.NOT_PUSHED, -1, source.getFullName(), target.getFullName(), target.getRemote().getName(),
-				Collections.<String>emptyList(), null, null);
+		return new GitPushRepoResult(Type.NOT_PUSHED, -1, source.getFullName(), target.getFullName(), target.getRemote().getName(), Collections.<String>emptyList(), null, null);
 	}
 
 	@NotNull
 	static GitPushRepoResult addUpdateResult(GitPushRepoResult original, GitUpdateResult updateResult)
 	{
-		return new GitPushRepoResult(original.getType(), original.getNumberOfPushedCommits(), original.getSourceBranch(),
-				original.getTargetBranch(), original.getTargetRemote(), original.getPushedTags(), original.getError(), updateResult);
+		return new GitPushRepoResult(original.getType(), original.getNumberOfPushedCommits(), original.getSourceBranch(), original.getTargetBranch(), original.getTargetRemote(),
+				original.getPushedTags(), original.getError(), updateResult);
 	}
 
 	private GitPushRepoResult(@NotNull Type type,
@@ -187,9 +185,9 @@ class GitPushRepoResult
 	}
 
 	@NotNull
-	private static Type convertType(@NotNull GitPushNativeResult.Type nativeType)
+	private static Type convertType(@NotNull GitPushNativeResult nativeResult)
 	{
-		switch(nativeType)
+		switch(nativeResult.getType())
 		{
 			case SUCCESS:
 				return Type.SUCCESS;
@@ -198,14 +196,14 @@ class GitPushRepoResult
 			case NEW_REF:
 				return Type.NEW_BRANCH;
 			case REJECTED:
-				return Type.REJECTED;
+				return nativeResult.isNonFFUpdate() ? Type.REJECTED_NO_FF : Type.REJECTED_OTHER;
 			case UP_TO_DATE:
 				return Type.UP_TO_DATE;
 			case ERROR:
 				return Type.ERROR;
 			case DELETED:
 			default:
-				throw new IllegalArgumentException("Conversion is not supported: " + nativeType);
+				throw new IllegalArgumentException("Conversion is not supported: " + nativeResult.getType());
 		}
 	}
 

@@ -23,7 +23,6 @@ import org.jetbrains.annotations.NotNull;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vcs.VcsNotifier;
-import git4idea.GitPlatformFacade;
 import git4idea.commands.Git;
 import git4idea.commands.GitCommandResult;
 import git4idea.commands.GitCompoundResult;
@@ -41,14 +40,9 @@ class GitCheckoutNewBranchOperation extends GitBranchOperation
 	@NotNull
 	private final String myNewBranchName;
 
-	GitCheckoutNewBranchOperation(@NotNull Project project,
-			GitPlatformFacade facade,
-			@NotNull Git git,
-			@NotNull GitBranchUiHandler uiHandler,
-			@NotNull Collection<GitRepository> repositories,
-			@NotNull String newBranchName)
+	GitCheckoutNewBranchOperation(@NotNull Project project, @NotNull Git git, @NotNull GitBranchUiHandler uiHandler, @NotNull Collection<GitRepository> repositories, @NotNull String newBranchName)
 	{
-		super(project, facade, git, uiHandler, repositories);
+		super(project, git, uiHandler, repositories);
 		myNewBranchName = newBranchName;
 		myProject = project;
 	}
@@ -124,7 +118,7 @@ class GitCheckoutNewBranchOperation extends GitBranchOperation
 		Collection<GitRepository> repositories = getSuccessfulRepositories();
 		for(GitRepository repository : repositories)
 		{
-			GitCommandResult result = myGit.checkout(repository, myCurrentHeads.get(repository), null, true);
+			GitCommandResult result = myGit.checkout(repository, myCurrentHeads.get(repository), null, true, false);
 			checkoutResult.append(repository, result);
 			if(result.success())
 			{
@@ -134,9 +128,8 @@ class GitCheckoutNewBranchOperation extends GitBranchOperation
 		}
 		if(checkoutResult.totalSuccess() && deleteResult.totalSuccess())
 		{
-			VcsNotifier.getInstance(myProject).notifySuccess("Rollback successful", String.format("Checked out %s and deleted %s on %s %s",
-					stringifyBranchesByRepos(myCurrentHeads), code(myNewBranchName), StringUtil.pluralize("root", repositories.size()),
-					successfulRepositoriesJoined()));
+			VcsNotifier.getInstance(myProject).notifySuccess("Rollback successful", String.format("Checked out %s and deleted %s on %s %s", stringifyBranchesByRepos(myCurrentHeads),
+					code(myNewBranchName), StringUtil.pluralize("root", repositories.size()), successfulRepositoriesJoined()));
 		}
 		else
 		{

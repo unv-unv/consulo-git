@@ -15,45 +15,53 @@
  */
 package git4idea;
 
-import com.intellij.vcs.log.Hash;
-import git4idea.repo.GitBranchTrackInfo;
-import git4idea.repo.GitRepository;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import git4idea.repo.GitBranchTrackInfo;
+import git4idea.repo.GitRepository;
 
 /**
  * @author Kirill Likhodedov
  */
-public class GitLocalBranch extends GitBranch {
+public class GitLocalBranch extends GitBranch
+{
 
-	public GitLocalBranch(@NotNull String name, @NotNull Hash hash) {
-		super(name, hash);
+	public GitLocalBranch(@NotNull String name)
+	{
+		super(name);
 	}
 
 	@Override
-	public boolean isRemote() {
+	public boolean isRemote()
+	{
 		return false;
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(Object o)
+	{
 		return super.equals(o);
 	}
 
 	@Override
-	public int hashCode() {
+	public int hashCode()
+	{
 		return super.hashCode();
 	}
 
 	@Override
-	public String toString() {
+	public String toString()
+	{
 		return super.toString();
 	}
 
 	@Nullable
-	public GitRemoteBranch findTrackedBranch(@NotNull GitRepository repository) {
-		for (GitBranchTrackInfo info : repository.getBranchTrackInfos()) {
-			if (info.getLocalBranch().equals(this)) {
+	public GitRemoteBranch findTrackedBranch(@NotNull GitRepository repository)
+	{
+		for(GitBranchTrackInfo info : repository.getBranchTrackInfos())
+		{
+			if(info.getLocalBranch().equals(this))
+			{
 				return info.getRemoteBranch();
 			}
 		}

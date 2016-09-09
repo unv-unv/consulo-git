@@ -27,6 +27,7 @@ import git4idea.repo.GitRepositoryManager;
 
 public abstract class GitLogSingleCommitAction extends VcsLogSingleCommitAction<GitRepository>
 {
+
 	@NotNull
 	@Override
 	protected AbstractRepositoryManager<GitRepository> getRepositoryManager(@NotNull Project project)

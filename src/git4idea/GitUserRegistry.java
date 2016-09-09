@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2014 JetBrains s.r.o.
+ * Copyright 2000-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Condition;
-import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.openapi.vcs.VcsException;
@@ -47,13 +46,20 @@ public class GitUserRegistry implements Disposable, VcsListener
 	@NotNull
 	private final ProjectLevelVcsManager myVcsManager;
 	@NotNull
+	private final VcsLogObjectsFactory myFactory;
+	@NotNull
 	private final Map<VirtualFile, VcsUser> myUserMap = ContainerUtil.newConcurrentMap();
 
-	public GitUserRegistry(@NotNull Project project, @NotNull ProjectLevelVcsManager vcsManager)
+	public GitUserRegistry(@NotNull Project project, @NotNull ProjectLevelVcsManager vcsManager, @NotNull VcsLogObjectsFactory factory)
 	{
 		myProject = project;
 		myVcsManager = vcsManager;
-		Disposer.register(myProject, this);
+		myFactory = factory;
+	}
+
+	public static GitUserRegistry getInstance(@NotNull Project project)
+	{
+		return ServiceManager.getService(project, GitUserRegistry.class);
 	}
 
 	public void activate()
@@ -91,12 +97,11 @@ public class GitUserRegistry implements Disposable, VcsListener
 	}
 
 	@Nullable
-	private static VcsUser readCurrentUser(@NotNull Project project, @NotNull VirtualFile root) throws VcsException
+	private VcsUser readCurrentUser(@NotNull Project project, @NotNull VirtualFile root) throws VcsException
 	{
 		String userName = GitConfigUtil.getValue(project, root, GitConfigUtil.USER_NAME);
 		String userEmail = StringUtil.notNullize(GitConfigUtil.getValue(project, root, GitConfigUtil.USER_EMAIL));
-		VcsLogObjectsFactory factory = ServiceManager.getService(project, VcsLogObjectsFactory.class);
-		return userName == null ? null : factory.createUser(userName, userEmail);
+		return userName == null ? null : myFactory.createUser(userName, userEmail);
 	}
 
 	@Override

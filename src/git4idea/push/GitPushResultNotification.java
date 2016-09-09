@@ -49,20 +49,15 @@ class GitPushResultNotification extends Notification
 
 	public static final String VIEW_FILES_UPDATED_DURING_THE_PUSH = "<a href='UpdatedFiles'>View files updated during the push</a>";
 
-	public static final String UPDATE_WITH_RESOLVED_CONFLICTS = "push has been cancelled, because there were conflicts during update.<br/>" + "Check" +
-			" that conflicts were resolved correctly, and invoke push again.";
-	public static final String INCOMPLETE_UPDATE = "push has been cancelled, because not all conflicts were resolved during update.<br/>" + "Resolve" +
-			" the conflicts and invoke push again.";
+	public static final String UPDATE_WITH_RESOLVED_CONFLICTS = "push has been cancelled, because there were conflicts during update.<br/>" + "Check that conflicts were resolved correctly, " +
+			"and invoke push again.";
+	public static final String INCOMPLETE_UPDATE = "push has been cancelled, because not all conflicts were resolved during update.<br/>" + "Resolve the conflicts and invoke push again.";
 	public static final String UPDATE_WITH_ERRORS = "push was rejected, and update failed with error.";
 	public static final String UPDATE_CANCELLED = "push was rejected, and update was cancelled.";
 
 	private static final Logger LOG = Logger.getInstance(GitPushResultNotification.class);
 
-	public GitPushResultNotification(@NotNull String groupDisplayId,
-			@NotNull String title,
-			@NotNull String content,
-			@NotNull NotificationType type,
-			@Nullable NotificationListener listener)
+	public GitPushResultNotification(@NotNull String groupDisplayId, @NotNull String title, @NotNull String content, @NotNull NotificationType type, @Nullable NotificationListener listener)
 	{
 		super(groupDisplayId, title, content, type, listener);
 	}
@@ -86,7 +81,7 @@ class GitPushResultNotification extends Notification
 			}
 			type = NotificationType.ERROR;
 		}
-		else if(!grouped.rejected.isEmpty())
+		else if(!grouped.rejected.isEmpty() || !grouped.customRejected.isEmpty())
 		{
 			if(!grouped.successful.isEmpty())
 			{
@@ -111,20 +106,17 @@ class GitPushResultNotification extends Notification
 		if(!updatedFiles.isEmpty())
 		{
 			description += "<br/>" + VIEW_FILES_UPDATED_DURING_THE_PUSH;
-			listener = new ViewUpdatedFilesNotificationListener(project, updatedFiles, pushResult.getBeforeUpdateLabel(),
-					pushResult.getAfterUpdateLabel());
+			listener = new ViewUpdatedFilesNotificationListener(project, updatedFiles, pushResult.getBeforeUpdateLabel(), pushResult.getAfterUpdateLabel());
 		}
 
-		NotificationGroup group = type == NotificationType.INFORMATION ? VcsNotifier.NOTIFICATION_GROUP_ID : VcsNotifier
-				.IMPORTANT_ERROR_NOTIFICATION;
+		NotificationGroup group = type == NotificationType.INFORMATION ? VcsNotifier.NOTIFICATION_GROUP_ID : VcsNotifier.IMPORTANT_ERROR_NOTIFICATION;
 
 		return new GitPushResultNotification(group.getDisplayId(), title, description, type, listener);
 	}
 
 	private static String formDescription(@NotNull Map<GitRepository, GitPushRepoResult> results, final boolean multiRepoProject)
 	{
-		List<Map.Entry<GitRepository, GitPushRepoResult>> entries = ContainerUtil.sorted(results.entrySet(), new Comparator<Map.Entry<GitRepository,
-				GitPushRepoResult>>()
+		List<Map.Entry<GitRepository, GitPushRepoResult>> entries = ContainerUtil.sorted(results.entrySet(), new Comparator<Map.Entry<GitRepository, GitPushRepoResult>>()
 		{
 			@Override
 			public int compare(Map.Entry<GitRepository, GitPushRepoResult> o1, Map.Entry<GitRepository, GitPushRepoResult> o2)
@@ -198,8 +190,11 @@ class GitPushResultNotification extends Notification
 			case FORCED:
 				description = String.format("force pushed %s to %s", sourceBranch, targetBranch);
 				break;
-			case REJECTED:
+			case REJECTED_NO_FF:
 				description = formDescriptionBasedOnUpdateResult(result.getUpdateResult(), targetBranch);
+				break;
+			case REJECTED_OTHER:
+				description = String.format("push %s to %s was rejected by remote", sourceBranch, targetBranch);
 				break;
 			case ERROR:
 				description = "failed with error: " + result.getError();
@@ -258,10 +253,7 @@ class GitPushResultNotification extends Notification
 		private final Label myBeforeUpdateLabel;
 		private final Label myAfterUpdateLabel;
 
-		public ViewUpdatedFilesNotificationListener(@NotNull Project project,
-				@NotNull UpdatedFiles updatedFiles,
-				@Nullable Label beforeUpdate,
-				@Nullable Label afterUpdate)
+		public ViewUpdatedFilesNotificationListener(@NotNull Project project, @NotNull UpdatedFiles updatedFiles, @Nullable Label beforeUpdate, @Nullable Label afterUpdate)
 		{
 			myProject = project;
 			myUpdatedFiles = updatedFiles;

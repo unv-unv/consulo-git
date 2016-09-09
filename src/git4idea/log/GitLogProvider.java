@@ -54,6 +54,7 @@ import git4idea.GitTag;
 import git4idea.GitUserRegistry;
 import git4idea.GitVcs;
 import git4idea.branch.GitBranchUtil;
+import git4idea.branch.GitBranchesCollection;
 import git4idea.config.GitVersionSpecialty;
 import git4idea.history.GitHistoryUtils;
 import git4idea.repo.GitRepository;
@@ -422,21 +423,22 @@ public class GitLogProvider implements VcsLogProvider
 		StopWatch sw = StopWatch.start("readBranches in " + repository.getRoot().getName());
 		VirtualFile root = repository.getRoot();
 		repository.update();
-		Collection<GitLocalBranch> localBranches = repository.getBranches().getLocalBranches();
-		Collection<GitRemoteBranch> remoteBranches = repository.getBranches().getRemoteBranches();
-		Set<VcsRef> refs = new THashSet<VcsRef>(localBranches.size() + remoteBranches.size());
-		for(GitLocalBranch localBranch : localBranches)
-		{
-			refs.add(myVcsObjectsFactory.createRef(localBranch.getHash(), localBranch.getName(), GitRefManager.LOCAL_BRANCH, root));
+		GitBranchesCollection branches = repository.getBranches();
+		Collection<GitLocalBranch> localBranches = branches.getLocalBranches();
+		Collection<GitRemoteBranch> remoteBranches = branches.getRemoteBranches();
+		Set<VcsRef> refs = new THashSet<>(localBranches.size() + remoteBranches.size());
+		for (GitLocalBranch localBranch : localBranches) {
+			Hash hash = branches.getHash(localBranch);
+			assert hash != null;
+			refs.add(myVcsObjectsFactory.createRef(hash, localBranch.getName(), GitRefManager.LOCAL_BRANCH, root));
 		}
-		for(GitRemoteBranch remoteBranch : remoteBranches)
-		{
-			refs.add(myVcsObjectsFactory.createRef(remoteBranch.getHash(), remoteBranch.getNameForLocalOperations(), GitRefManager.REMOTE_BRANCH,
-					root));
+		for (GitRemoteBranch remoteBranch : remoteBranches) {
+			Hash hash = branches.getHash(remoteBranch);
+			assert hash != null;
+			refs.add(myVcsObjectsFactory.createRef(hash, remoteBranch.getNameForLocalOperations(), GitRefManager.REMOTE_BRANCH, root));
 		}
 		String currentRevision = repository.getCurrentRevision();
-		if(currentRevision != null)
-		{ // null => fresh repository
+		if (currentRevision != null) { // null => fresh repository
 			refs.add(myVcsObjectsFactory.createRef(HashImpl.build(currentRevision), "HEAD", GitRefManager.HEAD, root));
 		}
 		sw.report();

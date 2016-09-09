@@ -26,8 +26,6 @@ import java.util.Set;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -39,32 +37,18 @@ import com.intellij.openapi.vcs.update.UpdateEnvironment;
 import com.intellij.openapi.vcs.update.UpdateSession;
 import com.intellij.openapi.vcs.update.UpdatedFiles;
 import com.intellij.openapi.vfs.VirtualFile;
-import git4idea.GitPlatformFacade;
-import git4idea.GitVcs;
 import git4idea.config.GitVcsSettings;
 import git4idea.repo.GitRepositoryManager;
 
-/**
- * Git update environment implementation. The environment does
- * {@code git pull -v} for each vcs root. Rebase variant is detected
- * and processed as well.
- */
 public class GitUpdateEnvironment implements UpdateEnvironment
 {
-	private final GitVcs myVcs;
 	private final Project myProject;
 	private final GitVcsSettings mySettings;
-	@NotNull
-	private final GitPlatformFacade myPlatformFacade;
 
-	private static final Logger LOG = Logger.getInstance(GitUpdateEnvironment.class);
-
-	public GitUpdateEnvironment(@NotNull Project project, @NotNull GitVcs vcs, GitVcsSettings settings)
+	public GitUpdateEnvironment(@NotNull Project project, @NotNull GitVcsSettings settings)
 	{
-		myVcs = vcs;
 		myProject = project;
 		mySettings = settings;
-		myPlatformFacade = ServiceManager.getService(project, GitPlatformFacade.class);
 	}
 
 	@Override
@@ -82,12 +66,10 @@ public class GitUpdateEnvironment implements UpdateEnvironment
 	{
 		Set<VirtualFile> roots = gitRoots(Arrays.asList(filePaths));
 		GitRepositoryManager repositoryManager = getRepositoryManager(myProject);
-		final GitUpdateProcess gitUpdateProcess = new GitUpdateProcess(myProject, myPlatformFacade, progressIndicator,
-				getRepositoriesFromRoots(repositoryManager, roots), updatedFiles, true);
-		boolean result = gitUpdateProcess.update(GitUpdateProcess.UpdateMethod.READ_FROM_SETTINGS).isSuccess();
+		final GitUpdateProcess gitUpdateProcess = new GitUpdateProcess(myProject, progressIndicator, getRepositoriesFromRoots(repositoryManager, roots), updatedFiles, true);
+		boolean result = gitUpdateProcess.update(mySettings.getUpdateType()).isSuccess();
 		return new GitUpdateSession(result);
 	}
-
 
 	@Override
 	public boolean validateOptions(Collection<FilePath> filePaths)
