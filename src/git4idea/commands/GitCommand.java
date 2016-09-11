@@ -17,6 +17,7 @@ package git4idea.commands;
 
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.util.registry.Registry;
 
 /**
  * <p>
@@ -50,12 +51,14 @@ public class GitCommand
 	public static final GitCommand INIT = write("init");
 	public static final GitCommand LOG = read("log");
 	public static final GitCommand LS_FILES = read("ls-files");
+	public static final GitCommand LS_TREE = read("ls-tree");
 	public static final GitCommand LS_REMOTE = read("ls-remote");
 	public static final GitCommand MERGE = write("merge");
 	public static final GitCommand MERGE_BASE = read("merge-base");
+	public static final GitCommand MV = write("mv");
 	public static final GitCommand PULL = write("pull");
 	public static final GitCommand PUSH = write("push");
-	public static final GitCommand REBASE = writeSuspendable("rebase");
+	public static final GitCommand REBASE = write("rebase");
 	public static final GitCommand REMOTE = read("remote");
 	public static final GitCommand RESET = write("reset");
 	public static final GitCommand REV_LIST = read("rev-list");
@@ -63,7 +66,7 @@ public class GitCommand
 	public static final GitCommand RM = write("rm");
 	public static final GitCommand SHOW = read("show");
 	public static final GitCommand STASH = write("stash");
-	public static final GitCommand STATUS = read("status");
+	public static final GitCommand STATUS = Registry.is("git.status.write", true) ? write("status") : read("status");
 	public static final GitCommand TAG = read("tag");
 	public static final GitCommand UPDATE_INDEX = write("update-index");
 
@@ -75,8 +78,7 @@ public class GitCommand
 	enum LockingPolicy
 	{
 		READ,
-		WRITE,
-		WRITE_SUSPENDABLE,
+		WRITE
 	}
 
 	@NotNull
@@ -114,6 +116,12 @@ public class GitCommand
 	}
 
 	@NotNull
+	public GitCommand writeLockingCommand()
+	{
+		return new GitCommand(this, LockingPolicy.WRITE);
+	}
+
+	@NotNull
 	private static GitCommand read(@NotNull String name)
 	{
 		return new GitCommand(name, LockingPolicy.READ);
@@ -123,12 +131,6 @@ public class GitCommand
 	private static GitCommand write(@NotNull String name)
 	{
 		return new GitCommand(name, LockingPolicy.WRITE);
-	}
-
-	@NotNull
-	private static GitCommand writeSuspendable(@NotNull String name)
-	{
-		return new GitCommand(name, LockingPolicy.WRITE_SUSPENDABLE);
 	}
 
 	@NotNull

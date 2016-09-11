@@ -1,11 +1,10 @@
 <idea-plugin>
+	<id>com.intellij.git</id>
 	<name>Git Integration</name>
-	<id>Git4Idea</id>
 	<description>Provides integration with Git version control system</description>
 	<version>SNAPSHOT</version>
 	<category>VCS Integration</category>
 	<vendor>JetBrains</vendor>
-	<depends>com.intellij.spellchecker</depends>
 
 	<actions>
 
@@ -109,7 +108,6 @@
 	</project-components>
 
 	<extensions defaultExtensionNs="com.intellij">
-		<errorHandler implementation="com.intellij.diagnostic.ITNReporter"/>
 		<search.topHitProvider implementation="git4idea.config.GitOptionsTopHitProvider"/>
 		<vcs name="Git" vcsClass="git4idea.GitVcs" displayName="Git" administrativeAreaName=".git"/>
 		<checkoutProvider implementation="git4idea.checkout.GitCheckoutProvider"/>

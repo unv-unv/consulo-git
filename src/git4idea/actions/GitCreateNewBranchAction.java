@@ -20,7 +20,7 @@ import java.util.Collections;
 import org.jetbrains.annotations.NotNull;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.vcs.log.VcsFullCommitDetails;
+import com.intellij.vcs.log.Hash;
 import git4idea.branch.GitBranchUtil;
 import git4idea.branch.GitBrancher;
 import git4idea.repo.GitRepository;
@@ -29,12 +29,11 @@ public class GitCreateNewBranchAction extends GitLogSingleCommitAction
 {
 
 	@Override
-	protected void actionPerformed(@NotNull GitRepository repository, @NotNull VcsFullCommitDetails commit)
+	protected void actionPerformed(@NotNull GitRepository repository, @NotNull Hash commit)
 	{
 		Project project = repository.getProject();
-		String reference = commit.getId().asString();
-		final String name = GitBranchUtil.getNewBranchNameFromUser(project, Collections.singleton(repository),
-				"Checkout New Branch From " + reference);
+		String reference = commit.asString();
+		final String name = GitBranchUtil.getNewBranchNameFromUser(project, Collections.singleton(repository), "Checkout New Branch From " + reference);
 		if(name != null)
 		{
 			GitBrancher brancher = ServiceManager.getService(project, GitBrancher.class);

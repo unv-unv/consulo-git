@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2014 JetBrains s.r.o.
+ * Copyright 2000-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package git4idea.commands;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.jetbrains.annotations.NotNull;
@@ -33,6 +34,7 @@ import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.AuthData;
+import com.intellij.util.ObjectUtils;
 import com.intellij.util.UriUtil;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.io.URLUtil;
@@ -62,14 +64,14 @@ class GitHttpGuiAuthenticator implements GitHttpAuthenticator
 	@NotNull
 	private final String myTitle;
 	@NotNull
-	private final String myUrlFromCommand;
+	private final Collection<String> myUrlsFromCommand;
 
 	@Nullable
 	private String myPassword;
 	@Nullable
 	private String myPasswordKey;
 	@Nullable
-	private String myUrl;
+	private String myUnifiedUrl;
 	@Nullable
 	private String myLogin;
 	private boolean mySaveOnDisk;
@@ -77,17 +79,18 @@ class GitHttpGuiAuthenticator implements GitHttpAuthenticator
 	private GitHttpAuthDataProvider myDataProvider;
 	private boolean myWasCancelled;
 
-	GitHttpGuiAuthenticator(@NotNull Project project, @NotNull GitCommand command, @NotNull String url)
+	GitHttpGuiAuthenticator(@NotNull Project project, @NotNull GitCommand command, @NotNull Collection<String> url)
 	{
 		myProject = project;
 		myTitle = "Git " + StringUtil.capitalize(command.name());
-		myUrlFromCommand = url;
+		myUrlsFromCommand = url;
 	}
 
 	@Override
 	@NotNull
 	public String askPassword(@NotNull String url)
 	{
+		LOG.debug("askPassword. url=" + url + ", passwordKnown=" + (myPassword != null) + ", wasCancelled=" + myWasCancelled);
 		if(myPassword != null)
 		{  // already asked in askUsername
 			return myPassword;
@@ -96,19 +99,21 @@ class GitHttpGuiAuthenticator implements GitHttpAuthenticator
 		{ // already pressed cancel in askUsername
 			return "";
 		}
-		url = adjustUrl(url);
-		Pair<GitHttpAuthDataProvider, AuthData> authData = findBestAuthData(url);
+		myUnifiedUrl = getUnifiedUrl(url);
+		Pair<GitHttpAuthDataProvider, AuthData> authData = findBestAuthData(getUnifiedUrl(url));
 		if(authData != null && authData.second.getPassword() != null)
 		{
 			String password = authData.second.getPassword();
 			myDataProvider = authData.first;
 			myPassword = password;
+			LOG.debug("askPassword. dataProvider=" + getCurrentDataProviderName() + ", unifiedUrl= " + getUnifiedUrl(url) +
+					", login=" + authData.second.getLogin() + ", passwordKnown=" + (password != null));
 			return password;
 		}
 
-		String prompt = "Enter the password for " + url;
-		myPasswordKey = url;
-		String password = PasswordSafePromptDialog.askPassword(myProject, myTitle, prompt, PASS_REQUESTER, url, false, null);
+		myPasswordKey = getUnifiedUrl(url);
+		String password = PasswordSafePromptDialog.askPassword(myProject, myTitle, "Enter the password for " + getDisplayableUrl(url), PASS_REQUESTER, myPasswordKey, false, null);
+		LOG.debug("askPassword. Password was asked and returned: " + (password == null ? "NULL" : password.isEmpty() ? "EMPTY" : "NOT EMPTY"));
 		if(password == null)
 		{
 			myWasCancelled = true;
@@ -126,8 +131,8 @@ class GitHttpGuiAuthenticator implements GitHttpAuthenticator
 	@NotNull
 	public String askUsername(@NotNull String url)
 	{
-		url = adjustUrl(url);
-		Pair<GitHttpAuthDataProvider, AuthData> authData = findBestAuthData(url);
+		myUnifiedUrl = getUnifiedUrl(url);
+		Pair<GitHttpAuthDataProvider, AuthData> authData = findBestAuthData(getUnifiedUrl(url));
 		String login = null;
 		String password = null;
 		if(authData != null)
@@ -136,13 +141,16 @@ class GitHttpGuiAuthenticator implements GitHttpAuthenticator
 			password = authData.second.getPassword();
 			myDataProvider = authData.first;
 		}
+		LOG.debug("askUsername. dataProvider=" + getCurrentDataProviderName() + ", unifiedUrl= " + getUnifiedUrl(url) +
+				", login=" + login + ", passwordKnown=" + (password != null));
 		if(login != null && password != null)
 		{
 			myPassword = password;
 			return login;
 		}
 
-		AuthDialog dialog = showAuthDialog(url, login);
+		AuthDialog dialog = showAuthDialog(getDisplayableUrl(url), login);
+		LOG.debug("askUsername. Showed dialog:" + (dialog == null ? "NULL" : dialog.isOK() ? "OK" : "Cancel"));
 		if(dialog == null || !dialog.isOK())
 		{
 			myWasCancelled = true;
@@ -152,9 +160,8 @@ class GitHttpGuiAuthenticator implements GitHttpAuthenticator
 		// remember values to store in the database afterwards, if authentication succeeds
 		myPassword = dialog.getPassword();
 		myLogin = dialog.getUsername();
-		myUrl = url;
 		mySaveOnDisk = dialog.isRememberPassword();
-		myPasswordKey = makeKey(myUrl, myLogin);
+		myPasswordKey = makeKey(myUnifiedUrl, myLogin);
 
 		return myLogin;
 	}
@@ -179,9 +186,9 @@ class GitHttpGuiAuthenticator implements GitHttpAuthenticator
 	public void saveAuthData()
 	{
 		// save login and url
-		if(myUrl != null && myLogin != null)
+		if(myUnifiedUrl != null && myLogin != null)
 		{
-			GitRememberedInputs.getInstance().addUrl(myUrl, myLogin);
+			GitRememberedInputs.getInstance().addUrl(myUnifiedUrl, myLogin);
 		}
 
 		// save password
@@ -206,10 +213,17 @@ class GitHttpGuiAuthenticator implements GitHttpAuthenticator
 	@Override
 	public void forgetPassword()
 	{
-		if(myDataProvider != null)
+		LOG.debug("forgetPassword. dataProvider=" + getCurrentDataProviderName() + ", unifiedUrl=" + myUnifiedUrl);
+		if(myDataProvider != null && myUnifiedUrl != null)
 		{
-			myDataProvider.forgetPassword(adjustUrl(myUrl));
+			myDataProvider.forgetPassword(myUnifiedUrl);
 		}
+	}
+
+	@Nullable
+	private String getCurrentDataProviderName()
+	{
+		return myDataProvider == null ? null : myDataProvider.getClass().getName();
 	}
 
 	@Override
@@ -218,33 +232,38 @@ class GitHttpGuiAuthenticator implements GitHttpAuthenticator
 		return myWasCancelled;
 	}
 
+	/**
+	 * Get the URL to display to the user in the authentication dialog.
+	 */
 	@NotNull
-	private String adjustUrl(@Nullable String url)
+	private String getDisplayableUrl(@Nullable String urlFromGit)
 	{
-		if(StringUtil.isEmptyOrSpaces(url))
-		{
-			// if Git doesn't specify the URL in the username/password query, we use the url from the Git command
-			// We only take the host, to avoid entering the same password for different repositories on the same host.
-			return adjustHttpUrl(getHost(myUrlFromCommand));
-		}
-		return adjustHttpUrl(url);
+		return !StringUtil.isEmptyOrSpaces(urlFromGit) ? urlFromGit : findPresetHttpUrl();
+	}
+
+	/**
+	 * Get the URL to be used as the authentication data identifier in the password safe and the settings.
+	 */
+	@NotNull
+	private String getUnifiedUrl(@Nullable String urlFromGit)
+	{
+		return changeHttpsToHttp(StringUtil.isEmptyOrSpaces(urlFromGit) ? findPresetHttpUrl() : urlFromGit);
 	}
 
 	@NotNull
-	private static String getHost(@NotNull String url)
+	private String findPresetHttpUrl()
 	{
-		Couple<String> split = UriUtil.splitScheme(url);
-		String scheme = split.getFirst();
-		String urlItself = split.getSecond();
-		int pathStart = urlItself.indexOf("/");
-		return scheme + URLUtil.SCHEME_SEPARATOR + urlItself.substring(0, pathStart);
+		return ObjectUtils.chooseNotNull(ContainerUtil.find(myUrlsFromCommand, url -> {
+			String scheme = UriUtil.splitScheme(url).getFirst();
+			return scheme.startsWith("http");
+		}), ContainerUtil.getFirstItem(myUrlsFromCommand));
 	}
 
 	/**
 	 * If the url scheme is HTTPS, store it as HTTP in the database, not to make user enter and remember same credentials twice.
 	 */
 	@NotNull
-	private static String adjustHttpUrl(@NotNull String url)
+	private static String changeHttpsToHttp(@NotNull String url)
 	{
 		String prefix = "https";
 		if(url.startsWith(prefix))
@@ -299,7 +318,7 @@ class GitHttpGuiAuthenticator implements GitHttpAuthenticator
 		}
 		Couple<String> pair = UriUtil.splitScheme(url);
 		String scheme = pair.getFirst();
-		if(StringUtil.isEmpty(scheme))
+		if(!StringUtil.isEmpty(scheme))
 		{
 			return scheme + URLUtil.SCHEME_SEPARATOR + login + "@" + pair.getSecond();
 		}
@@ -348,5 +367,4 @@ class GitHttpGuiAuthenticator implements GitHttpAuthenticator
 			}
 		}
 	}
-
 }

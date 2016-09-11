@@ -18,7 +18,6 @@ package git4idea.branch;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Set;
 
 import org.jetbrains.annotations.NotNull;
@@ -37,7 +36,6 @@ import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.awt.RelativePoint;
 import com.intellij.util.Consumer;
-import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.vcs.log.VcsLogBranchFilter;
 import com.intellij.vcs.log.VcsLogDataKeys;
@@ -46,7 +44,7 @@ import com.intellij.vcs.log.VcsLogDataProvider;
 import com.intellij.vcs.log.VcsLogUi;
 import com.intellij.vcs.log.data.VcsLogBranchFilterImpl;
 import com.intellij.vcs.log.impl.VcsLogUtil;
-import com.intellij.vcs.log.ui.filter.BranchFilterPopupComponent;
+import com.intellij.vcs.log.ui.filter.BranchPopupBuilder;
 import git4idea.repo.GitRepositoryManager;
 
 public class DeepCompareAction extends ToggleAction implements DumbAware
@@ -77,22 +75,24 @@ public class DeepCompareAction extends ToggleAction implements DumbAware
 		final DeepComparator dc = DeepComparator.getInstance(project, ui);
 		if(selected)
 		{
+			VcsLogUtil.triggerUsage(e);
+
 			VcsLogBranchFilter branchFilter = ui.getFilterUi().getFilters().getBranchFilter();
-			if(branchFilter == null || branchFilter.getBranchNames().size() != 1)
+			String singleBranchName = branchFilter != null ? VcsLogUtil.getSingleFilteredBranch(branchFilter, ui.getDataPack().getRefs()) : null;
+			if(singleBranchName == null)
 			{
 				selectBranchAndPerformAction(ui.getDataPack(), e, new Consumer<String>()
 				{
 					@Override
 					public void consume(String selectedBranch)
 					{
-						ui.getFilterUi().setFilter(new VcsLogBranchFilterImpl(Collections.singleton(selectedBranch)));
+						ui.getFilterUi().setFilter(VcsLogBranchFilterImpl.fromBranch(selectedBranch));
 						dc.highlightInBackground(selectedBranch, dataProvider);
 					}
 				}, getAllVisibleRoots(ui));
 				return;
 			}
-			String branchToCompare = branchFilter.getBranchNames().iterator().next();
-			dc.highlightInBackground(branchToCompare, dataProvider);
+			dc.highlightInBackground(singleBranchName, dataProvider);
 		}
 		else
 		{
@@ -105,23 +105,23 @@ public class DeepCompareAction extends ToggleAction implements DumbAware
 			@NotNull final Consumer<String> consumer,
 			@NotNull Collection<VirtualFile> visibleRoots)
 	{
-		ActionGroup actionGroup = BranchFilterPopupComponent.constructActionGroup(dataPack, null, new Function<String, AnAction>()
+		ActionGroup actionGroup = new BranchPopupBuilder(dataPack, visibleRoots, null)
 		{
+			@NotNull
 			@Override
-			public AnAction fun(final String s)
+			protected AnAction createAction(@NotNull final String name)
 			{
-				return new DumbAwareAction(s)
+				return new DumbAwareAction(name)
 				{
 					@Override
 					public void actionPerformed(AnActionEvent e)
 					{
-						consumer.consume(s);
+						consumer.consume(name);
 					}
 				};
 			}
-		}, visibleRoots);
-		ListPopup popup = JBPopupFactory.getInstance().createActionGroupPopup("Select branch to compare", actionGroup, event.getDataContext(),
-				false, false, false, null, -1, null);
+		}.build();
+		ListPopup popup = JBPopupFactory.getInstance().createActionGroupPopup("Select branch to compare", actionGroup, event.getDataContext(), false, false, false, null, -1, null);
 		InputEvent inputEvent = event.getInputEvent();
 		if(inputEvent instanceof MouseEvent)
 		{
@@ -159,7 +159,6 @@ public class DeepCompareAction extends ToggleAction implements DumbAware
 	@NotNull
 	private static Set<VirtualFile> getAllVisibleRoots(@NotNull VcsLogUi ui)
 	{
-		return VcsLogUtil.getAllVisibleRoots(ui.getDataPack().getLogProviders().keySet(), ui.getFilterUi().getFilters().getRootFilter(),
-				ui.getFilterUi().getFilters().getStructureFilter());
+		return VcsLogUtil.getAllVisibleRoots(ui.getDataPack().getLogProviders().keySet(), ui.getFilterUi().getFilters().getRootFilter(), ui.getFilterUi().getFilters().getStructureFilter());
 	}
 }

@@ -41,4 +41,5 @@ public abstract class GitLogSingleCommitAction extends VcsLogSingleCommitAction<
 	{
 		return getRepositoryManager(project).getRepositoryForRoot(root);
 	}
+
 }

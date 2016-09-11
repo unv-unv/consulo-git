@@ -15,6 +15,9 @@
  */
 package git4idea.update;
 
+import static com.intellij.util.ObjectUtils.assertNotNull;
+import static java.util.Arrays.asList;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,12 +25,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.jetbrains.annotations.NotNull;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Condition;
@@ -35,7 +37,6 @@ import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vcs.FilePath;
-import com.intellij.openapi.vcs.FilePathImpl;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.changes.Change;
 import com.intellij.openapi.vcs.changes.ChangeListManager;
@@ -46,14 +47,22 @@ import com.intellij.openapi.vcs.update.UpdatedFiles;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.UIUtil;
+import com.intellij.vcsUtil.VcsUtil;
 import git4idea.GitUtil;
 import git4idea.branch.GitBranchPair;
-import git4idea.commands.*;
+import git4idea.commands.Git;
+import git4idea.commands.GitCommand;
+import git4idea.commands.GitCommandResult;
+import git4idea.commands.GitLineHandlerAdapter;
+import git4idea.commands.GitMessageWithFilesDetector;
+import git4idea.commands.GitSimpleHandler;
+import git4idea.commands.GitStandardProgressAnalyzer;
+import git4idea.commands.GitUntrackedFilesOverwrittenByOperationDetector;
 import git4idea.merge.GitConflictResolver;
 import git4idea.merge.GitMerger;
 import git4idea.repo.GitRepository;
 import git4idea.util.GitUIUtil;
-import git4idea.util.UntrackedFilesNotifier;
+import git4idea.util.GitUntrackedFilesHelper;
 
 /**
  * Handles <code>git pull</code> via merge.
@@ -64,12 +73,7 @@ public class GitMergeUpdater extends GitUpdater
 
 	private final ChangeListManager myChangeListManager;
 
-	public GitMergeUpdater(Project project,
-			@NotNull Git git,
-			VirtualFile root,
-			final Map<VirtualFile, GitBranchPair> trackedBranches,
-			ProgressIndicator progressIndicator,
-			UpdatedFiles updatedFiles)
+	public GitMergeUpdater(Project project, @NotNull Git git, VirtualFile root, final Map<VirtualFile, GitBranchPair> trackedBranches, ProgressIndicator progressIndicator, UpdatedFiles updatedFiles)
 	{
 		super(project, git, root, trackedBranches, progressIndicator, updatedFiles);
 		myChangeListManager = ChangeListManager.getInstance(myProject);
@@ -81,55 +85,31 @@ public class GitMergeUpdater extends GitUpdater
 	{
 		LOG.info("doUpdate ");
 		final GitMerger merger = new GitMerger(myProject);
-		final GitLineHandler mergeHandler = new GitLineHandler(myProject, myRoot, GitCommand.MERGE);
-		mergeHandler.addParameters("--no-stat", "-v");
-		mergeHandler.addParameters(myTrackedBranches.get(myRoot).getDest().getName());
 
-		final MergeLineListener mergeLineListener = new MergeLineListener();
-		mergeHandler.addLineListener(mergeLineListener);
+		MergeLineListener mergeLineListener = new MergeLineListener();
 		GitUntrackedFilesOverwrittenByOperationDetector untrackedFilesDetector = new GitUntrackedFilesOverwrittenByOperationDetector(myRoot);
-		mergeHandler.addLineListener(untrackedFilesDetector);
 
-		String progressTitle = makeProgressTitle("Merging");
-		final GitTask mergeTask = new GitTask(myProject, mergeHandler, progressTitle);
-		mergeTask.setProgressIndicator(myProgressIndicator);
-		mergeTask.setProgressAnalyzer(new GitStandardProgressAnalyzer());
-		final AtomicReference<GitUpdateResult> updateResult = new AtomicReference<GitUpdateResult>();
-		final AtomicBoolean failure = new AtomicBoolean();
-		mergeTask.executeInBackground(true, new GitTaskResultHandlerAdapter()
+		String originalText = myProgressIndicator.getText();
+		myProgressIndicator.setText("Merging" + GitUtil.mention(myRepository) + "...");
+		try
 		{
-			@Override
-			protected void onSuccess()
-			{
-				updateResult.set(GitUpdateResult.SUCCESS);
-			}
-
-			@Override
-			protected void onCancel()
-			{
-				cancel();
-				updateResult.set(GitUpdateResult.CANCEL);
-			}
-
-			@Override
-			protected void onFailure()
-			{
-				failure.set(true);
-			}
-		});
-
-		if(failure.get())
-		{
-			updateResult.set(handleMergeFailure(mergeLineListener, untrackedFilesDetector, merger, mergeHandler));
+			GitCommandResult result = myGit.merge(myRepository, assertNotNull(myTrackedBranches.get(myRoot).getDest()).getName(), asList("--no-stat", "-v"), mergeLineListener,
+					untrackedFilesDetector, GitStandardProgressAnalyzer.createListener(myProgressIndicator));
+			myProgressIndicator.setText(originalText);
+			return result.success() ? GitUpdateResult.SUCCESS : handleMergeFailure(mergeLineListener, untrackedFilesDetector, merger, result.getErrorOutputAsJoinedString());
 		}
-		return updateResult.get();
+		catch(ProcessCanceledException pce)
+		{
+			cancel();
+			return GitUpdateResult.CANCEL;
+		}
 	}
 
 	@NotNull
 	private GitUpdateResult handleMergeFailure(MergeLineListener mergeLineListener,
 			GitMessageWithFilesDetector untrackedFilesWouldBeOverwrittenByMergeDetector,
 			final GitMerger merger,
-			GitLineHandler mergeHandler)
+			String errorMessage)
 	{
 		final MergeError error = mergeLineListener.getMergeError();
 		LOG.info("merge error: " + error);
@@ -154,8 +134,7 @@ public class GitMergeUpdater extends GitUpdater
 						@Override
 						protected String getDescription()
 						{
-							return "Your local changes to the following files would be overwritten by merge.<br/>" + "Please, " +
-									"commit your changes or stash them before you can merge.";
+							return "Your local changes to the following files would be overwritten by merge.<br/>" + "Please, commit your changes or stash them before you can merge.";
 						}
 					};
 					dialog.show();
@@ -166,15 +145,13 @@ public class GitMergeUpdater extends GitUpdater
 		else if(untrackedFilesWouldBeOverwrittenByMergeDetector.wasMessageDetected())
 		{
 			LOG.info("handleMergeFailure: untracked files would be overwritten by merge");
-			UntrackedFilesNotifier.notifyUntrackedFilesOverwrittenBy(myProject, myRoot, untrackedFilesWouldBeOverwrittenByMergeDetector
-					.getRelativeFilePaths(), "merge", null);
+			GitUntrackedFilesHelper.notifyUntrackedFilesOverwrittenBy(myProject, myRoot, untrackedFilesWouldBeOverwrittenByMergeDetector.getRelativeFilePaths(), "merge", null);
 			return GitUpdateResult.ERROR;
 		}
 		else
 		{
-			String errors = GitUIUtil.stringifyErrors(mergeHandler.errors());
-			LOG.info("Unknown error: " + errors);
-			GitUIUtil.notifyImportantError(myProject, "Error merging", errors);
+			LOG.info("Unknown error: " + errorMessage);
+			GitUIUtil.notifyImportantError(myProject, "Error merging", errorMessage);
 			return GitUpdateResult.ERROR;
 		}
 	}
@@ -207,8 +184,7 @@ public class GitMergeUpdater extends GitUpdater
 				LOG.error("Repository is null for root " + myRoot);
 				return true; // fail safe
 			}
-			final Collection<String> remotelyChanged = GitUtil.getPathsDiffBetweenRefs(ServiceManager.getService(Git.class), repository,
-					currentBranch, remoteBranch);
+			final Collection<String> remotelyChanged = GitUtil.getPathsDiffBetweenRefs(ServiceManager.getService(Git.class), repository, currentBranch, remoteBranch);
 			final List<File> locallyChanged = myChangeListManager.getAffectedPaths();
 			for(final File localPath : locallyChanged)
 			{
@@ -252,7 +228,7 @@ public class GitMergeUpdater extends GitUpdater
 	// parses the output of merge conflict returning files which would be overwritten by merge. These files will be stashed.
 	private List<FilePath> getFilesOverwrittenByMerge(@NotNull List<String> mergeOutput)
 	{
-		final List<FilePath> paths = new ArrayList<FilePath>();
+		final List<FilePath> paths = new ArrayList<>();
 		for(String line : mergeOutput)
 		{
 			if(StringUtil.isEmptyOrSpaces(line))
@@ -272,7 +248,7 @@ public class GitMergeUpdater extends GitUpdater
 				final File file = new File(path);
 				if(file.exists())
 				{
-					paths.add(new FilePathImpl(file, false));
+					paths.add(VcsUtil.getFilePath(file, false));
 				}
 			}
 			catch(VcsException e)
@@ -284,15 +260,14 @@ public class GitMergeUpdater extends GitUpdater
 
 	private Collection<Change> getLocalChangesFilteredByFiles(List<FilePath> paths)
 	{
-		final Collection<Change> changes = new HashSet<Change>();
+		final Collection<Change> changes = new HashSet<>();
 		for(LocalChangeList list : myChangeListManager.getChangeLists())
 		{
 			for(Change change : list.getChanges())
 			{
 				final ContentRevision afterRevision = change.getAfterRevision();
 				final ContentRevision beforeRevision = change.getBeforeRevision();
-				if((afterRevision != null && paths.contains(afterRevision.getFile())) || (beforeRevision != null && paths.contains(beforeRevision
-						.getFile())))
+				if((afterRevision != null && paths.contains(afterRevision.getFile())) || (beforeRevision != null && paths.contains(beforeRevision.getFile())))
 				{
 					changes.add(change);
 				}
@@ -317,7 +292,7 @@ public class GitMergeUpdater extends GitUpdater
 	private static class MergeLineListener extends GitLineHandlerAdapter
 	{
 		private MergeError myMergeError;
-		private List<String> myOutput = new ArrayList<String>();
+		private List<String> myOutput = new ArrayList<>();
 		private boolean myLocalChangesError = false;
 
 		@Override
@@ -356,7 +331,7 @@ public class GitMergeUpdater extends GitUpdater
 
 		public MyConflictResolver(Project project, @NotNull Git git, GitMerger merger, VirtualFile root)
 		{
-			super(project, git, ServiceManager.getService(git4idea.GitPlatformFacade.class), Collections.singleton(root), makeParams());
+			super(project, git, Collections.singleton(root), makeParams());
 			myMerger = merger;
 			myRoot = root;
 		}

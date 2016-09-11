@@ -16,16 +16,18 @@
 package git4idea.actions;
 
 import org.jetbrains.annotations.NotNull;
-import com.intellij.vcs.log.VcsFullCommitDetails;
+import com.intellij.vcs.log.Hash;
 import git4idea.history.wholeTree.GitCreateNewTag;
 import git4idea.repo.GitRepository;
 
 public class GitCreateTagAction extends GitLogSingleCommitAction
 {
+
 	@Override
-	protected void actionPerformed(@NotNull GitRepository repository, @NotNull VcsFullCommitDetails commit)
+	protected void actionPerformed(@NotNull GitRepository repository, @NotNull Hash commit)
 	{
-		String reference = commit.getId().asString();
+		String reference = commit.asString();
 		new GitCreateNewTag(repository.getProject(), repository, reference, null).execute();
 	}
+
 }

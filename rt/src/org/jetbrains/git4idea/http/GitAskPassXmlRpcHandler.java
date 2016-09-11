@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2013 JetBrains s.r.o.
+ * Copyright 2000-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,34 +22,37 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Kirill Likhodedov
  */
-public interface GitAskPassXmlRpcHandler {
+public interface GitAskPassXmlRpcHandler
+{
 
-  String GIT_ASK_PASS_ENV = "GIT_ASKPASS";
-  String GIT_ASK_PASS_HANDLER_ENV = "GIT_ASKPASS_HANDLER";
-  String GIT_ASK_PASS_PORT_ENV = "GIT_ASKPASS_PORT";
-  String HANDLER_NAME = GitAskPassXmlRpcHandler.class.getName();
+	String GIT_ASK_PASS_ENV = "GIT_ASKPASS";
+	String GIT_ASK_PASS_HANDLER_ENV = "GIT_ASKPASS_HANDLER";
+	String GIT_ASK_PASS_PORT_ENV = "GIT_ASKPASS_PORT";
+	String HANDLER_NAME = GitAskPassXmlRpcHandler.class.getName();
 
-  /**
-   * Get the username from the user to access the given URL.
-   * @param handler XML RPC handler number.
-   * @param url     URL which Git tries to access.
-   * @return The Username which should be used for the URL.
-   */
-  // UnusedDeclaration suppressed: the method is used via XML RPC
-  @SuppressWarnings("UnusedDeclaration")
-  @NotNull
-  String askUsername(int handler, @NotNull String url);
+	/**
+	 * Get the username from the user to access the given URL.
+	 *
+	 * @param token Access token.
+	 * @param url   URL which Git tries to access.
+	 * @return The Username which should be used for the URL.
+	 */
+	// UnusedDeclaration suppressed: the method is used via XML RPC
+	@SuppressWarnings("UnusedDeclaration")
+	@NotNull
+	String askUsername(String token, @NotNull String url);
 
-  /**
-   * Get the password from the user to access the given URL.
-   * It is assumed that the username either is specified in the URL (http://username@host.com), or has been asked earlier.
-   * @param handler XML RPC handler number.
-   * @param url     URL which Git tries to access.
-   * @return The password which should be used for the URL.
-   */
-  // UnusedDeclaration suppressed: the method is used via XML RPC
-  @SuppressWarnings("UnusedDeclaration")
-  @NotNull
-  String askPassword(int handler, @NotNull String url);
+	/**
+	 * Get the password from the user to access the given URL.
+	 * It is assumed that the username either is specified in the URL (http://username@host.com), or has been asked earlier.
+	 *
+	 * @param token Access token.
+	 * @param url   URL which Git tries to access.
+	 * @return The password which should be used for the URL.
+	 */
+	// UnusedDeclaration suppressed: the method is used via XML RPC
+	@SuppressWarnings("UnusedDeclaration")
+	@NotNull
+	String askPassword(String token, @NotNull String url);
 
 }

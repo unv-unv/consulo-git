@@ -15,6 +15,8 @@
  */
 package git4idea.commands;
 
+import java.util.Collection;
+
 import org.jetbrains.annotations.NotNull;
 import com.intellij.openapi.project.Project;
 
@@ -23,12 +25,10 @@ import com.intellij.openapi.project.Project;
  */
 class GitHttpAuthServiceImpl extends GitHttpAuthService
 {
-
 	@Override
 	@NotNull
-	public GitHttpAuthenticator createAuthenticator(@NotNull Project project, @NotNull GitCommand command, @NotNull String url)
+	public GitHttpAuthenticator createAuthenticator(@NotNull Project project, @NotNull GitCommand command, @NotNull Collection<String> urls)
 	{
-		return new GitHttpGuiAuthenticator(project, command, url);
+		return new GitHttpGuiAuthenticator(project, command, urls);
 	}
-
 }

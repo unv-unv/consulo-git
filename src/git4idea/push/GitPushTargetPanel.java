@@ -34,7 +34,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.mustbe.consulo.RequiredDispatchThread;
 import com.intellij.dvcs.push.PushTargetPanel;
 import com.intellij.dvcs.push.ui.PushLogTreeUtil;
 import com.intellij.dvcs.push.ui.PushTargetEditorListener;
@@ -65,6 +64,7 @@ import com.intellij.ui.popup.list.ListPopupImpl;
 import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.table.ComponentsListFocusTraversalPolicy;
+import consulo.annotations.RequiredDispatchThread;
 import git4idea.GitRemoteBranch;
 import git4idea.commands.Git;
 import git4idea.commands.GitCommandResult;

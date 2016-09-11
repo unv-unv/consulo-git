@@ -26,7 +26,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.vcs.log.*;
-import com.intellij.vcs.log.graph.impl.facade.bek.BekSorter;
+import com.intellij.vcs.log.util.BekUtil;
 
 class GitBekParentFixer
 {
@@ -46,7 +46,7 @@ class GitBekParentFixer
 	@NotNull
 	static GitBekParentFixer prepare(@NotNull VirtualFile root, @NotNull GitLogProvider provider) throws VcsException
 	{
-		if(!BekSorter.isBekEnabled())
+		if(!BekUtil.isBekEnabled())
 		{
 			return new GitBekParentFixer(Collections.<Hash>emptySet());
 		}

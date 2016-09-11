@@ -1,8 +1,16 @@
 /*
- * Copyright 2000-2012 JetBrains s.r.o.
+ * Copyright 2000-2014 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance permissions and
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package git4idea.branch;
@@ -17,12 +25,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.ui.MessageDialogBuilder;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.Pair;
+import com.intellij.openapi.util.Couple;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.util.ui.UIUtil;
-import git4idea.GitPlatformFacade;
 import git4idea.commands.Git;
 import git4idea.commands.GitCommandResult;
 import git4idea.commands.GitCompoundResult;
@@ -30,22 +38,13 @@ import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import git4idea.ui.branch.GitMultiRootBranchConfig;
 
-/**
- * @author Kirill Likhodedov
- */
 class GitDeleteRemoteBranchOperation extends GitBranchOperation
 {
 	private final String myBranchName;
 
-	public GitDeleteRemoteBranchOperation(
-			@NotNull Project project,
-			@NotNull GitPlatformFacade facade,
-			@NotNull Git git,
-			@NotNull GitBranchUiHandler handler,
-			@NotNull List<GitRepository> repositories,
-			@NotNull String name)
+	public GitDeleteRemoteBranchOperation(@NotNull Project project, @NotNull Git git, @NotNull GitBranchUiHandler handler, @NotNull List<GitRepository> repositories, @NotNull String name)
 	{
-		super(project, facade, git, handler, repositories);
+		super(project, git, handler, repositories);
 		myBranchName = name;
 	}
 
@@ -62,7 +61,7 @@ class GitDeleteRemoteBranchOperation extends GitBranchOperation
 			trackingBranches.remove(currentBranch);
 		}
 
-		final AtomicReference<DeleteRemoteBranchDecision> decision = new AtomicReference<DeleteRemoteBranchDecision>();
+		final AtomicReference<DeleteRemoteBranchDecision> decision = new AtomicReference<>();
 		final boolean finalCurrentBranchTracksBranchToDelete = currentBranchTracksBranchToDelete;
 		UIUtil.invokeAndWaitIfNeeded(new Runnable()
 		{
@@ -79,13 +78,13 @@ class GitDeleteRemoteBranchOperation extends GitBranchOperation
 			boolean deletedSuccessfully = doDeleteRemote(myBranchName, repositories);
 			if(deletedSuccessfully)
 			{
-				final Collection<String> successfullyDeletedLocalBranches = new ArrayList<String>(1);
+				final Collection<String> successfullyDeletedLocalBranches = new ArrayList<>(1);
 				if(decision.get().deleteTracking())
 				{
 					for(final String branch : trackingBranches)
 					{
 						getIndicator().setText("Deleting " + branch);
-						new GitDeleteBranchOperation(myProject, myFacade, myGit, myUiHandler, repositories, branch)
+						new GitDeleteBranchOperation(myProject, myGit, myUiHandler, repositories, branch)
 						{
 							@Override
 							protected void notifySuccess(@NotNull String message)
@@ -137,62 +136,60 @@ class GitDeleteRemoteBranchOperation extends GitBranchOperation
 
 	private boolean doDeleteRemote(@NotNull String branchName, @NotNull Collection<GitRepository> repositories)
 	{
+		Couple<String> pair = splitNameOfRemoteBranch(branchName);
+		String remoteName = pair.getFirst();
+		String branch = pair.getSecond();
+
 		GitCompoundResult result = new GitCompoundResult(myProject);
 		for(GitRepository repository : repositories)
 		{
-			Pair<String, String> pair = splitNameOfRemoteBranch(branchName);
-			String remote = pair.getFirst();
-			String branch = pair.getSecond();
-			GitCommandResult res = pushDeletion(repository, remote, branch);
+			GitCommandResult res;
+			GitRemote remote = getRemoteByName(repository, remoteName);
+			if(remote == null)
+			{
+				String error = "Couldn't find remote by name: " + remoteName;
+				LOG.error(error);
+				res = GitCommandResult.error(error);
+			}
+			else
+			{
+				res = pushDeletion(repository, remote, branch);
+				if(!res.success() && isAlreadyDeletedError(res.getErrorOutputAsJoinedString()))
+				{
+					res = myGit.remotePrune(repository, remote);
+				}
+			}
 			result.append(repository, res);
 			repository.update();
 		}
 		if(!result.totalSuccess())
 		{
-			VcsNotifier.getInstance(myProject).notifyError("Failed to delete remote branch " + branchName, result.getErrorOutputWithReposIndication
-					());
+			VcsNotifier.getInstance(myProject).notifyError("Failed to delete remote branch " + branchName, result.getErrorOutputWithReposIndication());
 		}
 		return result.totalSuccess();
+	}
+
+	private static boolean isAlreadyDeletedError(@NotNull String errorOutput)
+	{
+		return errorOutput.contains("remote ref does not exist");
 	}
 
 	/**
 	 * Returns the remote and the "local" name of a remote branch.
 	 * Expects branch in format "origin/master", i.e. remote/branch
 	 */
-	private static Pair<String, String> splitNameOfRemoteBranch(String branchName)
+	private static Couple<String> splitNameOfRemoteBranch(String branchName)
 	{
 		int firstSlash = branchName.indexOf('/');
 		String remoteName = firstSlash > -1 ? branchName.substring(0, firstSlash) : branchName;
 		String remoteBranchName = branchName.substring(firstSlash + 1);
-		return Pair.create(remoteName, remoteBranchName);
+		return Couple.of(remoteName, remoteBranchName);
 	}
 
 	@NotNull
-	private GitCommandResult pushDeletion(@NotNull GitRepository repository, @NotNull String remoteName, @NotNull String branchName)
+	private GitCommandResult pushDeletion(@NotNull GitRepository repository, @NotNull GitRemote remote, @NotNull String branchName)
 	{
-		GitRemote remote = getRemoteByName(repository, remoteName);
-		if(remote == null)
-		{
-			String error = "Couldn't find remote by name: " + remoteName;
-			LOG.error(error);
-			return GitCommandResult.error(error);
-		}
-
-		String remoteUrl = remote.getFirstUrl();
-		if(remoteUrl == null)
-		{
-			LOG.warn("No urls are defined for remote: " + remote);
-			return GitCommandResult.error("There is no urls defined for remote " + remote.getName());
-		}
-		return pushDeletionNatively(repository, remoteName, remoteUrl, branchName, remote.getPuttyKeyFile());
-	}
-
-	@NotNull
-	private GitCommandResult pushDeletionNatively(
-			@NotNull GitRepository repository, @NotNull String remoteName, @NotNull String url, @NotNull String branchName,
-			@Nullable String puttyKey)
-	{
-		return myGit.push(repository, remoteName, url, puttyKey, ":" + branchName);
+		return myGit.push(repository, remote, ":" + branchName, false, false, null);
 	}
 
 	@Nullable
@@ -218,8 +215,7 @@ class GitDeleteRemoteBranchOperation extends GitBranchOperation
 		VcsNotifier.getInstance(myProject).notifySuccess("Deleted remote branch " + remoteBranchName, message);
 	}
 
-	private DeleteRemoteBranchDecision confirmBranchDeletion(
-			@NotNull String branchName,
+	private DeleteRemoteBranchDecision confirmBranchDeletion(@NotNull String branchName,
 			@NotNull Collection<String> trackingBranches,
 			boolean currentBranchTracksBranchToDelete,
 			@NotNull Collection<GitRepository> repositories)
@@ -231,15 +227,14 @@ class GitDeleteRemoteBranchOperation extends GitBranchOperation
 		final boolean deleteTracking;
 		if(trackingBranches.isEmpty())
 		{
-			delete = Messages.showYesNoDialog(myProject, message, title, "Delete", "Cancel", Messages.getQuestionIcon()) == Messages.OK;
+			delete = Messages.showYesNoDialog(myProject, message, title, "Delete", "Cancel", Messages.getQuestionIcon()) == Messages.YES;
 			deleteTracking = false;
 		}
 		else
 		{
 			if(currentBranchTracksBranchToDelete)
 			{
-				message += "\n\nCurrent branch " + GitBranchUtil.getCurrentBranchOrRev(repositories) + " tracks " + branchName + " but won't be " +
-						"deleted.";
+				message += "\n\nCurrent branch " + GitBranchUtil.getCurrentBranchOrRev(repositories) + " tracks " + branchName + " but won't be deleted.";
 			}
 			final String checkboxMessage;
 			if(trackingBranches.size() == 1)
@@ -252,39 +247,21 @@ class GitDeleteRemoteBranchOperation extends GitBranchOperation
 			}
 
 			final AtomicBoolean deleteChoice = new AtomicBoolean();
-			delete = Messages.OK == Messages.showYesNoDialog(message, title, "Delete", "Cancel", Messages.getQuestionIcon(),
-					new DialogWrapper.DoNotAskOption()
+			delete = MessageDialogBuilder.yesNo(title, message).project(myProject).yesText("Delete").noText("Cancel").doNotAsk(new DialogWrapper.DoNotAskOption.Adapter()
 			{
 				@Override
-				public boolean isToBeShown()
+				public void rememberChoice(boolean isSelected, int exitCode)
 				{
-					return true;
+					deleteChoice.set(isSelected);
 				}
 
-				@Override
-				public void setToBeShown(boolean value, int exitCode)
-				{
-					deleteChoice.set(!value);
-				}
-
-				@Override
-				public boolean canBeHidden()
-				{
-					return true;
-				}
-
-				@Override
-				public boolean shouldSaveOptionsOnCancel()
-				{
-					return false;
-				}
-
+				@NotNull
 				@Override
 				public String getDoNotShowMessage()
 				{
 					return checkboxMessage;
 				}
-			});
+			}).show() == Messages.YES;
 			deleteTracking = deleteChoice.get();
 		}
 		return new DeleteRemoteBranchDecision(delete, deleteTracking);

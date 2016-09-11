@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2013 JetBrains s.r.o.
+ * Copyright 2000-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 package git4idea.commands;
+
+import java.util.Collection;
+import java.util.UUID;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.git4idea.http.GitAskPassApp;
@@ -30,7 +33,7 @@ public abstract class GitHttpAuthService extends GitXmlRpcHandlerService<GitHttp
 
 	protected GitHttpAuthService()
 	{
-		super("git-askpass-", GitAskPassXmlRpcHandler.HANDLER_NAME, GitAskPassApp.class);
+		super("intellij-git-askpass", GitAskPassXmlRpcHandler.HANDLER_NAME, GitAskPassApp.class);
 	}
 
 	@Override
@@ -49,7 +52,7 @@ public abstract class GitHttpAuthService extends GitXmlRpcHandlerService<GitHttp
 	 * Creates new {@link GitHttpAuthenticator} that will be requested to handle username and password requests from Git.
 	 */
 	@NotNull
-	public abstract GitHttpAuthenticator createAuthenticator(@NotNull Project project, @NotNull GitCommand command, @NotNull String url);
+	public abstract GitHttpAuthenticator createAuthenticator(@NotNull Project project, @NotNull GitCommand command, @NotNull Collection<String> urls);
 
 	/**
 	 * Internal handler implementation class, it is made public to be accessible via XML RPC.
@@ -58,16 +61,16 @@ public abstract class GitHttpAuthService extends GitXmlRpcHandlerService<GitHttp
 	{
 		@NotNull
 		@Override
-		public String askUsername(int handler, @NotNull String url)
+		public String askUsername(String token, @NotNull String url)
 		{
-			return getHandler(handler).askUsername(url);
+			return getHandler(UUID.fromString(token)).askUsername(url);
 		}
 
 		@NotNull
 		@Override
-		public String askPassword(int handler, @NotNull String url)
+		public String askPassword(String token, @NotNull String url)
 		{
-			return getHandler(handler).askPassword(url);
+			return getHandler(UUID.fromString(token)).askPassword(url);
 		}
 	}
 
