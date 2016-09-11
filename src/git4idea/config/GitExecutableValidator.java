@@ -15,14 +15,12 @@
  */
 package git4idea.config;
 
+import java.util.Collections;
+
 import org.jetbrains.annotations.NotNull;
 import com.intellij.execution.ExecutableValidator;
-import com.intellij.execution.configurations.GeneralCommandLine;
-import com.intellij.execution.process.CapturingProcessHandler;
-import com.intellij.execution.process.ProcessOutput;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vfs.CharsetToolkit;
 import git4idea.i18n.GitBundle;
 
 /**
@@ -55,19 +53,7 @@ public class GitExecutableValidator extends ExecutableValidator
 	@Override
 	public boolean isExecutableValid(@NotNull String executable)
 	{
-		try
-		{
-			GeneralCommandLine commandLine = new GeneralCommandLine();
-			commandLine.setExePath(executable);
-			commandLine.addParameter("--version");
-			CapturingProcessHandler handler = new CapturingProcessHandler(commandLine.createProcess(), CharsetToolkit.getDefaultSystemCharset());
-			ProcessOutput result = handler.runProcess(30 * 1000);
-			return !result.isTimeout() && (result.getExitCode() == 0) && result.getStderr().isEmpty();
-		}
-		catch(Throwable e)
-		{
-			return false;
-		}
+		return doCheckExecutable(executable, Collections.singletonList("--version"));
 	}
 
 	/**
