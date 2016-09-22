@@ -2,7 +2,7 @@
   <artifact name="dist">
     <output-path>$PROJECT_DIR$/out/artifacts/dist</output-path>
     <root id="root">
-      <element id="directory" name="git">
+      <element id="directory" name="com.intellij.git">
         <element id="directory" name="lib">
           <element id="zip-archive" name="git.jar">
             <element id="module-output" name="consulo-git" />
