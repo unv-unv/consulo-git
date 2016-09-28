@@ -63,7 +63,7 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.EnvironmentUtil;
 import com.intellij.util.EventDispatcher;
-import com.intellij.util.ObjectUtils;
+import com.intellij.util.ObjectUtil;
 import com.intellij.util.Processor;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.io.URLUtil;
@@ -150,7 +150,7 @@ public abstract class GitHandler
 		myAppSettings = GitVcsApplicationSettings.getInstance();
 		myProjectSettings = GitVcsSettings.getInstance(myProject);
 		myEnv = new HashMap<>(EnvironmentUtil.getEnvironmentMap());
-		myVcs = ObjectUtils.assertNotNull(GitVcs.getInstance(project));
+		myVcs = ObjectUtil.assertNotNull(GitVcs.getInstance(project));
 		myWorkingDirectory = directory;
 		myCommandLine = new GeneralCommandLine();
 		if(myAppSettings != null)
@@ -552,7 +552,7 @@ public abstract class GitHandler
 	{
 		GitHttpAuthService service = ServiceManager.getService(GitHttpAuthService.class);
 		myEnv.put(GitAskPassXmlRpcHandler.GIT_ASK_PASS_ENV, service.getScriptPath().getPath());
-		GitHttpAuthenticator httpAuthenticator = service.createAuthenticator(myProject, myCommand, ObjectUtils.assertNotNull(myUrls));
+		GitHttpAuthenticator httpAuthenticator = service.createAuthenticator(myProject, myCommand, ObjectUtil.assertNotNull(myUrls));
 		myHttpHandler = service.registerHandler(httpAuthenticator, myProject);
 		myEnvironmentCleanedUp = false;
 		myEnv.put(GitAskPassXmlRpcHandler.GIT_ASK_PASS_HANDLER_ENV, myHttpHandler.toString());
@@ -562,9 +562,9 @@ public abstract class GitHandler
 		addAuthListener(httpAuthenticator);
 	}
 
-	private void setupPuttyAuthenticator() throws IOException
+	private void setupPuttyAuthenticator()
 	{
-		Collection<String> urls = ObjectUtils.assertNotNull(myUrls);
+		Collection<String> urls = ObjectUtil.assertNotNull(myUrls);
 		String url = ContainerUtil.getFirstItem(urls);
 
 		GitRemoteProtocol remoteProtocol = GitRemoteProtocol.fromUrl(url);
@@ -583,7 +583,7 @@ public abstract class GitHandler
 			}
 			else
 			{
-				throw new IllegalArgumentException("No private key set");
+				throw new ProcessCanceledException();
 			}
 			myEnv.put("PLINK_ARGS", builder.toString());
 		}
@@ -601,7 +601,7 @@ public abstract class GitHandler
 		LOG.debug(String.format("handler=%s, port=%s", mySshHandler, port));
 
 		final HttpConfigurable httpConfigurable = HttpConfigurable.getInstance();
-		boolean useHttpProxy = httpConfigurable.USE_HTTP_PROXY && !isSshUrlExcluded(httpConfigurable, ObjectUtils.assertNotNull(myUrls));
+		boolean useHttpProxy = httpConfigurable.USE_HTTP_PROXY && !isSshUrlExcluded(httpConfigurable, ObjectUtil.assertNotNull(myUrls));
 		myEnv.put(GitSSHHandler.SSH_USE_PROXY_ENV, String.valueOf(useHttpProxy));
 
 		if(useHttpProxy)
