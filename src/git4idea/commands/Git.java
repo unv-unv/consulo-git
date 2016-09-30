@@ -114,7 +114,13 @@ public interface Git
 	GitCommandResult tip(@NotNull GitRepository repository, @NotNull String branchName);
 
 	@NotNull
-	GitCommandResult push(@NotNull GitRepository repository, @NotNull String remote, @Nullable String url, @NotNull String spec, boolean updateTracking, @NotNull GitLineHandlerListener... listeners);
+	GitCommandResult push(@NotNull GitRepository repository,
+			@NotNull String remote,
+			@Nullable String url,
+			@NotNull String puttyKey,
+			@NotNull String spec,
+			boolean updateTracking,
+			@NotNull GitLineHandlerListener... listeners);
 
 	@NotNull
 	GitCommandResult push(@NotNull GitRepository repository,

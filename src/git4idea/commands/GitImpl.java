@@ -443,11 +443,12 @@ public class GitImpl implements Git
 	public GitCommandResult push(@NotNull GitRepository repository,
 			@NotNull String remote,
 			@Nullable String url,
+			@NotNull String puttyKey,
 			@NotNull String spec,
 			boolean updateTracking,
 			@NotNull GitLineHandlerListener... listeners)
 	{
-		return doPush(repository, remote, null, singleton(url), spec, false, updateTracking, null, listeners);
+		return doPush(repository, remote, puttyKey, singleton(url), spec, false, updateTracking, null, listeners);
 	}
 
 	@Override
