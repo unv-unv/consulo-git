@@ -482,6 +482,7 @@ public class GitImpl implements Git
 			{
 				final GitLineHandler h = new GitLineHandler(repository.getProject(), repository.getRoot(), GitCommand.PUSH);
 				h.setUrls(remoteUrls);
+				h.setPuttyKey(puttyKey);
 				h.setSilent(false);
 				h.setStdoutSuppressed(false);
 				addListeners(h, listeners);
