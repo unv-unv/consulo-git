@@ -24,7 +24,9 @@ import java.util.Map;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import com.intellij.dvcs.branch.BranchStorage;
 import com.intellij.dvcs.branch.DvcsSyncSettings;
+import com.intellij.dvcs.repo.Repository;
 import com.intellij.lifecycle.PeriodicalTasksCloser;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
@@ -39,6 +41,7 @@ import com.intellij.util.xmlb.annotations.Attribute;
 import com.intellij.util.xmlb.annotations.Tag;
 import git4idea.GitRemoteBranch;
 import git4idea.GitUtil;
+import git4idea.branch.GitBranchType;
 import git4idea.push.GitPushTagMode;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
@@ -61,8 +64,7 @@ public class GitVcsSettings implements PersistentStateComponent<GitVcsSettings.S
 	 */
 	public enum UpdateChangesPolicy
 	{
-		STASH,
-		SHELVE,
+		STASH, SHELVE,
 	}
 
 	public static class State
@@ -90,6 +92,11 @@ public class GitVcsSettings implements PersistentStateComponent<GitVcsSettings.S
 		@AbstractCollection(surroundWithTag = false)
 		@Tag("push-targets")
 		public List<PushTargetInfo> PUSH_TARGETS = ContainerUtil.newArrayList();
+
+		@Tag("favorite-branches")
+		public BranchStorage FAVORITE_BRANCHES = new BranchStorage();
+		@Tag("excluded-from-favorite")
+		public BranchStorage EXCLUDED_FAVORITES = new BranchStorage();
 	}
 
 	public GitVcsSettings(GitVcsApplicationSettings appSettings)
@@ -355,6 +362,36 @@ public class GitVcsSettings implements PersistentStateComponent<GitVcsSettings.S
 			}
 		}
 		return null;
+	}
+
+	public void addToFavorites(@NotNull GitBranchType type, @Nullable GitRepository repository, @NotNull String branchName)
+	{
+		myState.FAVORITE_BRANCHES.add(type.toString(), repository, branchName);
+	}
+
+	public void removeFromFavorites(@NotNull GitBranchType type, @Nullable GitRepository repository, @NotNull String branchName)
+	{
+		myState.FAVORITE_BRANCHES.remove(type.toString(), repository, branchName);
+	}
+
+	public boolean isFavorite(@NotNull GitBranchType type, @Nullable Repository repository, @NotNull String branchName)
+	{
+		return myState.FAVORITE_BRANCHES.contains(type.toString(), repository, branchName);
+	}
+
+	public void excludedFromFavorites(@NotNull GitBranchType type, @Nullable GitRepository repository, @NotNull String branchName)
+	{
+		myState.EXCLUDED_FAVORITES.add(type.toString(), repository, branchName);
+	}
+
+	public void removeFromExcluded(@NotNull GitBranchType type, @Nullable GitRepository repository, @NotNull String branchName)
+	{
+		myState.EXCLUDED_FAVORITES.remove(type.toString(), repository, branchName);
+	}
+
+	public boolean isExcludedFromFavorites(@NotNull GitBranchType type, @Nullable Repository repository, @NotNull String branchName)
+	{
+		return myState.EXCLUDED_FAVORITES.contains(type.toString(), repository, branchName);
 	}
 
 	@Tag("push-target-info")

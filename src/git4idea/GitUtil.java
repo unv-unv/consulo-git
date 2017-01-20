@@ -56,6 +56,7 @@ import com.intellij.util.Consumer;
 import com.intellij.util.Function;
 import com.intellij.util.ObjectUtils;
 import com.intellij.util.containers.ContainerUtil;
+import com.intellij.util.containers.OpenTHashSet;
 import com.intellij.util.ui.UIUtil;
 import com.intellij.vcsUtil.VcsFileUtil;
 import com.intellij.vcsUtil.VcsUtil;
@@ -1256,7 +1257,8 @@ public class GitUtil
 	@NotNull
 	public static String getLogString(@NotNull String root, @NotNull Collection<Change> changes)
 	{
-		return StringUtil.join(changes, change -> {
+		return StringUtil.join(changes, change ->
+		{
 			ContentRevision after = change.getAfterRevision();
 			ContentRevision before = change.getBeforeRevision();
 			switch(change.getType())
@@ -1277,5 +1279,20 @@ public class GitUtil
 	public static String getRelativePath(@NotNull String root, @NotNull ContentRevision after)
 	{
 		return FileUtil.getRelativePath(root, after.getFile().getPath(), File.separatorChar);
+	}
+
+	/**
+	 * <p>Finds the local changes which are "the same" as the given changes.</p>
+	 * <p>The purpose of this method is to get actual local changes after some other changes were applied to the working tree
+	 * (e.g. if they were cherry-picked from a commit). Working with the original non-local changes is limited, in particular,
+	 * the difference between content revisions may be not the same as the local change.</p>
+	 * <p>"The same" here means the changes made in the same files. It is possible that there was a change made in file A in the original
+	 * commit, but there are no local changes made in file A. Such situations are ignored.</p>
+	 */
+	@NotNull
+	public static Collection<Change> findCorrespondentLocalChanges(@NotNull ChangeListManager changeListManager, @NotNull Collection<Change> originalChanges)
+	{
+		OpenTHashSet<Change> allChanges = new OpenTHashSet<>(changeListManager.getAllChanges());
+		return ContainerUtil.mapNotNull(originalChanges, allChanges::get);
 	}
 }

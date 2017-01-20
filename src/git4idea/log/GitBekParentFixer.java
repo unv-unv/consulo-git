@@ -108,6 +108,18 @@ class GitBekParentFixer
 	{
 		final VcsLogTextFilter textFilter = new VcsLogTextFilter()
 		{
+			@Override
+			public boolean matchesCase()
+			{
+				return false;
+			}
+
+			@Override
+			public boolean isRegex()
+			{
+				return false;
+			}
+
 			@NotNull
 			@Override
 			public String getText()

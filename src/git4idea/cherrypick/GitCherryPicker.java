@@ -57,8 +57,10 @@ import com.intellij.openapi.vcs.merge.MergeDialogCustomizer;
 import com.intellij.openapi.vcs.update.RefreshVFsSynchronously;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.util.ArrayUtil;
 import com.intellij.util.Consumer;
 import com.intellij.util.Function;
+import com.intellij.util.ObjectUtils;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.vcs.log.Hash;
 import com.intellij.vcs.log.VcsFullCommitDetails;
@@ -200,8 +202,8 @@ public class GitCherryPicker extends VcsCherryPicker
 			}
 			else if(untrackedFilesDetector.wasMessageDetected())
 			{
-				String description = commitDetails(commitWrapper) + "<br/>Some untracked working tree files would be overwritten by cherry-pick.<br/>" +
-						"Please move, remove or add them before you can cherry-pick. <a href='view'>View them</a>";
+				String description = commitDetails(commitWrapper) + "<br/>Some untracked working tree files would be overwritten by cherry-pick.<br/>" + "Please move, remove or add them before you " +
+						"can cherry-pick. <a href='view'>View them</a>";
 				description += getSuccessfulCommitDetailsIfAny(successfulCommits);
 
 				GitUntrackedFilesHelper.notifyUntrackedFilesOverwrittenBy(myProject, repository.getRoot(), untrackedFilesDetector.getRelativeFilePaths(), "cherry-pick", description);
@@ -259,8 +261,8 @@ public class GitCherryPicker extends VcsCherryPicker
 
 	private void notifyConflictWarning(@NotNull GitRepository repository, @NotNull GitCommitWrapper commit, @NotNull List<GitCommitWrapper> successfulCommits)
 	{
-		NotificationListener resolveLinkListener = new ResolveLinkListener(myProject, myGit, repository.getRoot(), commit.getCommit().getId().toShortString(),
-				VcsUserUtil.getShortPresentation(commit.getCommit().getAuthor()), commit.getSubject());
+		NotificationListener resolveLinkListener = new ResolveLinkListener(myProject, myGit, repository.getRoot(), commit.getCommit().getId().toShortString(), VcsUserUtil.getShortPresentation(commit
+				.getCommit().getAuthor()), commit.getSubject());
 		String description = commitDetails(commit) + "<br/>Unresolved conflicts remain in the working tree. <a href='resolve'>Resolve them.<a/>";
 		description += getSuccessfulCommitDetailsIfAny(successfulCommits);
 		VcsNotifier.getInstance(myProject).notifyImportantWarning("Cherry-picked with conflicts", description, resolveLinkListener);
@@ -300,20 +302,19 @@ public class GitCherryPicker extends VcsCherryPicker
 			public void run()
 			{
 				myChangeListManager.invokeAfterUpdate(new Runnable()
-													  {
-														  public void run()
-														  {
-															  changeList.set(createChangeListIfThereAreChanges(commit, commitMessage));
-															  waiter.countDown();
-														  }
-													  }, InvokeAfterUpdateMode.SILENT_CALLBACK_POOLED, "Cherry-pick", new Consumer<VcsDirtyScopeManager>()
-						{
-							public void consume(VcsDirtyScopeManager vcsDirtyScopeManager)
-							{
-								vcsDirtyScopeManager.filePathsDirty(paths, null);
-							}
-						}, ModalityState.NON_MODAL
-				);
+				{
+					public void run()
+					{
+						changeList.set(createChangeListIfThereAreChanges(commit, commitMessage));
+						waiter.countDown();
+					}
+				}, InvokeAfterUpdateMode.SILENT_CALLBACK_POOLED, "Cherry-pick", new Consumer<VcsDirtyScopeManager>()
+				{
+					public void consume(VcsDirtyScopeManager vcsDirtyScopeManager)
+					{
+						vcsDirtyScopeManager.filePathsDirty(paths, null);
+					}
+				}, ModalityState.NON_MODAL);
 			}
 		}, ModalityState.NON_MODAL);
 		try
@@ -541,8 +542,7 @@ public class GitCherryPicker extends VcsCherryPicker
 		{
 			return createdChangeList;
 		}
-		LOG.warn("No changes were moved to the changelist. Changes from commit: " + originalChanges +
-				"\nAll changes: " + myChangeListManager.getAllChanges());
+		LOG.warn("No changes were moved to the changelist. Changes from commit: " + originalChanges + "\nAll changes: " + myChangeListManager.getAllChanges());
 		myChangeListManager.removeChangeList(createdChangeList);
 		return null;
 	}
@@ -563,6 +563,8 @@ public class GitCherryPicker extends VcsCherryPicker
 	@Nullable
 	private LocalChangeList moveChanges(@NotNull Collection<Change> originalChanges, @NotNull final LocalChangeList targetChangeList)
 	{
+		Collection<Change> localChanges = GitUtil.findCorrespondentLocalChanges(myChangeListManager, originalChanges);
+
 		// 1. We have to listen to CLM changes, because moveChangesTo is asynchronous
 		// 2. We have to collect the real target change list, because the original target list (passed to moveChangesTo) is not updated in time.
 		final CountDownLatch moveChangesWaiter = new CountDownLatch(1);
@@ -582,7 +584,7 @@ public class GitCherryPicker extends VcsCherryPicker
 		try
 		{
 			myChangeListManager.addChangeListListener(listener);
-			myChangeListManager.moveChangesTo(targetChangeList, originalChanges.toArray(new Change[originalChanges.size()]));
+			myChangeListManager.moveChangesTo(targetChangeList, ArrayUtil.toObjectArray(localChanges, Change.class));
 			boolean success = moveChangesWaiter.await(100, TimeUnit.SECONDS);
 			if(!success)
 			{
@@ -639,32 +641,31 @@ public class GitCherryPicker extends VcsCherryPicker
 	}
 
 	@Override
-	public boolean isEnabled(@NotNull VcsLog log, @NotNull Map<VirtualFile, List<Hash>> commits)
+	public boolean canHandleForRoots(@NotNull Collection<VirtualFile> roots)
 	{
-		if(commits.isEmpty())
-		{
-			return false;
-		}
+		return roots.stream().allMatch(r -> myRepositoryManager.getRepositoryForRoot(r) != null);
+	}
 
+	@Override
+	public String getInfo(@NotNull VcsLog log, @NotNull Map<VirtualFile, List<Hash>> commits)
+	{
+		int commitsNum = commits.values().size();
 		for(VirtualFile root : commits.keySet())
 		{
-			GitRepository repository = myRepositoryManager.getRepositoryForRoot(root);
-			if(repository == null)
-			{
-				return false;
-			}
+			// all these roots already related to this cherry-picker
+			GitRepository repository = ObjectUtils.assertNotNull(myRepositoryManager.getRepositoryForRoot(root));
 			for(Hash commit : commits.get(root))
 			{
 				GitLocalBranch currentBranch = repository.getCurrentBranch();
 				Collection<String> containingBranches = log.getContainingBranches(commit, root);
 				if(currentBranch != null && containingBranches != null && containingBranches.contains(currentBranch.getName()))
 				{
-					// already is contained in the current branch
-					return false;
+					// already in the current branch
+					return String.format("The current branch already contains %s the selected %s", commitsNum > 1 ? "one of" : "", pluralize("commit", commitsNum));
 				}
 			}
 		}
-		return true;
+		return null;
 	}
 
 	private static class CherryPickData
@@ -766,8 +767,7 @@ public class GitCherryPicker extends VcsCherryPicker
 		@Override
 		public String getMultipleFileMergeDescription(@NotNull Collection<VirtualFile> files)
 		{
-			return "<html>Conflicts during cherry-picking commit <code>" + myCommitHash + "</code> made by " + myCommitAuthor + "<br/>" +
-					"<code>\"" + myCommitMessage + "\"</code></html>";
+			return "<html>Conflicts during cherry-picking commit <code>" + myCommitHash + "</code> made by " + myCommitAuthor + "<br/>" + "<code>\"" + myCommitMessage + "\"</code></html>";
 		}
 
 		@Override
