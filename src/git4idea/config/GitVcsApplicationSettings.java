@@ -18,6 +18,7 @@ package git4idea.config;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.components.PersistentStateComponent;
+import com.intellij.openapi.components.RoamingType;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
@@ -26,9 +27,10 @@ import com.intellij.openapi.components.StoragePathMacros;
 /**
  * The application wide settings for the git
  */
-@State(
-		name = "Git.Application.Settings",
-		storages = {@Storage(file = StoragePathMacros.APP_CONFIG + "/vcs.xml")})
+@State(name = "Git.Application.Settings", storages = {
+		@Storage(file = StoragePathMacros.APP_CONFIG + "/git.xml", roamingType = RoamingType.PER_PLATFORM),
+		@Storage(file = StoragePathMacros.APP_CONFIG + "/vcs.xml", deprecated = true),
+})
 public class GitVcsApplicationSettings implements PersistentStateComponent<GitVcsApplicationSettings.State>
 {
 	private State myState = new State();
