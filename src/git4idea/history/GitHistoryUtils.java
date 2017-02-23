@@ -441,7 +441,7 @@ public class GitHistoryUtils
 		final GitLineHandler h = new GitLineHandler(project, root, GitCommand.LOG);
 		h.setStdoutSuppressed(true);
 		h.addParameters("--name-status", parser.getPretty(), "--encoding=UTF-8", lastCommit);
-		if(GitVersionSpecialty.FULL_HISTORY_SIMPLIFY_MERGES_WORKS_CORRECTLY.existsIn(version) && Registry.is("git.file.history.full"))
+		if(GitVersionSpecialty.FULL_HISTORY_SIMPLIFY_MERGES_WORKS_CORRECTLY.existsIn(version) && Registry.is("git.file.history.full", true))
 		{
 			h.addParameters("--full-history", "--simplify-merges");
 		}
