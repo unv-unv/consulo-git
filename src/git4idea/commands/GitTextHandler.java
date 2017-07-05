@@ -22,13 +22,16 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.configurations.GeneralCommandLine;
+import com.intellij.execution.process.KillableProcessHandler;
 import com.intellij.execution.process.OSProcessHandler;
 import com.intellij.execution.process.ProcessEvent;
 import com.intellij.execution.process.ProcessHandler;
 import com.intellij.execution.process.ProcessListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
+import com.intellij.openapi.util.registry.Registry;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.util.io.BaseOutputReader;
 
 /**
  * The handler for git commands with text outputs
@@ -61,8 +64,8 @@ public abstract class GitTextHandler extends GitHandler
 			{
 				return null;
 			}
-			final ProcessHandler processHandler = createProcess(myCommandLine);
-			myHandler = (OSProcessHandler) processHandler;
+			final OSProcessHandler processHandler = createProcess(myCommandLine);
+			myHandler = processHandler;
 			return myHandler.getProcess();
 		}
 	}
@@ -150,21 +153,17 @@ public abstract class GitTextHandler extends GitHandler
 		}
 	}
 
-	public ProcessHandler createProcess(@NotNull GeneralCommandLine commandLine) throws ExecutionException
+	public OSProcessHandler createProcess(@NotNull GeneralCommandLine commandLine) throws ExecutionException
 	{
-		Process process = commandLine.createProcess();
-		return new MyOSProcessHandler(process, commandLine, getCharset());
+		commandLine.setCharset(getCharset());
+		return new MyOSProcessHandler(commandLine);
 	}
 
-	private static class MyOSProcessHandler extends OSProcessHandler
+	private static class MyOSProcessHandler extends KillableProcessHandler
 	{
-		@NotNull
-		private final Charset myCharset;
-
-		public MyOSProcessHandler(Process process, GeneralCommandLine commandLine, @NotNull Charset charset)
+		public MyOSProcessHandler(GeneralCommandLine commandLine) throws ExecutionException
 		{
-			super(process, commandLine.getCommandLineString());
-			myCharset = charset;
+			super(commandLine, true);
 		}
 
 		@NotNull
@@ -173,6 +172,12 @@ public abstract class GitTextHandler extends GitHandler
 		{
 			return myCharset;
 		}
-	}
 
+		@NotNull
+		@Override
+		protected BaseOutputReader.Options readerOptions()
+		{
+			return Registry.is("git.blocking.read", true) ? BaseOutputReader.Options.BLOCKING : BaseOutputReader.Options.NON_BLOCKING;
+		}
+	}
 }
