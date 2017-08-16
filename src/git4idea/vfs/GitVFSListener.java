@@ -29,12 +29,14 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.SystemInfo;
+import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vcs.FilePath;
 import com.intellij.openapi.vcs.ObjectsConvertor;
 import com.intellij.openapi.vcs.VcsException;
@@ -44,7 +46,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileEvent;
 import com.intellij.ui.AppUIUtil;
 import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.ui.UIUtil;
 import com.intellij.vcsUtil.VcsFileUtil;
 import com.intellij.vcsUtil.VcsUtil;
 import git4idea.GitUtil;
@@ -113,7 +114,7 @@ public class GitVFSListener extends VcsVFSListener
 	protected void executeAdd(final List<VirtualFile> addedFiles, final Map<VirtualFile, VirtualFile> copiedFiles)
 	{
 		// Filter added files before further processing
-		final Map<VirtualFile, List<VirtualFile>> sortedFiles;
+		Map<VirtualFile, List<VirtualFile>> sortedFiles;
 		try
 		{
 			sortedFiles = GitUtil.sortFilesByGitRoot(addedFiles, true);
@@ -132,33 +133,20 @@ public class GitVFSListener extends VcsVFSListener
 				for(Map.Entry<VirtualFile, List<VirtualFile>> e : sortedFiles.entrySet())
 				{
 					VirtualFile root = e.getKey();
-					final List<VirtualFile> files = e.getValue();
+					List<VirtualFile> files = e.getValue();
 					pi.setText(root.getPresentableUrl());
 					try
 					{
 						retainedFiles.addAll(myGit.untrackedFiles(myProject, root, files));
 					}
-					catch(final VcsException ex)
+					catch(VcsException ex)
 					{
-						UIUtil.invokeLaterIfNeeded(new Runnable()
-						{
-							public void run()
-							{
-								gitVcs().showMessages(ex.getMessage());
-							}
-						});
+						ApplicationManager.getApplication().invokeLater(() -> gitVcs().showMessages(ex.getMessage()));
 					}
 				}
 				addedFiles.retainAll(retainedFiles);
 
-				AppUIUtil.invokeLaterIfProjectAlive(myProject, new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						originalExecuteAdd(addedFiles, copiedFiles);
-					}
-				});
+				AppUIUtil.invokeLaterIfProjectAlive(myProject, () -> originalExecuteAdd(addedFiles, copiedFiles));
 			}
 		});
 	}
@@ -228,15 +216,15 @@ public class GitVFSListener extends VcsVFSListener
 
 			public void execute(@NotNull VirtualFile root, @NotNull List<FilePath> files) throws VcsException
 			{
-				final File rootFile = new File(root.getPath());
-				GitFileUtils.delete(myProject, root, files, "--ignore-unmatch");
-				if(myProject != null && !myProject.isDisposed())
+				GitFileUtils.delete(myProject, root, files, "--ignore-unmatch", "--cached");
+				if(!myProject.isDisposed())
 				{
 					VcsFileUtil.markFilesDirty(myProject, files);
 				}
+				File rootFile = new File(root.getPath());
 				for(FilePath p : files)
 				{
-					for(File f = p.getIOFile(); f != null && !f.equals(rootFile); f = f.getParentFile())
+					for(File f = p.getIOFile(); f != null && !FileUtil.filesEqual(f, rootFile); f = f.getParentFile())
 					{
 						filesToRefresh.add(f);
 					}
@@ -314,9 +302,9 @@ public class GitVFSListener extends VcsVFSListener
 		return deletedFiles;
 	}
 
-	private void performBackgroundOperation(@NotNull Collection<FilePath> files, @NotNull String operationTitle, @NotNull final LongOperationPerRootExecutor executor)
+	private void performBackgroundOperation(@NotNull Collection<FilePath> files, @NotNull String operationTitle, @NotNull LongOperationPerRootExecutor executor)
 	{
-		final Map<VirtualFile, List<FilePath>> sortedFiles;
+		Map<VirtualFile, List<FilePath>> sortedFiles;
 		try
 		{
 			sortedFiles = GitUtil.sortFilePathsByGitRoot(files, true);
@@ -339,13 +327,7 @@ public class GitVFSListener extends VcsVFSListener
 					}
 					catch(final VcsException ex)
 					{
-						UIUtil.invokeLaterIfNeeded(new Runnable()
-						{
-							public void run()
-							{
-								gitVcs().showMessages(ex.getMessage());
-							}
-						});
+						ApplicationManager.getApplication().invokeLater(() -> gitVcs().showMessages(ex.getMessage()));
 					}
 				}
 				RefreshVFsSynchronously.refreshFiles(executor.getFilesToRefresh());
