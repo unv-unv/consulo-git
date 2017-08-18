@@ -19,10 +19,12 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Function;
 
 import javax.swing.event.HyperlinkEvent;
 
@@ -59,8 +61,6 @@ import com.intellij.openapi.vcs.update.UpdateEnvironment;
 import com.intellij.openapi.vcs.versionBrowser.CommittedChangeList;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.containers.ComparatorDelegate;
-import com.intellij.util.containers.Convertor;
 import com.intellij.util.ui.UIUtil;
 import com.intellij.vcs.log.VcsUserRegistry;
 import git4idea.annotate.GitAnnotationProvider;
@@ -474,8 +474,8 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 				log.info("Unsupported Git version: " + myVersion);
 				final String SETTINGS_LINK = "settings";
 				final String UPDATE_LINK = "update";
-				String message = String.format("The <a href='" + SETTINGS_LINK + "'>configured</a> version of Git is not supported: %s.<br/> " +
-						"The minimal supported version is %s. Please <a href='" + UPDATE_LINK + "'>update</a>.", myVersion, GitVersion.MIN);
+				String message = String.format("The <a href='" + SETTINGS_LINK + "'>configured</a> version of Git is not supported: %s.<br/> " + "The minimal supported version is %s. Please <a " +
+						"href='" + UPDATE_LINK + "'>update</a>.", myVersion, GitVersion.MIN);
 				VcsNotifier.getInstance(myProject).notifyError("Unsupported Git version", message, new NotificationListener.Adapter()
 				{
 					@Override
@@ -540,15 +540,16 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 		return true;
 	}
 
+	@NotNull
 	@Override
-	public <S> List<S> filterUniqueRoots(final List<S> in, final Convertor<S, VirtualFile> convertor)
+	public <S> List<S> filterUniqueRoots(@NotNull List<S> in, @NotNull Function<S, VirtualFile> convertor)
 	{
-		Collections.sort(in, new ComparatorDelegate<>(convertor, FilePathComparator.getInstance()));
+		Collections.sort(in, Comparator.comparing(convertor, FilePathComparator.getInstance()));
 
 		for(int i = 1; i < in.size(); i++)
 		{
 			final S sChild = in.get(i);
-			final VirtualFile child = convertor.convert(sChild);
+			final VirtualFile child = convertor.apply(sChild);
 			final VirtualFile childRoot = GitUtil.gitRootOrNull(child);
 			if(childRoot == null)
 			{
@@ -558,7 +559,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 			for(int j = i - 1; j >= 0; --j)
 			{
 				final S sParent = in.get(j);
-				final VirtualFile parent = convertor.convert(sParent);
+				final VirtualFile parent = convertor.apply(sParent);
 				// the method check both that parent is an ancestor of the child and that they share common git root
 				if(VfsUtilCore.isAncestor(parent, child, false) && VfsUtilCore.isAncestor(childRoot, parent, false))
 				{
