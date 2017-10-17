@@ -31,9 +31,9 @@ import org.jetbrains.annotations.Nullable;
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.CommonShortcuts;
-import com.intellij.openapi.actionSystem.DataKey;
 import com.intellij.openapi.actionSystem.DataSink;
 import com.intellij.openapi.actionSystem.TypeSafeDataProvider;
+import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vcs.VcsDataKeys;
 import com.intellij.openapi.vcs.changes.Change;
 import com.intellij.openapi.vcs.changes.committed.CommittedChangesTreeBrowser;
@@ -126,9 +126,9 @@ public class GitCommitListPanel extends JPanel implements TypeSafeDataProvider
 
 	// Make changes available for diff action
 	@Override
-	public void calcData(DataKey key, DataSink sink)
+	public void calcData(Key<?> key, DataSink sink)
 	{
-		if(VcsDataKeys.CHANGES.equals(key))
+		if(VcsDataKeys.CHANGES == key)
 		{
 			int[] rows = myTable.getSelectedRows();
 			if(rows.length != 1)
@@ -140,7 +140,7 @@ public class GitCommitListPanel extends JPanel implements TypeSafeDataProvider
 			GitCommit gitCommit = myCommits.get(row);
 			// suppressing: inherited API
 			//noinspection unchecked
-			sink.put(key, ArrayUtil.toObjectArray(gitCommit.getChanges(), Change.class));
+			sink.put(VcsDataKeys.CHANGES, ArrayUtil.toObjectArray(gitCommit.getChanges(), Change.class));
 		}
 	}
 

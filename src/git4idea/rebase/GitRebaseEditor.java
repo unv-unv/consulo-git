@@ -31,7 +31,6 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
 
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.intellij.icons.AllIcons;
@@ -45,6 +44,7 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.AnActionButton;
@@ -217,9 +217,9 @@ public class GitRebaseEditor extends DialogWrapper implements DataProvider
 
 	@Nullable
 	@Override
-	public Object getData(@NonNls String dataId)
+	public Object getData(@NotNull Key<?> dataId)
 	{
-		if(PlatformDataKeys.COPY_PROVIDER.is(dataId))
+		if(PlatformDataKeys.COPY_PROVIDER == dataId)
 		{
 			return myCopyProvider;
 		}

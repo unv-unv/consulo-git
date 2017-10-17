@@ -34,6 +34,7 @@ import com.intellij.openapi.actionSystem.CustomShortcutSet;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.PanelWithActionsAndCloseButton;
+import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vcs.VcsDataKeys;
 import com.intellij.openapi.vcs.annotate.ShowAllAffectedGenericAction;
 import com.intellij.openapi.vcs.ex.ProjectLevelVcsManagerEx;
@@ -161,9 +162,9 @@ public class GitSkippedCommits extends PanelWithActionsAndCloseButton
 	}
 
 	@Override
-	public Object getData(String dataId)
+	public Object getData(@NotNull Key<?> dataId)
 	{
-		if(CommonDataKeys.PROJECT.is(dataId))
+		if(CommonDataKeys.PROJECT == dataId)
 		{
 			return myProject;
 		}
@@ -173,11 +174,11 @@ public class GitSkippedCommits extends PanelWithActionsAndCloseButton
 		if(o instanceof Commit)
 		{
 			Commit c = (Commit) o;
-			if(VcsDataKeys.VCS_VIRTUAL_FILE.is(dataId))
+			if(VcsDataKeys.VCS_VIRTUAL_FILE == dataId)
 			{
 				return c.root;
 			}
-			if(VcsDataKeys.VCS_FILE_REVISION.is(dataId))
+			if(VcsDataKeys.VCS_FILE_REVISION == dataId)
 			{
 				return new GitFileRevision(myProject, VcsUtil.getFilePath(c.root.getPath()), c.commitInfo.revision);
 			}
