@@ -38,6 +38,7 @@ import com.intellij.openapi.vcs.update.UpdatedFiles;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ui.UIUtil;
+import com.intellij.vcs.ViewUpdateInfoNotification;
 import git4idea.GitRevisionNumber;
 import git4idea.GitVcs;
 import git4idea.actions.GitRepositoryAction;
@@ -175,6 +176,7 @@ public class GitMergeUtil
 						UpdateInfoTree tree = manager.showUpdateProjectInfo(files, actionName, actionInfo, false);
 						tree.setBefore(beforeLabel);
 						tree.setAfter(LocalHistory.getInstance().putSystemLabel(project, "After update"));
+						ViewUpdateInfoNotification.focusUpdateInfoTree(project, tree);
 					}
 				});
 			}
