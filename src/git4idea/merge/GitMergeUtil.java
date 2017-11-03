@@ -28,7 +28,6 @@ import com.intellij.ide.util.ElementsChooser;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.AbstractVcsHelper;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
-import com.intellij.openapi.vcs.TransactionRunnable;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.ex.ProjectLevelVcsManagerEx;
 import com.intellij.openapi.vcs.update.ActionInfo;
@@ -163,54 +162,37 @@ public class GitMergeUtil
 		{
 			return;
 		}
-		action.delayTask(new TransactionRunnable()
+		action.delayTask(exceptionList -> UIUtil.invokeLaterIfNeeded(() ->
 		{
-			public void run(List<VcsException> exceptionList)
-			{
-				UIUtil.invokeLaterIfNeeded(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						ProjectLevelVcsManagerEx manager = (ProjectLevelVcsManagerEx) ProjectLevelVcsManager.getInstance(project);
-						UpdateInfoTree tree = manager.showUpdateProjectInfo(files, actionName, actionInfo, false);
-						tree.setBefore(beforeLabel);
-						tree.setAfter(LocalHistory.getInstance().putSystemLabel(project, "After update"));
-						ViewUpdateInfoNotification.focusUpdateInfoTree(project, tree);
-					}
-				});
-			}
-		});
+			ProjectLevelVcsManagerEx manager = (ProjectLevelVcsManagerEx) ProjectLevelVcsManager.getInstance(project);
+			UpdateInfoTree tree = manager.showUpdateProjectInfo(files, actionName, actionInfo, false);
+			tree.setBefore(beforeLabel);
+			tree.setAfter(LocalHistory.getInstance().putSystemLabel(project, "After update"));
+			ViewUpdateInfoNotification.focusUpdateInfoTree(project, tree);
+		}));
 		final Collection<String> unmergedNames = files.getGroupById(FileGroup.MERGED_WITH_CONFLICT_ID).getFiles();
 		if(!unmergedNames.isEmpty())
 		{
-			action.delayTask(new TransactionRunnable()
+			action.delayTask(exceptionList ->
 			{
-				public void run(List<VcsException> exceptionList)
+				LocalFileSystem lfs = LocalFileSystem.getInstance();
+				final ArrayList<VirtualFile> unmerged = new ArrayList<>();
+				for(String fileName : unmergedNames)
 				{
-					LocalFileSystem lfs = LocalFileSystem.getInstance();
-					final ArrayList<VirtualFile> unmerged = new ArrayList<>();
-					for(String fileName : unmergedNames)
+					VirtualFile f = lfs.findFileByPath(fileName);
+					if(f != null)
 					{
-						VirtualFile f = lfs.findFileByPath(fileName);
-						if(f != null)
-						{
-							unmerged.add(f);
-						}
+						unmerged.add(f);
 					}
-					UIUtil.invokeLaterIfNeeded(new Runnable()
-					{
-						@Override
-						public void run()
-						{
-							GitVcs vcs = GitVcs.getInstance(project);
-							if(vcs != null)
-							{
-								AbstractVcsHelper.getInstance(project).showMergeDialog(unmerged, vcs.getMergeProvider());
-							}
-						}
-					});
 				}
+				UIUtil.invokeLaterIfNeeded(() ->
+				{
+					GitVcs vcs = GitVcs.getInstance(project);
+					if(vcs != null)
+					{
+						AbstractVcsHelper.getInstance(project).showMergeDialog(unmerged, vcs.getMergeProvider());
+					}
+				});
 			});
 		}
 	}
