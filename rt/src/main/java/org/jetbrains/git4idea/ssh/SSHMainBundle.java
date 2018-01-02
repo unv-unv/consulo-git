@@ -15,13 +15,13 @@
  */
 package org.jetbrains.git4idea.ssh;
 
-import com.intellij.BundleBase;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.PropertyKey;
-
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.util.ResourceBundle;
+
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.PropertyKey;
+import com.intellij.BundleBase;
 
 /**
  * The bundle for SSH messages
