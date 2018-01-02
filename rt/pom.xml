@@ -37,12 +37,29 @@
 	</repositories>
 
 	<groupId>consulo.plugin</groupId>
-	<artifactId>com.intellij.git.parent</artifactId>
+	<artifactId>com.intellij.git-rt</artifactId>
 	<version>2-SNAPSHOT</version>
-	<packaging>pom</packaging>
+	<packaging>jar</packaging>
 
-	<modules>
-		<module>plugin</module>
-		<module>rt</module>
-	</modules>
+	<dependencies>
+		<dependency>
+			<groupId>consulo</groupId>
+			<artifactId>consulo-annotations</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>consulo</groupId>
+			<artifactId>consulo-util-rt</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.trilead</groupId>
+			<artifactId>trilead-ssh2</artifactId>
+			<version>1.0.0-build221</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.ws.xmlrpc</groupId>
+			<artifactId>xmlrpc</artifactId>
+		</dependency>
+	</dependencies>
 </project>

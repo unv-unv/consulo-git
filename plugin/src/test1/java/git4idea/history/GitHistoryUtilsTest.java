@@ -36,8 +36,7 @@ import git4idea.history.wholeTree.AbstractHash;
 import git4idea.history.wholeTree.CommitHashPlusParents;
 import git4idea.test.GitTest;
 import org.jetbrains.annotations.NotNull;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+import org.junit.Before;
 
 import java.io.File;
 import java.io.IOException;
@@ -63,7 +62,7 @@ public class GitHistoryUtilsTest extends GitTest {
   private List<GitTestRevision> myRevisions;
   private List<GitTestRevision> myRevisionsAfterRename;
 
-  @BeforeMethod
+  @Before
   @Override
   public void setUp(Method testMethod) throws Exception {
     super.setUp(testMethod);
