@@ -67,14 +67,21 @@ public class GitVcsApplicationSettings implements PersistentStateComponent<GitVc
 		myState = state;
 	}
 
+	/**
+	 * @deprecated use {@link #getSavedPathToGit()} to get the path from settings if there's any
+	 * or use {@link GitExecutableManager#getPathToGit()}/{@link GitExecutableManager#getPathToGit(Project)} to get git executable with
+	 * auto-detection
+	 */
 	@NotNull
+	@Deprecated
 	public String getPathToGit()
 	{
-		if(myState.myPathToGit == null)
-		{
-			// detecting right away, this can be called from the default project without a call to GitVcs#activate()
-			myState.myPathToGit = new GitExecutableDetector().detect();
-		}
+		return GitExecutableManager.getInstance().getPathToGit();
+	}
+
+	@Nullable
+	public String getSavedPathToGit()
+	{
 		return myState.myPathToGit;
 	}
 

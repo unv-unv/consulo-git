@@ -72,6 +72,7 @@ import com.intellij.util.net.IdeaWideProxySelector;
 import com.intellij.vcs.VcsLocaleHelper;
 import com.intellij.vcsUtil.VcsFileUtil;
 import git4idea.GitVcs;
+import git4idea.config.GitExecutableManager;
 import git4idea.config.GitVcsApplicationSettings;
 import git4idea.config.GitVcsSettings;
 import git4idea.config.GitVersionSpecialty;
@@ -155,7 +156,7 @@ public abstract class GitHandler
 		myCommandLine = new GeneralCommandLine();
 		if(myAppSettings != null)
 		{
-			myCommandLine.setExePath(myAppSettings.getPathToGit());
+			myCommandLine.setExePath(GitExecutableManager.getInstance().getPathToGit(project));
 		}
 		myCommandLine.setWorkDirectory(myWorkingDirectory);
 		if(GitVersionSpecialty.CAN_OVERRIDE_GIT_CONFIG_FOR_COMMAND.existsIn(myVcs.getVersion()))

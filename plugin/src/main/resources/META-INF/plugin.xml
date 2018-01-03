@@ -156,6 +156,8 @@
 
 		<projectService serviceImplementation="git4idea.branch.DeepComparatorHolder"/>
 
+		<applicationService serviceImplementation="git4idea.config.GitExecutableManager"/>
+
 		<applicationService serviceInterface="git4idea.config.GitVcsApplicationSettings"
 							serviceImplementation="git4idea.config.GitVcsApplicationSettings"/>
 		<applicationService serviceInterface="org.jetbrains.git4idea.ssh.GitXmlRpcSshService"

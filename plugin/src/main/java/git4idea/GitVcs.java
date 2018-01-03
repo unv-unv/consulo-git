@@ -72,6 +72,7 @@ import git4idea.checkin.GitCommitAndPushExecutor;
 import git4idea.checkout.GitCheckoutProvider;
 import git4idea.commands.Git;
 import git4idea.config.GitExecutableDetector;
+import git4idea.config.GitExecutableManager;
 import git4idea.config.GitExecutableValidator;
 import git4idea.config.GitSharedSettings;
 import git4idea.config.GitVcsApplicationSettings;
@@ -131,6 +132,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 	private GitVersion myVersion = GitVersion.NULL; // version of Git which this plugin uses.
 	private static final int MAX_CONSOLE_OUTPUT_SIZE = 10000;
 	private GitRepositoryForAnnotationsListener myRepositoryForAnnotationsListener;
+	private final GitExecutableManager myGitExecutableManager;
 
 	@Nullable
 	public static GitVcs getInstance(Project project)
@@ -151,7 +153,8 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 			@NotNull final GitRollbackEnvironment gitRollbackEnvironment,
 			@NotNull final GitVcsApplicationSettings gitSettings,
 			@NotNull final GitVcsSettings gitProjectSettings,
-			@NotNull GitSharedSettings sharedSettings)
+			@NotNull GitSharedSettings sharedSettings,
+			@NotNull GitExecutableManager gitExecutableManager)
 	{
 		super(project, NAME);
 		myGit = git;
@@ -163,6 +166,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 		myDiffProvider = gitDiffProvider;
 		myHistoryProvider = gitHistoryProvider;
 		myRollbackEnvironment = gitRollbackEnvironment;
+		myGitExecutableManager = gitExecutableManager;
 		myRevSelector = new GitRevisionSelector();
 		myConfigurable = new GitVcsConfigurable(myProject, gitProjectSettings, sharedSettings);
 		myUpdateEnvironment = new GitUpdateEnvironment(myProject, gitProjectSettings);
@@ -352,7 +356,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 	private void checkExecutableAndVersion()
 	{
 		boolean executableIsAlreadyCheckedAndFine = false;
-		String pathToGit = myAppSettings.getPathToGit();
+		String pathToGit = myGitExecutableManager.getPathToGit(myProject);
 		if(!pathToGit.contains(File.separator))
 		{ // no path, just sole executable, with a hope that it is in path
 			// subject to redetect the path if executable validator fails
@@ -465,7 +469,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 	 */
 	public void checkVersion()
 	{
-		final String executable = myAppSettings.getPathToGit();
+		final String executable = myGitExecutableManager.getPathToGit(myProject);
 		try
 		{
 			myVersion = GitVersion.identifyVersion(executable);
