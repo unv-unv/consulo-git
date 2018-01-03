@@ -117,7 +117,7 @@ public interface Git
 	GitCommandResult push(@NotNull GitRepository repository,
 			@NotNull String remote,
 			@Nullable String url,
-			@NotNull String puttyKey,
+			@Nullable String puttyKey,
 			@NotNull String spec,
 			boolean updateTracking,
 			@NotNull GitLineHandlerListener... listeners);
