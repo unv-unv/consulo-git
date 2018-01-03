@@ -90,7 +90,7 @@ public final class GitBranchWorker
 		for(GitRepository repository : repositories)
 		{
 			myGit.createNewTag(repository, name, null, reference);
-			repository.getRepositoryFiles().refresh(false);
+			repository.getRepositoryFiles().refresh();
 		}
 	}
 

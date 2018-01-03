@@ -16,6 +16,7 @@
 package git4idea.repo;
 
 import static git4idea.GitReference.BRANCH_NAME_HASHING_STRATEGY;
+import static java.util.Collections.emptyList;
 
 import java.io.File;
 import java.util.Collection;
@@ -34,13 +35,10 @@ import com.intellij.dvcs.DvcsUtil;
 import com.intellij.dvcs.repo.RepoStateException;
 import com.intellij.dvcs.repo.Repository;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.LineTokenizer;
 import com.intellij.openapi.vfs.CharsetToolkit;
-import com.intellij.util.Function;
-import com.intellij.util.Processor;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.vcs.log.Hash;
 import com.intellij.vcs.log.impl.HashImpl;
@@ -50,26 +48,17 @@ import git4idea.GitStandardRemoteBranch;
 import git4idea.GitSvnRemoteBranch;
 import git4idea.GitUtil;
 import git4idea.branch.GitBranchUtil;
+import git4idea.validators.GitRefNameValidator;
 
 /**
- * Reads information about the Git repository from Git service files located in the {@code .git} folder.
- * NB: works with {@link File}, i.e. reads from disk. Consider using caching.
- * Throws a {@link RepoStateException} in the case of incorrect Git file format.
- *
- * @author Kirill Likhodedov
+ * <p>Reads information about the Git repository from Git service files located in the {@code .git} folder.</p>
+ * <p>NB: works with {@link File}, i.e. reads from disk. Consider using caching.
+ * Throws a {@link RepoStateException} in the case of incorrect Git file format.</p>
  */
 class GitRepositoryReader
 {
 
 	private static final Logger LOG = Logger.getInstance(GitRepositoryReader.class);
-	private static final Processor<File> NOT_HIDDEN_DIRECTORIES = new Processor<File>()
-	{
-		@Override
-		public boolean process(File dir)
-		{
-			return !isHidden(dir);
-		}
-	};
 
 	private static Pattern BRANCH_PATTERN = Pattern.compile(" *(?:ref:)? */?((?:refs/heads/|refs/remotes/)?\\S+)");
 
@@ -132,6 +121,17 @@ class GitRepositoryReader
 		return new GitBranchState(currentRevision, currentBranch, state, localBranches, branches.second);
 	}
 
+	@NotNull
+	GitHooksInfo readHooksInfo()
+	{
+		return new GitHooksInfo(isExistingExecutableFile(myGitFiles.getPreCommitHookFile()), isExistingExecutableFile(myGitFiles.getPrePushHookFile()));
+	}
+
+	private static boolean isExistingExecutableFile(@NotNull File file)
+	{
+		return file.exists() && file.canExecute();
+	}
+
 	@Nullable
 	private static String getCurrentRevision(@NotNull HeadInfo headInfo, @Nullable Hash currentBranchHash)
 	{
@@ -159,14 +159,7 @@ class GitRepositoryReader
 		{
 			return null;
 		}
-		return ContainerUtil.find(localBranches, new Condition<GitLocalBranch>()
-		{
-			@Override
-			public boolean value(GitLocalBranch branch)
-			{
-				return BRANCH_NAME_HASHING_STRATEGY.equals(branch.getFullName(), currentBranchName);
-			}
-		});
+		return ContainerUtil.find(localBranches, branch -> BRANCH_NAME_HASHING_STRATEGY.equals(branch.getFullName(), currentBranchName));
 	}
 
 	@NotNull
@@ -250,14 +243,7 @@ class GitRepositoryReader
 		try
 		{
 			String content = DvcsUtil.tryLoadFile(myPackedRefsFile, CharsetToolkit.UTF8);
-			return ContainerUtil.map2MapNotNull(LineTokenizer.tokenize(content, false), new Function<String, Pair<String, String>>()
-			{
-				@Override
-				public Pair<String, String> fun(String line)
-				{
-					return parsePackedRefsLine(line);
-				}
-			});
+			return ContainerUtil.map2MapNotNull(LineTokenizer.tokenize(content, false), GitRepositoryReader::parsePackedRefsLine);
 		}
 		catch(RepoStateException e)
 		{
@@ -298,11 +284,7 @@ class GitRepositoryReader
 			}
 			else if(refName.startsWith(REFS_REMOTES_PREFIX))
 			{
-				GitRemoteBranch remoteBranch = parseRemoteBranch(refName, remotes);
-				if(remoteBranch != null)
-				{
-					remoteBranches.put(remoteBranch, hash);
-				}
+				remoteBranches.put(parseRemoteBranch(refName, remotes), hash);
 			}
 			else
 			{
@@ -326,17 +308,17 @@ class GitRepositoryReader
 			return Collections.emptyMap();
 		}
 		final Map<String, String> result = new HashMap<>();
-		FileUtil.processFilesRecursively(refsRootDir, new Processor<File>()
+		FileUtil.processFilesRecursively(refsRootDir, file ->
 		{
-			@Override
-			public boolean process(File file)
+			if(!file.isDirectory() && !isHidden(file))
 			{
-				if(!file.isDirectory() && !isHidden(file))
+				String relativePath = FileUtil.getRelativePath(refsRootDir, file);
+				if(relativePath != null)
 				{
-					String relativePath = FileUtil.getRelativePath(refsRootDir, file);
-					if(relativePath != null)
+					String branchName = prefix + FileUtil.toSystemIndependentName(relativePath);
+					boolean isBranchNameValid = GitRefNameValidator.getInstance().checkInput(branchName);
+					if(isBranchNameValid)
 					{
-						String branchName = prefix + FileUtil.toSystemIndependentName(relativePath);
 						String hash = loadHashFromBranchFile(file);
 						if(hash != null)
 						{
@@ -344,9 +326,9 @@ class GitRepositoryReader
 						}
 					}
 				}
-				return true;
 			}
-		}, NOT_HIDDEN_DIRECTORIES);
+			return true;
+		}, dir -> !isHidden(dir));
 		return result;
 	}
 
@@ -355,7 +337,7 @@ class GitRepositoryReader
 		return file.getName().startsWith(".");
 	}
 
-	@Nullable
+	@NotNull
 	private static GitRemoteBranch parseRemoteBranch(@NotNull String fullBranchName, @NotNull Collection<GitRemote> remotes)
 	{
 		String stdName = GitBranchUtil.stripRefsPrefix(fullBranchName);
@@ -383,8 +365,7 @@ class GitRepositoryReader
 			{
 				// user may remove the remote section from .git/config, but leave remote refs untouched in .git/refs/remotes
 				LOG.debug(String.format("No remote found with the name [%s]. All remotes: %s", remoteName, remotes));
-				GitRemote fakeRemote = new GitRemote(remoteName, ContainerUtil.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList(),
-						Collections.<String>emptyList());
+				GitRemote fakeRemote = new GitRemote(remoteName, emptyList(), emptyList(), emptyList(), emptyList(), emptyList());
 				return new GitStandardRemoteBranch(fakeRemote, branchName);
 			}
 			return new GitStandardRemoteBranch(remote, branchName);
@@ -492,14 +473,7 @@ class GitRepositoryReader
 	private static Map<String, Hash> resolveRefs(@NotNull Map<String, String> data)
 	{
 		final Map<String, Hash> resolved = getResolvedHashes(data);
-		Map<String, String> unresolved = ContainerUtil.filter(data, new Condition<String>()
-		{
-			@Override
-			public boolean value(String refName)
-			{
-				return !resolved.containsKey(refName);
-			}
-		});
+		Map<String, String> unresolved = ContainerUtil.filter(data, refName -> !resolved.containsKey(refName));
 
 		boolean progressed = true;
 		while(progressed && !unresolved.isEmpty())

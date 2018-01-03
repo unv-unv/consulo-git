@@ -30,9 +30,6 @@ import org.ini4j.Ini;
 import org.ini4j.Profile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import com.intellij.ide.plugins.IdeaPluginDescriptor;
-import com.intellij.ide.plugins.PluginManager;
-import com.intellij.ide.plugins.PluginManagerCore;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.Pair;
@@ -146,25 +143,18 @@ public class GitConfig
 			return emptyConfig;
 		}
 
-		Ini ini = new Ini();
-		ini.getConfig().setMultiOption(true);  // duplicate keys (e.g. url in [remote])
-		ini.getConfig().setTree(false);        // don't need tree structure: it corrupts url in section name (e.g. [url "http://github.com/"]
+		Ini ini;
 		try
 		{
-			ini.load(configFile);
+			ini = GitConfigHelper.loadIniFile(configFile);
 		}
 		catch(IOException e)
 		{
-			LOG.warn("Couldn't load .git/config file at " + configFile.getPath(), e);
 			return emptyConfig;
 		}
 
-		IdeaPluginDescriptor plugin = PluginManager.getPlugin(PluginManagerCore.getPluginByClassName(GitConfig.class.getName()));
-		ClassLoader classLoader = plugin == null ? GitConfig.class.getClassLoader() :   // null e.g. if IDEA is started from IDEA
-				plugin.getPluginClassLoader();
-
-		Pair<Collection<Remote>, Collection<Url>> remotesAndUrls = parseRemotes(ini, classLoader);
-		Collection<BranchConfig> trackedInfos = parseTrackedInfos(ini, classLoader);
+		Pair<Collection<Remote>, Collection<Url>> remotesAndUrls = parseRemotes(ini, GitConfig.class.getClassLoader());
+		Collection<BranchConfig> trackedInfos = parseTrackedInfos(ini, GitConfig.class.getClassLoader());
 
 		return new GitConfig(remotesAndUrls.getFirst(), remotesAndUrls.getSecond(), trackedInfos);
 	}
