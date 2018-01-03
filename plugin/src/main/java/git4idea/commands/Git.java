@@ -22,6 +22,7 @@ import java.util.Set;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vcs.VcsException;
@@ -33,6 +34,11 @@ import git4idea.reset.GitResetMode;
 
 public interface Git
 {
+	@NotNull
+	static Git getInstance()
+	{
+		return ServiceManager.getService(Git.class);
+	}
 
 	/**
 	 * A generic method to run a Git command, when existing methods like {@link #fetch(GitRepository, String, String, List, String...)}
