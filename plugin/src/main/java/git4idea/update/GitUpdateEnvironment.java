@@ -51,13 +51,11 @@ public class GitUpdateEnvironment implements UpdateEnvironment
 		mySettings = settings;
 	}
 
-	@Override
 	public void fillGroups(UpdatedFiles updatedFiles)
 	{
 		//unused, there are no custom categories yet
 	}
 
-	@Override
 	@NotNull
 	public UpdateSession updateDirectories(@NotNull FilePath[] filePaths,
 			UpdatedFiles updatedFiles,
@@ -66,12 +64,12 @@ public class GitUpdateEnvironment implements UpdateEnvironment
 	{
 		Set<VirtualFile> roots = gitRoots(Arrays.asList(filePaths));
 		GitRepositoryManager repositoryManager = getRepositoryManager(myProject);
-		final GitUpdateProcess gitUpdateProcess = new GitUpdateProcess(myProject, progressIndicator, getRepositoriesFromRoots(repositoryManager, roots), updatedFiles, true);
+		final GitUpdateProcess gitUpdateProcess = new GitUpdateProcess(myProject, progressIndicator, getRepositoriesFromRoots(repositoryManager, roots), updatedFiles, true, true);
 		boolean result = gitUpdateProcess.update(mySettings.getUpdateType()).isSuccess();
 		return new GitUpdateSession(result);
 	}
 
-	@Override
+
 	public boolean validateOptions(Collection<FilePath> filePaths)
 	{
 		for(FilePath p : filePaths)
@@ -84,11 +82,9 @@ public class GitUpdateEnvironment implements UpdateEnvironment
 		return true;
 	}
 
-	@Override
 	@Nullable
 	public Configurable createConfigurable(Collection<FilePath> files)
 	{
 		return new GitUpdateConfigurable(mySettings);
 	}
-
 }
