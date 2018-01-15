@@ -570,7 +570,7 @@ public abstract class GitHandler
 		{
 			myEnv.put(GitSSHHandler.GIT_SSH_ENV, new File(PluginManager.getPluginPath(Git.class), "putty/plink.exe").getAbsolutePath());
 			StringBuilder builder = new StringBuilder();
-			builder.append("-noagent ");
+			builder.append("-noagent -batch ");
 			if(myPuttyKey != null)
 			{
 				builder.append("-i ").append(FileUtil.toSystemDependentName(myPuttyKey));
