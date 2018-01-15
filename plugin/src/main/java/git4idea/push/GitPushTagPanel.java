@@ -29,6 +29,7 @@ import com.intellij.openapi.ui.ComboBox;
 import com.intellij.ui.ListCellRendererWrapper;
 import com.intellij.ui.components.JBCheckBox;
 
+@Deprecated
 public class GitPushTagPanel extends VcsPushOptionsPanel
 {
 

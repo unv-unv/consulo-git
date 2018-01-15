@@ -28,11 +28,8 @@ import com.intellij.dvcs.push.VcsPushOptionsPanel;
 import com.intellij.dvcs.repo.RepositoryManager;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.vcs.AbstractVcs;
-import com.intellij.util.ObjectUtil;
-import com.intellij.util.containers.ContainerUtil;
-import git4idea.GitBranch;
+import com.intellij.util.ObjectUtils;
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
 import git4idea.GitStandardRemoteBranch;
@@ -43,6 +40,7 @@ import git4idea.config.GitSharedSettings;
 import git4idea.config.GitVcsSettings;
 import git4idea.config.GitVersionSpecialty;
 import git4idea.repo.GitBranchTrackInfo;
+import git4idea.repo.GitHooksInfo;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
@@ -69,7 +67,7 @@ public class GitPushSupport extends PushSupport<GitRepository, GitPushSource, Gi
 	private GitPushSupport(@NotNull Project project, @NotNull GitRepositoryManager repositoryManager)
 	{
 		myRepositoryManager = repositoryManager;
-		myVcs = ObjectUtil.assertNotNull(GitVcs.getInstance(project));
+		myVcs = GitVcs.getInstance(project);
 		mySettings = GitVcsSettings.getInstance(project);
 		myPusher = new GitPusher(project, mySettings, this);
 		myOutgoingCommitsProvider = new GitOutgoingCommitsProvider(project);
@@ -118,6 +116,12 @@ public class GitPushSupport extends PushSupport<GitRepository, GitPushSource, Gi
 			return persistedTarget;
 		}
 
+		GitPushTarget pushSpecTarget = GitPushTarget.getFromPushSpec(repository, currentBranch);
+		if(pushSpecTarget != null)
+		{
+			return pushSpecTarget;
+		}
+
 		GitBranchTrackInfo trackInfo = GitBranchUtil.getTrackInfoForBranch(repository, currentBranch);
 		if(trackInfo != null)
 		{
@@ -163,7 +167,7 @@ public class GitPushSupport extends PushSupport<GitRepository, GitPushSource, Gi
 		{
 			return new GitPushTarget(existingRemoteBranch, false);
 		}
-		return new GitPushTarget(new GitStandardRemoteBranch(remote, currentBranch.getName(), GitBranch.DUMMY_HASH), true);
+		return new GitPushTarget(new GitStandardRemoteBranch(remote, currentBranch.getName()), true);
 	}
 
 	@NotNull
@@ -171,7 +175,7 @@ public class GitPushSupport extends PushSupport<GitRepository, GitPushSource, Gi
 	public GitPushSource getSource(@NotNull GitRepository repository)
 	{
 		GitLocalBranch currentBranch = repository.getCurrentBranch();
-		return currentBranch != null ? GitPushSource.create(currentBranch) : GitPushSource.create(ObjectUtil.assertNotNull(repository.getCurrentRevision())); // fresh repository is on branch
+		return currentBranch != null ? GitPushSource.create(currentBranch) : GitPushSource.create(ObjectUtils.assertNotNull(repository.getCurrentRevision())); // fresh repository is on branch
 	}
 
 	@NotNull
@@ -192,27 +196,26 @@ public class GitPushSupport extends PushSupport<GitRepository, GitPushSource, Gi
 	public boolean isForcePushAllowed(@NotNull GitRepository repo, @NotNull GitPushTarget target)
 	{
 		final String targetBranch = target.getBranch().getNameForRemoteOperations();
-		return !ContainerUtil.exists(mySharedSettings.getForcePushProhibitedPatterns(), new Condition<String>()
-		{
-			@Override
-			public boolean value(String pattern)
-			{
-				return targetBranch.matches("^" + pattern + "$"); // let "master" match only "master" and not "any-master-here" by default
-			}
-		});
+		return !mySharedSettings.isBranchProtected(targetBranch);
 	}
 
 	@Override
 	public boolean isForcePushEnabled()
 	{
-		return mySettings.isForcePushAllowed();
+		return true;
 	}
 
 	@Nullable
 	@Override
 	public VcsPushOptionsPanel createOptionsPanel()
 	{
-		return new GitPushTagPanel(mySettings.getPushTagMode(), GitVersionSpecialty.SUPPORTS_FOLLOW_TAGS.existsIn(myVcs.getVersion()));
+		return new GitPushOptionsPanel(mySettings.getPushTagMode(), GitVersionSpecialty.SUPPORTS_FOLLOW_TAGS.existsIn(myVcs.getVersion()), shouldShowSkipHookOption());
+	}
+
+	private boolean shouldShowSkipHookOption()
+	{
+		return GitVersionSpecialty.PRE_PUSH_HOOK.existsIn(myVcs.getVersion()) && getRepositoryManager().getRepositories().stream().map(e -> e.getInfo().getHooksInfo()).anyMatch
+				(GitHooksInfo::isPrePushHookAvailable);
 	}
 
 	@Override

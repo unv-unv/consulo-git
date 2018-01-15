@@ -62,4 +62,9 @@ public class GitSharedSettings implements PersistentStateComponent<GitSharedSett
 		myState.FORCE_PUSH_PROHIBITED_PATTERNS = new ArrayList<String>(patterns);
 	}
 
+	public boolean isBranchProtected(@NotNull String branch)
+	{
+		// let "master" match only "master" and not "any-master-here" by default
+		return getForcePushProhibitedPatterns().stream().anyMatch(pattern -> branch.matches("^" + pattern + "$"));
+	}
 }

@@ -40,13 +40,10 @@ import org.jetbrains.git4idea.ssh.GitSSHHandler;
 import org.jetbrains.git4idea.ssh.GitXmlRpcSshService;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.configurations.GeneralCommandLine;
-import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.PluginManager;
-import com.intellij.ide.plugins.cl.PluginClassLoader;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Condition;
@@ -571,11 +568,7 @@ public abstract class GitHandler
 		GitRemoteProtocol remoteProtocol = GitRemoteProtocol.fromUrl(url);
 		if(remoteProtocol != null)
 		{
-			PluginId pluginId = ((PluginClassLoader) getClass().getClassLoader()).getPluginId();
-			IdeaPluginDescriptor plugin = PluginManager.getPlugin(pluginId);
-			assert plugin != null;
-
-			myEnv.put(GitSSHHandler.GIT_SSH_ENV, new File(plugin.getPath(), "putty/plink.exe").getAbsolutePath());
+			myEnv.put(GitSSHHandler.GIT_SSH_ENV, new File(PluginManager.getPluginPath(Git.class), "putty/plink.exe").getAbsolutePath());
 			StringBuilder builder = new StringBuilder();
 			builder.append("-noagent ");
 			if(myPuttyKey != null)

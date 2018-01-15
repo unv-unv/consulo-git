@@ -45,9 +45,9 @@ public final class GitPushTagMode implements VcsPushOptionValue
 	}
 
 	@NotNull
-	public static Object[] getValues()
+	public static GitPushTagMode[] getValues()
 	{
-		return new Object[]{
+		return new GitPushTagMode[]{
 				ALL,
 				FOLLOW
 		};

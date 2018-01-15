@@ -15,18 +15,23 @@
  */
 package git4idea.update;
 
-import java.util.Collections;
+import static java.util.Collections.singletonList;
+
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import org.jetbrains.annotations.NotNull;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.VcsNotifier;
+import com.intellij.openapi.vcs.changes.Change;
+import com.intellij.openapi.vcs.changes.ChangeListManager;
+import com.intellij.openapi.vcs.impl.LocalChangesUnderRoots;
 import com.intellij.openapi.vcs.update.UpdatedFiles;
-import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.util.containers.ContainerUtil;
 import git4idea.GitBranch;
 import git4idea.GitUtil;
 import git4idea.branch.GitBranchPair;
@@ -42,22 +47,27 @@ public class GitRebaseUpdater extends GitUpdater
 {
 	private static final Logger LOG = Logger.getInstance(GitRebaseUpdater.class.getName());
 	private final GitRebaser myRebaser;
+	private final ChangeListManager myChangeListManager;
+	private final ProjectLevelVcsManager myVcsManager;
 
 	public GitRebaseUpdater(@NotNull Project project,
 			@NotNull Git git,
-			@NotNull VirtualFile root,
-			@NotNull final Map<VirtualFile, GitBranchPair> trackedBranches,
+			@NotNull GitRepository repository,
+			@NotNull GitBranchPair branchAndTracked,
 			@NotNull ProgressIndicator progressIndicator,
 			@NotNull UpdatedFiles updatedFiles)
 	{
-		super(project, git, root, trackedBranches, progressIndicator, updatedFiles);
+		super(project, git, repository, branchAndTracked, progressIndicator, updatedFiles);
 		myRebaser = new GitRebaser(myProject, git, myProgressIndicator);
+		myChangeListManager = ChangeListManager.getInstance(project);
+		myVcsManager = ProjectLevelVcsManager.getInstance(project);
 	}
 
 	@Override
 	public boolean isSaveNeeded()
 	{
-		return true;
+		Collection<Change> localChanges = new LocalChangesUnderRoots(myChangeListManager, myVcsManager).getChangesUnderRoots(singletonList(myRoot)).get(myRoot);
+		return !ContainerUtil.isEmpty(localChanges);
 	}
 
 	@NotNull
@@ -66,24 +76,15 @@ public class GitRebaseUpdater extends GitUpdater
 	{
 		LOG.info("doUpdate ");
 		String remoteBranch = getRemoteBranchToMerge();
-		List<String> params = Collections.singletonList(remoteBranch);
-		return myRebaser.rebase(myRoot, params, new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				cancel();
-			}
-		}, null);
+		List<String> params = singletonList(remoteBranch);
+		return myRebaser.rebase(myRoot, params, () -> cancel(), null);
 	}
 
 	@NotNull
 	private String getRemoteBranchToMerge()
 	{
-		GitBranchPair gitBranchPair = myTrackedBranches.get(myRoot);
-		GitBranch dest = gitBranchPair.getDest();
-		LOG.assertTrue(dest != null, String.format("Destination branch is null for source branch %s in %s", gitBranchPair.getBranch().getName(),
-				myRoot));
+		GitBranch dest = myBranchPair.getDest();
+		LOG.assertTrue(dest != null, String.format("Destination branch is null for source branch %s in %s", myBranchPair.getBranch().getName(), myRoot));
 		return dest.getName();
 	}
 
@@ -124,7 +125,7 @@ public class GitRebaseUpdater extends GitUpdater
 			return false;
 		}
 
-		GitCommandResult result = myGit.merge(repository, getRemoteBranchToMerge(), Collections.singletonList("--ff-only"));
+		GitCommandResult result = myGit.merge(repository, getRemoteBranchToMerge(), singletonList("--ff-only"));
 
 		try
 		{
@@ -136,8 +137,8 @@ public class GitRebaseUpdater extends GitUpdater
 			// so we just notify the user about problems with collecting the updated changes.
 			LOG.info("Couldn't mark end for repository " + myRoot, e);
 			VcsNotifier.getInstance(myProject).
-					notifyMinorWarning("Couldn't collect the updated files info", String.format("Update of %s was successful, " +
-							"but we couldn't collect the updated changes because of an error", myRoot), null);
+					notifyMinorWarning("Couldn't collect the updated files info", String.format("Update of %s was successful, but we couldn't collect the updated changes because of an error",
+							myRoot), null);
 		}
 		return result.success();
 	}

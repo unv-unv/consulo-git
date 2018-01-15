@@ -18,9 +18,11 @@ package git4idea.config;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Couple;
@@ -28,6 +30,7 @@ import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vfs.CharsetToolkit;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.util.containers.ContainerUtil;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitSimpleHandler;
 
@@ -83,6 +86,26 @@ public class GitConfigUtil
 			start = pos + 1;
 			result.put(key, value);
 		}
+	}
+
+	/**
+	 * Converts the git config boolean value (which can be specified in various ways) to Java Boolean.
+	 *
+	 * @return true if the value represents "true", false if the value represents "false", null if the value doesn't look like a boolean value.
+	 */
+	@Nullable
+	public static Boolean getBooleanValue(@NotNull String value)
+	{
+		value = value.toLowerCase(Locale.ENGLISH);
+		if(ContainerUtil.newHashSet("true", "yes", "on", "1").contains(value))
+		{
+			return true;
+		}
+		if(ContainerUtil.newHashSet("false", "no", "off", "0", "").contains(value))
+		{
+			return false;
+		}
+		return null;
 	}
 
 	/**

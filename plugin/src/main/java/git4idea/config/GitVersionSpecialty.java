@@ -25,12 +25,12 @@ import com.intellij.openapi.util.SystemInfo;
  * </p>
  * <p>
  * Usage example: CYGWIN Git has a bug - not understanding stash names without quotes:
- * <pre><code>
+ * <pre>{@code
  * String stashName = "stash@{0}";
  * if (GitVersionSpecialty.NEEDS_QUOTES_IN_STASH_NAME.existsIn(myVcs.getVersion()) {
  *   stashName = "\"stash@{0}\"";
  * }
- * </code></pre>
+ * }</pre>
  * </p>
  *
  * @author Kirill Likhodedov
@@ -51,7 +51,10 @@ public enum GitVersionSpecialty
 				}
 			},
 
-	NEEDS_QUOTES_IN_STASH_NAME
+	/**
+	 * @deprecated on Windows, quotes are now added automatically whenever necessary on the GeneralCommandLine level
+	 */
+	@Deprecated NEEDS_QUOTES_IN_STASH_NAME
 			{
 				@Override
 				public boolean existsIn(@NotNull GitVersion version)
@@ -70,7 +73,7 @@ public enum GitVersionSpecialty
 			},
 
 	/**
-	 * Git understands <code>'git status --porcelain'</code>.
+	 * Git understands {@code 'git status --porcelain'}.
 	 * Since 1.7.0.
 	 */
 	KNOWS_STATUS_PORCELAIN
@@ -106,7 +109,7 @@ public enum GitVersionSpecialty
 				@Override
 				public boolean existsIn(@NotNull GitVersion version)
 				{
-					return version.isOlderOrEqual(new GitVersion(1, 7, 1, 0));
+					return version.isOlderOrEqual(new GitVersion(1, 7, 3, 0));
 				}
 			},
 
@@ -116,6 +119,15 @@ public enum GitVersionSpecialty
 				public boolean existsIn(@NotNull GitVersion version)
 				{
 					return SystemInfo.isWindows && version.isOlderOrEqual(new GitVersion(1, 7, 0, 2));
+				}
+			},
+
+	KNOWS_PULL_REBASE
+			{
+				@Override
+				public boolean existsIn(@NotNull GitVersion version)
+				{
+					return version.isLaterOrEqual(new GitVersion(1, 7, 9, 0));
 				}
 			},
 
@@ -129,6 +141,15 @@ public enum GitVersionSpecialty
 				public boolean existsIn(@NotNull GitVersion version)
 				{
 					return version.isLaterOrEqual(new GitVersion(1, 7, 12, 1));
+				}
+			},
+
+	CAN_AMEND_WITHOUT_FILES
+			{
+				@Override
+				public boolean existsIn(@NotNull GitVersion version)
+				{
+					return version.isLaterOrEqual(new GitVersion(1, 7, 11, 3));
 				}
 			},
 
@@ -185,6 +206,37 @@ public enum GitVersionSpecialty
 				public boolean existsIn(@NotNull GitVersion version)
 				{
 					return version.isLaterOrEqual(new GitVersion(1, 8, 0, 0));
+				}
+			},
+
+	KNOWS_CORE_COMMENT_CHAR
+			{
+				@Override
+				public boolean existsIn(@NotNull GitVersion version)
+				{
+					return version.isLaterOrEqual(new GitVersion(1, 8, 2, 0));
+				}
+			},
+
+	/**
+	 * Git pre-push hook is supported since version 1.8.2.
+	 */
+	PRE_PUSH_HOOK
+			{
+				@Override
+				public boolean existsIn(@NotNull GitVersion version)
+				{
+					return version.isLaterOrEqual(new GitVersion(1, 8, 2, 0));
+				}
+			},
+
+	LF_SEPARATORS_IN_STDIN
+			{
+				@Override
+				public boolean existsIn(@NotNull GitVersion version)
+				{
+					// before 2.8.0 git for windows expects to have LF symbol as line separator in standard input instead of CRLF
+					return SystemInfo.isWindows && !version.isLaterOrEqual(new GitVersion(2, 8, 0, 0));
 				}
 			};
 

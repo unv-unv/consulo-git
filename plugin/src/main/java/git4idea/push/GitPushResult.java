@@ -28,7 +28,6 @@ import git4idea.repo.GitRepository;
  */
 class GitPushResult
 {
-
 	@NotNull
 	private final Map<GitRepository, GitPushRepoResult> myResults;
 	@NotNull
