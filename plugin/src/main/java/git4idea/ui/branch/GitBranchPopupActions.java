@@ -78,12 +78,12 @@ class GitBranchPopupActions
 		List<BranchActionGroup> localBranchActions = myRepository.getBranches().getLocalBranches().stream().sorted().filter(branch -> !branch.equals(myRepository.getCurrentBranch())).map(branch ->
 				new LocalBranchActions(myProject, repositoryList, branch.getName(), myRepository)).collect(toList());
 		// if there are only a few local favorites -> show all;  for remotes it's better to show only favorites;
-		wrapWithMoreActionIfNeeded(myProject, popupGroup, ContainerUtil.sorted(localBranchActions, FAVORITE_BRANCH_COMPARATOR), getNumOfTopShownBranches(localBranchActions), null);
+		wrapWithMoreActionIfNeeded(popupGroup, ContainerUtil.sorted(localBranchActions, FAVORITE_BRANCH_COMPARATOR), getNumOfTopShownBranches(localBranchActions));
 
 		popupGroup.addSeparator("Remote Branches" + repoInfo);
 		List<BranchActionGroup> remoteBranchActions = myRepository.getBranches().getRemoteBranches().stream().sorted().map(remoteBranch -> new RemoteBranchActions(myProject, repositoryList,
 				remoteBranch.getName(), myRepository)).collect(toList());
-		wrapWithMoreActionIfNeeded(myProject, popupGroup, ContainerUtil.sorted(remoteBranchActions, FAVORITE_BRANCH_COMPARATOR), getNumOfFavorites(remoteBranchActions), null);
+		wrapWithMoreActionIfNeeded(popupGroup, ContainerUtil.sorted(remoteBranchActions, FAVORITE_BRANCH_COMPARATOR), getNumOfFavorites(remoteBranchActions));
 		return popupGroup;
 	}
 
