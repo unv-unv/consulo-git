@@ -27,8 +27,8 @@ import org.jetbrains.annotations.Nullable;
 import com.intellij.dvcs.branch.BranchStorage;
 import com.intellij.dvcs.branch.DvcsSyncSettings;
 import com.intellij.dvcs.repo.Repository;
-import com.intellij.lifecycle.PeriodicalTasksCloser;
 import com.intellij.openapi.components.PersistentStateComponent;
+import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.components.StoragePathMacros;
@@ -114,7 +114,7 @@ public class GitVcsSettings implements PersistentStateComponent<GitVcsSettings.S
 
 	public static GitVcsSettings getInstance(Project project)
 	{
-		return PeriodicalTasksCloser.getInstance().safeGetService(project, GitVcsSettings.class);
+		return ServiceManager.getService(project, GitVcsSettings.class);
 	}
 
 	@NotNull

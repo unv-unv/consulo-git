@@ -12,20 +12,24 @@
  */
 package git4idea.history;
 
-import com.intellij.lifecycle.PeriodicalTasksCloser;
-import com.intellij.openapi.application.PathManager;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.persistent.SmallMapSerializer;
-import com.intellij.util.io.DataExternalizer;
-import com.intellij.util.io.EnumeratorStringDescriptor;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import com.intellij.openapi.application.PathManager;
+import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vcs.persistent.SmallMapSerializer;
+import com.intellij.util.io.DataExternalizer;
+import com.intellij.util.io.EnumeratorStringDescriptor;
 
 /**
  * @author irengrig
@@ -43,7 +47,7 @@ public class NewGitUsersComponent {
   }
 
   public static NewGitUsersComponent getInstance(final Project project) {
-    return PeriodicalTasksCloser.getInstance().safeGetService(project, NewGitUsersComponent.class);
+    return ServiceManager.getService(project, NewGitUsersComponent.class);
   }
 
   @Nullable

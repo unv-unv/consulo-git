@@ -15,7 +15,15 @@
  */
 package git4idea.rollback;
 
-import com.intellij.lifecycle.PeriodicalTasksCloser;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+
+import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.FilePath;
 import com.intellij.openapi.vcs.VcsException;
@@ -35,10 +43,6 @@ import git4idea.i18n.GitBundle;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitUntrackedFilesHolder;
 import git4idea.util.GitFileUtils;
-import org.jetbrains.annotations.NotNull;
-
-import java.io.File;
-import java.util.*;
 
 /**
  * Git rollback/revert environment
@@ -241,7 +245,7 @@ public class GitRollbackEnvironment implements RollbackEnvironment {
    * @return a project-specific instance of the service
    */
   public static GitRollbackEnvironment getInstance(final Project project) {
-    return PeriodicalTasksCloser.getInstance().safeGetService(project, GitRollbackEnvironment.class);
+    return ServiceManager.getService(project, GitRollbackEnvironment.class);
   }
 
   public static void resetHardLocal(final Project project, final VirtualFile root) {
