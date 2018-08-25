@@ -96,16 +96,7 @@
 					description="Dims those commits which have equivalent changes in the current branch"/>
 			<add-to-group group-id="Vcs.Log.Toolbar"/>
 		</group>
-
-
 	</actions>
-
-	<project-components>
-		<component>
-			<interface-class>git4idea.repo.GitRepositoryManager</interface-class>
-			<implementation-class>git4idea.repo.GitRepositoryManager</implementation-class>
-		</component>
-	</project-components>
 
 	<extensions defaultExtensionNs="com.intellij">
 		<search.topHitProvider implementation="git4idea.config.GitOptionsTopHitProvider"/>
@@ -155,6 +146,8 @@
 		<projectService serviceImplementation="git4idea.GitUserRegistry"/>
 
 		<projectService serviceImplementation="git4idea.branch.DeepComparatorHolder"/>
+
+		<projectService serviceImplementation="git4idea.repo.GitRepositoryManager" />
 
 		<applicationService serviceImplementation="git4idea.config.GitExecutableManager"/>
 

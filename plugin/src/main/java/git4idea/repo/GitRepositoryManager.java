@@ -19,6 +19,9 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.intellij.dvcs.DvcsUtil;
@@ -31,15 +34,21 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.changes.ui.VirtualFileHierarchicalComparator;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.containers.ContainerUtil;
-import git4idea.GitPlatformFacade;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
 import git4idea.config.GitVcsSettings;
 import git4idea.rebase.GitRebaseSpec;
 import git4idea.ui.branch.GitMultiRootBranchConfig;
 
+@Singleton
 public class GitRepositoryManager extends AbstractRepositoryManager<GitRepository>
 {
+	@NotNull
+	public static GitRepositoryManager getInstance(@NotNull Project project)
+	{
+		return ServiceManager.getService(project, GitRepositoryManager.class);
+	}
+
 	private static final Logger LOG = Logger.getInstance(GitRepositoryManager.class);
 
 	public static final Comparator<GitRepository> DEPENDENCY_COMPARATOR = (repo1, repo2) -> -VirtualFileHierarchicalComparator.getInstance().compare(repo1.getRoot(), repo2.getRoot());
@@ -49,26 +58,11 @@ public class GitRepositoryManager extends AbstractRepositoryManager<GitRepositor
 	@Nullable
 	private volatile GitRebaseSpec myOngoingRebaseSpec;
 
-	/**
-	 * @deprecated To remove in IDEA 2017. Use {@link #GitRepositoryManager(Project, VcsRepositoryManager)}.
-	 */
-	@SuppressWarnings("UnusedParameters")
-	@Deprecated
-	public GitRepositoryManager(@NotNull Project project, @NotNull GitPlatformFacade platformFacade, @NotNull VcsRepositoryManager vcsRepositoryManager)
-	{
-		this(project, vcsRepositoryManager);
-	}
-
+	@Inject
 	public GitRepositoryManager(@NotNull Project project, @NotNull VcsRepositoryManager vcsRepositoryManager)
 	{
 		super(vcsRepositoryManager, GitVcs.getInstance(project), GitUtil.DOT_GIT);
 		mySettings = GitVcsSettings.getInstance(project);
-	}
-
-	@NotNull
-	public static GitRepositoryManager getInstance(@NotNull Project project)
-	{
-		return ServiceManager.getService(project, GitRepositoryManager.class);
 	}
 
 	@Override
