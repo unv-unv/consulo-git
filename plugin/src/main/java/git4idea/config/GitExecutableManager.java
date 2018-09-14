@@ -1,6 +1,8 @@
 // Copyright 2000-2017 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package git4idea.config;
 
+import javax.inject.Singleton;
+
 import org.jetbrains.annotations.NotNull;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
@@ -11,6 +13,7 @@ import com.intellij.openapi.util.AtomicNotNullLazyValue;
  * Allows to get a path to git executable.
  */
 //TODO: move git version related stuff here
+@Singleton
 public class GitExecutableManager
 {
 	public static GitExecutableManager getInstance()

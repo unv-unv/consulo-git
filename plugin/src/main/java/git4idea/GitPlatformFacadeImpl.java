@@ -15,6 +15,8 @@
  */
 package git4idea;
 
+import javax.inject.Singleton;
+
 import org.jetbrains.annotations.NotNull;
 import com.intellij.dvcs.DvcsPlatformFacadeImpl;
 import com.intellij.openapi.components.ServiceManager;
@@ -27,6 +29,7 @@ import git4idea.repo.GitRepositoryManager;
 /**
  * @author Kirill Likhodedov
  */
+@Singleton
 class GitPlatformFacadeImpl extends DvcsPlatformFacadeImpl implements GitPlatformFacade
 {
 

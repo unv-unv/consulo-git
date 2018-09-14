@@ -22,6 +22,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Singleton;
+
 import org.jetbrains.annotations.NotNull;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
@@ -47,6 +49,7 @@ import git4idea.util.GitFileUtils;
 /**
  * Git rollback/revert environment
  */
+@Singleton
 public class GitRollbackEnvironment implements RollbackEnvironment {
   private final Project myProject;
 

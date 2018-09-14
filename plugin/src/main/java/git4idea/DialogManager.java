@@ -1,5 +1,6 @@
 package git4idea;
 
+import javax.inject.Singleton;
 import javax.swing.Icon;
 
 import org.jetbrains.annotations.NotNull;
@@ -17,9 +18,9 @@ import com.intellij.openapi.ui.Messages;
  *
  * @author Kirill Likhodedov
  */
+@Singleton
 public class DialogManager
 {
-
 	public static void show(@NotNull DialogWrapper dialog)
 	{
 		dialogManager().showDialog(dialog);

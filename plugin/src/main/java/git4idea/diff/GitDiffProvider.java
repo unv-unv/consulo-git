@@ -21,6 +21,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.project.Project;
@@ -50,6 +53,7 @@ import git4idea.i18n.GitBundle;
 /**
  * Git diff provider
  */
+@Singleton
 public class GitDiffProvider implements DiffProvider, DiffMixin
 {
 	/**
@@ -76,6 +80,7 @@ public class GitDiffProvider implements DiffProvider, DiffMixin
 	 *
 	 * @param project the context project
 	 */
+	@Inject
 	public GitDiffProvider(@NotNull Project project)
 	{
 		myProject = project;

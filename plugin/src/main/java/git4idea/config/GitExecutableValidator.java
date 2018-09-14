@@ -17,6 +17,8 @@ package git4idea.config;
 
 import java.util.Collections;
 
+import javax.inject.Singleton;
+
 import org.jetbrains.annotations.NotNull;
 import com.intellij.execution.ExecutableValidator;
 import com.intellij.openapi.project.Project;
@@ -29,6 +31,7 @@ import git4idea.i18n.GitBundle;
  *
  * @author Kirill Likhodedov
  */
+@Singleton
 public class GitExecutableValidator extends ExecutableValidator
 {
 

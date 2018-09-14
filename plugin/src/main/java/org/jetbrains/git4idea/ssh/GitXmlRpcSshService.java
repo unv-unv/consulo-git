@@ -18,6 +18,8 @@ package org.jetbrains.git4idea.ssh;
 import java.util.UUID;
 import java.util.Vector;
 
+import javax.inject.Singleton;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.git4idea.util.ScriptGenerator;
 import com.trilead.ssh2.KnownHosts;
@@ -26,6 +28,7 @@ import git4idea.commands.GitSSHGUIHandler;
 /**
  * @author Kirill Likhodedov
  */
+@Singleton
 public class GitXmlRpcSshService extends GitXmlRpcHandlerService<GitSSHGUIHandler>
 {
 

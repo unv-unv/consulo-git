@@ -15,6 +15,8 @@
  */
 package git4idea.config;
 
+import javax.inject.Singleton;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.components.PersistentStateComponent;
@@ -27,6 +29,7 @@ import com.intellij.openapi.components.StoragePathMacros;
 /**
  * The application wide settings for the git
  */
+@Singleton
 @State(name = "Git.Application.Settings", storages = {
 		@Storage(file = StoragePathMacros.APP_CONFIG + "/git.xml", roamingType = RoamingType.PER_PLATFORM),
 		@Storage(file = StoragePathMacros.APP_CONFIG + "/vcs.xml", deprecated = true),

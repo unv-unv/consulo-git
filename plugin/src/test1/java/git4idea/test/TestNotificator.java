@@ -15,6 +15,8 @@
  */
 package git4idea.test;
 
+import javax.inject.Singleton;
+
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationListener;
@@ -26,6 +28,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * @author Kirill Likhodedov
  */
+@Singleton
 public class TestNotificator extends Notificator {
 
   private static final String TEST_NOTIFICATION_GROUP = "Test";

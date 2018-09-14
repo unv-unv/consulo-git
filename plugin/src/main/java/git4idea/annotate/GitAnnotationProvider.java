@@ -46,11 +46,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Singleton;
+
 /**
  * Git annotation provider implementation.
  * <p/>
  * Based on the JetBrains SVNAnnotationProvider.
  */
+@Singleton
 public class GitAnnotationProvider implements AnnotationProvider, VcsCacheableAnnotationProvider {
   /**
    * the context project

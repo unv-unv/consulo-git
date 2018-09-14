@@ -17,6 +17,8 @@ package git4idea.branch;
 
 import java.util.Map;
 
+import javax.inject.Singleton;
+
 import org.jetbrains.annotations.NotNull;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
@@ -25,6 +27,7 @@ import com.intellij.util.containers.ContainerUtil;
 import com.intellij.vcs.log.VcsLogUi;
 import git4idea.repo.GitRepositoryManager;
 
+@Singleton
 public class DeepComparatorHolder implements Disposable
 {
 

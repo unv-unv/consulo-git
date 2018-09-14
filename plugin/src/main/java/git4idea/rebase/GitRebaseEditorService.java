@@ -21,6 +21,8 @@ import java.security.SecureRandom;
 import java.util.Map;
 import java.util.Random;
 
+import javax.inject.Singleton;
+
 import org.apache.commons.codec.DecoderException;
 import org.apache.xmlrpc.XmlRpcClientLite;
 import org.jetbrains.annotations.NonNls;
@@ -35,6 +37,7 @@ import git4idea.commands.GitLineHandler;
 /**
  * The service that generates editor script for
  */
+@Singleton
 public class GitRebaseEditorService
 {
 	/**

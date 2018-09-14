@@ -21,6 +21,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Singleton;
+
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -50,6 +52,7 @@ import git4idea.reset.GitResetMode;
 /**
  * Git VCS settings
  */
+@Singleton
 @State(name = "Git.Settings", storages = {@Storage(file = StoragePathMacros.WORKSPACE_FILE)})
 public class GitVcsSettings implements PersistentStateComponent<GitVcsSettings.State>, DvcsSyncSettings
 {

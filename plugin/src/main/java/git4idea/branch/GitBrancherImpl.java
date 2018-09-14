@@ -17,6 +17,8 @@ package git4idea.branch;
 
 import java.util.List;
 
+import javax.inject.Singleton;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.application.Application;
@@ -31,6 +33,7 @@ import git4idea.repo.GitRepository;
 /**
  * @author Kirill Likhodedov
  */
+@Singleton
 class GitBrancherImpl implements GitBrancher
 {
 

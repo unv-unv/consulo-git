@@ -38,9 +38,12 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
+import javax.inject.Singleton;
+
 /**
  * Git repository change provider
  */
+@Singleton
 public class GitChangeProvider implements ChangeProvider {
 
   private static final Logger PROFILE_LOG = Logger.getInstance("#GitStatus");

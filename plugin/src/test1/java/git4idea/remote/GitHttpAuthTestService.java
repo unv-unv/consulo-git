@@ -15,6 +15,8 @@
  */
 package git4idea.remote;
 
+import javax.inject.Singleton;
+
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.project.Project;
 import git4idea.commands.GitCommand;
@@ -26,6 +28,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * @author Kirill Likhodedov
  */
+@Singleton
 public class GitHttpAuthTestService extends GitHttpAuthService {
 
   @NotNull private GitHttpAuthenticator myAuthenticator = new GitHttpAuthenticator() {

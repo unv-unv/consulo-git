@@ -18,6 +18,8 @@ package git4idea.remote;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Singleton;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.components.PersistentStateComponent;
@@ -29,6 +31,7 @@ import com.intellij.openapi.components.StoragePathMacros;
 /**
  * @author Kirill Likhodedov
  */
+@Singleton
 @State(
 		name = "GitRememberedInputs",
 		storages = @Storage(file = StoragePathMacros.APP_CONFIG + "/vcs.xml")

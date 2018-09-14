@@ -15,17 +15,19 @@
  */
 package git4idea;
 
+import javax.inject.Singleton;
+import javax.swing.Icon;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import javax.swing.*;
 
 /**
  * @author Kirill Likhodedov
  */
+@Singleton
 public class MessageManager {
 
   public static MessageManager getInstance(@NotNull Project project) {

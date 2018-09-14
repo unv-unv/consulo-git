@@ -18,6 +18,9 @@ package git4idea;
 import java.util.Collection;
 import java.util.Map;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.Disposable;
@@ -36,6 +39,7 @@ import com.intellij.vcs.log.VcsLogObjectsFactory;
 import com.intellij.vcs.log.VcsUser;
 import git4idea.config.GitConfigUtil;
 
+@Singleton
 public class GitUserRegistry implements Disposable, VcsListener
 {
 
@@ -50,6 +54,7 @@ public class GitUserRegistry implements Disposable, VcsListener
 	@NotNull
 	private final Map<VirtualFile, VcsUser> myUserMap = ContainerUtil.newConcurrentMap();
 
+	@Inject
 	public GitUserRegistry(@NotNull Project project, @NotNull ProjectLevelVcsManager vcsManager, @NotNull VcsLogObjectsFactory factory)
 	{
 		myProject = project;

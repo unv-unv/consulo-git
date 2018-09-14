@@ -43,6 +43,7 @@ import git4idea.repo.GitRepositoryManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Singleton;
 import javax.swing.*;
 import java.util.Collections;
 import java.util.List;
@@ -50,6 +51,7 @@ import java.util.List;
 /**
  * Git history provider implementation
  */
+@Singleton
 public class GitHistoryProvider implements VcsHistoryProvider, VcsCacheableHistorySessionFactory<Boolean, VcsAbstractHistorySession>,
                                            VcsBaseRevisionAdviser {
   private static final Logger log = Logger.getInstance(GitHistoryProvider.class.getName());

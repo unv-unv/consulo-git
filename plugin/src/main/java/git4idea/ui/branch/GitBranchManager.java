@@ -21,6 +21,8 @@ import static git4idea.log.GitRefManager.ORIGIN_MASTER;
 
 import java.util.List;
 
+import javax.inject.Singleton;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.intellij.dvcs.branch.BranchStorage;
@@ -31,6 +33,7 @@ import git4idea.config.GitVcsSettings;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 
+@Singleton
 public class GitBranchManager
 {
 	@NotNull

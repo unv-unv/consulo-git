@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.inject.Singleton;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.components.PersistentStateComponent;
@@ -27,6 +29,7 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.components.StoragePathMacros;
 import com.intellij.util.containers.ContainerUtil;
 
+@Singleton
 @State(name = "GitSharedSettings", storages = @Storage(file = StoragePathMacros.PROJECT_CONFIG_DIR + "/vcs.xml"))
 public class GitSharedSettings implements PersistentStateComponent<GitSharedSettings.State>
 {

@@ -23,9 +23,12 @@ import gnu.trove.THashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.inject.Singleton;
+
 /**
  * This class stores information related to SSH connections
  */
+@Singleton
 @State(
   name = "SSHConnectionSettings",
   storages = {@Storage(

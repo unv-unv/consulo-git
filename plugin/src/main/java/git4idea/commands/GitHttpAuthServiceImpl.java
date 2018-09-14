@@ -17,12 +17,15 @@ package git4idea.commands;
 
 import java.util.Collection;
 
+import javax.inject.Singleton;
+
 import org.jetbrains.annotations.NotNull;
 import com.intellij.openapi.project.Project;
 
 /**
  * @author Kirill Likhodedov
  */
+@Singleton
 class GitHttpAuthServiceImpl extends GitHttpAuthService
 {
 	@Override

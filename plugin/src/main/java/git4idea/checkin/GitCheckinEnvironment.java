@@ -43,6 +43,7 @@ import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import javax.inject.Singleton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -112,6 +113,7 @@ import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import git4idea.util.GitFileUtils;
 
+@Singleton
 public class GitCheckinEnvironment implements CheckinEnvironment
 {
 	private static final Logger LOG = Logger.getInstance(GitCheckinEnvironment.class);

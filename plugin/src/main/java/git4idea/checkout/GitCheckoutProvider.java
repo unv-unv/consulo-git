@@ -18,6 +18,8 @@ package git4idea.checkout;
 import java.io.File;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.inject.Inject;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -41,9 +43,9 @@ import git4idea.i18n.GitBundle;
  */
 public class GitCheckoutProvider implements CheckoutProvider
 {
-
 	private final Git myGit;
 
+	@Inject
 	public GitCheckoutProvider(@NotNull Git git)
 	{
 		myGit = git;

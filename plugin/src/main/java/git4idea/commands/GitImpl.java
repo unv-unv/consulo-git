@@ -28,6 +28,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.inject.Singleton;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.google.common.annotations.VisibleForTesting;
@@ -59,6 +61,7 @@ import git4idea.reset.GitResetMode;
  *
  * @author Kirill Likhodedov
  */
+@Singleton
 @SuppressWarnings("StringToUpperCaseOrToLowerCaseWithoutLocale")
 public class GitImpl implements Git
 {
