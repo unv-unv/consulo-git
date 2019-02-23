@@ -27,11 +27,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.git4idea.GitExternalApp;
 import org.jetbrains.git4idea.util.ScriptGenerator;
-import org.jetbrains.ide.BuiltInServerManager;
-import com.intellij.ide.XmlRpcServer;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.io.FileUtilRt;
+import consulo.builtInServer.BuiltInServerManager;
+import consulo.builtInServer.xml.XmlRpcServer;
 
 /**
  * <p>The provider of external application scripts called by Git when a remote operation needs communication with the user.</p>
@@ -129,7 +129,7 @@ public abstract class GitXmlRpcHandlerService<T>
 	{
 		synchronized(HANDLERS_LOCK)
 		{
-			XmlRpcServer xmlRpcServer = XmlRpcServer.SERVICE.getInstance();
+			XmlRpcServer xmlRpcServer = XmlRpcServer.getInstance();
 			if(!xmlRpcServer.hasHandler(myHandlerName))
 			{
 				xmlRpcServer.addHandler(myHandlerName, createRpcRequestHandlerDelegate());

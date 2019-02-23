@@ -28,9 +28,9 @@ import org.apache.xmlrpc.XmlRpcClientLite;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.git4idea.util.ScriptGenerator;
-import org.jetbrains.ide.BuiltInServerManager;
-import com.intellij.ide.XmlRpcServer;
 import com.intellij.openapi.components.ServiceManager;
+import consulo.builtInServer.BuiltInServerManager;
+import consulo.builtInServer.xml.XmlRpcServer;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitLineHandler;
 
@@ -82,7 +82,7 @@ public class GitRebaseEditorService
 
 	private void addInternalHandler()
 	{
-		XmlRpcServer xmlRpcServer = XmlRpcServer.SERVICE.getInstance();
+		XmlRpcServer xmlRpcServer = XmlRpcServer.getInstance();
 		if(!xmlRpcServer.hasHandler(GitRebaseEditorMain.HANDLER_NAME))
 		{
 			xmlRpcServer.addHandler(GitRebaseEditorMain.HANDLER_NAME, new InternalHandler());
