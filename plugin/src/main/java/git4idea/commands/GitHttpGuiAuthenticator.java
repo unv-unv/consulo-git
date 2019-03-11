@@ -15,7 +15,6 @@
  */
 package git4idea.commands;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -302,7 +301,7 @@ class GitHttpGuiAuthenticator implements GitHttpAuthenticator
 	{
 		List<GitHttpAuthDataProvider> providers = ContainerUtil.newArrayList();
 		providers.add(new GitDefaultHttpAuthDataProvider());
-		providers.addAll(Arrays.asList(GitHttpAuthDataProvider.EP_NAME.getExtensions()));
+		providers.addAll(GitHttpAuthDataProvider.EP_NAME.getExtensionList());
 		return providers;
 	}
 

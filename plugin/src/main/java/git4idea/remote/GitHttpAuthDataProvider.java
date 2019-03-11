@@ -28,12 +28,10 @@ import com.intellij.util.AuthData;
  */
 public interface GitHttpAuthDataProvider
 {
-
-	ExtensionPointName<GitHttpAuthDataProvider> EP_NAME = ExtensionPointName.create("Git4Idea.GitHttpAuthDataProvider");
+	ExtensionPointName<GitHttpAuthDataProvider> EP_NAME = ExtensionPointName.create("com.intellij.git.httpAuthDataProvider");
 
 	@Nullable
 	AuthData getAuthData(@NotNull String url);
 
 	void forgetPassword(@NotNull String url);
-
 }
