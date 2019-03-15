@@ -469,7 +469,7 @@ public class GitLogProvider implements VcsLogProvider
 				refresher.refresh(root);
 			}
 		});
-		return connection;
+		return connection::disconnect;
 	}
 
 	@NotNull
