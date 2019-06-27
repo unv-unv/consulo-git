@@ -29,6 +29,7 @@ import java.util.Objects;
 
 import javax.swing.SwingConstants;
 
+import com.intellij.dvcs.ui.LightActionGroup;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import com.intellij.dvcs.DvcsUtil;
@@ -54,6 +55,11 @@ import git4idea.repo.GitRepositoryManager;
  */
 class GitBranchPopup extends DvcsBranchPopup<GitRepository>
 {
+	private static final String DIMENSION_SERVICE_KEY = "Git.Branch.Popup";
+	static final String SHOW_ALL_LOCALS_KEY = "Git.Branch.Popup.ShowAllLocals";
+	static final String SHOW_ALL_REMOTES_KEY = "Git.Branch.Popup.ShowAllRemotes";
+	static final String SHOW_ALL_REPOSITORIES = "Git.Branch.Popup.ShowAllRepositories";
+
 
 	/**
 	 * @param currentRepository Current repository, which means the repository of the currently open or selected file.
@@ -96,7 +102,7 @@ class GitBranchPopup extends DvcsBranchPopup<GitRepository>
 			@NotNull GitVcsSettings vcsSettings,
 			@NotNull Condition<AnAction> preselectActionCondition)
 	{
-		super(currentRepository, repositoryManager, new GitMultiRootBranchConfig(repositoryManager.getRepositories()), vcsSettings, preselectActionCondition);
+		super(currentRepository, repositoryManager, new GitMultiRootBranchConfig(repositoryManager.getRepositories()), vcsSettings, preselectActionCondition, DIMENSION_SERVICE_KEY);
 	}
 
 	@Override
@@ -122,7 +128,7 @@ class GitBranchPopup extends DvcsBranchPopup<GitRepository>
 	}
 
 	@Override
-	protected void fillWithCommonRepositoryActions(@NotNull DefaultActionGroup popupGroup, @NotNull AbstractRepositoryManager<GitRepository> repositoryManager)
+	protected void fillWithCommonRepositoryActions(@NotNull LightActionGroup popupGroup, @NotNull AbstractRepositoryManager<GitRepository> repositoryManager)
 	{
 		List<GitRepository> allRepositories = repositoryManager.getRepositories();
 		popupGroup.add(new GitBranchPopupActions.GitNewBranchAction(myProject, allRepositories));
@@ -133,11 +139,11 @@ class GitBranchPopup extends DvcsBranchPopup<GitRepository>
 		popupGroup.addSeparator("Common Local Branches");
 		List<BranchActionGroup> localBranchActions = myMultiRootBranchConfig.getLocalBranchNames().stream().map(l -> createLocalBranchActions(allRepositories, l)).filter(Objects::nonNull).collect
 				(toList());
-		wrapWithMoreActionIfNeeded(popupGroup, ContainerUtil.sorted(localBranchActions, FAVORITE_BRANCH_COMPARATOR), getNumOfTopShownBranches(localBranchActions));
+		wrapWithMoreActionIfNeeded(myProject, popupGroup, ContainerUtil.sorted(localBranchActions, FAVORITE_BRANCH_COMPARATOR), getNumOfTopShownBranches(localBranchActions), SHOW_ALL_LOCALS_KEY);
 		popupGroup.addSeparator("Common Remote Branches");
 		List<BranchActionGroup> remoteBranchActions = map(((GitMultiRootBranchConfig) myMultiRootBranchConfig).getRemoteBranches(), remoteBranch -> new GitBranchPopupActions.RemoteBranchActions
 				(myProject, allRepositories, remoteBranch, myCurrentRepository));
-		wrapWithMoreActionIfNeeded(popupGroup, ContainerUtil.sorted(remoteBranchActions, FAVORITE_BRANCH_COMPARATOR), getNumOfFavorites(remoteBranchActions));
+		wrapWithMoreActionIfNeeded(myProject, popupGroup, ContainerUtil.sorted(remoteBranchActions, FAVORITE_BRANCH_COMPARATOR), getNumOfFavorites(remoteBranchActions), SHOW_ALL_REMOTES_KEY);
 	}
 
 	@Nullable
@@ -149,19 +155,19 @@ class GitBranchPopup extends DvcsBranchPopup<GitRepository>
 
 	@NotNull
 	@Override
-	protected DefaultActionGroup createRepositoriesActions()
+	protected LightActionGroup createRepositoriesActions()
 	{
-		DefaultActionGroup popupGroup = new DefaultActionGroup(null, false);
+		LightActionGroup popupGroup = new LightActionGroup();
 		popupGroup.addSeparator("Repositories");
 		List<ActionGroup> rootActions = DvcsUtil.sortRepositories(myRepositoryManager.getRepositories()).stream().map(repo -> new RootAction<>(repo, highlightCurrentRepo() ? myCurrentRepository :
 				null, new GitBranchPopupActions(repo.getProject(), repo).createActions(), GitBranchUtil.getDisplayableBranchText(repo))).collect(toList());
-		wrapWithMoreActionIfNeeded(popupGroup, rootActions, rootActions.size() > MAX_REPO_NUM ? DEFAULT_REPO_NUM : MAX_REPO_NUM);
+		wrapWithMoreActionIfNeeded(myProject, popupGroup, rootActions, rootActions.size() > MAX_REPO_NUM ? DEFAULT_REPO_NUM : MAX_REPO_NUM, SHOW_ALL_REPOSITORIES);
 		return popupGroup;
 	}
 
 	@Override
-	protected void fillPopupWithCurrentRepositoryActions(@NotNull DefaultActionGroup popupGroup, @Nullable DefaultActionGroup actions)
+	protected void fillPopupWithCurrentRepositoryActions(@NotNull LightActionGroup popupGroup, @Nullable LightActionGroup actions)
 	{
-		popupGroup.addAll(new GitBranchPopupActions(myCurrentRepository.getProject(), myCurrentRepository).createActions(actions, myRepoTitleInfo));
+		popupGroup.addAll(new GitBranchPopupActions(myCurrentRepository.getProject(), myCurrentRepository).createActions(actions, myRepoTitleInfo, true));
 	}
 }

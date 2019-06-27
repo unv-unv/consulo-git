@@ -15,25 +15,13 @@
  */
 package git4idea.ui.branch;
 
-import static com.intellij.dvcs.ui.BranchActionGroupPopup.wrapWithMoreActionIfNeeded;
-import static com.intellij.dvcs.ui.BranchActionUtil.*;
-import static git4idea.GitStatisticsCollectorKt.reportUsage;
-import static git4idea.branch.GitBranchType.LOCAL;
-import static git4idea.branch.GitBranchType.REMOTE;
-import static java.util.stream.Collectors.toList;
-
-import java.util.Collections;
-import java.util.List;
-
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import com.intellij.dvcs.ui.BranchActionGroup;
+import com.intellij.dvcs.ui.LightActionGroup;
 import com.intellij.dvcs.ui.NewBranchAction;
 import com.intellij.dvcs.ui.PopupElementWithAdditionalInfo;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
@@ -43,10 +31,21 @@ import git4idea.branch.GitBranchUtil;
 import git4idea.branch.GitBrancher;
 import git4idea.repo.GitRepository;
 import git4idea.validators.GitNewBranchNameValidator;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Collections;
+import java.util.List;
+
+import static com.intellij.dvcs.ui.BranchActionGroupPopup.wrapWithMoreActionIfNeeded;
+import static com.intellij.dvcs.ui.BranchActionUtil.*;
+import static git4idea.GitStatisticsCollectorKt.reportUsage;
+import static git4idea.branch.GitBranchType.LOCAL;
+import static git4idea.branch.GitBranchType.REMOTE;
+import static java.util.stream.Collectors.toList;
 
 class GitBranchPopupActions
 {
-
 	private final Project myProject;
 	private final GitRepository myRepository;
 
@@ -58,12 +57,12 @@ class GitBranchPopupActions
 
 	ActionGroup createActions()
 	{
-		return createActions(null, "");
+		return createActions(null, "", false);
 	}
 
-	ActionGroup createActions(@Nullable DefaultActionGroup toInsert, @NotNull String repoInfo)
+	ActionGroup createActions(@Nullable LightActionGroup toInsert, @NotNull String repoInfo, boolean firstLevelGroup)
 	{
-		DefaultActionGroup popupGroup = new DefaultActionGroup(null, false);
+		LightActionGroup popupGroup = new LightActionGroup();
 		List<GitRepository> repositoryList = Collections.singletonList(myRepository);
 
 		popupGroup.addAction(new GitNewBranchAction(myProject, repositoryList));
@@ -78,12 +77,14 @@ class GitBranchPopupActions
 		List<BranchActionGroup> localBranchActions = myRepository.getBranches().getLocalBranches().stream().sorted().filter(branch -> !branch.equals(myRepository.getCurrentBranch())).map(branch ->
 				new LocalBranchActions(myProject, repositoryList, branch.getName(), myRepository)).collect(toList());
 		// if there are only a few local favorites -> show all;  for remotes it's better to show only favorites;
-		wrapWithMoreActionIfNeeded(popupGroup, ContainerUtil.sorted(localBranchActions, FAVORITE_BRANCH_COMPARATOR), getNumOfTopShownBranches(localBranchActions));
+		wrapWithMoreActionIfNeeded(myProject, popupGroup, ContainerUtil.sorted(localBranchActions, FAVORITE_BRANCH_COMPARATOR), getNumOfTopShownBranches(localBranchActions), firstLevelGroup ?
+				GitBranchPopup.SHOW_ALL_LOCALS_KEY : null, firstLevelGroup);
 
 		popupGroup.addSeparator("Remote Branches" + repoInfo);
 		List<BranchActionGroup> remoteBranchActions = myRepository.getBranches().getRemoteBranches().stream().sorted().map(remoteBranch -> new RemoteBranchActions(myProject, repositoryList,
 				remoteBranch.getName(), myRepository)).collect(toList());
-		wrapWithMoreActionIfNeeded(popupGroup, ContainerUtil.sorted(remoteBranchActions, FAVORITE_BRANCH_COMPARATOR), getNumOfFavorites(remoteBranchActions));
+		wrapWithMoreActionIfNeeded(myProject, popupGroup, ContainerUtil.sorted(remoteBranchActions, FAVORITE_BRANCH_COMPARATOR), getNumOfFavorites(remoteBranchActions), firstLevelGroup ?
+				GitBranchPopup.SHOW_ALL_REMOTES_KEY : null);
 		return popupGroup;
 	}
 
