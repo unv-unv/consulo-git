@@ -21,10 +21,12 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.components.StoragePathMacros;
 
+import javax.inject.Singleton;
+
 @State(name = "Git.Rebase.Settings", storages = {@Storage(file = StoragePathMacros.WORKSPACE_FILE)})
+@Singleton
 public class GitRebaseSettings implements PersistentStateComponent<GitRebaseSettings.State>
 {
-
 	private State myState = new State();
 
 	public static class State

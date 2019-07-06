@@ -148,6 +148,7 @@
 		<projectService serviceImplementation="git4idea.branch.DeepComparatorHolder"/>
 
 		<projectService serviceImplementation="git4idea.repo.GitRepositoryManager" />
+		<projectService serviceImplementation="git4idea.config.GitRebaseSettings" />
 
 		<applicationService serviceImplementation="git4idea.config.GitExecutableManager"/>
 
