@@ -15,66 +15,69 @@
  */
 package org.jetbrains.git4idea.http;
 
-import org.apache.xmlrpc.XmlRpcClientLite;
 import org.apache.xmlrpc.XmlRpcException;
+import org.apache.xmlrpc.client.XmlRpcClient;
+import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.Vector;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Calls {@link GitAskPassXmlRpcHandler} methods via XML RPC.
  *
  * @author Kirill Likhodedov
  */
-class GitAskPassXmlRpcClient {
+class GitAskPassXmlRpcClient
+{
+	@NotNull
+	private final XmlRpcClient myClient;
 
-  @NotNull private final XmlRpcClientLite myClient;
+	GitAskPassXmlRpcClient(int port) throws MalformedURLException
+	{
+		XmlRpcClientConfigImpl clientConfig = new XmlRpcClientConfigImpl();
+		clientConfig.setServerURL(new URL("http://127.0.0.1:" + port + "/RPC2"));
+		myClient = new XmlRpcClient();
+		myClient.setConfig(clientConfig);
+	}
 
-  GitAskPassXmlRpcClient(int port) throws MalformedURLException {
-    myClient = new XmlRpcClientLite("127.0.0.1", port);
-  }
+	String askUsername(String token, @NotNull String url)
+	{
+		List<Object> parameters = new ArrayList<Object>();
+		parameters.add(token);
+		parameters.add(url);
 
-  // Obsolete collection usage because of the XmlRpcClientLite API
-  @SuppressWarnings({"UseOfObsoleteCollectionType", "unchecked"})
-  String askUsername(int handler, @NotNull String url) {
-    Vector parameters = new Vector();
-    parameters.add(handler);
-    parameters.add(url);
+		try
+		{
+			return (String) myClient.execute(methodName("askUsername"), parameters);
+		}
+		catch(XmlRpcException e)
+		{
+			throw new RuntimeException("Invocation failed " + e.getMessage(), e);
+		}
+	}
 
-    try {
-      return (String)myClient.execute(methodName("askUsername"), parameters);
-    }
-    catch (XmlRpcException e) {
-      throw new RuntimeException("Invocation failed " + e.getMessage(), e);
-    }
-    catch (IOException e) {
-      throw new RuntimeException("Invocation failed " + e.getMessage(), e);
-    }
-  }
+	String askPassword(String token, @NotNull String url)
+	{
+		List<Object> parameters = new ArrayList<Object>();
+		parameters.add(token);
+		parameters.add(url);
 
-  // Obsolete collection usage because of the XmlRpcClientLite API
-  @SuppressWarnings({"UseOfObsoleteCollectionType", "unchecked"})
-  String askPassword(int handler, @NotNull String url) {
-    Vector parameters = new Vector();
-    parameters.add(handler);
-    parameters.add(url);
+		try
+		{
+			return (String) myClient.execute(methodName("askPassword"), parameters);
+		}
+		catch(XmlRpcException e)
+		{
+			throw new RuntimeException("Invocation failed " + e.getMessage(), e);
+		}
+	}
 
-    try {
-      return (String)myClient.execute(methodName("askPassword"), parameters);
-    }
-    catch (XmlRpcException e) {
-      throw new RuntimeException("Invocation failed " + e.getMessage(), e);
-    }
-    catch (IOException e) {
-      throw new RuntimeException("Invocation failed " + e.getMessage(), e);
-    }
-  }
-
-  @NotNull
-  private static String methodName(@NotNull String method) {
-    return GitAskPassXmlRpcHandler.HANDLER_NAME + "." + method;
-  }
-
+	@NotNull
+	private static String methodName(@NotNull String method)
+	{
+		return GitAskPassXmlRpcHandler.HANDLER_NAME + "." + method;
+	}
 }

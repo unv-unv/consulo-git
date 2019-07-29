@@ -15,23 +15,24 @@
  */
 package org.jetbrains.git4idea.ssh;
 
-import gnu.trove.THashMap;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.UUID;
-
-import org.apache.commons.codec.DecoderException;
-import org.apache.xmlrpc.XmlRpcClientLite;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.git4idea.GitExternalApp;
-import org.jetbrains.git4idea.util.ScriptGenerator;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.io.FileUtilRt;
 import consulo.builtInServer.BuiltInServerManager;
 import consulo.builtInServer.xml.XmlRpcServer;
+import gnu.trove.THashMap;
+import org.apache.commons.codec.DecoderException;
+import org.apache.ws.commons.serialize.DOMSerializer;
+import org.apache.xmlrpc.XmlRpcConfig;
+import org.apache.xmlrpc.client.XmlRpcClient;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.git4idea.GitExternalApp;
+import org.jetbrains.git4idea.util.ScriptGenerator;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.UUID;
 
 /**
  * <p>The provider of external application scripts called by Git when a remote operation needs communication with the user.</p>
@@ -100,7 +101,7 @@ public abstract class GitXmlRpcHandlerService<T>
 	public File getScriptPath() throws IOException
 	{
 		ScriptGenerator generator = new ScriptGenerator(myScriptTempFilePrefix, myScriptMainClass);
-		generator.addClasses(XmlRpcClientLite.class, DecoderException.class, FileUtilRt.class);
+		generator.addClasses(XmlRpcClient.class, XmlRpcConfig.class, DOMSerializer.class, DecoderException.class, FileUtilRt.class);
 		customizeScriptGenerator(generator);
 
 		synchronized(SCRIPT_FILE_LOCK)

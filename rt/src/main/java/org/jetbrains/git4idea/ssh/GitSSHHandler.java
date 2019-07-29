@@ -15,10 +15,11 @@
  */
 package org.jetbrains.git4idea.ssh;
 
-import java.util.Vector;
-
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
+import java.util.Vector;
 
 /**
  * An interface for GIT SSH handler
@@ -106,14 +107,14 @@ public interface GitSSHHandler
 	 */
 	@SuppressWarnings({"UseOfObsoleteCollectionType"})
 	@Nullable
-	Vector<String> replyToChallenge(String token,
-			final String userName,
-			final String name,
-			final String instruction,
-			final int numPrompts,
-			final Vector<String> prompt,
-			final Vector<Boolean> echo,
-			final String lastError);
+	List<String> replyToChallenge(String token,
+								  final String userName,
+								  final String name,
+								  final String instruction,
+								  final int numPrompts,
+								  final Vector<String> prompt,
+								  final Vector<Boolean> echo,
+								  final String lastError);
 
 	/**
 	 * Ask password for the specified user name

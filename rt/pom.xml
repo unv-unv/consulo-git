@@ -58,8 +58,8 @@
 			<version>1.0.0-build221</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.ws.xmlrpc</groupId>
-			<artifactId>xmlrpc</artifactId>
+			<groupId>org.apache.xmlrpc</groupId>
+			<artifactId>xmlrpc-client</artifactId>
 		</dependency>
 	</dependencies>
 </project>

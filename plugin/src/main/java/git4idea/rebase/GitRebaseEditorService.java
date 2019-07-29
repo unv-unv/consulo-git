@@ -15,24 +15,24 @@
  */
 package git4idea.rebase;
 
-import gnu.trove.THashMap;
-
-import java.security.SecureRandom;
-import java.util.Map;
-import java.util.Random;
-
-import javax.inject.Singleton;
-
-import org.apache.commons.codec.DecoderException;
-import org.apache.xmlrpc.XmlRpcClientLite;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.git4idea.util.ScriptGenerator;
 import com.intellij.openapi.components.ServiceManager;
 import consulo.builtInServer.BuiltInServerManager;
 import consulo.builtInServer.xml.XmlRpcServer;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitLineHandler;
+import gnu.trove.THashMap;
+import org.apache.commons.codec.DecoderException;
+import org.apache.ws.commons.serialize.DOMSerializer;
+import org.apache.xmlrpc.XmlRpcConfig;
+import org.apache.xmlrpc.client.XmlRpcClient;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.git4idea.util.ScriptGenerator;
+
+import javax.inject.Singleton;
+import java.security.SecureRandom;
+import java.util.Map;
+import java.util.Random;
 
 /**
  * The service that generates editor script for
@@ -103,7 +103,7 @@ public class GitRebaseEditorService
 			{
 				ScriptGenerator generator = new ScriptGenerator(GIT_REBASE_EDITOR_PREFIX, GitRebaseEditorMain.class);
 				generator.addInternal(Integer.toString(BuiltInServerManager.getInstance().getPort()));
-				generator.addClasses(XmlRpcClientLite.class, DecoderException.class);
+				generator.addClasses(XmlRpcClient.class, XmlRpcConfig.class, DOMSerializer.class, DecoderException.class);
 				myEditorCommand = generator.commandLine();
 			}
 			return myEditorCommand;
