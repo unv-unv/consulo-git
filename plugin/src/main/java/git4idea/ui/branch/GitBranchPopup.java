@@ -106,28 +106,6 @@ class GitBranchPopup extends DvcsBranchPopup<GitRepository>
 	}
 
 	@Override
-	protected void setCurrentBranchInfo()
-	{
-		String currentBranchText = "Current branch";
-		if(myRepositoryManager.moreThanOneRoot())
-		{
-			if(myMultiRootBranchConfig.diverged())
-			{
-				currentBranchText += " in " + DvcsUtil.getShortRepositoryName(myCurrentRepository) + ": " + GitBranchUtil.getDisplayableBranchText(myCurrentRepository);
-			}
-			else
-			{
-				currentBranchText += ": " + myMultiRootBranchConfig.getCurrentBranch();
-			}
-		}
-		else
-		{
-			currentBranchText += ": " + GitBranchUtil.getDisplayableBranchText(myCurrentRepository);
-		}
-		myPopup.setAdText(currentBranchText, SwingConstants.CENTER);
-	}
-
-	@Override
 	protected void fillWithCommonRepositoryActions(@NotNull LightActionGroup popupGroup, @NotNull AbstractRepositoryManager<GitRepository> repositoryManager)
 	{
 		List<GitRepository> allRepositories = repositoryManager.getRepositories();
