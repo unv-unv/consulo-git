@@ -15,7 +15,7 @@
  */
 package git4idea;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import git4idea.repo.GitRemote;
 
 /**
@@ -31,33 +31,33 @@ import git4idea.repo.GitRemote;
 public class GitSvnRemoteBranch extends GitRemoteBranch
 {
 
-	public GitSvnRemoteBranch(@NotNull String fullName)
+	public GitSvnRemoteBranch(@Nonnull String fullName)
 	{
 		super(fullName);
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public String getNameForRemoteOperations()
 	{
 		return getFullName();
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public String getNameForLocalOperations()
 	{
 		return getFullName();
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public GitRemote getRemote()
 	{
 		return GitRemote.DOT;
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public String getFullName()
 	{

@@ -15,7 +15,7 @@
  */
 package git4idea;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import git4idea.repo.GitRemote;
 
 /**
@@ -24,7 +24,7 @@ import git4idea.repo.GitRemote;
 public abstract class GitRemoteBranch extends GitBranch
 {
 
-	protected GitRemoteBranch(@NotNull String name)
+	protected GitRemoteBranch(@Nonnull String name)
 	{
 		super(name);
 	}
@@ -36,7 +36,7 @@ public abstract class GitRemoteBranch extends GitBranch
 	 *
 	 * @see #getNameForLocalOperations()
 	 */
-	@NotNull
+	@Nonnull
 	public abstract String getNameForRemoteOperations();
 
 	/**
@@ -44,10 +44,10 @@ public abstract class GitRemoteBranch extends GitBranch
 	 * It is the name of this branch how it is references in this local repository.
 	 * For example, "origin/master".
 	 */
-	@NotNull
+	@Nonnull
 	public abstract String getNameForLocalOperations();
 
-	@NotNull
+	@Nonnull
 	public abstract GitRemote getRemote();
 
 	@Override

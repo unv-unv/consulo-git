@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnSeparator;
@@ -80,14 +80,14 @@ public class GitQuickListContentProvider implements VcsQuickListContentProvider 
     return Collections.singletonList(action);
   }
 
-  public boolean replaceVcsActionsFor(@NotNull AbstractVcs activeVcs, @Nullable DataContext dataContext) {
+  public boolean replaceVcsActionsFor(@Nonnull AbstractVcs activeVcs, @Nullable DataContext dataContext) {
     if (!GitVcs.NAME.equals(activeVcs.getName())) {
       return false;
     }
     return true;
   }
 
-  private static void addSeparator(@NotNull final List<AnAction> actions) {
+  private static void addSeparator(@Nonnull final List<AnAction> actions) {
     actions.add(new AnSeparator());
   }
 

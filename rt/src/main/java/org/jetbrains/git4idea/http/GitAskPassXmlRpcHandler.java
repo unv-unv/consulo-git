@@ -15,7 +15,7 @@
  */
 package org.jetbrains.git4idea.http;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 /**
  * This handler is called via XML RPC from {@link GitAskPassApp} when Git requests user credentials.
@@ -39,8 +39,8 @@ public interface GitAskPassXmlRpcHandler
 	 */
 	// UnusedDeclaration suppressed: the method is used via XML RPC
 	@SuppressWarnings("UnusedDeclaration")
-	@NotNull
-	String askUsername(String token, @NotNull String url);
+	@Nonnull
+	String askUsername(String token, @Nonnull String url);
 
 	/**
 	 * Get the password from the user to access the given URL.
@@ -52,7 +52,7 @@ public interface GitAskPassXmlRpcHandler
 	 */
 	// UnusedDeclaration suppressed: the method is used via XML RPC
 	@SuppressWarnings("UnusedDeclaration")
-	@NotNull
-	String askPassword(String token, @NotNull String url);
+	@Nonnull
+	String askPassword(String token, @Nonnull String url);
 
 }

@@ -20,9 +20,9 @@ import java.io.File;
 import java.util.Collection;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.swing.JPanel;
 
-import org.jetbrains.annotations.NotNull;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionPlaces;
 import com.intellij.openapi.actionSystem.ActionToolbar;
@@ -37,7 +37,7 @@ import com.intellij.util.containers.ContainerUtil;
 public class GitSimplePathsBrowser extends JPanel
 {
 
-	public GitSimplePathsBrowser(@NotNull Project project, @NotNull Collection<String> absolutePaths)
+	public GitSimplePathsBrowser(@Nonnull Project project, @Nonnull Collection<String> absolutePaths)
 	{
 		super(new BorderLayout());
 
@@ -48,8 +48,8 @@ public class GitSimplePathsBrowser extends JPanel
 		add(browser);
 	}
 
-	@NotNull
-	private static FilePathChangesTreeList createBrowser(@NotNull Project project, @NotNull Collection<String> absolutePaths)
+	@Nonnull
+	private static FilePathChangesTreeList createBrowser(@Nonnull Project project, @Nonnull Collection<String> absolutePaths)
 	{
 		List<FilePath> filePaths = toFilePaths(absolutePaths);
 		FilePathChangesTreeList browser = new FilePathChangesTreeList(project, filePaths, false, false, null, null);
@@ -57,15 +57,15 @@ public class GitSimplePathsBrowser extends JPanel
 		return browser;
 	}
 
-	@NotNull
-	private static ActionToolbar createToolbar(@NotNull FilePathChangesTreeList browser)
+	@Nonnull
+	private static ActionToolbar createToolbar(@Nonnull FilePathChangesTreeList browser)
 	{
 		DefaultActionGroup actionGroup = new DefaultActionGroup(browser.getTreeActions());
 		return ActionManager.getInstance().createActionToolbar(ActionPlaces.UNKNOWN, actionGroup, true);
 	}
 
-	@NotNull
-	private static List<FilePath> toFilePaths(@NotNull Collection<String> absolutePaths)
+	@Nonnull
+	private static List<FilePath> toFilePaths(@Nonnull Collection<String> absolutePaths)
 	{
 		return ContainerUtil.map(absolutePaths, new Function<String, FilePath>()
 		{

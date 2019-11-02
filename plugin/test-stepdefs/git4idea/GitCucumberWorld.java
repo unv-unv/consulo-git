@@ -30,7 +30,7 @@ import git4idea.repo.GitRepository;
 import git4idea.test.GitExecutor;
 import git4idea.test.GitTestInitUtil;
 import git4idea.test.TestNotificator;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.ide.BuiltInServerManager;
 import org.jetbrains.ide.BuiltInServerManagerImpl;
 import org.junit.Assert;
@@ -137,7 +137,7 @@ public class GitCucumberWorld {
     assumeTrue(myVcs.getVersion().isSupported());
   }
 
-  @NotNull
+  @Nonnull
   private static GitRepository createRepo(String root) {
     GitTestInitUtil.initRepo(root);
     ProjectLevelVcsManagerImpl vcsManager = (ProjectLevelVcsManagerImpl)ProjectLevelVcsManager.getInstance(myProject);
@@ -202,7 +202,7 @@ public class GitCucumberWorld {
   }
 
   @SuppressWarnings("unchecked")
-  private static <T> T overrideService(@NotNull Project project, Class<? super T> serviceInterface, Class<T> serviceImplementation) {
+  private static <T> T overrideService(@Nonnull Project project, Class<? super T> serviceInterface, Class<T> serviceImplementation) {
     String key = serviceInterface.getName();
     MutablePicoContainer picoContainer = (MutablePicoContainer) project.getPicoContainer();
     picoContainer.unregisterComponent(key);
@@ -210,7 +210,7 @@ public class GitCucumberWorld {
     return (T) ServiceManager.getService(project, serviceInterface);
   }
 
-  private static void edt(@NotNull final ThrowableRunnable<Exception> runnable) throws Exception {
+  private static void edt(@Nonnull final ThrowableRunnable<Exception> runnable) throws Exception {
     final AtomicReference<Exception> exception = new AtomicReference<Exception>();
     UIUtil.invokeAndWaitIfNeeded(new Runnable() {
       @Override

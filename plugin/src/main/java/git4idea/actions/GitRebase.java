@@ -25,7 +25,7 @@ import static java.util.Collections.singletonList;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -44,7 +44,7 @@ public class GitRebase extends DumbAwareAction
 {
 
 	@Override
-	public void update(@NotNull AnActionEvent e)
+	public void update(@Nonnull AnActionEvent e)
 	{
 		super.update(e);
 		Project project = e.getProject();
@@ -60,7 +60,7 @@ public class GitRebase extends DumbAwareAction
 	}
 
 	@Override
-	public void actionPerformed(@NotNull AnActionEvent e)
+	public void actionPerformed(@Nonnull AnActionEvent e)
 	{
 		final Project project = e.getRequiredData(CommonDataKeys.PROJECT);
 		ArrayList<GitRepository> repositories = ContainerUtil.newArrayList(getRepositories(project));
@@ -72,7 +72,7 @@ public class GitRebase extends DumbAwareAction
 		{
 			ProgressManager.getInstance().run(new Task.Backgroundable(project, "Rebasing...")
 			{
-				public void run(@NotNull ProgressIndicator indicator)
+				public void run(@Nonnull ProgressIndicator indicator)
 				{
 					GitRebaseUtils.rebase(project, singletonList(dialog.getSelectedRepository()), dialog.getSelectedParams(), indicator);
 				}

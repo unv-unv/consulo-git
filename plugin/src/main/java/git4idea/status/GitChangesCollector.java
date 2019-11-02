@@ -23,7 +23,7 @@ import com.intellij.openapi.vcs.changes.ChangeListManager;
 import com.intellij.openapi.vcs.changes.ContentRevision;
 import com.intellij.openapi.vcs.changes.VcsDirtyScope;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.io.File;
 import java.util.*;
@@ -36,17 +36,23 @@ import java.util.*;
  * @author Kirill Likhodedov
  */
 abstract class GitChangesCollector {
-  @NotNull protected final Project myProject;
-  @NotNull protected final VirtualFile myVcsRoot;
+  @Nonnull
+  protected final Project myProject;
+  @Nonnull
+  protected final VirtualFile myVcsRoot;
 
-  @NotNull private final VcsDirtyScope myDirtyScope;
-  @NotNull private final ChangeListManager myChangeListManager;
-  @NotNull private final ProjectLevelVcsManager myVcsManager;
-  @NotNull private AbstractVcs myVcs;
+  @Nonnull
+  private final VcsDirtyScope myDirtyScope;
+  @Nonnull
+  private final ChangeListManager myChangeListManager;
+  @Nonnull
+  private final ProjectLevelVcsManager myVcsManager;
+  @Nonnull
+  private AbstractVcs myVcs;
 
 
-  GitChangesCollector(@NotNull Project project, @NotNull ChangeListManager changeListManager, @NotNull ProjectLevelVcsManager vcsManager,
-                      @NotNull AbstractVcs vcs, @NotNull VcsDirtyScope dirtyScope, @NotNull VirtualFile vcsRoot) {
+  GitChangesCollector(@Nonnull Project project, @Nonnull ChangeListManager changeListManager, @Nonnull ProjectLevelVcsManager vcsManager,
+					  @Nonnull AbstractVcs vcs, @Nonnull VcsDirtyScope dirtyScope, @Nonnull VirtualFile vcsRoot) {
     myProject = project;
     myChangeListManager = changeListManager;
     myVcsManager = vcsManager;
@@ -58,12 +64,14 @@ abstract class GitChangesCollector {
   /**
    * @return the set of unversioned files (from the specified dirty scope).
    */
-  abstract @NotNull Collection<VirtualFile> getUnversionedFiles();
+  abstract @Nonnull
+  Collection<VirtualFile> getUnversionedFiles();
 
   /**
    * @return the set of changes (changed files) from the specified dirty scope.
    */
-  abstract @NotNull Collection<Change> getChanges();
+  abstract @Nonnull
+  Collection<Change> getChanges();
 
   /**
    * Collect dirty file paths

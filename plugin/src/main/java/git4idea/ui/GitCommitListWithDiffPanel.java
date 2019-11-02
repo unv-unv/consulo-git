@@ -19,10 +19,10 @@ import java.awt.BorderLayout;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import org.jetbrains.annotations.NotNull;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Splitter;
 import com.intellij.openapi.vcs.changes.Change;
@@ -41,7 +41,7 @@ public class GitCommitListWithDiffPanel extends JPanel
 	private final ChangesBrowser myChangesBrowser;
 	private final GitCommitListPanel myCommitListPanel;
 
-	public GitCommitListWithDiffPanel(@NotNull Project project, @NotNull List<GitCommit> commits)
+	public GitCommitListWithDiffPanel(@Nonnull Project project, @Nonnull List<GitCommit> commits)
 	{
 		super(new BorderLayout());
 
@@ -65,13 +65,13 @@ public class GitCommitListWithDiffPanel extends JPanel
 		add(splitter);
 	}
 
-	@NotNull
+	@Nonnull
 	public JComponent getPreferredFocusComponent()
 	{
 		return myCommitListPanel.getPreferredFocusComponent();
 	}
 
-	public void setCommits(@NotNull List<GitCommit> commits)
+	public void setCommits(@Nonnull List<GitCommit> commits)
 	{
 		myCommitListPanel.setCommits(commits);
 	}

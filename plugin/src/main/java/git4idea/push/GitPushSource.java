@@ -15,7 +15,7 @@
  */
 package git4idea.push;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.dvcs.push.PushSource;
 import git4idea.GitLocalBranch;
@@ -23,39 +23,39 @@ import git4idea.GitLocalBranch;
 abstract class GitPushSource implements PushSource
 {
 
-	@NotNull
-	static GitPushSource create(@NotNull GitLocalBranch branch)
+	@Nonnull
+	static GitPushSource create(@Nonnull GitLocalBranch branch)
 	{
 		return new OnBranch(branch);
 	}
 
-	@NotNull
-	static GitPushSource create(@NotNull String revision)
+	@Nonnull
+	static GitPushSource create(@Nonnull String revision)
 	{
 		return new DetachedHead(revision);
 	}
 
-	@NotNull
+	@Nonnull
 	abstract GitLocalBranch getBranch();
 
 	private static class OnBranch extends GitPushSource
 	{
-		@NotNull
+		@Nonnull
 		private final GitLocalBranch myBranch;
 
-		private OnBranch(@NotNull GitLocalBranch branch)
+		private OnBranch(@Nonnull GitLocalBranch branch)
 		{
 			myBranch = branch;
 		}
 
-		@NotNull
+		@Nonnull
 		@Override
 		public String getPresentation()
 		{
 			return myBranch.getName();
 		}
 
-		@NotNull
+		@Nonnull
 		@Override
 		GitLocalBranch getBranch()
 		{
@@ -65,22 +65,22 @@ abstract class GitPushSource implements PushSource
 
 	private static class DetachedHead extends GitPushSource
 	{
-		@NotNull
+		@Nonnull
 		private final String myRevision;
 
-		public DetachedHead(@NotNull String revision)
+		public DetachedHead(@Nonnull String revision)
 		{
 			myRevision = revision;
 		}
 
-		@NotNull
+		@Nonnull
 		@Override
 		public String getPresentation()
 		{
 			return DvcsUtil.getShortHash(myRevision);
 		}
 
-		@NotNull
+		@Nonnull
 		@Override
 		GitLocalBranch getBranch()
 		{

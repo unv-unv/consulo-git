@@ -19,8 +19,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import com.intellij.dvcs.branch.DvcsSyncSettings;
 import com.intellij.ide.ui.OptionsTopHitProvider;
 import com.intellij.ide.ui.PublicMethodBasedOptionDescription;
@@ -42,7 +43,7 @@ public final class GitOptionsTopHitProvider extends OptionsTopHitProvider
 		return "vcs";
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public Collection<BooleanOptionDescription> getOptions(@Nullable Project project)
 	{

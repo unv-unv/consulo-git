@@ -29,7 +29,7 @@ import com.intellij.util.ui.ColumnInfo;
 import git4idea.history.wholeTree.*;
 import junit.framework.Assert;
 import junit.framework.TestCase;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -777,13 +777,13 @@ public class SkeletonBuilderTest extends TestCase {
   }
 
   private static class MyVf extends VirtualFile {
-    @NotNull
+    @Nonnull
     @Override
     public String getName() {
       return "mock";
     }
 
-    @NotNull
+    @Nonnull
     @Override
     public VirtualFileSystem getFileSystem() {
       return new MockVirtualFileSystem();
@@ -794,7 +794,7 @@ public class SkeletonBuilderTest extends TestCase {
       return "mock";
     }
 
-    @NotNull
+    @Nonnull
     @Override
     public String getUrl() {
       return "mock";
@@ -825,13 +825,13 @@ public class SkeletonBuilderTest extends TestCase {
       return new VirtualFile[0];
     }
 
-    @NotNull
+    @Nonnull
     @Override
     public OutputStream getOutputStream(Object requestor, long newModificationStamp, long newTimeStamp) throws IOException {
       return null;
     }
 
-    @NotNull
+    @Nonnull
     @Override
     public byte[] contentsToByteArray() throws IOException {
       return new byte[0];

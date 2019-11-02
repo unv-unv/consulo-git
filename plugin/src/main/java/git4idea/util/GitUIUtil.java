@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -30,8 +31,8 @@ import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
 
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nullable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.text.StringUtil;
@@ -63,7 +64,7 @@ public class GitUIUtil
 	}
 
 	public static void notifyMessages(
-			@NotNull Project project, @NotNull String title, @Nullable String description, boolean important, @Nullable Collection<String> messages)
+			@Nonnull Project project, @Nonnull String title, @Nullable String description, boolean important, @Nullable Collection<String> messages)
 	{
 		String desc = (description != null ? description.replace("\n", "<br/>") : "");
 		if(messages != null && !messages.isEmpty())
@@ -82,7 +83,7 @@ public class GitUIUtil
 	}
 
 	public static void notifyMessage(
-			Project project, @NotNull String title, @Nullable String description, boolean important, @Nullable Collection<? extends Exception>
+			Project project, @Nonnull String title, @Nullable String description, boolean important, @Nullable Collection<? extends Exception>
 			errors)
 	{
 		Collection<String> errorMessages;
@@ -121,7 +122,7 @@ public class GitUIUtil
 	 * Line separator is also replaced by &lt;br/&gt;
 	 */
 	public static
-	@NotNull
+	@Nonnull
 	String stringifyErrors(@Nullable Collection<VcsException> errors)
 	{
 		if(errors == null)
@@ -198,10 +199,10 @@ public class GitUIUtil
 	 * @param currentBranchLabel current branch label (might be null)
 	 */
 	public static void setupRootChooser(
-			@NotNull final Project project,
-			@NotNull final List<VirtualFile> roots,
+			@Nonnull final Project project,
+			@Nonnull final List<VirtualFile> roots,
 			@Nullable final VirtualFile defaultRoot,
-			@NotNull final JComboBox gitRootChooser,
+			@Nonnull final JComboBox gitRootChooser,
 			@Nullable final JLabel currentBranchLabel)
 	{
 		for(VirtualFile root : roots)
@@ -243,7 +244,7 @@ public class GitUIUtil
 	 * @param ex        the exception
 	 * @param operation the operation name
 	 */
-	public static void showOperationError(final Project project, final VcsException ex, @NonNls @NotNull final String operation)
+	public static void showOperationError(final Project project, final VcsException ex, @NonNls @Nonnull final String operation)
 	{
 		showOperationError(project, operation, ex.getMessage());
 	}
@@ -256,7 +257,7 @@ public class GitUIUtil
 	 * @param operation the operation name
 	 */
 	public static void showOperationErrors(
-			final Project project, final Collection<VcsException> exs, @NonNls @NotNull final String operation)
+			final Project project, final Collection<VcsException> exs, @NonNls @Nonnull final String operation)
 	{
 		if(exs.size() == 1)
 		{

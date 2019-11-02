@@ -22,8 +22,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
@@ -83,7 +83,7 @@ public class GitRepositoryFiles
 	private final String myExcludePath;
 	private final String myHooksDirPath;
 
-	private GitRepositoryFiles(@NotNull VirtualFile mainDir, @NotNull VirtualFile worktreeDir)
+	private GitRepositoryFiles(@Nonnull VirtualFile mainDir, @Nonnull VirtualFile worktreeDir)
 	{
 		myMainDir = mainDir;
 		myWorktreeDir = worktreeDir;
@@ -112,8 +112,8 @@ public class GitRepositoryFiles
 		myRebaseMergePath = worktreePath + slash(REBASE_MERGE);
 	}
 
-	@NotNull
-	public static GitRepositoryFiles getInstance(@NotNull VirtualFile gitDir)
+	@Nonnull
+	public static GitRepositoryFiles getInstance(@Nonnull VirtualFile gitDir)
 	{
 		VirtualFile gitDirForWorktree = getMainGitDirForWorktree(gitDir);
 		VirtualFile mainDir = gitDirForWorktree == null ? gitDir : gitDirForWorktree;
@@ -127,7 +127,7 @@ public class GitRepositoryFiles
 	 * Worktree's ".git" file references {@code <main-project>/.git/worktrees/<worktree-name>}
 	 */
 	@Nullable
-	private static VirtualFile getMainGitDirForWorktree(@NotNull VirtualFile gitDir)
+	private static VirtualFile getMainGitDirForWorktree(@Nonnull VirtualFile gitDir)
 	{
 		File gitDirFile = virtualToIoFile(gitDir);
 		File commonDir = new File(gitDirFile, "commondir");
@@ -155,8 +155,8 @@ public class GitRepositoryFiles
 		return lfs.refreshAndFindFileByPath(pathToMain); // absolute path is also possible
 	}
 
-	@NotNull
-	private static String slash(@NotNull String s)
+	@Nonnull
+	private static String slash(@Nonnull String s)
 	{
 		return "/" + s;
 	}
@@ -164,98 +164,98 @@ public class GitRepositoryFiles
 	/**
 	 * Returns subdirectories of .git which we are interested in - they should be watched by VFS.
 	 */
-	@NotNull
+	@Nonnull
 	Collection<String> getDirsToWatch()
 	{
 		return Arrays.asList(myRefsHeadsDirPath, myRefsRemotesDirPath, myRefsTagsPath, myInfoDirPath, myHooksDirPath);
 	}
 
-	@NotNull
+	@Nonnull
 	File getRefsHeadsFile()
 	{
 		return file(myRefsHeadsDirPath);
 	}
 
-	@NotNull
+	@Nonnull
 	File getRefsRemotesFile()
 	{
 		return file(myRefsRemotesDirPath);
 	}
 
-	@NotNull
+	@Nonnull
 	File getRefsTagsFile()
 	{
 		return file(myRefsTagsPath);
 	}
 
-	@NotNull
+	@Nonnull
 	File getPackedRefsPath()
 	{
 		return file(myPackedRefsPath);
 	}
 
-	@NotNull
+	@Nonnull
 	public File getHeadFile()
 	{
 		return file(myHeadFilePath);
 	}
 
-	@NotNull
+	@Nonnull
 	File getConfigFile()
 	{
 		return file(myConfigFilePath);
 	}
 
-	@NotNull
+	@Nonnull
 	public File getRebaseMergeDir()
 	{
 		return file(myRebaseMergePath);
 	}
 
-	@NotNull
+	@Nonnull
 	public File getRebaseApplyDir()
 	{
 		return file(myRebaseApplyPath);
 	}
 
-	@NotNull
+	@Nonnull
 	public File getMergeHeadFile()
 	{
 		return file(myMergeHeadPath);
 	}
 
-	@NotNull
+	@Nonnull
 	public File getCherryPickHead()
 	{
 		return file(myCherryPickHeadPath);
 	}
 
-	@NotNull
+	@Nonnull
 	public File getMergeMessageFile()
 	{
 		return file(myMergeMessagePath);
 	}
 
-	@NotNull
+	@Nonnull
 	public File getSquashMessageFile()
 	{
 		return file(myMergeSquashPath);
 	}
 
-	@NotNull
+	@Nonnull
 	public File getPreCommitHookFile()
 	{
 		return file(myHooksDirPath + slash(PRE_COMMIT_HOOK));
 	}
 
-	@NotNull
+	@Nonnull
 	public File getPrePushHookFile()
 	{
 		return file(myHooksDirPath + slash(PRE_PUSH_HOOK));
 	}
 
-	@NotNull
-	private static File file(@NotNull String filePath)
+	@Nonnull
+	private static File file(@Nonnull String filePath)
 	{
 		return new File(FileUtil.toSystemDependentName(filePath));
 	}
@@ -287,7 +287,7 @@ public class GitRepositoryFiles
 	/**
 	 * .git/ORIG_HEAD
 	 */
-	public boolean isOrigHeadFile(@NotNull String file)
+	public boolean isOrigHeadFile(@Nonnull String file)
 	{
 		return file.equals(myOrigHeadPath);
 	}
@@ -307,7 +307,7 @@ public class GitRepositoryFiles
 	 * @param fullBranchName full name of a ref, e.g. {@code refs/heads/master}.
 	 * @return true iff the filePath represents the .git/refs/heads... file for the given branch.
 	 */
-	public boolean isBranchFile(@NotNull String filePath, @NotNull String fullBranchName)
+	public boolean isBranchFile(@Nonnull String filePath, @Nonnull String fullBranchName)
 	{
 		return FileUtil.pathsEqual(filePath, myMainDir.getPath() + slash(fullBranchName));
 	}
@@ -323,7 +323,7 @@ public class GitRepositoryFiles
 	/**
 	 * .git/refs/tags/*
 	 */
-	public boolean isTagFile(@NotNull String path)
+	public boolean isTagFile(@Nonnull String path)
 	{
 		return path.startsWith(myRefsTagsPath);
 	}
@@ -352,7 +352,7 @@ public class GitRepositoryFiles
 		return file.equals(myPackedRefsPath);
 	}
 
-	public boolean isCommitMessageFile(@NotNull String file)
+	public boolean isCommitMessageFile(@Nonnull String file)
 	{
 		return file.equals(myCommitMessagePath);
 	}
@@ -360,7 +360,7 @@ public class GitRepositoryFiles
 	/**
 	 * {@code $GIT_DIR/info/exclude}
 	 */
-	public boolean isExclude(@NotNull String path)
+	public boolean isExclude(@Nonnull String path)
 	{
 		return path.equals(myExcludePath);
 	}
@@ -387,7 +387,7 @@ public class GitRepositoryFiles
 		VfsUtil.markDirtyAndRefresh(true, true, false, tagsDir);
 	}
 
-	@NotNull
+	@Nonnull
 	Collection<VirtualFile> getRootDirs()
 	{
 		return ContainerUtil.newHashSet(myMainDir, myWorktreeDir);

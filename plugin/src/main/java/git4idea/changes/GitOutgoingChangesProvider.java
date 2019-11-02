@@ -32,8 +32,8 @@ import git4idea.GitUtil;
 import git4idea.commands.GitSimpleHandler;
 import git4idea.history.GitHistoryUtils;
 import git4idea.history.browser.SHAHash;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import java.util.*;
 
@@ -141,8 +141,8 @@ public class GitOutgoingChangesProvider implements VcsOutgoingChangesProvider<Co
    * @return the common commit or null if the there is no common commit
    */
   @Nullable
-  private static GitRevisionNumber getMergeBase(@NotNull Project project, @NotNull VirtualFile root,
-                                                @NotNull GitBranch currentBranch, @NotNull GitBranch branch) throws VcsException {
+  private static GitRevisionNumber getMergeBase(@Nonnull Project project, @Nonnull VirtualFile root,
+												@Nonnull GitBranch currentBranch, @Nonnull GitBranch branch) throws VcsException {
     return GitHistoryUtils.getMergeBase(project, root, currentBranch.getFullName(), branch.getFullName());
   }
 }

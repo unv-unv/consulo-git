@@ -24,12 +24,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import org.jetbrains.annotations.NotNull;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Splitter;
 import com.intellij.openapi.vcs.changes.Change;
@@ -58,8 +58,8 @@ class GitCompareBranchesLogPanel extends JPanel {
 	private GitCommitListPanel myHeadToBranchListPanel;
 	private GitCommitListPanel myBranchToHeadListPanel;
 
-	GitCompareBranchesLogPanel(@NotNull Project project, @NotNull String branchName, @NotNull String currentBranchName,
-			@NotNull GitCommitCompareInfo compareInfo, @NotNull GitRepository initialRepo) {
+	GitCompareBranchesLogPanel(@Nonnull Project project, @Nonnull String branchName, @Nonnull String currentBranchName,
+							   @Nonnull GitCommitCompareInfo compareInfo, @Nonnull GitRepository initialRepo) {
 		super(new BorderLayout(UIUtil.DEFAULT_HGAP, UIUtil.DEFAULT_VGAP));
 		myProject = project;
 		myBranchName = branchName;
@@ -149,9 +149,9 @@ class GitCompareBranchesLogPanel extends JPanel {
 		return myCompareInfo.getInfoType();
 	}
 
-	private static void addSelectionListener(@NotNull GitCommitListPanel sourcePanel,
-			@NotNull final GitCommitListPanel otherPanel,
-			@NotNull final ChangesBrowser changesBrowser) {
+	private static void addSelectionListener(@Nonnull GitCommitListPanel sourcePanel,
+			@Nonnull final GitCommitListPanel otherPanel,
+			@Nonnull final ChangesBrowser changesBrowser) {
 		sourcePanel.addListMultipleSelectionListener(new Consumer<java.util.List<Change>>() {
 			@Override
 			public void consume(List<Change> changes) {
@@ -161,7 +161,7 @@ class GitCompareBranchesLogPanel extends JPanel {
 		});
 	}
 
-	private JPanel layoutCommitListPanel(@NotNull String currentBranch, boolean forward) {
+	private JPanel layoutCommitListPanel(@Nonnull String currentBranch, boolean forward) {
 		String desc = makeDescription(currentBranch, forward);
 
 		JPanel bth = new JPanel(new BorderLayout());
@@ -172,7 +172,7 @@ class GitCompareBranchesLogPanel extends JPanel {
 		return bth;
 	}
 
-	private String makeDescription(@NotNull String currentBranch, boolean forward) {
+	private String makeDescription(@Nonnull String currentBranch, boolean forward) {
 		String firstBranch = forward ? currentBranch : myBranchName;
 		String secondBranch = forward ? myBranchName : currentBranch;
 		return String.format("<html>Commits that exist in <code><b>%s</b></code> but don't exist in <code><b>%s</b></code> (<code>git log %s..%s</code>):</html>",

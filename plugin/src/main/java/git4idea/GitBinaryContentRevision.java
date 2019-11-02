@@ -22,7 +22,7 @@ import com.intellij.openapi.vcs.changes.BinaryContentRevision;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.vcsUtil.VcsFileUtil;
 import git4idea.util.GitFileUtils;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 /**
  * @author irengrig
@@ -30,7 +30,7 @@ import org.jetbrains.annotations.NotNull;
  *         Time: 2:57 PM
  */
 public class GitBinaryContentRevision extends GitContentRevision implements BinaryContentRevision {
-  public GitBinaryContentRevision(@NotNull FilePath file, @NotNull GitRevisionNumber revision, @NotNull Project project) {
+  public GitBinaryContentRevision(@Nonnull FilePath file, @Nonnull GitRevisionNumber revision, @Nonnull Project project) {
     super(file, revision, project, null);
   }
 

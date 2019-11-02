@@ -15,8 +15,8 @@
  */
 package git4idea.push;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Push result as reported by {@code git push} command.
@@ -41,7 +41,7 @@ class GitPushNativeResult
 		ERROR
 	}
 
-	@NotNull
+	@Nonnull
 	private final Type myType;
 	private final String mySourceRef;
 	@Nullable
@@ -49,12 +49,12 @@ class GitPushNativeResult
 	@Nullable
 	private final String myRange;
 
-	GitPushNativeResult(@NotNull Type type, String sourceRef)
+	GitPushNativeResult(@Nonnull Type type, String sourceRef)
 	{
 		this(type, sourceRef, null, null);
 	}
 
-	GitPushNativeResult(@NotNull Type type, String sourceRef, @Nullable String reason, @Nullable String range)
+	GitPushNativeResult(@Nonnull Type type, String sourceRef, @Nullable String reason, @Nullable String range)
 	{
 		myType = type;
 		mySourceRef = sourceRef;
@@ -62,7 +62,7 @@ class GitPushNativeResult
 		myRange = range;
 	}
 
-	@NotNull
+	@Nonnull
 	public Type getType()
 	{
 		return myType;

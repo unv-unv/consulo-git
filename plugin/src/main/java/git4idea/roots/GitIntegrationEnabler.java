@@ -15,7 +15,7 @@
  */
 package git4idea.roots;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vcs.roots.VcsIntegrationEnabler;
@@ -29,19 +29,19 @@ public class GitIntegrationEnabler extends VcsIntegrationEnabler<GitVcs>
 {
 
 	private final
-	@NotNull
+	@Nonnull
 	Git myGit;
 
 	private static final Logger LOG = Logger.getInstance(GitIntegrationEnabler.class);
 
-	public GitIntegrationEnabler(@NotNull GitVcs vcs, @NotNull Git git)
+	public GitIntegrationEnabler(@Nonnull GitVcs vcs, @Nonnull Git git)
 	{
 		super(vcs);
 		myGit = git;
 	}
 
 	@Override
-	protected boolean initOrNotifyError(@NotNull final VirtualFile projectDir)
+	protected boolean initOrNotifyError(@Nonnull final VirtualFile projectDir)
 	{
 		VcsNotifier vcsNotifier = VcsNotifier.getInstance(myProject);
 		GitCommandResult result = myGit.init(myProject, projectDir);

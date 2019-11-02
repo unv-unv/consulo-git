@@ -17,9 +17,9 @@ package git4idea.branch;
 
 import java.util.Map;
 
+import javax.annotation.Nonnull;
 import javax.inject.Singleton;
 
-import org.jetbrains.annotations.NotNull;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
@@ -31,17 +31,17 @@ import git4idea.repo.GitRepositoryManager;
 public class DeepComparatorHolder implements Disposable
 {
 
-	@NotNull
+	@Nonnull
 	private final Project myProject;
-	@NotNull
+	@Nonnull
 	private final GitRepositoryManager myRepositoryManager;
 
-	@NotNull
+	@Nonnull
 	private final Map<VcsLogUi, DeepComparator> myComparators;
 
 	// initialized by pico-container
 	@SuppressWarnings("UnusedDeclaration")
-	private DeepComparatorHolder(@NotNull Project project, @NotNull GitRepositoryManager repositoryManager)
+	private DeepComparatorHolder(@Nonnull Project project, @Nonnull GitRepositoryManager repositoryManager)
 	{
 		myProject = project;
 		myRepositoryManager = repositoryManager;
@@ -49,8 +49,8 @@ public class DeepComparatorHolder implements Disposable
 		Disposer.register(project, this);
 	}
 
-	@NotNull
-	public DeepComparator getInstance(@NotNull VcsLogUi ui)
+	@Nonnull
+	public DeepComparator getInstance(@Nonnull VcsLogUi ui)
 	{
 		DeepComparator comparator = myComparators.get(ui);
 		if(comparator == null)

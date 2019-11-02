@@ -17,7 +17,7 @@ package git4idea.attributes;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.text.StringUtil;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.util.*;
 
@@ -33,9 +33,10 @@ public class GitCheckAttrParser {
   private static final Logger LOG = Logger.getInstance(GitCheckAttrParser.class);
   private static final String UNSPECIFIED_VALUE = "unspecified";
 
-  @NotNull private final Map<String, Collection<GitAttribute>> myAttributes;
+  @Nonnull
+  private final Map<String, Collection<GitAttribute>> myAttributes;
 
-  private GitCheckAttrParser(@NotNull List<String> output) {
+  private GitCheckAttrParser(@Nonnull List<String> output) {
     myAttributes = new HashMap<String, Collection<GitAttribute>>();
 
     for (String line : output) {
@@ -62,12 +63,12 @@ public class GitCheckAttrParser {
     }
   }
 
-  @NotNull
-  public static GitCheckAttrParser parse(@NotNull List<String> output) {
+  @Nonnull
+  public static GitCheckAttrParser parse(@Nonnull List<String> output) {
     return new GitCheckAttrParser(output);
   }
 
-  @NotNull
+  @Nonnull
   public Map<String, Collection<GitAttribute>> getAttributes() {
     return myAttributes;
   }

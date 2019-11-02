@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.dvcs.branch.DvcsMultiRootBranchConfig;
 import com.intellij.util.containers.ContainerUtil;
 import git4idea.GitLocalBranch;
@@ -35,19 +35,19 @@ import git4idea.repo.GitRepository;
 public class GitMultiRootBranchConfig extends DvcsMultiRootBranchConfig<GitRepository>
 {
 
-	public GitMultiRootBranchConfig(@NotNull Collection<GitRepository> repositories)
+	public GitMultiRootBranchConfig(@Nonnull Collection<GitRepository> repositories)
 	{
 		super(repositories);
 	}
 
 	@Override
-	@NotNull
+	@Nonnull
 	public Collection<String> getLocalBranchNames()
 	{
 		return GitBranchUtil.getCommonBranches(myRepositories, true);
 	}
 
-	@NotNull
+	@Nonnull
 	Collection<String> getRemoteBranches()
 	{
 		return GitBranchUtil.getCommonBranches(myRepositories, false);
@@ -59,7 +59,7 @@ public class GitMultiRootBranchConfig extends DvcsMultiRootBranchConfig<GitRepos
 	 * For one repository just returns the tracked branch or null if there is no tracked branch.
 	 */
 	@Nullable
-	public String getTrackedBranch(@NotNull String branch)
+	public String getTrackedBranch(@Nonnull String branch)
 	{
 		String trackedName = null;
 		for(GitRepository repository : myRepositories)
@@ -84,8 +84,8 @@ public class GitMultiRootBranchConfig extends DvcsMultiRootBranchConfig<GitRepos
 	/**
 	 * Returns local branches which track the given remote branch. Usually there is 0 or 1 such branches.
 	 */
-	@NotNull
-	public Collection<String> getTrackingBranches(@NotNull String remoteBranch)
+	@Nonnull
+	public Collection<String> getTrackingBranches(@Nonnull String remoteBranch)
 	{
 		Collection<String> trackingBranches = null;
 		for(GitRepository repository : myRepositories)
@@ -103,8 +103,8 @@ public class GitMultiRootBranchConfig extends DvcsMultiRootBranchConfig<GitRepos
 		return trackingBranches == null ? Collections.<String>emptyList() : trackingBranches;
 	}
 
-	@NotNull
-	public static Collection<String> getTrackingBranches(@NotNull GitRepository repository, @NotNull String remoteBranch)
+	@Nonnull
+	public static Collection<String> getTrackingBranches(@Nonnull GitRepository repository, @Nonnull String remoteBranch)
 	{
 		Collection<String> trackingBranches = new ArrayList<String>(1);
 		for(GitBranchTrackInfo trackInfo : repository.getBranchTrackInfos())
@@ -118,7 +118,7 @@ public class GitMultiRootBranchConfig extends DvcsMultiRootBranchConfig<GitRepos
 	}
 
 	@Nullable
-	private static GitRemoteBranch getTrackedBranch(@NotNull GitRepository repository, @NotNull String branchName)
+	private static GitRemoteBranch getTrackedBranch(@Nonnull GitRepository repository, @Nonnull String branchName)
 	{
 		GitLocalBranch branch = repository.getBranches().findLocalBranch(branchName);
 		return branch == null ? null : branch.findTrackedBranch(repository);

@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -68,22 +68,22 @@ public class GitMergeUpdater extends GitUpdater
 {
 	private static final Logger LOG = Logger.getInstance(GitMergeUpdater.class);
 
-	@NotNull
+	@Nonnull
 	private final ChangeListManager myChangeListManager;
 
-	public GitMergeUpdater(@NotNull Project project,
-			@NotNull Git git,
-			@NotNull GitRepository repository,
-			@NotNull GitBranchPair branchAndTracked,
-			@NotNull ProgressIndicator progressIndicator,
-			@NotNull UpdatedFiles updatedFiles)
+	public GitMergeUpdater(@Nonnull Project project,
+			@Nonnull Git git,
+			@Nonnull GitRepository repository,
+			@Nonnull GitBranchPair branchAndTracked,
+			@Nonnull ProgressIndicator progressIndicator,
+			@Nonnull UpdatedFiles updatedFiles)
 	{
 		super(project, git, repository, branchAndTracked, progressIndicator, updatedFiles);
 		myChangeListManager = ChangeListManager.getInstance(myProject);
 	}
 
 	@Override
-	@NotNull
+	@Nonnull
 	protected GitUpdateResult doUpdate()
 	{
 		LOG.info("doUpdate ");
@@ -108,7 +108,7 @@ public class GitMergeUpdater extends GitUpdater
 		}
 	}
 
-	@NotNull
+	@Nonnull
 	private GitUpdateResult handleMergeFailure(MergeLineListener mergeLineListener,
 			GitMessageWithFilesDetector untrackedFilesWouldBeOverwrittenByMergeDetector,
 			final GitMerger merger,
@@ -214,7 +214,7 @@ public class GitMergeUpdater extends GitUpdater
 	}
 
 	// parses the output of merge conflict returning files which would be overwritten by merge. These files will be stashed.
-	private List<FilePath> getFilesOverwrittenByMerge(@NotNull List<String> mergeOutput)
+	private List<FilePath> getFilesOverwrittenByMerge(@Nonnull List<String> mergeOutput)
 	{
 		final List<FilePath> paths = new ArrayList<>();
 		for(String line : mergeOutput)
@@ -317,7 +317,7 @@ public class GitMergeUpdater extends GitUpdater
 		private final GitMerger myMerger;
 		private final VirtualFile myRoot;
 
-		public MyConflictResolver(Project project, @NotNull Git git, GitMerger merger, VirtualFile root)
+		public MyConflictResolver(Project project, @Nonnull Git git, GitMerger merger, VirtualFile root)
 		{
 			super(project, git, Collections.singleton(root), makeParams());
 			myMerger = merger;

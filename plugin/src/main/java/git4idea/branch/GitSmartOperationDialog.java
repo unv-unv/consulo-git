@@ -20,12 +20,12 @@ import static com.intellij.openapi.util.text.StringUtil.capitalize;
 import java.awt.event.ActionEvent;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.annotation.Nonnull;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JComponent;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import com.intellij.openapi.application.ApplicationNamesInfo;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
@@ -47,9 +47,9 @@ public class GitSmartOperationDialog extends DialogWrapper
 	public static final int SMART_EXIT_CODE = OK_EXIT_CODE;
 	public static final int FORCE_EXIT_CODE = NEXT_USER_EXIT_CODE;
 
-	@NotNull
+	@Nonnull
 	private final JComponent myFileBrowser;
-	@NotNull
+	@Nonnull
 	private final String myOperationTitle;
 	@Nullable
 	private final String myForceButton;
@@ -57,9 +57,9 @@ public class GitSmartOperationDialog extends DialogWrapper
 	/**
 	 * Shows the dialog with the list of local changes preventing merge/checkout and returns the dialog exit code.
 	 */
-	static int showAndGetAnswer(@NotNull final Project project,
-			@NotNull final JComponent fileBrowser,
-			@NotNull final String operationTitle,
+	static int showAndGetAnswer(@Nonnull final Project project,
+			@Nonnull final JComponent fileBrowser,
+			@Nonnull final String operationTitle,
 			@Nullable final String forceButtonTitle)
 	{
 		final AtomicInteger exitCode = new AtomicInteger();
@@ -76,9 +76,9 @@ public class GitSmartOperationDialog extends DialogWrapper
 		return exitCode.get();
 	}
 
-	private GitSmartOperationDialog(@NotNull Project project,
-			@NotNull JComponent fileBrowser,
-			@NotNull String operationTitle,
+	private GitSmartOperationDialog(@Nonnull Project project,
+			@Nonnull JComponent fileBrowser,
+			@Nonnull String operationTitle,
 			@Nullable String forceButton)
 	{
 		super(project);
@@ -95,7 +95,7 @@ public class GitSmartOperationDialog extends DialogWrapper
 		init();
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	protected Action[] createLeftSideActions()
 	{
@@ -132,7 +132,7 @@ public class GitSmartOperationDialog extends DialogWrapper
 	private class ForceCheckoutAction extends AbstractAction
 	{
 
-		ForceCheckoutAction(@NotNull String buttonTitle, @NotNull String operationTitle)
+		ForceCheckoutAction(@Nonnull String buttonTitle, @Nonnull String operationTitle)
 		{
 			super(buttonTitle);
 			putValue(Action.SHORT_DESCRIPTION, capitalize(operationTitle) + " and overwrite local changes");

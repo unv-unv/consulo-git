@@ -15,10 +15,12 @@
  */
 package git4idea.remote;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import com.intellij.openapi.extensions.ExtensionPointName;
 import com.intellij.util.AuthData;
+
+import javax.annotation.Nullable;
 
 /**
  * Provides authentication information to the {@link git4idea.commands.GitHttpAuthenticator} on attempt to connect an HTTP remote.
@@ -31,7 +33,7 @@ public interface GitHttpAuthDataProvider
 	ExtensionPointName<GitHttpAuthDataProvider> EP_NAME = ExtensionPointName.create("com.intellij.git.httpAuthDataProvider");
 
 	@Nullable
-	AuthData getAuthData(@NotNull String url);
+	AuthData getAuthData(@Nonnull String url);
 
-	void forgetPassword(@NotNull String url);
+	void forgetPassword(@Nonnull String url);
 }

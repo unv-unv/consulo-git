@@ -15,7 +15,7 @@
  */
 package git4idea.util;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.ide.SaveAndSyncHandler;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
@@ -35,19 +35,19 @@ public class GitFreezingProcess
 
 	private static final Logger LOG = Logger.getInstance(GitFreezingProcess.class);
 
-	@NotNull
+	@Nonnull
 	private final String myOperationTitle;
-	@NotNull
+	@Nonnull
 	private final Runnable myRunnable;
 
-	@NotNull
+	@Nonnull
 	private final ChangeListManagerEx myChangeListManager;
-	@NotNull
+	@Nonnull
 	private final ProjectManagerEx myProjectManager;
-	@NotNull
+	@Nonnull
 	private final SaveAndSyncHandler mySaveAndSyncHandler;
 
-	public GitFreezingProcess(@NotNull Project project, @NotNull String operationTitle, @NotNull Runnable runnable)
+	public GitFreezingProcess(@Nonnull Project project, @Nonnull String operationTitle, @Nonnull Runnable runnable)
 	{
 		myOperationTitle = operationTitle;
 		myRunnable = runnable;

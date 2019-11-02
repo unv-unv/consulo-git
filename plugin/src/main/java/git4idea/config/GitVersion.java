@@ -21,7 +21,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.execution.ExecutableValidator;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.configurations.GeneralCommandLine;
@@ -84,12 +84,12 @@ public final class GitVersion implements Comparable<GitVersion>
 	private final int myMinor;
 	private final int myRevision;
 	private final int myPatchLevel;
-	@NotNull
+	@Nonnull
 	private final Type myType;
 
 	private final int myHashCode;
 
-	public GitVersion(int major, int minor, int revision, int patchLevel, @NotNull Type type)
+	public GitVersion(int major, int minor, int revision, int patchLevel, @Nonnull Type type)
 	{
 		myMajor = major;
 		myMinor = minor;
@@ -110,8 +110,8 @@ public final class GitVersion implements Comparable<GitVersion>
 	/**
 	 * Parses output of "git version" command.
 	 */
-	@NotNull
-	public static GitVersion parse(@NotNull String output) throws ParseException
+	@Nonnull
+	public static GitVersion parse(@Nonnull String output) throws ParseException
 	{
 		if(StringUtil.isEmptyOrSpaces(output))
 		{
@@ -141,7 +141,7 @@ public final class GitVersion implements Comparable<GitVersion>
 
 	// Utility method used in parsing - checks that the given capture group exists and captured something - then returns the captured value,
 	// otherwise returns 0.
-	private static int getIntGroup(@NotNull Matcher matcher, int group)
+	private static int getIntGroup(@Nonnull Matcher matcher, int group)
 	{
 		if(group > matcher.groupCount() + 1)
 		{
@@ -155,8 +155,8 @@ public final class GitVersion implements Comparable<GitVersion>
 		return Integer.parseInt(match);
 	}
 
-	@NotNull
-	public static GitVersion identifyVersion(@NotNull String gitExecutable) throws TimeoutException, ExecutionException, ParseException
+	@Nonnull
+	public static GitVersion identifyVersion(@Nonnull String gitExecutable) throws TimeoutException, ExecutionException, ParseException
 	{
 		GeneralCommandLine commandLine = new GeneralCommandLine();
 		commandLine.setExePath(gitExecutable);
@@ -241,7 +241,7 @@ public final class GitVersion implements Comparable<GitVersion>
 	 * <p>
 	 * {@link GitVersion#NULL} is less than any other not-NULL version.
 	 */
-	public int compareTo(@NotNull GitVersion o)
+	public int compareTo(@Nonnull GitVersion o)
 	{
 		if(o.getType() == Type.NULL)
 		{
@@ -265,7 +265,7 @@ public final class GitVersion implements Comparable<GitVersion>
 		return myPatchLevel - o.myPatchLevel;
 	}
 
-	@NotNull
+	@Nonnull
 	public String getPresentation()
 	{
 		String presentation = myMajor + "." + myMinor + "." + myRevision;
@@ -282,7 +282,7 @@ public final class GitVersion implements Comparable<GitVersion>
 		return myMajor + "." + myMinor + "." + myRevision + "." + myPatchLevel + " (" + myType + ")";
 	}
 
-	@NotNull
+	@Nonnull
 	public String getSemanticPresentation()
 	{
 		String presentation = myMajor + "." + myMinor + "." + myRevision;
@@ -309,7 +309,7 @@ public final class GitVersion implements Comparable<GitVersion>
 		return version != null && compareTo(version) >= 0;
 	}
 
-	@NotNull
+	@Nonnull
 	public Type getType()
 	{
 		return myType;

@@ -20,8 +20,8 @@ import static java.util.Arrays.asList;
 
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.containers.ContainerUtil;
 
@@ -32,17 +32,17 @@ public class GitRebaseParams
 	private final String myBranch;
 	@Nullable
 	private final String myNewBase;
-	@NotNull
+	@Nonnull
 	private final String myUpstream;
 	private final boolean myInteractive;
 	private final boolean myPreserveMerges;
 
-	public GitRebaseParams(@NotNull String upstream)
+	public GitRebaseParams(@Nonnull String upstream)
 	{
 		this(null, null, upstream, false, false);
 	}
 
-	public GitRebaseParams(@Nullable String branch, @Nullable String newBase, @NotNull String upstream, boolean interactive, boolean preserveMerges)
+	public GitRebaseParams(@Nullable String branch, @Nullable String newBase, @Nonnull String upstream, boolean interactive, boolean preserveMerges)
 	{
 		myBranch = nullize(branch, true);
 		myNewBase = nullize(newBase, true);
@@ -51,7 +51,7 @@ public class GitRebaseParams
 		myPreserveMerges = preserveMerges;
 	}
 
-	@NotNull
+	@Nonnull
 	public List<String> asCommandLineArguments()
 	{
 		List<String> args = ContainerUtil.newArrayList();
@@ -81,7 +81,7 @@ public class GitRebaseParams
 		return myNewBase;
 	}
 
-	@NotNull
+	@Nonnull
 	public String getUpstream()
 	{
 		return myUpstream;

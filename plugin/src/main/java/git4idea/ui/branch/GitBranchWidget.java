@@ -15,8 +15,8 @@
  */
 package git4idea.ui.branch;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.dvcs.ui.DvcsStatusWidget;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.ListPopup;
@@ -35,7 +35,7 @@ public class GitBranchWidget extends DvcsStatusWidget<GitRepository>
 {
 	private final GitVcsSettings mySettings;
 
-	public GitBranchWidget(@NotNull Project project)
+	public GitBranchWidget(@Nonnull Project project)
 	{
 		super(project, "Git");
 		mySettings = GitVcsSettings.getInstance(project);
@@ -49,38 +49,38 @@ public class GitBranchWidget extends DvcsStatusWidget<GitRepository>
 
 	@Nullable
 	@Override
-	protected GitRepository guessCurrentRepository(@NotNull Project project)
+	protected GitRepository guessCurrentRepository(@Nonnull Project project)
 	{
 		return GitBranchUtil.getCurrentRepository(project);
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
-	protected String getFullBranchName(@NotNull GitRepository repository)
+	protected String getFullBranchName(@Nonnull GitRepository repository)
 	{
 		return GitBranchUtil.getDisplayableBranchText(repository);
 	}
 
 	@Override
-	protected boolean isMultiRoot(@NotNull Project project)
+	protected boolean isMultiRoot(@Nonnull Project project)
 	{
 		return !GitUtil.justOneGitRepository(project);
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
-	protected ListPopup getPopup(@NotNull Project project, @NotNull GitRepository repository)
+	protected ListPopup getPopup(@Nonnull Project project, @Nonnull GitRepository repository)
 	{
 		return GitBranchPopup.getInstance(project, repository).asListPopup();
 	}
 
 	@Override
-	protected void subscribeToRepoChangeEvents(@NotNull Project project)
+	protected void subscribeToRepoChangeEvents(@Nonnull Project project)
 	{
 		project.getMessageBus().connect().subscribe(GitRepository.GIT_REPO_CHANGE, new GitRepositoryChangeListener()
 		{
 			@Override
-			public void repositoryChanged(@NotNull GitRepository repository)
+			public void repositoryChanged(@Nonnull GitRepository repository)
 			{
 				LOG.debug("repository changed");
 				updateLater();
@@ -89,7 +89,7 @@ public class GitBranchWidget extends DvcsStatusWidget<GitRepository>
 	}
 
 	@Override
-	protected void rememberRecentRoot(@NotNull String path)
+	protected void rememberRecentRoot(@Nonnull String path)
 	{
 		mySettings.setRecentRoot(path);
 	}

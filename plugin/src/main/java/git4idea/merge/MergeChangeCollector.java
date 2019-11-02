@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vcs.VcsException;
@@ -43,6 +43,8 @@ import git4idea.commands.GitSimpleHandler;
 import git4idea.repo.GitRepository;
 import git4idea.util.StringScanner;
 
+import javax.annotation.Nullable;
+
 /**
  * Collect change for merge or pull operations
  */
@@ -52,7 +54,7 @@ public class MergeChangeCollector
 	private final Project myProject;
 	private final VirtualFile myRoot;
 	private final GitRevisionNumber myStart; // Revision number before update (used for diff)
-	@NotNull
+	@Nonnull
 	private final GitRepository myRepository;
 
 	public MergeChangeCollector(final Project project, final VirtualFile root, final GitRevisionNumber start)
@@ -99,7 +101,7 @@ public class MergeChangeCollector
 	 * Returns absolute paths to files which are currently unmerged, and also populates myUnmergedPaths with relative paths.
 	 */
 	public
-	@NotNull
+	@Nonnull
 	Set<String> getUnmergedPaths() throws VcsException
 	{
 		String root = myRoot.getPath();

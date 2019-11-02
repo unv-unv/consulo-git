@@ -17,8 +17,8 @@ package git4idea.repo;
 
 import java.util.Collection;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.dvcs.repo.Repository;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.messages.Topic;
@@ -68,17 +68,17 @@ public interface GitRepository extends Repository
 	 * @deprecated Use #getRepositoryFiles(), since there will be two administrative directories if user uses git worktrees.
 	 */
 	@Deprecated
-	@NotNull
+	@Nonnull
 	VirtualFile getGitDir();
 
-	@NotNull
+	@Nonnull
 	GitRepositoryFiles getRepositoryFiles();
 
-	@NotNull
+	@Nonnull
 	GitUntrackedFilesHolder getUntrackedFilesHolder();
 
 
-	@NotNull
+	@Nonnull
 	GitRepoInfo getInfo();
 
 	/**
@@ -90,7 +90,7 @@ public interface GitRepository extends Repository
 	@Nullable
 	GitLocalBranch getCurrentBranch();
 
-	@NotNull
+	@Nonnull
 	GitBranchesCollection getBranches();
 
 	/**
@@ -103,23 +103,23 @@ public interface GitRepository extends Repository
 	 *
 	 * @return GitRemotes defined for this repository.
 	 */
-	@NotNull
+	@Nonnull
 	Collection<GitRemote> getRemotes();
 
-	@NotNull
+	@Nonnull
 	Collection<GitBranchTrackInfo> getBranchTrackInfos();
 
 	boolean isRebaseInProgress();
 
 	boolean isOnBranch();
 
-	@NotNull
+	@Nonnull
 	@Override
 	GitVcs getVcs();
 
 	/**
 	 * Returns direct submodules of this repository.
 	 */
-	@NotNull
+	@Nonnull
 	Collection<GitSubmoduleInfo> getSubmodules();
 }

@@ -20,12 +20,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
+import javax.annotation.Nonnull;
 import javax.swing.Box;
 import javax.swing.JComponent;
 import javax.swing.JList;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import com.intellij.dvcs.push.VcsPushOptionValue;
 import com.intellij.dvcs.push.VcsPushOptionsPanel;
 import com.intellij.openapi.ui.ComboBox;
@@ -36,11 +36,11 @@ import com.intellij.util.ui.JBUI;
 public class GitPushOptionsPanel extends VcsPushOptionsPanel
 {
 
-	@NotNull
+	@Nonnull
 	private final JBCheckBox myPushTags;
-	@NotNull
+	@Nonnull
 	private final ComboBox<GitPushTagMode> myPushTagsMode;
-	@NotNull
+	@Nonnull
 	private final JBCheckBox myRunHooks;
 
 	public GitPushOptionsPanel(@Nullable GitPushTagMode defaultMode, boolean followTagsSupported, boolean showSkipHookOption)
@@ -72,7 +72,7 @@ public class GitPushOptionsPanel extends VcsPushOptionsPanel
 		myPushTags.addActionListener(new ActionListener()
 		{
 			@Override
-			public void actionPerformed(@NotNull ActionEvent e)
+			public void actionPerformed(@Nonnull ActionEvent e)
 			{
 				myPushTagsMode.setEnabled(myPushTags.isSelected());
 			}
@@ -98,7 +98,7 @@ public class GitPushOptionsPanel extends VcsPushOptionsPanel
 		}
 	}
 
-	private static int calcStrutWidth(int plannedWidth, @NotNull JComponent leftComponent, @NotNull JComponent rightComponent)
+	private static int calcStrutWidth(int plannedWidth, @Nonnull JComponent leftComponent, @Nonnull JComponent rightComponent)
 	{
 		return JBUI.scale(plannedWidth) - JBUI.insets(rightComponent.getInsets()).left - JBUI.insets(leftComponent.getInsets()).right;
 	}

@@ -34,7 +34,7 @@ import git4idea.changes.GitChangeUtils;
 import git4idea.commands.Git;
 import git4idea.config.GitVersion;
 import git4idea.config.GitVersionSpecialty;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.util.*;
 
@@ -48,14 +48,19 @@ public class GitChangeProvider implements ChangeProvider {
 
   private static final Logger PROFILE_LOG = Logger.getInstance("#GitStatus");
 
-  @NotNull private final Project myProject;
-  @NotNull private final Git myGit;
-  @NotNull private final ChangeListManager myChangeListManager;
-  @NotNull private final FileDocumentManager myFileDocumentManager;
-  @NotNull private final ProjectLevelVcsManager myVcsManager;
+  @Nonnull
+  private final Project myProject;
+  @Nonnull
+  private final Git myGit;
+  @Nonnull
+  private final ChangeListManager myChangeListManager;
+  @Nonnull
+  private final FileDocumentManager myFileDocumentManager;
+  @Nonnull
+  private final ProjectLevelVcsManager myVcsManager;
 
-  public GitChangeProvider(@NotNull Project project, @NotNull Git git, ChangeListManager changeListManager,
-                           @NotNull FileDocumentManager fileDocumentManager, @NotNull ProjectLevelVcsManager vcsManager) {
+  public GitChangeProvider(@Nonnull Project project, @Nonnull Git git, ChangeListManager changeListManager,
+						   @Nonnull FileDocumentManager fileDocumentManager, @Nonnull ProjectLevelVcsManager vcsManager) {
     myProject = project;
     myGit = git;
     myChangeListManager = changeListManager;

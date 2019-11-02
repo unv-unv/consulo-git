@@ -20,8 +20,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.dvcs.repo.Repository;
 import com.intellij.openapi.actionSystem.ActionPlaces;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -56,7 +56,7 @@ public abstract class GitRepositoryAction extends DumbAwareAction
 	 */
 	final List<TransactionRunnable> myDelayedTasks = new ArrayList<>();
 
-	public void actionPerformed(@NotNull final AnActionEvent e)
+	public void actionPerformed(@Nonnull final AnActionEvent e)
 	{
 		myDelayedTasks.clear();
 		FileDocumentManager.getInstance().saveAllDocuments();
@@ -87,8 +87,8 @@ public abstract class GitRepositoryAction extends DumbAwareAction
 		}
 	}
 
-	@NotNull
-	private static VirtualFile getDefaultRoot(@NotNull Project project, @NotNull List<VirtualFile> roots, @Nullable VirtualFile[] vFiles)
+	@Nonnull
+	private static VirtualFile getDefaultRoot(@Nonnull Project project, @Nonnull List<VirtualFile> roots, @Nullable VirtualFile[] vFiles)
 	{
 		if(vFiles != null)
 		{
@@ -105,11 +105,11 @@ public abstract class GitRepositoryAction extends DumbAwareAction
 		return currentRepository != null ? currentRepository.getRoot() : roots.get(0);
 	}
 
-	protected final void runFinalTasks(@NotNull final Project project,
-			@NotNull final GitVcs vcs,
-			@NotNull final Set<VirtualFile> affectedRoots,
-			@NotNull final String actionName,
-			@NotNull final List<VcsException> exceptions)
+	protected final void runFinalTasks(@Nonnull final Project project,
+			@Nonnull final GitVcs vcs,
+			@Nonnull final Set<VirtualFile> affectedRoots,
+			@Nonnull final String actionName,
+			@Nonnull final List<VcsException> exceptions)
 	{
 		VfsUtil.markDirty(true, false, ArrayUtil.toObjectArray(affectedRoots, VirtualFile.class));
 		LocalFileSystem.getInstance().refreshFiles(affectedRoots, true, true, new Runnable()
@@ -196,7 +196,7 @@ public abstract class GitRepositoryAction extends DumbAwareAction
 	 *
 	 * @param task the task to run
 	 */
-	public final void delayTask(@NotNull TransactionRunnable task)
+	public final void delayTask(@Nonnull TransactionRunnable task)
 	{
 		myDelayedTasks.add(task);
 	}
@@ -206,7 +206,7 @@ public abstract class GitRepositoryAction extends DumbAwareAction
 	 *
 	 * @return the name of action
 	 */
-	@NotNull
+	@Nonnull
 	protected abstract String getActionName();
 
 
@@ -220,9 +220,9 @@ public abstract class GitRepositoryAction extends DumbAwareAction
 	 * @param exceptions    a list of exceptions from running git
 	 * @throws VcsException if there is a problem with running git (this exception is considered to be added to the end of the exception list)
 	 */
-	protected abstract void perform(@NotNull Project project,
-			@NotNull List<VirtualFile> gitRoots,
-			@NotNull VirtualFile defaultRoot,
+	protected abstract void perform(@Nonnull Project project,
+			@Nonnull List<VirtualFile> gitRoots,
+			@Nonnull VirtualFile defaultRoot,
 			final Set<VirtualFile> affectedRoots,
 			List<VcsException> exceptions) throws VcsException;
 

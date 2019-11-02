@@ -17,8 +17,8 @@ package git4idea.roots;
 
 import java.io.File;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.openapi.vcs.VcsKey;
 import com.intellij.openapi.vcs.VcsRootChecker;
 import git4idea.GitUtil;
@@ -30,13 +30,13 @@ import git4idea.GitVcs;
 public class GitRootChecker extends VcsRootChecker
 {
 	@Override
-	public boolean isRoot(@NotNull String path)
+	public boolean isRoot(@Nonnull String path)
 	{
 		return GitUtil.isGitRoot(new File(path));
 	}
 
 	@Override
-	@NotNull
+	@Nonnull
 	public VcsKey getSupportedVcs()
 	{
 		return GitVcs.getKey();

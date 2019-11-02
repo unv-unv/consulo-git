@@ -21,8 +21,8 @@ import static com.intellij.util.ObjectUtils.assertNotNull;
 import java.io.File;
 import java.util.Collection;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.dvcs.repo.RepositoryImpl;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
@@ -38,22 +38,22 @@ import git4idea.branch.GitBranchesCollection;
 
 public class GitRepositoryImpl extends RepositoryImpl implements GitRepository
 {
-	@NotNull
+	@Nonnull
 	private final GitVcs myVcs;
-	@NotNull
+	@Nonnull
 	private final GitRepositoryReader myReader;
-	@NotNull
+	@Nonnull
 	private final VirtualFile myGitDir;
-	@NotNull
+	@Nonnull
 	private final GitRepositoryFiles myRepositoryFiles;
 
 	@Nullable
 	private final GitUntrackedFilesHolder myUntrackedFilesHolder;
 
-	@NotNull
+	@Nonnull
 	private volatile GitRepoInfo myInfo;
 
-	private GitRepositoryImpl(@NotNull VirtualFile rootDir, @NotNull VirtualFile gitDir, @NotNull Project project, @NotNull Disposable parentDisposable, final boolean light)
+	private GitRepositoryImpl(@Nonnull VirtualFile rootDir, @Nonnull VirtualFile gitDir, @Nonnull Project project, @Nonnull Disposable parentDisposable, final boolean light)
 	{
 		super(project, rootDir, parentDisposable);
 		myVcs = assertNotNull(GitVcs.getInstance(project));
@@ -72,14 +72,14 @@ public class GitRepositoryImpl extends RepositoryImpl implements GitRepository
 		}
 	}
 
-	@NotNull
-	public static GitRepository getInstance(@NotNull VirtualFile root, @NotNull Project project, boolean listenToRepoChanges)
+	@Nonnull
+	public static GitRepository getInstance(@Nonnull VirtualFile root, @Nonnull Project project, boolean listenToRepoChanges)
 	{
 		return getInstance(root, assertNotNull(GitUtil.findGitDir(root)), project, listenToRepoChanges);
 	}
 
-	@NotNull
-	public static GitRepository getInstance(@NotNull VirtualFile root, @NotNull VirtualFile gitDir, @NotNull Project project, boolean listenToRepoChanges)
+	@Nonnull
+	public static GitRepository getInstance(@Nonnull VirtualFile root, @Nonnull VirtualFile gitDir, @Nonnull Project project, boolean listenToRepoChanges)
 	{
 		GitRepositoryImpl repository = new GitRepositoryImpl(root, gitDir, project, project, !listenToRepoChanges);
 		if(listenToRepoChanges)
@@ -98,14 +98,14 @@ public class GitRepositoryImpl extends RepositoryImpl implements GitRepository
 	}
 
 	@Deprecated
-	@NotNull
+	@Nonnull
 	@Override
 	public VirtualFile getGitDir()
 	{
 		return myGitDir;
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public GitRepositoryFiles getRepositoryFiles()
 	{
@@ -113,7 +113,7 @@ public class GitRepositoryImpl extends RepositoryImpl implements GitRepository
 	}
 
 	@Override
-	@NotNull
+	@Nonnull
 	public GitUntrackedFilesHolder getUntrackedFilesHolder()
 	{
 		if(myUntrackedFilesHolder == null)
@@ -124,7 +124,7 @@ public class GitRepositoryImpl extends RepositoryImpl implements GitRepository
 	}
 
 	@Override
-	@NotNull
+	@Nonnull
 	public GitRepoInfo getInfo()
 	{
 		return myInfo;
@@ -144,7 +144,7 @@ public class GitRepositoryImpl extends RepositoryImpl implements GitRepository
 		return myInfo.getCurrentRevision();
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public State getState()
 	{
@@ -159,14 +159,14 @@ public class GitRepositoryImpl extends RepositoryImpl implements GitRepository
 		return currentBranch == null ? null : currentBranch.getName();
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public GitVcs getVcs()
 	{
 		return myVcs;
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public Collection<GitSubmoduleInfo> getSubmodules()
 	{
@@ -177,7 +177,7 @@ public class GitRepositoryImpl extends RepositoryImpl implements GitRepository
 	 * @return local and remote branches in this repository.
 	 */
 	@Override
-	@NotNull
+	@Nonnull
 	public GitBranchesCollection getBranches()
 	{
 		GitRepoInfo info = myInfo;
@@ -185,14 +185,14 @@ public class GitRepositoryImpl extends RepositoryImpl implements GitRepository
 	}
 
 	@Override
-	@NotNull
+	@Nonnull
 	public Collection<GitRemote> getRemotes()
 	{
 		return myInfo.getRemotes();
 	}
 
 	@Override
-	@NotNull
+	@Nonnull
 	public Collection<GitBranchTrackInfo> getBranchTrackInfos()
 	{
 		return myInfo.getBranchTrackInfos();
@@ -224,7 +224,7 @@ public class GitRepositoryImpl extends RepositoryImpl implements GitRepository
 		notifyIfRepoChanged(this, previousInfo, myInfo);
 	}
 
-	@NotNull
+	@Nonnull
 	private GitRepoInfo readRepoInfo()
 	{
 		StopWatch sw = StopWatch.start("Reading Git repo info in " + getShortRepositoryName(this));
@@ -240,13 +240,13 @@ public class GitRepositoryImpl extends RepositoryImpl implements GitRepository
 				hooksInfo);
 	}
 
-	@NotNull
+	@Nonnull
 	private File getSubmoduleFile()
 	{
 		return new File(VfsUtilCore.virtualToIoFile(getRoot()), ".gitmodules");
 	}
 
-	private static void notifyIfRepoChanged(@NotNull final GitRepository repository, @NotNull GitRepoInfo previousInfo, @NotNull GitRepoInfo info)
+	private static void notifyIfRepoChanged(@Nonnull final GitRepository repository, @Nonnull GitRepoInfo previousInfo, @Nonnull GitRepoInfo info)
 	{
 		if(!repository.getProject().isDisposed() && !info.equals(previousInfo))
 		{
@@ -254,7 +254,7 @@ public class GitRepositoryImpl extends RepositoryImpl implements GitRepository
 		}
 	}
 
-	private static void notifyListenersAsync(@NotNull final GitRepository repository)
+	private static void notifyListenersAsync(@Nonnull final GitRepository repository)
 	{
 		ApplicationManager.getApplication().executeOnPooledThread(new Runnable()
 		{
@@ -269,7 +269,7 @@ public class GitRepositoryImpl extends RepositoryImpl implements GitRepository
 		});
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public String toLogString()
 	{

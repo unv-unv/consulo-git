@@ -20,11 +20,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.annotation.Nonnull;
 import javax.swing.JComponent;
 import javax.swing.event.HyperlinkEvent;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationListener;
 import com.intellij.openapi.application.ApplicationManager;
@@ -51,14 +51,14 @@ import git4idea.util.GitUntrackedFilesHelper;
 public class GitBranchUiHandlerImpl implements GitBranchUiHandler
 {
 
-	@NotNull
+	@Nonnull
 	private final Project myProject;
-	@NotNull
+	@Nonnull
 	private final Git myGit;
-	@NotNull
+	@Nonnull
 	private final ProgressIndicator myProgressIndicator;
 
-	public GitBranchUiHandlerImpl(@NotNull Project project, @NotNull Git git, @NotNull ProgressIndicator indicator)
+	public GitBranchUiHandlerImpl(@Nonnull Project project, @Nonnull Git git, @Nonnull ProgressIndicator indicator)
 	{
 		myProject = project;
 		myGit = git;
@@ -66,7 +66,7 @@ public class GitBranchUiHandlerImpl implements GitBranchUiHandler
 	}
 
 	@Override
-	public boolean notifyErrorWithRollbackProposal(@NotNull final String title, @NotNull final String message, @NotNull final String rollbackProposal)
+	public boolean notifyErrorWithRollbackProposal(@Nonnull final String title, @Nonnull final String message, @Nonnull final String rollbackProposal)
 	{
 		final AtomicBoolean ok = new AtomicBoolean();
 		UIUtil.invokeAndWaitIfNeeded(new Runnable()
@@ -87,14 +87,14 @@ public class GitBranchUiHandlerImpl implements GitBranchUiHandler
 	}
 
 	@Override
-	public void showUnmergedFilesNotification(@NotNull final String operationName, @NotNull final Collection<GitRepository> repositories)
+	public void showUnmergedFilesNotification(@Nonnull final String operationName, @Nonnull final Collection<GitRepository> repositories)
 	{
 		String title = unmergedFilesErrorTitle(operationName);
 		String description = unmergedFilesErrorNotificationDescription(operationName);
 		VcsNotifier.getInstance(myProject).notifyError(title, description, new NotificationListener()
 		{
 			@Override
-			public void hyperlinkUpdate(@NotNull Notification notification, @NotNull HyperlinkEvent event)
+			public void hyperlinkUpdate(@Nonnull Notification notification, @Nonnull HyperlinkEvent event)
 			{
 				if(event.getEventType() == HyperlinkEvent.EventType.ACTIVATED && event.getDescription().equals("resolve"))
 				{
@@ -108,7 +108,7 @@ public class GitBranchUiHandlerImpl implements GitBranchUiHandler
 	}
 
 	@Override
-	public boolean showUnmergedFilesMessageWithRollback(@NotNull final String operationName, @NotNull final String rollbackProposal)
+	public boolean showUnmergedFilesMessageWithRollback(@Nonnull final String operationName, @Nonnull final String rollbackProposal)
 	{
 		final AtomicBoolean ok = new AtomicBoolean();
 		UIUtil.invokeAndWaitIfNeeded(new Runnable()
@@ -126,21 +126,21 @@ public class GitBranchUiHandlerImpl implements GitBranchUiHandler
 	}
 
 	@Override
-	public void showUntrackedFilesNotification(@NotNull String operationName, @NotNull VirtualFile root, @NotNull Collection<String> relativePaths)
+	public void showUntrackedFilesNotification(@Nonnull String operationName, @Nonnull VirtualFile root, @Nonnull Collection<String> relativePaths)
 	{
 		GitUntrackedFilesHelper.notifyUntrackedFilesOverwrittenBy(myProject, root, relativePaths, operationName, null);
 	}
 
 	@Override
-	public boolean showUntrackedFilesDialogWithRollback(@NotNull String operationName,
-			@NotNull final String rollbackProposal,
-			@NotNull VirtualFile root,
-			@NotNull final Collection<String> relativePaths)
+	public boolean showUntrackedFilesDialogWithRollback(@Nonnull String operationName,
+			@Nonnull final String rollbackProposal,
+			@Nonnull VirtualFile root,
+			@Nonnull final Collection<String> relativePaths)
 	{
 		return GitUntrackedFilesHelper.showUntrackedFilesDialogWithRollback(myProject, operationName, rollbackProposal, root, relativePaths);
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public ProgressIndicator getProgressIndicator()
 	{
@@ -148,7 +148,7 @@ public class GitBranchUiHandlerImpl implements GitBranchUiHandler
 	}
 
 	@Override
-	public int showSmartOperationDialog(@NotNull Project project, @NotNull List<Change> changes, @NotNull Collection<String> paths, @NotNull String operation, @Nullable String forceButtonTitle)
+	public int showSmartOperationDialog(@Nonnull Project project, @Nonnull List<Change> changes, @Nonnull Collection<String> paths, @Nonnull String operation, @Nullable String forceButtonTitle)
 	{
 		JComponent fileBrowser;
 		if(!changes.isEmpty())
@@ -163,10 +163,10 @@ public class GitBranchUiHandlerImpl implements GitBranchUiHandler
 	}
 
 	@Override
-	public boolean showBranchIsNotFullyMergedDialog(@NotNull Project project,
-			@NotNull Map<GitRepository, List<GitCommit>> history,
-			@NotNull Map<GitRepository, String> baseBranches,
-			@NotNull String removedBranch)
+	public boolean showBranchIsNotFullyMergedDialog(@Nonnull Project project,
+			@Nonnull Map<GitRepository, List<GitCommit>> history,
+			@Nonnull Map<GitRepository, String> baseBranches,
+			@Nonnull String removedBranch)
 	{
 		AtomicBoolean restore = new AtomicBoolean();
 		ApplicationManager.getApplication().invokeAndWait(() -> restore.set(GitBranchIsNotFullyMergedDialog.showAndGetAnswer(myProject, history, baseBranches, removedBranch)),
@@ -174,13 +174,13 @@ public class GitBranchUiHandlerImpl implements GitBranchUiHandler
 		return restore.get();
 	}
 
-	@NotNull
-	private static String unmergedFilesErrorTitle(@NotNull String operationName)
+	@Nonnull
+	private static String unmergedFilesErrorTitle(@Nonnull String operationName)
 	{
 		return "Can't " + operationName + " because of unmerged files";
 	}
 
-	@NotNull
+	@Nonnull
 	private static String unmergedFilesErrorNotificationDescription(String operationName)
 	{
 		return "You have to <a href='resolve'>resolve</a> all merge conflicts before " + operationName + ".<br/>" +

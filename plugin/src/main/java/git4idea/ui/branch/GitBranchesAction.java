@@ -15,7 +15,7 @@
  */
 package git4idea.ui.branch;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.project.DumbAwareAction;
@@ -33,7 +33,7 @@ public class GitBranchesAction extends DumbAwareAction
 {
 
 	@Override
-	public void actionPerformed(@NotNull AnActionEvent e)
+	public void actionPerformed(@Nonnull AnActionEvent e)
 	{
 		Project project = e.getRequiredData(CommonDataKeys.PROJECT);
 		VirtualFile file = e.getData(CommonDataKeys.VIRTUAL_FILE);
@@ -45,7 +45,7 @@ public class GitBranchesAction extends DumbAwareAction
 	}
 
 	@Override
-	public void update(@NotNull AnActionEvent e)
+	public void update(@Nonnull AnActionEvent e)
 	{
 		Project project = e.getProject();
 		e.getPresentation().setEnabledAndVisible(project != null && !project.isDisposed());

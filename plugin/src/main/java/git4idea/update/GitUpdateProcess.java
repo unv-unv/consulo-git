@@ -27,8 +27,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.google.common.annotations.VisibleForTesting;
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.openapi.application.AccessToken;
@@ -71,29 +71,29 @@ public class GitUpdateProcess
 {
 	private static final Logger LOG = Logger.getInstance(GitUpdateProcess.class);
 
-	@NotNull
+	@Nonnull
 	private final Project myProject;
-	@NotNull
+	@Nonnull
 	private final Git myGit;
-	@NotNull
+	@Nonnull
 	private final ProjectLevelVcsManager myVcsManager;
-	@NotNull
+	@Nonnull
 	private final ChangeListManager myChangeListManager;
 
-	@NotNull
+	@Nonnull
 	private final List<GitRepository> myRepositories;
 	private final boolean myCheckRebaseOverMergeProblem;
 	private final boolean myCheckForTrackedBranchExistance;
 	private final UpdatedFiles myUpdatedFiles;
-	@NotNull
+	@Nonnull
 	private final ProgressIndicator myProgressIndicator;
-	@NotNull
+	@Nonnull
 	private final GitMerger myMerger;
 
-	public GitUpdateProcess(@NotNull Project project,
+	public GitUpdateProcess(@Nonnull Project project,
 			@Nullable ProgressIndicator progressIndicator,
-			@NotNull Collection<GitRepository> repositories,
-			@NotNull UpdatedFiles updatedFiles,
+			@Nonnull Collection<GitRepository> repositories,
+			@Nonnull UpdatedFiles updatedFiles,
 			boolean checkRebaseOverMergeProblem,
 			boolean checkForTrackedBranchExistance)
 	{
@@ -123,7 +123,7 @@ public class GitUpdateProcess
 	 * 5. Restores local changes if update completed or failed with error. If update is incomplete, i.e. some unmerged files remain,
 	 * local changes are not restored.
 	 */
-	@NotNull
+	@Nonnull
 	public GitUpdateResult update(final UpdateMethod updateMethod)
 	{
 		LOG.info("update started|" + updateMethod);
@@ -164,8 +164,8 @@ public class GitUpdateProcess
 		return result;
 	}
 
-	@NotNull
-	private GitUpdateResult updateImpl(@NotNull UpdateMethod updateMethod)
+	@Nonnull
+	private GitUpdateResult updateImpl(@Nonnull UpdateMethod updateMethod)
 	{
 		Map<VirtualFile, GitBranchPair> trackedBranches = checkTrackedBranchesConfiguration();
 		if(trackedBranches == null)
@@ -283,8 +283,8 @@ public class GitUpdateProcess
 		return ObjectUtils.notNull(compoundResult.get(), GitUpdateResult.ERROR);
 	}
 
-	@NotNull
-	private Collection<GitRepository> findRootsRebasingOverMerge(@NotNull Map<GitRepository, GitUpdater> updaters)
+	@Nonnull
+	private Collection<GitRepository> findRootsRebasingOverMerge(@Nonnull Map<GitRepository, GitUpdater> updaters)
 	{
 		return ContainerUtil.mapNotNull(updaters.keySet(), repo ->
 		{
@@ -299,8 +299,8 @@ public class GitUpdateProcess
 		});
 	}
 
-	@NotNull
-	private Map<GitRepository, GitUpdater> tryFastForwardMergeForRebaseUpdaters(@NotNull Map<GitRepository, GitUpdater> updaters)
+	@Nonnull
+	private Map<GitRepository, GitUpdater> tryFastForwardMergeForRebaseUpdaters(@Nonnull Map<GitRepository, GitUpdater> updaters)
 	{
 		Map<GitRepository, GitUpdater> modifiedUpdaters = new HashMap<>();
 		Map<VirtualFile, Collection<Change>> changesUnderRoots = new LocalChangesUnderRoots(myChangeListManager, myVcsManager).getChangesUnderRoots(getRootsFromRepositories(updaters.keySet()));
@@ -327,8 +327,8 @@ public class GitUpdateProcess
 		return modifiedUpdaters;
 	}
 
-	@NotNull
-	private Map<GitRepository, GitUpdater> defineUpdaters(@NotNull UpdateMethod updateMethod, @NotNull Map<VirtualFile, GitBranchPair> trackedBranches) throws VcsException
+	@Nonnull
+	private Map<GitRepository, GitUpdater> defineUpdaters(@Nonnull UpdateMethod updateMethod, @Nonnull Map<VirtualFile, GitBranchPair> trackedBranches) throws VcsException
 	{
 		final Map<GitRepository, GitUpdater> updaters = new HashMap<>();
 		LOG.info("updateImpl: defining updaters...");
@@ -350,7 +350,7 @@ public class GitUpdateProcess
 		return updaters;
 	}
 
-	@NotNull
+	@Nonnull
 	private static GitUpdateResult joinResults(@Nullable GitUpdateResult compoundResult, GitUpdateResult result)
 	{
 		if(compoundResult == null)
@@ -406,16 +406,16 @@ public class GitUpdateProcess
 	}
 
 	@VisibleForTesting
-	@NotNull
-	static String getNoTrackedBranchError(@NotNull GitRepository repository, @NotNull String branchName)
+	@Nonnull
+	static String getNoTrackedBranchError(@Nonnull GitRepository repository, @Nonnull String branchName)
 	{
 		String recommendedCommand = recommendSetupTrackingCommand(repository, branchName);
 		return "No tracked branch configured for branch " + code(branchName) + mention(repository) + " or the branch doesn't exist.<br/>" + "To make your branch track a remote branch call, for " +
 				"example,<br/>" + "<code>" + recommendedCommand + "</code>";
 	}
 
-	@NotNull
-	private static String recommendSetupTrackingCommand(@NotNull GitRepository repository, @NotNull String branchName)
+	@Nonnull
+	private static String recommendSetupTrackingCommand(@Nonnull GitRepository repository, @Nonnull String branchName)
 	{
 		return String.format(GitVersionSpecialty.KNOWS_SET_UPSTREAM_TO.existsIn(repository.getVcs().getVersion()) ? "git branch --set-upstream-to=origin/%1$s %1$s" : "git branch --set-upstream %1$s " +
 				"origin/%1$s", branchName);

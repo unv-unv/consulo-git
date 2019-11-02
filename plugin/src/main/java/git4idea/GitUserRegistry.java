@@ -18,11 +18,11 @@ package git4idea;
 import java.util.Collection;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ServiceManager;
@@ -45,24 +45,24 @@ public class GitUserRegistry implements Disposable, VcsListener
 
 	private static final Logger LOG = Logger.getInstance(GitUserRegistry.class);
 
-	@NotNull
+	@Nonnull
 	private final Project myProject;
-	@NotNull
+	@Nonnull
 	private final ProjectLevelVcsManager myVcsManager;
-	@NotNull
+	@Nonnull
 	private final VcsLogObjectsFactory myFactory;
-	@NotNull
+	@Nonnull
 	private final Map<VirtualFile, VcsUser> myUserMap = ContainerUtil.newConcurrentMap();
 
 	@Inject
-	public GitUserRegistry(@NotNull Project project, @NotNull ProjectLevelVcsManager vcsManager, @NotNull VcsLogObjectsFactory factory)
+	public GitUserRegistry(@Nonnull Project project, @Nonnull ProjectLevelVcsManager vcsManager, @Nonnull VcsLogObjectsFactory factory)
 	{
 		myProject = project;
 		myVcsManager = vcsManager;
 		myFactory = factory;
 	}
 
-	public static GitUserRegistry getInstance(@NotNull Project project)
+	public static GitUserRegistry getInstance(@Nonnull Project project)
 	{
 		return ServiceManager.getService(project, GitUserRegistry.class);
 	}
@@ -74,13 +74,13 @@ public class GitUserRegistry implements Disposable, VcsListener
 	}
 
 	@Nullable
-	public VcsUser getUser(@NotNull VirtualFile root)
+	public VcsUser getUser(@Nonnull VirtualFile root)
 	{
 		return myUserMap.get(root);
 	}
 
 	@Nullable
-	public VcsUser getOrReadUser(@NotNull VirtualFile root)
+	public VcsUser getOrReadUser(@Nonnull VirtualFile root)
 	{
 		VcsUser user = myUserMap.get(root);
 		if(user == null)
@@ -102,7 +102,7 @@ public class GitUserRegistry implements Disposable, VcsListener
 	}
 
 	@Nullable
-	private VcsUser readCurrentUser(@NotNull Project project, @NotNull VirtualFile root) throws VcsException
+	private VcsUser readCurrentUser(@Nonnull Project project, @Nonnull VirtualFile root) throws VcsException
 	{
 		String userName = GitConfigUtil.getValue(project, root, GitConfigUtil.USER_NAME);
 		String userEmail = StringUtil.notNullize(GitConfigUtil.getValue(project, root, GitConfigUtil.USER_EMAIL));

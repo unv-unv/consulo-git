@@ -19,10 +19,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.inject.Singleton;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
@@ -54,18 +54,18 @@ public class GitSharedSettings implements PersistentStateComponent<GitSharedSett
 		myState = state;
 	}
 
-	@NotNull
+	@Nonnull
 	public List<String> getForcePushProhibitedPatterns()
 	{
 		return Collections.unmodifiableList(myState.FORCE_PUSH_PROHIBITED_PATTERNS);
 	}
 
-	public void setForcePushProhibitedPatters(@NotNull List<String> patterns)
+	public void setForcePushProhibitedPatters(@Nonnull List<String> patterns)
 	{
 		myState.FORCE_PUSH_PROHIBITED_PATTERNS = new ArrayList<String>(patterns);
 	}
 
-	public boolean isBranchProtected(@NotNull String branch)
+	public boolean isBranchProtected(@Nonnull String branch)
 	{
 		// let "master" match only "master" and not "any-master-here" by default
 		return getForcePushProhibitedPatterns().stream().anyMatch(pattern -> branch.matches("^" + pattern + "$"));

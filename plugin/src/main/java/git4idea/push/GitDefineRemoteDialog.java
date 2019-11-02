@@ -18,12 +18,12 @@ package git4idea.push;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
+import javax.annotation.Nonnull;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.progress.ProgressManager;
@@ -46,17 +46,17 @@ class GitDefineRemoteDialog extends DialogWrapper
 
 	private static final Logger LOG = Logger.getInstance(GitDefineRemoteDialog.class);
 
-	@NotNull
+	@Nonnull
 	private final GitRepository myRepository;
-	@NotNull
+	@Nonnull
 	private final Git myGit;
 
-	@NotNull
+	@Nonnull
 	private final JTextField myRemoteName;
-	@NotNull
+	@Nonnull
 	private final JTextField myRemoteUrl;
 
-	GitDefineRemoteDialog(@NotNull GitRepository repository, @NotNull Git git)
+	GitDefineRemoteDialog(@Nonnull GitRepository repository, @Nonnull Git git)
 	{
 		super(repository.getProject());
 		myRepository = repository;
@@ -82,13 +82,13 @@ class GitDefineRemoteDialog extends DialogWrapper
 		return defineRemoteComponent;
 	}
 
-	@NotNull
+	@Nonnull
 	String getRemoteName()
 	{
 		return StringUtil.notNullize(myRemoteName.getText()).trim();
 	}
 
-	@NotNull
+	@Nonnull
 	String getRemoteUrl()
 	{
 		return StringUtil.notNullize(myRemoteUrl.getText()).trim();
@@ -119,7 +119,7 @@ class GitDefineRemoteDialog extends DialogWrapper
 	}
 
 	@Nullable
-	private String validateRemoteUnderModal(@NotNull String name, @NotNull final String url) throws ProcessCanceledException
+	private String validateRemoteUnderModal(@Nonnull String name, @Nonnull final String url) throws ProcessCanceledException
 	{
 		if(url.isEmpty())
 		{

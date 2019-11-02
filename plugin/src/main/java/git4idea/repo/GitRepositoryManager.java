@@ -19,11 +19,11 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.dvcs.branch.DvcsSyncSettings;
 import com.intellij.dvcs.repo.AbstractRepositoryManager;
@@ -43,8 +43,8 @@ import git4idea.ui.branch.GitMultiRootBranchConfig;
 @Singleton
 public class GitRepositoryManager extends AbstractRepositoryManager<GitRepository>
 {
-	@NotNull
-	public static GitRepositoryManager getInstance(@NotNull Project project)
+	@Nonnull
+	public static GitRepositoryManager getInstance(@Nonnull Project project)
 	{
 		return ServiceManager.getService(project, GitRepositoryManager.class);
 	}
@@ -53,13 +53,13 @@ public class GitRepositoryManager extends AbstractRepositoryManager<GitRepositor
 
 	public static final Comparator<GitRepository> DEPENDENCY_COMPARATOR = (repo1, repo2) -> -VirtualFileHierarchicalComparator.getInstance().compare(repo1.getRoot(), repo2.getRoot());
 
-	@NotNull
+	@Nonnull
 	private final GitVcsSettings mySettings;
 	@Nullable
 	private volatile GitRebaseSpec myOngoingRebaseSpec;
 
 	@Inject
-	public GitRepositoryManager(@NotNull Project project, @NotNull VcsRepositoryManager vcsRepositoryManager)
+	public GitRepositoryManager(@Nonnull Project project, @Nonnull VcsRepositoryManager vcsRepositoryManager)
 	{
 		super(vcsRepositoryManager, GitVcs.getInstance(project), GitUtil.DOT_GIT);
 		mySettings = GitVcsSettings.getInstance(project);
@@ -71,7 +71,7 @@ public class GitRepositoryManager extends AbstractRepositoryManager<GitRepositor
 		return mySettings.getSyncSetting() == DvcsSyncSettings.Value.SYNC && !new GitMultiRootBranchConfig(getRepositories()).diverged();
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public List<GitRepository> getRepositories()
 	{
@@ -95,8 +95,8 @@ public class GitRepositoryManager extends AbstractRepositoryManager<GitRepositor
 		myOngoingRebaseSpec = ongoingRebaseSpec != null && ongoingRebaseSpec.isValid() ? ongoingRebaseSpec : null;
 	}
 
-	@NotNull
-	public Collection<GitRepository> getDirectSubmodules(@NotNull GitRepository superProject)
+	@Nonnull
+	public Collection<GitRepository> getDirectSubmodules(@Nonnull GitRepository superProject)
 	{
 		Collection<GitSubmoduleInfo> modules = superProject.getSubmodules();
 		return ContainerUtil.mapNotNull(modules, module ->
@@ -122,8 +122,8 @@ public class GitRepositoryManager extends AbstractRepositoryManager<GitRepositor
 	 * <p>Currently submodule-dependency is the only one which is taken into account.</p>
 	 * <p>If repositories are independent of each other, they are sorted {@link DvcsUtil#REPOSITORY_COMPARATOR by path}.</p>
 	 */
-	@NotNull
-	public List<GitRepository> sortByDependency(@NotNull Collection<GitRepository> repositories)
+	@Nonnull
+	public List<GitRepository> sortByDependency(@Nonnull Collection<GitRepository> repositories)
 	{
 		return ContainerUtil.sorted(repositories, DEPENDENCY_COMPARATOR);
 	}

@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -33,7 +33,7 @@ public class GitResetAction extends GitOneCommitPerRepoLogAction
 {
 
 	@Override
-	protected void actionPerformed(@NotNull final Project project, @NotNull final Map<GitRepository, VcsFullCommitDetails> commits)
+	protected void actionPerformed(@Nonnull final Project project, @Nonnull final Map<GitRepository, VcsFullCommitDetails> commits)
 	{
 		GitVcsSettings settings = GitVcsSettings.getInstance(project);
 		GitResetMode defaultMode = ObjectUtils.notNull(settings.getResetMode(), GitResetMode.getDefault());
@@ -45,7 +45,7 @@ public class GitResetAction extends GitOneCommitPerRepoLogAction
 			new Task.Backgroundable(project, "Git reset", true)
 			{
 				@Override
-				public void run(@NotNull ProgressIndicator indicator)
+				public void run(@Nonnull ProgressIndicator indicator)
 				{
 					Map<GitRepository, Hash> hashes = commits.keySet().stream().collect(Collectors.toMap(Function.identity(), repo -> commits.get(repo).getId()));
 					new GitResetOperation(project, hashes, selectedMode, indicator).execute();

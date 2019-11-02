@@ -21,10 +21,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.annotation.Nonnull;
 import javax.swing.event.HyperlinkEvent;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationListener;
@@ -62,18 +62,18 @@ class GitCheckoutOperation extends GitBranchOperation
 
 	public static final String ROLLBACK_PROPOSAL_FORMAT = "You may rollback (checkout back to previous branch) not to let branches diverge.";
 
-	@NotNull
+	@Nonnull
 	private final String myStartPointReference;
 	private final boolean myDetach;
 	private final boolean myRefShouldBeValid;
 	@Nullable
 	private final String myNewBranch;
 
-	GitCheckoutOperation(@NotNull Project project,
-			@NotNull Git git,
-			@NotNull GitBranchUiHandler uiHandler,
-			@NotNull Collection<GitRepository> repositories,
-			@NotNull String startPointReference,
+	GitCheckoutOperation(@Nonnull Project project,
+			@Nonnull Git git,
+			@Nonnull GitBranchUiHandler uiHandler,
+			@Nonnull Collection<GitRepository> repositories,
+			@Nonnull String startPointReference,
 			boolean detach,
 			boolean refShouldBeValid,
 			@Nullable String newBranch)
@@ -172,7 +172,7 @@ class GitCheckoutOperation extends GitBranchOperation
 		}
 	}
 
-	private boolean smartCheckoutOrNotify(@NotNull GitRepository repository, @NotNull GitMessageWithFilesDetector localChangesOverwrittenByCheckout)
+	private boolean smartCheckoutOrNotify(@Nonnull GitRepository repository, @Nonnull GitMessageWithFilesDetector localChangesOverwrittenByCheckout)
 	{
 		Pair<List<GitRepository>, List<Change>> conflictingRepositoriesAndAffectedChanges = getConflictingRepositoriesAndAffectedChanges(repository, localChangesOverwrittenByCheckout,
 				myCurrentHeads.get(repository), myStartPointReference);
@@ -216,7 +216,7 @@ class GitCheckoutOperation extends GitBranchOperation
 		}
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	protected String getRollbackProposal()
 	{
@@ -224,7 +224,7 @@ class GitCheckoutOperation extends GitBranchOperation
 				successfulRepositoriesJoined() + "<br/>" + ROLLBACK_PROPOSAL_FORMAT;
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	protected String getOperationName()
 	{
@@ -268,13 +268,13 @@ class GitCheckoutOperation extends GitBranchOperation
 		}
 	}
 
-	@NotNull
+	@Nonnull
 	private String getCommonErrorTitle()
 	{
 		return "Couldn't checkout " + myStartPointReference;
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public String getSuccessMessage()
 	{
@@ -286,7 +286,7 @@ class GitCheckoutOperation extends GitBranchOperation
 	}
 
 	// stash - checkout - unstash
-	private boolean smartCheckout(@NotNull final List<GitRepository> repositories, @NotNull final String reference, @Nullable final String newBranch, @NotNull ProgressIndicator indicator)
+	private boolean smartCheckout(@Nonnull final List<GitRepository> repositories, @Nonnull final String reference, @Nullable final String newBranch, @Nonnull ProgressIndicator indicator)
 	{
 		final AtomicBoolean result = new AtomicBoolean();
 		GitPreservingProcess preservingProcess = new GitPreservingProcess(myProject, myGit, GitUtil.getRootsFromRepositories(repositories), "checkout", reference,
@@ -305,7 +305,7 @@ class GitCheckoutOperation extends GitBranchOperation
 	/**
 	 * Checks out or shows an error message.
 	 */
-	private boolean checkoutOrNotify(@NotNull List<GitRepository> repositories, @NotNull String reference, @Nullable String newBranch, boolean force)
+	private boolean checkoutOrNotify(@Nonnull List<GitRepository> repositories, @Nonnull String reference, @Nullable String newBranch, boolean force)
 	{
 		GitCompoundResult compoundResult = new GitCompoundResult(myProject);
 		for(GitRepository repository : repositories)
@@ -334,7 +334,7 @@ class GitCheckoutOperation extends GitBranchOperation
 	private class RollbackOperationNotificationListener implements NotificationListener
 	{
 		@Override
-		public void hyperlinkUpdate(@NotNull Notification notification, @NotNull HyperlinkEvent event)
+		public void hyperlinkUpdate(@Nonnull Notification notification, @Nonnull HyperlinkEvent event)
 		{
 			if(event.getEventType() == HyperlinkEvent.EventType.ACTIVATED && event.getDescription().equalsIgnoreCase("rollback"))
 			{

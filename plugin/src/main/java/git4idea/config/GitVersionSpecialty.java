@@ -15,7 +15,7 @@
  */
 package git4idea.config;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.openapi.util.SystemInfo;
 
 /**
@@ -45,7 +45,7 @@ public enum GitVersionSpecialty
 	ABLE_TO_USE_PROGRESS_IN_REMOTE_COMMANDS
 			{
 				@Override
-				public boolean existsIn(@NotNull GitVersion version)
+				public boolean existsIn(@Nonnull GitVersion version)
 				{
 					return version.isLaterOrEqual(new GitVersion(1, 7, 1, 1));
 				}
@@ -57,7 +57,7 @@ public enum GitVersionSpecialty
 	@Deprecated NEEDS_QUOTES_IN_STASH_NAME
 			{
 				@Override
-				public boolean existsIn(@NotNull GitVersion version)
+				public boolean existsIn(@Nonnull GitVersion version)
 				{
 					return version.getType().equals(GitVersion.Type.CYGWIN);
 				}
@@ -66,7 +66,7 @@ public enum GitVersionSpecialty
 	STARTED_USING_RAW_BODY_IN_FORMAT
 			{
 				@Override
-				public boolean existsIn(@NotNull GitVersion version)
+				public boolean existsIn(@Nonnull GitVersion version)
 				{
 					return version.isLaterOrEqual(new GitVersion(1, 7, 2, 0));
 				}
@@ -79,7 +79,7 @@ public enum GitVersionSpecialty
 	KNOWS_STATUS_PORCELAIN
 			{
 				@Override
-				public boolean existsIn(@NotNull GitVersion version)
+				public boolean existsIn(@Nonnull GitVersion version)
 				{
 					return version.isLaterOrEqual(new GitVersion(1, 7, 0, 0));
 				}
@@ -93,7 +93,7 @@ public enum GitVersionSpecialty
 	SUPPORTS_FETCH_PRUNE
 			{
 				@Override
-				public boolean existsIn(@NotNull GitVersion version)
+				public boolean existsIn(@Nonnull GitVersion version)
 				{
 					return version.isLaterOrEqual(new GitVersion(1, 7, 7, 2));
 				}
@@ -107,7 +107,7 @@ public enum GitVersionSpecialty
 	OLD_STYLE_OF_UNTRACKED_AND_LOCAL_CHANGES_WOULD_BE_OVERWRITTEN
 			{
 				@Override
-				public boolean existsIn(@NotNull GitVersion version)
+				public boolean existsIn(@Nonnull GitVersion version)
 				{
 					return version.isOlderOrEqual(new GitVersion(1, 7, 3, 0));
 				}
@@ -116,7 +116,7 @@ public enum GitVersionSpecialty
 	DOESNT_DEFINE_HOME_ENV_VAR
 			{
 				@Override
-				public boolean existsIn(@NotNull GitVersion version)
+				public boolean existsIn(@Nonnull GitVersion version)
 				{
 					return SystemInfo.isWindows && version.isOlderOrEqual(new GitVersion(1, 7, 0, 2));
 				}
@@ -125,7 +125,7 @@ public enum GitVersionSpecialty
 	KNOWS_PULL_REBASE
 			{
 				@Override
-				public boolean existsIn(@NotNull GitVersion version)
+				public boolean existsIn(@Nonnull GitVersion version)
 				{
 					return version.isLaterOrEqual(new GitVersion(1, 7, 9, 0));
 				}
@@ -138,7 +138,7 @@ public enum GitVersionSpecialty
 	NO_WALK_UNSORTED
 			{
 				@Override
-				public boolean existsIn(@NotNull GitVersion version)
+				public boolean existsIn(@Nonnull GitVersion version)
 				{
 					return version.isLaterOrEqual(new GitVersion(1, 7, 12, 1));
 				}
@@ -147,7 +147,7 @@ public enum GitVersionSpecialty
 	CAN_AMEND_WITHOUT_FILES
 			{
 				@Override
-				public boolean existsIn(@NotNull GitVersion version)
+				public boolean existsIn(@Nonnull GitVersion version)
 				{
 					return version.isLaterOrEqual(new GitVersion(1, 7, 11, 3));
 				}
@@ -156,7 +156,7 @@ public enum GitVersionSpecialty
 	SUPPORTS_FOLLOW_TAGS
 			{
 				@Override
-				public boolean existsIn(@NotNull GitVersion version)
+				public boolean existsIn(@Nonnull GitVersion version)
 				{
 					return version.isLaterOrEqual(new GitVersion(1, 8, 3, 0));
 				}
@@ -165,7 +165,7 @@ public enum GitVersionSpecialty
 	CAN_OVERRIDE_GIT_CONFIG_FOR_COMMAND
 			{
 				@Override
-				public boolean existsIn(@NotNull GitVersion version)
+				public boolean existsIn(@Nonnull GitVersion version)
 				{
 					return version.isLaterOrEqual(new GitVersion(1, 7, 2, 0));
 				}
@@ -174,7 +174,7 @@ public enum GitVersionSpecialty
 	FOLLOW_IS_BUGGY_IN_THE_LOG
 			{
 				@Override
-				public boolean existsIn(@NotNull GitVersion version)
+				public boolean existsIn(@Nonnull GitVersion version)
 				{
 					return version.isOlderOrEqual(new GitVersion(1, 7, 2, 0));
 				}
@@ -184,7 +184,7 @@ public enum GitVersionSpecialty
 			{ // for some reason, even with "simplify-merges", it used to show a lot of merges in history
 
 				@Override
-				public boolean existsIn(@NotNull GitVersion version)
+				public boolean existsIn(@Nonnull GitVersion version)
 				{
 					return version.isLaterOrEqual(new GitVersion(1, 9, 0, 0));
 				}
@@ -193,7 +193,7 @@ public enum GitVersionSpecialty
 	LOG_AUTHOR_FILTER_SUPPORTS_VERTICAL_BAR
 			{
 				@Override
-				public boolean existsIn(@NotNull GitVersion version)
+				public boolean existsIn(@Nonnull GitVersion version)
 				{
 					return !SystemInfo.isMac || version.isLaterOrEqual(new GitVersion(1, 8, 3, 3));
 				}
@@ -203,7 +203,7 @@ public enum GitVersionSpecialty
 			{ // in Git 1.8.0 --set-upstream-to was introduced as a replacement of --set-upstream which became deprecated
 
 				@Override
-				public boolean existsIn(@NotNull GitVersion version)
+				public boolean existsIn(@Nonnull GitVersion version)
 				{
 					return version.isLaterOrEqual(new GitVersion(1, 8, 0, 0));
 				}
@@ -212,7 +212,7 @@ public enum GitVersionSpecialty
 	KNOWS_CORE_COMMENT_CHAR
 			{
 				@Override
-				public boolean existsIn(@NotNull GitVersion version)
+				public boolean existsIn(@Nonnull GitVersion version)
 				{
 					return version.isLaterOrEqual(new GitVersion(1, 8, 2, 0));
 				}
@@ -224,7 +224,7 @@ public enum GitVersionSpecialty
 	PRE_PUSH_HOOK
 			{
 				@Override
-				public boolean existsIn(@NotNull GitVersion version)
+				public boolean existsIn(@Nonnull GitVersion version)
 				{
 					return version.isLaterOrEqual(new GitVersion(1, 8, 2, 0));
 				}
@@ -233,13 +233,13 @@ public enum GitVersionSpecialty
 	LF_SEPARATORS_IN_STDIN
 			{
 				@Override
-				public boolean existsIn(@NotNull GitVersion version)
+				public boolean existsIn(@Nonnull GitVersion version)
 				{
 					// before 2.8.0 git for windows expects to have LF symbol as line separator in standard input instead of CRLF
 					return SystemInfo.isWindows && !version.isLaterOrEqual(new GitVersion(2, 8, 0, 0));
 				}
 			};
 
-	public abstract boolean existsIn(@NotNull GitVersion version);
+	public abstract boolean existsIn(@Nonnull GitVersion version);
 
 }

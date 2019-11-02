@@ -25,7 +25,7 @@ import git4idea.GitVcs;
 import git4idea.i18n.GitBundle;
 import git4idea.repo.GitRepositoryManager;
 import git4idea.update.GitFetcher;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.util.List;
 import java.util.Set;
@@ -35,19 +35,19 @@ import java.util.Set;
  */
 public class GitFetch extends GitRepositoryAction {
   @Override
-  @NotNull
+  @Nonnull
   protected String getActionName() {
     return GitBundle.message("fetch.action.name");
   }
 
-  protected void perform(@NotNull final Project project,
-                         @NotNull final List<VirtualFile> gitRoots,
-                         @NotNull final VirtualFile defaultRoot,
+  protected void perform(@Nonnull final Project project,
+                         @Nonnull final List<VirtualFile> gitRoots,
+                         @Nonnull final VirtualFile defaultRoot,
                          final Set<VirtualFile> affectedRoots,
                          final List<VcsException> exceptions) throws VcsException {
     GitVcs.runInBackground(new Task.Backgroundable(project, "Fetching...", false) {
       @Override
-      public void run(@NotNull ProgressIndicator indicator) {
+      public void run(@Nonnull ProgressIndicator indicator) {
         GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager(project);
         new GitFetcher(project, indicator, true).fetchRootsAndNotify(GitUtil.getRepositoriesFromRoots(repositoryManager, gitRoots),
                                                                      null, true);

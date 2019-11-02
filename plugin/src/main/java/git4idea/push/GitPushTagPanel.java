@@ -19,10 +19,10 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.annotation.Nonnull;
 import javax.swing.JList;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import com.intellij.dvcs.push.VcsPushOptionValue;
 import com.intellij.dvcs.push.VcsPushOptionsPanel;
 import com.intellij.openapi.ui.ComboBox;
@@ -70,7 +70,7 @@ public class GitPushTagPanel extends VcsPushOptionsPanel
 			myCheckBox.addActionListener(new ActionListener()
 			{
 				@Override
-				public void actionPerformed(@NotNull ActionEvent e)
+				public void actionPerformed(@Nonnull ActionEvent e)
 				{
 					myCombobox.setEnabled(myCheckBox.isSelected());
 				}

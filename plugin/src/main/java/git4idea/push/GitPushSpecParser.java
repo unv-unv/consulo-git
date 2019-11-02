@@ -17,8 +17,8 @@ package git4idea.push;
 
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.text.StringUtil;
 import git4idea.GitUtil;
@@ -30,7 +30,7 @@ class GitPushSpecParser
 	private static final Logger LOG = Logger.getInstance(GitPushSpecParser.class);
 
 	@Nullable
-	static String getTargetRef(@NotNull GitRepository repository, @NotNull String sourceBranchName, @NotNull List<String> specs)
+	static String getTargetRef(@Nonnull GitRepository repository, @Nonnull String sourceBranchName, @Nonnull List<String> specs)
 	{
 		// pushing to several pushSpecs is not supported => looking for the first one which is valid & matches the current branch
 		for(String spec : specs)
@@ -49,7 +49,7 @@ class GitPushSpecParser
 	}
 
 	@Nullable
-	private static String getTarget(@NotNull String spec, @NotNull String sourceBranch)
+	private static String getTarget(@Nonnull String spec, @Nonnull String sourceBranch)
 	{
 		String[] parts = spec.split(":");
 		if(parts.length != 2)
@@ -84,7 +84,7 @@ class GitPushSpecParser
 		return null;
 	}
 
-	private static boolean isStarPositionValid(@NotNull String source, @NotNull String target)
+	private static boolean isStarPositionValid(@Nonnull String source, @Nonnull String target)
 	{
 		int sourceStar = source.indexOf('*');
 		int targetStar = target.indexOf('*');

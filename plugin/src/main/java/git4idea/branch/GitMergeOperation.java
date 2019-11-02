@@ -23,9 +23,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.annotation.Nonnull;
 import javax.swing.event.HyperlinkEvent;
 
-import org.jetbrains.annotations.NotNull;
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationListener;
@@ -61,22 +61,22 @@ class GitMergeOperation extends GitBranchOperation
 	private static final Logger LOG = Logger.getInstance(GitMergeOperation.class);
 	public static final String ROLLBACK_PROPOSAL = "You may rollback (reset to the commit before merging) not to let branches diverge.";
 
-	@NotNull
+	@Nonnull
 	private final ChangeListManager myChangeListManager;
-	@NotNull
+	@Nonnull
 	private final String myBranchToMerge;
 	private final GitBrancher.DeleteOnMergeOption myDeleteOnMerge;
 
 	// true in value, if we've stashed local changes before merge and will need to unstash after resolving conflicts.
-	@NotNull
+	@Nonnull
 	private final Map<GitRepository, Boolean> myConflictedRepositories = new HashMap<>();
 	private GitPreservingProcess myPreservingProcess;
 
-	GitMergeOperation(@NotNull Project project,
-			@NotNull Git git,
-			@NotNull GitBranchUiHandler uiHandler,
-			@NotNull Collection<GitRepository> repositories,
-			@NotNull String branchToMerge,
+	GitMergeOperation(@Nonnull Project project,
+			@Nonnull Git git,
+			@Nonnull GitBranchUiHandler uiHandler,
+			@Nonnull Collection<GitRepository> repositories,
+			@Nonnull String branchToMerge,
 			GitBrancher.DeleteOnMergeOption deleteOnMerge)
 	{
 		super(project, git, uiHandler, repositories);
@@ -192,7 +192,7 @@ class GitMergeOperation extends GitBranchOperation
 	}
 
 	@Override
-	protected void notifySuccess(@NotNull String message)
+	protected void notifySuccess(@Nonnull String message)
 	{
 		switch(myDeleteOnMerge)
 		{
@@ -227,7 +227,7 @@ class GitMergeOperation extends GitBranchOperation
 		return true;
 	}
 
-	private boolean proposeSmartMergePerformAndNotify(@NotNull GitRepository repository, @NotNull GitMessageWithFilesDetector localChangesOverwrittenByMerge)
+	private boolean proposeSmartMergePerformAndNotify(@Nonnull GitRepository repository, @Nonnull GitMessageWithFilesDetector localChangesOverwrittenByMerge)
 	{
 		Pair<List<GitRepository>, List<Change>> conflictingRepositoriesAndAffectedChanges = getConflictingRepositoriesAndAffectedChanges(repository, localChangesOverwrittenByMerge,
 				myCurrentHeads.get(repository), myBranchToMerge);
@@ -255,7 +255,7 @@ class GitMergeOperation extends GitBranchOperation
 		}
 	}
 
-	private boolean doSmartMerge(@NotNull final Collection<GitRepository> repositories)
+	private boolean doSmartMerge(@Nonnull final Collection<GitRepository> repositories)
 	{
 		final AtomicBoolean success = new AtomicBoolean();
 		myPreservingProcess = new GitPreservingProcess(myProject, myGit, GitUtil.getRootsFromRepositories(repositories), "merge", myBranchToMerge, GitVcsSettings.UpdateChangesPolicy.STASH,
@@ -287,7 +287,7 @@ class GitMergeOperation extends GitBranchOperation
 	 * @return true if merge has succeeded without errors (but possibly with conflicts) in all repositories;
 	 * false if it failed at least in one of them.
 	 */
-	private boolean doMerge(@NotNull Collection<GitRepository> repositories)
+	private boolean doMerge(@Nonnull Collection<GitRepository> repositories)
 	{
 		for(GitRepository repository : repositories)
 		{
@@ -316,7 +316,7 @@ class GitMergeOperation extends GitBranchOperation
 		return true;
 	}
 
-	@NotNull
+	@Nonnull
 	private String getCommonErrorTitle()
 	{
 		return "Couldn't merge " + myBranchToMerge;
@@ -367,8 +367,8 @@ class GitMergeOperation extends GitBranchOperation
 		LOG.info("rollback finished.");
 	}
 
-	@NotNull
-	private GitCompoundResult smartRollback(@NotNull final Collection<GitRepository> repositories)
+	@Nonnull
+	private GitCompoundResult smartRollback(@Nonnull final Collection<GitRepository> repositories)
 	{
 		LOG.info("Starting smart rollback...");
 		final GitCompoundResult result = new GitCompoundResult(myProject);
@@ -389,33 +389,33 @@ class GitMergeOperation extends GitBranchOperation
 		return result;
 	}
 
-	@NotNull
-	private GitCommandResult rollback(@NotNull GitRepository repository)
+	@Nonnull
+	private GitCommandResult rollback(@Nonnull GitRepository repository)
 	{
 		return myGit.reset(repository, GitResetMode.HARD, getInitialRevision(repository));
 	}
 
-	@NotNull
-	private GitCommandResult rollbackMerge(@NotNull GitRepository repository)
+	@Nonnull
+	private GitCommandResult rollbackMerge(@Nonnull GitRepository repository)
 	{
 		GitCommandResult result = myGit.resetMerge(repository, null);
 		refresh(repository);
 		return result;
 	}
 
-	private boolean thereAreLocalChangesIn(@NotNull GitRepository repository)
+	private boolean thereAreLocalChangesIn(@Nonnull GitRepository repository)
 	{
 		return !myChangeListManager.getChangesIn(repository.getRoot()).isEmpty();
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public String getSuccessMessage()
 	{
 		return String.format("Merged <b><code>%s</code></b> to <b><code>%s</code></b>", myBranchToMerge, stringifyBranchesByRepos(myCurrentHeads));
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	protected String getRollbackProposal()
 	{
@@ -424,7 +424,7 @@ class GitMergeOperation extends GitBranchOperation
 				"<br/>" + ROLLBACK_PROPOSAL;
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	protected String getOperationName()
 	{
@@ -459,7 +459,7 @@ class GitMergeOperation extends GitBranchOperation
 	private class DeleteMergedLocalBranchNotificationListener implements NotificationListener
 	{
 		@Override
-		public void hyperlinkUpdate(@NotNull Notification notification, @NotNull HyperlinkEvent event)
+		public void hyperlinkUpdate(@Nonnull Notification notification, @Nonnull HyperlinkEvent event)
 		{
 			if(event.getEventType() == HyperlinkEvent.EventType.ACTIVATED && event.getDescription().equalsIgnoreCase("delete"))
 			{

@@ -25,8 +25,8 @@ import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
@@ -47,20 +47,20 @@ public class GitNewResetDialog extends DialogWrapper
 
 	private static final String DIALOG_ID = "git.new.reset.dialog";
 
-	@NotNull
+	@Nonnull
 	private final Project myProject;
-	@NotNull
+	@Nonnull
 	private final Map<GitRepository, VcsFullCommitDetails> myCommits;
-	@NotNull
+	@Nonnull
 	private final GitResetMode myDefaultMode;
-	@NotNull
+	@Nonnull
 	private final ButtonGroup myButtonGroup;
 
 	private RadioButtonEnumModel<GitResetMode> myEnumModel;
 
-	protected GitNewResetDialog(@NotNull Project project,
-			@NotNull Map<GitRepository, VcsFullCommitDetails> commits,
-			@NotNull GitResetMode defaultMode)
+	protected GitNewResetDialog(@Nonnull Project project,
+			@Nonnull Map<GitRepository, VcsFullCommitDetails> commits,
+			@Nonnull GitResetMode defaultMode)
 	{
 		super(project);
 		myProject = project;
@@ -112,8 +112,8 @@ public class GitNewResetDialog extends DialogWrapper
 		return DIALOG_ID;
 	}
 
-	@NotNull
-	private static String prepareDescription(@NotNull Project project, @NotNull Map<GitRepository, VcsFullCommitDetails> commits)
+	@Nonnull
+	private static String prepareDescription(@Nonnull Project project, @Nonnull Map<GitRepository, VcsFullCommitDetails> commits)
 	{
 		if(commits.size() == 1 && !isMultiRepo(project))
 		{
@@ -131,16 +131,16 @@ public class GitNewResetDialog extends DialogWrapper
 		return desc.toString();
 	}
 
-	@NotNull
-	private static String getTargetText(@NotNull VcsFullCommitDetails commit)
+	@Nonnull
+	private static String getTargetText(@Nonnull VcsFullCommitDetails commit)
 	{
 		String commitMessage = StringUtil.escapeXml(StringUtil.shortenTextWithEllipsis(commit.getSubject(), 20, 0));
 		return String.format("<code><b>%s</b> \"%s\"</code> by <code>%s</code>", commit.getId().toShortString(), commitMessage,
 				commit.getAuthor().getName());
 	}
 
-	@NotNull
-	private static String getSourceText(@NotNull GitRepository repository)
+	@Nonnull
+	private static String getSourceText(@Nonnull GitRepository repository)
 	{
 		String currentRevision = repository.getCurrentRevision();
 		assert currentRevision != null;
@@ -149,12 +149,12 @@ public class GitNewResetDialog extends DialogWrapper
 		return "<b>" + text + "</b>";
 	}
 
-	private static boolean isMultiRepo(@NotNull Project project)
+	private static boolean isMultiRepo(@Nonnull Project project)
 	{
 		return ServiceManager.getService(project, GitRepositoryManager.class).moreThanOneRoot();
 	}
 
-	@NotNull
+	@Nonnull
 	public GitResetMode getResetMode()
 	{
 		return myEnumModel.getSelected();

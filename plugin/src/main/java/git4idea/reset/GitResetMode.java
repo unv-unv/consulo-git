@@ -15,7 +15,7 @@
  */
 package git4idea.reset;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 public enum GitResetMode
 {
@@ -25,39 +25,39 @@ public enum GitResetMode
 	HARD("Hard", "--hard", "Files will be reverted to the state of the selected commit.<br/>" + "Warning: any local changes will be lost."),
 	KEEP("Keep", "--keep", "Files will be reverted to the state of the selected commit,<br/>" + "but local changes will be kept intact.");
 
-	@NotNull
+	@Nonnull
 	private final String myName;
-	@NotNull
+	@Nonnull
 	private final String myArgument;
-	@NotNull
+	@Nonnull
 	private final String myDescription;
 
-	GitResetMode(@NotNull String name, @NotNull String argument, @NotNull String description)
+	GitResetMode(@Nonnull String name, @Nonnull String argument, @Nonnull String description)
 	{
 		myName = name;
 		myArgument = argument;
 		myDescription = description;
 	}
 
-	@NotNull
+	@Nonnull
 	public static GitResetMode getDefault()
 	{
 		return MIXED;
 	}
 
-	@NotNull
+	@Nonnull
 	public String getName()
 	{
 		return myName;
 	}
 
-	@NotNull
+	@Nonnull
 	public String getArgument()
 	{
 		return myArgument;
 	}
 
-	@NotNull
+	@Nonnull
 	public String getDescription()
 	{
 		return myDescription;

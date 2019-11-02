@@ -15,7 +15,7 @@
  */
 package git4idea.actions;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.vcs.log.Hash;
 import git4idea.history.wholeTree.GitCreateNewTag;
 import git4idea.repo.GitRepository;
@@ -24,7 +24,7 @@ public class GitCreateTagAction extends GitLogSingleCommitAction
 {
 
 	@Override
-	protected void actionPerformed(@NotNull GitRepository repository, @NotNull Hash commit)
+	protected void actionPerformed(@Nonnull GitRepository repository, @Nonnull Hash commit)
 	{
 		String reference = commit.asString();
 		new GitCreateNewTag(repository.getProject(), repository, reference, null).execute();

@@ -22,7 +22,7 @@ import java.nio.charset.Charset;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.execution.ExecutionException;
 import com.intellij.ide.IdeBundle;
 import com.intellij.openapi.project.Project;
@@ -37,13 +37,13 @@ public class GitBinaryHandler extends GitHandler
 {
 	private static final int BUFFER_SIZE = 8 * 1024;
 
-	@NotNull
+	@Nonnull
 	private final ByteArrayOutputStream myStdout = new ByteArrayOutputStream();
-	@NotNull
+	@Nonnull
 	private final ByteArrayOutputStream myStderr = new ByteArrayOutputStream();
-	@NotNull
+	@Nonnull
 	private final Semaphore mySteamSemaphore = new Semaphore(0); // The semaphore that waits for stream processing
-	@NotNull
+	@Nonnull
 	private final AtomicReference<VcsException> myException = new AtomicReference<VcsException>();
 
 	public GitBinaryHandler(final Project project, final VirtualFile vcsRoot, final GitCommand command)

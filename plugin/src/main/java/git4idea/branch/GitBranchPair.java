@@ -17,8 +17,8 @@ package git4idea.branch;
 
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Holder for Git branch and the branch it is "connected" with. It is tracked branch or so called "matched" branch.
@@ -26,15 +26,16 @@ import org.jetbrains.annotations.Nullable;
  * @author Kirill Likhodedov
  */
 public class GitBranchPair {
-  private @NotNull GitLocalBranch myBranch;
+  private @Nonnull
+  GitLocalBranch myBranch;
   private @Nullable GitRemoteBranch myDestBranch;
 
-  public GitBranchPair(@NotNull GitLocalBranch branch, @Nullable GitRemoteBranch destination) {
+  public GitBranchPair(@Nonnull GitLocalBranch branch, @Nullable GitRemoteBranch destination) {
     myBranch = branch;
     myDestBranch = destination;
   }
 
-  @NotNull
+  @Nonnull
   public GitLocalBranch getBranch() {
     return myBranch;
   }

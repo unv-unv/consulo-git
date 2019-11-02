@@ -24,8 +24,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.*;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
 import com.intellij.dvcs.DvcsUtil;
@@ -91,7 +91,7 @@ public class GitUtil
 	public static final Function<GitRepository, VirtualFile> REPOSITORY_TO_ROOT = new Function<GitRepository, VirtualFile>()
 	{
 		@Override
-		public VirtualFile fun(@NotNull GitRepository repository)
+		public VirtualFile fun(@Nonnull GitRepository repository)
 		{
 			return repository.getRoot();
 		}
@@ -120,7 +120,7 @@ public class GitUtil
 	 * @see #findGitDir(VirtualFile)
 	 */
 	@Nullable
-	public static File findGitDir(@NotNull File rootDir)
+	public static File findGitDir(@Nonnull File rootDir)
 	{
 		File dotGit = new File(rootDir, DOT_GIT);
 		if(!dotGit.exists())
@@ -151,7 +151,7 @@ public class GitUtil
 	 * if it is a file, follows the path written inside this file to find the submodule repo dir.
 	 */
 	@Nullable
-	public static VirtualFile findGitDir(@NotNull VirtualFile rootDir)
+	public static VirtualFile findGitDir(@Nonnull VirtualFile rootDir)
 	{
 		VirtualFile dotGit = rootDir.findChild(DOT_GIT);
 		if(dotGit == null)
@@ -180,7 +180,7 @@ public class GitUtil
 	}
 
 	@Nullable
-	private static File findSubmoduleRepositoryDir(@NotNull String rootPath, @NotNull String path)
+	private static File findSubmoduleRepositoryDir(@Nonnull String rootPath, @Nonnull String path)
 	{
 		if(!FileUtil.isAbsolute(path))
 		{
@@ -195,15 +195,15 @@ public class GitUtil
 		return file.isDirectory() ? file : null;
 	}
 
-	@NotNull
-	private static String parsePathToRepository(@NotNull String content)
+	@Nonnull
+	private static String parsePathToRepository(@Nonnull String content)
 	{
 		content = content.trim();
 		return content.startsWith(SUBMODULE_REPO_PATH_PREFIX) ? content.substring(SUBMODULE_REPO_PATH_PREFIX.length()).trim() : content;
 	}
 
 	@Nullable
-	private static String readContent(@NotNull VirtualFile dotGit)
+	private static String readContent(@Nonnull VirtualFile dotGit)
 	{
 		String content;
 		try
@@ -221,8 +221,8 @@ public class GitUtil
 	/**
 	 * Makes 3 attempts to get the contents of the file. If all 3 fail with an IOException, rethrows the exception.
 	 */
-	@NotNull
-	public static String readFile(@NotNull VirtualFile file) throws IOException
+	@Nonnull
+	public static String readFile(@Nonnull VirtualFile file) throws IOException
 	{
 		final int ATTEMPTS = 3;
 		for(int attempt = 0; attempt < ATTEMPTS; attempt++)
@@ -250,8 +250,8 @@ public class GitUtil
 	 * @return sorted files
 	 * @throws VcsException if non git files are passed
 	 */
-	@NotNull
-	public static Map<VirtualFile, List<VirtualFile>> sortFilesByGitRoot(@NotNull Collection<VirtualFile> virtualFiles) throws VcsException
+	@Nonnull
+	public static Map<VirtualFile, List<VirtualFile>> sortFilesByGitRoot(@Nonnull Collection<VirtualFile> virtualFiles) throws VcsException
 	{
 		return sortFilesByGitRoot(virtualFiles, false);
 	}
@@ -313,8 +313,8 @@ public class GitUtil
 	 * @return the map from root to the files under the root
 	 * @throws VcsException if non git files are passed when {@code ignoreNonGit} is false
 	 */
-	@NotNull
-	public static Map<VirtualFile, List<FilePath>> sortFilePathsByGitRoot(@NotNull Collection<FilePath> files, boolean ignoreNonGit) throws VcsException
+	@Nonnull
+	public static Map<VirtualFile, List<FilePath>> sortFilePathsByGitRoot(@Nonnull Collection<FilePath> files, boolean ignoreNonGit) throws VcsException
 	{
 		Map<VirtualFile, List<FilePath>> rc = new HashMap<>();
 		for(FilePath p : files)
@@ -414,7 +414,7 @@ public class GitUtil
 	 * @use GitRepositoryManager#getRepositoryForFile().
 	 * @deprecated because uses the java.io.File.
 	 */
-	public static VirtualFile getGitRoot(@NotNull FilePath filePath) throws VcsException
+	public static VirtualFile getGitRoot(@Nonnull FilePath filePath) throws VcsException
 	{
 		VirtualFile root = getGitRootOrNull(filePath);
 		if(root != null)
@@ -434,12 +434,12 @@ public class GitUtil
 	 */
 	@Deprecated
 	@Nullable
-	public static VirtualFile getGitRootOrNull(@NotNull final FilePath filePath)
+	public static VirtualFile getGitRootOrNull(@Nonnull final FilePath filePath)
 	{
 		return getGitRootOrNull(filePath.getIOFile());
 	}
 
-	public static boolean isGitRoot(@NotNull File folder)
+	public static boolean isGitRoot(@Nonnull File folder)
 	{
 		return findGitDir(folder) != null;
 	}
@@ -469,7 +469,7 @@ public class GitUtil
 	 * @use GitRepositoryManager#getRepositoryForFile().
 	 * @deprecated because uses the java.io.File.
 	 */
-	public static VirtualFile getGitRoot(@NotNull final VirtualFile file) throws VcsException
+	public static VirtualFile getGitRoot(@Nonnull final VirtualFile file) throws VcsException
 	{
 		final VirtualFile root = gitRootOrNull(file);
 		if(root != null)
@@ -519,7 +519,7 @@ public class GitUtil
 	 * @use GitRepositoryManager#getRepositoryForFile().
 	 * @deprecated because uses the java.io.File.
 	 */
-	@NotNull
+	@Nonnull
 	public static List<VirtualFile> getGitRoots(Project project, GitVcs vcs) throws VcsException
 	{
 		final VirtualFile[] contentRoots = ProjectLevelVcsManager.getInstance(project).getRootsUnderVcs(vcs);
@@ -689,8 +689,8 @@ public class GitUtil
 	 * @return unescaped path ready to be searched in the VFS or file system.
 	 * @throws com.intellij.openapi.vcs.VcsException if the path in invalid
 	 */
-	@NotNull
-	public static String unescapePath(@NotNull String path) throws VcsException
+	@Nonnull
+	public static String unescapePath(@Nonnull String path) throws VcsException
 	{
 		final String QUOTE = "\"";
 		if(path.startsWith(QUOTE) && path.endsWith(QUOTE))
@@ -813,13 +813,13 @@ public class GitUtil
 
 
 	@Nullable
-	public static GitRemote findRemoteByName(@NotNull GitRepository repository, @NotNull final String name)
+	public static GitRemote findRemoteByName(@Nonnull GitRepository repository, @Nonnull final String name)
 	{
 		return findRemoteByName(repository.getRemotes(), name);
 	}
 
 	@Nullable
-	public static GitRemote findRemoteByName(Collection<GitRemote> remotes, @NotNull final String name)
+	public static GitRemote findRemoteByName(Collection<GitRemote> remotes, @Nonnull final String name)
 	{
 		return ContainerUtil.find(remotes, new Condition<GitRemote>()
 		{
@@ -832,7 +832,7 @@ public class GitUtil
 	}
 
 	@Nullable
-	public static GitRemoteBranch findRemoteBranch(@NotNull GitRepository repository, @NotNull final GitRemote remote, @NotNull final String nameAtRemote)
+	public static GitRemoteBranch findRemoteBranch(@Nonnull GitRepository repository, @Nonnull final GitRemote remote, @Nonnull final String nameAtRemote)
 	{
 		return ContainerUtil.find(repository.getBranches().getRemoteBranches(), new Condition<GitRemoteBranch>()
 		{
@@ -844,8 +844,8 @@ public class GitUtil
 		});
 	}
 
-	@NotNull
-	public static GitRemoteBranch findOrCreateRemoteBranch(@NotNull GitRepository repository, @NotNull GitRemote remote, @NotNull String branchName)
+	@Nonnull
+	public static GitRemoteBranch findOrCreateRemoteBranch(@Nonnull GitRepository repository, @Nonnull GitRemote remote, @Nonnull String branchName)
 	{
 		GitRemoteBranch remoteBranch = findRemoteBranch(repository, remote, branchName);
 		return ObjectUtils.notNull(remoteBranch, new GitStandardRemoteBranch(remote, branchName));
@@ -864,14 +864,14 @@ public class GitUtil
 		return null;
 	}
 
-	@NotNull
-	public static Collection<VirtualFile> getRootsFromRepositories(@NotNull Collection<GitRepository> repositories)
+	@Nonnull
+	public static Collection<VirtualFile> getRootsFromRepositories(@Nonnull Collection<GitRepository> repositories)
 	{
 		return ContainerUtil.map(repositories, REPOSITORY_TO_ROOT);
 	}
 
-	@NotNull
-	public static Collection<GitRepository> getRepositoriesFromRoots(@NotNull GitRepositoryManager repositoryManager, @NotNull Collection<VirtualFile> roots)
+	@Nonnull
+	public static Collection<GitRepository> getRepositoriesFromRoots(@Nonnull GitRepositoryManager repositoryManager, @Nonnull Collection<VirtualFile> roots)
 	{
 		Collection<GitRepository> repositories = new ArrayList<>(roots.size());
 		for(VirtualFile root : roots)
@@ -895,8 +895,8 @@ public class GitUtil
 	 * <p>
 	 * Paths are absolute, Git-formatted (i.e. with forward slashes).
 	 */
-	@NotNull
-	public static Collection<String> getPathsDiffBetweenRefs(@NotNull Git git, @NotNull GitRepository repository, @NotNull String beforeRef, @NotNull String afterRef) throws VcsException
+	@Nonnull
+	public static Collection<String> getPathsDiffBetweenRefs(@Nonnull Git git, @Nonnull GitRepository repository, @Nonnull String beforeRef, @Nonnull String afterRef) throws VcsException
 	{
 		List<String> parameters = Arrays.asList("--name-only", "--pretty=format:");
 		String range = beforeRef + ".." + afterRef;
@@ -921,14 +921,14 @@ public class GitUtil
 		return remoteChanges;
 	}
 
-	@NotNull
-	public static GitRepositoryManager getRepositoryManager(@NotNull Project project)
+	@Nonnull
+	public static GitRepositoryManager getRepositoryManager(@Nonnull Project project)
 	{
 		return ServiceManager.getService(project, GitRepositoryManager.class);
 	}
 
 	@Nullable
-	public static GitRepository getRepositoryForRootOrLogError(@NotNull Project project, @NotNull VirtualFile root)
+	public static GitRepository getRepositoryForRootOrLogError(@Nonnull Project project, @Nonnull VirtualFile root)
 	{
 		GitRepositoryManager manager = getRepositoryManager(project);
 		GitRepository repository = manager.getRepositoryForRoot(root);
@@ -939,8 +939,8 @@ public class GitUtil
 		return repository;
 	}
 
-	@NotNull
-	public static String getPrintableRemotes(@NotNull Collection<GitRemote> remotes)
+	@Nonnull
+	public static String getPrintableRemotes(@Nonnull Collection<GitRemote> remotes)
 	{
 		return StringUtil.join(remotes, new Function<GitRemote, String>()
 		{
@@ -966,7 +966,7 @@ public class GitUtil
 	{
 		new Task.Backgroundable(project, GitBundle.message("changes.retrieving", revision))
 		{
-			public void run(@NotNull ProgressIndicator indicator)
+			public void run(@Nonnull ProgressIndicator indicator)
 			{
 				indicator.setIndeterminate(true);
 				try
@@ -1003,7 +1003,7 @@ public class GitUtil
 	 * Returns the tracking information (remote and the name of the remote branch), or null if we are not on a branch.
 	 */
 	@Nullable
-	public static GitBranchTrackInfo getTrackInfoForCurrentBranch(@NotNull GitRepository repository)
+	public static GitBranchTrackInfo getTrackInfoForCurrentBranch(@Nonnull GitRepository repository)
 	{
 		GitLocalBranch currentBranch = repository.getCurrentBranch();
 		if(currentBranch == null)
@@ -1013,8 +1013,8 @@ public class GitUtil
 		return GitBranchUtil.getTrackInfoForBranch(repository, currentBranch);
 	}
 
-	@NotNull
-	public static Collection<GitRepository> getRepositoriesForFiles(@NotNull Project project, @NotNull Collection<VirtualFile> files)
+	@Nonnull
+	public static Collection<GitRepository> getRepositoriesForFiles(@Nonnull Project project, @Nonnull Collection<VirtualFile> files)
 	{
 		final GitRepositoryManager manager = getRepositoryManager(project);
 		com.google.common.base.Function<VirtualFile, GitRepository> ROOT_TO_REPO = new com.google.common.base.Function<VirtualFile, GitRepository>()
@@ -1028,8 +1028,8 @@ public class GitUtil
 		return Collections2.filter(Collections2.transform(sortFilesByGitRootsIgnoringOthers(files).keySet(), ROOT_TO_REPO), Predicates.notNull());
 	}
 
-	@NotNull
-	public static Map<VirtualFile, List<VirtualFile>> sortFilesByGitRootsIgnoringOthers(@NotNull Collection<VirtualFile> files)
+	@Nonnull
+	public static Map<VirtualFile, List<VirtualFile>> sortFilesByGitRootsIgnoringOthers(@Nonnull Collection<VirtualFile> files)
 	{
 		try
 		{
@@ -1066,7 +1066,7 @@ public class GitUtil
 	}
 
 	@Nullable
-	public static VirtualFile findRefreshFileOrLog(@NotNull String absolutePath)
+	public static VirtualFile findRefreshFileOrLog(@Nonnull String absolutePath)
 	{
 		VirtualFile file = LocalFileSystem.getInstance().findFileByPath(absolutePath);
 		if(file == null)
@@ -1080,14 +1080,14 @@ public class GitUtil
 		return file;
 	}
 
-	@NotNull
-	public static String toAbsolute(@NotNull VirtualFile root, @NotNull String relativePath)
+	@Nonnull
+	public static String toAbsolute(@Nonnull VirtualFile root, @Nonnull String relativePath)
 	{
 		return StringUtil.trimEnd(root.getPath(), "/") + "/" + StringUtil.trimStart(relativePath, "/");
 	}
 
-	@NotNull
-	public static Collection<String> toAbsolute(@NotNull final VirtualFile root, @NotNull Collection<String> relativePaths)
+	@Nonnull
+	public static Collection<String> toAbsolute(@Nonnull final VirtualFile root, @Nonnull Collection<String> relativePaths)
 	{
 		return ContainerUtil.map(relativePaths, new Function<String, String>()
 		{
@@ -1105,8 +1105,8 @@ public class GitUtil
 	 * Paths can be absolute or relative to the repository.
 	 * If a path is not found in the local changes, it is ignored, but the fact is logged.
 	 */
-	@NotNull
-	public static List<Change> findLocalChangesForPaths(@NotNull Project project, @NotNull VirtualFile root, @NotNull Collection<String> affectedPaths, boolean relativePaths)
+	@Nonnull
+	public static List<Change> findLocalChangesForPaths(@Nonnull Project project, @Nonnull VirtualFile root, @Nonnull Collection<String> affectedPaths, boolean relativePaths)
 	{
 		ChangeListManagerEx changeListManager = (ChangeListManagerEx) ChangeListManager.getInstance(project);
 		List<Change> affectedChanges = new ArrayList<>();
@@ -1139,7 +1139,7 @@ public class GitUtil
 		return affectedChanges;
 	}
 
-	public static void showPathsInDialog(@NotNull Project project, @NotNull Collection<String> absolutePaths, @NotNull String title, @Nullable String description)
+	public static void showPathsInDialog(@Nonnull Project project, @Nonnull Collection<String> absolutePaths, @Nonnull String title, @Nullable String description)
 	{
 		DialogBuilder builder = new DialogBuilder(project);
 		builder.setCenterPanel(new GitSimplePathsBrowser(project, absolutePaths));
@@ -1152,8 +1152,8 @@ public class GitUtil
 		builder.show();
 	}
 
-	@NotNull
-	public static String cleanupErrorPrefixes(@NotNull String msg)
+	@Nonnull
+	public static String cleanupErrorPrefixes(@Nonnull String msg)
 	{
 		final String[] PREFIXES = {
 				"fatal:",
@@ -1171,7 +1171,7 @@ public class GitUtil
 	}
 
 	@Nullable
-	public static GitRemote getDefaultRemote(@NotNull Collection<GitRemote> remotes)
+	public static GitRemote getDefaultRemote(@Nonnull Collection<GitRemote> remotes)
 	{
 		for(GitRemote remote : remotes)
 		{
@@ -1183,8 +1183,8 @@ public class GitUtil
 		return null;
 	}
 
-	@NotNull
-	public static String joinToHtml(@NotNull Collection<GitRepository> repositories)
+	@Nonnull
+	public static String joinToHtml(@Nonnull Collection<GitRepository> repositories)
 	{
 		return StringUtil.join(repositories, new Function<GitRepository, String>()
 		{
@@ -1196,20 +1196,20 @@ public class GitUtil
 		}, "<br/>");
 	}
 
-	@NotNull
-	public static String mention(@NotNull GitRepository repository)
+	@Nonnull
+	public static String mention(@Nonnull GitRepository repository)
 	{
 		return getRepositoryManager(repository.getProject()).moreThanOneRoot() ? " in " + getShortRepositoryName(repository) : "";
 	}
 
-	@NotNull
-	public static String mention(@NotNull Collection<GitRepository> repositories)
+	@Nonnull
+	public static String mention(@Nonnull Collection<GitRepository> repositories)
 	{
 		return mention(repositories, -1);
 	}
 
-	@NotNull
-	public static String mention(@NotNull Collection<GitRepository> repositories, int limit)
+	@Nonnull
+	public static String mention(@Nonnull Collection<GitRepository> repositories, int limit)
 	{
 		if(repositories.isEmpty())
 		{
@@ -1218,7 +1218,7 @@ public class GitUtil
 		return " in " + joinShortNames(repositories, limit);
 	}
 
-	public static void updateRepositories(@NotNull Collection<GitRepository> repositories)
+	public static void updateRepositories(@Nonnull Collection<GitRepository> repositories)
 	{
 		for(GitRepository repository : repositories)
 		{
@@ -1226,13 +1226,13 @@ public class GitUtil
 		}
 	}
 
-	public static boolean hasGitRepositories(@NotNull Project project)
+	public static boolean hasGitRepositories(@Nonnull Project project)
 	{
 		return !getRepositories(project).isEmpty();
 	}
 
-	@NotNull
-	public static Collection<GitRepository> getRepositories(@NotNull Project project)
+	@Nonnull
+	public static Collection<GitRepository> getRepositories(@Nonnull Project project)
 	{
 		return getRepositoryManager(project).getRepositories();
 	}
@@ -1241,7 +1241,7 @@ public class GitUtil
 	 * Checks if the given paths are equal only by case.
 	 * It is expected that the paths are different at least by the case.
 	 */
-	public static boolean isCaseOnlyChange(@NotNull String oldPath, @NotNull String newPath)
+	public static boolean isCaseOnlyChange(@Nonnull String oldPath, @Nonnull String newPath)
 	{
 		if(oldPath.equalsIgnoreCase(newPath))
 		{
@@ -1254,8 +1254,8 @@ public class GitUtil
 		return false;
 	}
 
-	@NotNull
-	public static String getLogString(@NotNull String root, @NotNull Collection<Change> changes)
+	@Nonnull
+	public static String getLogString(@Nonnull String root, @Nonnull Collection<Change> changes)
 	{
 		return StringUtil.join(changes, change ->
 		{
@@ -1276,7 +1276,7 @@ public class GitUtil
 	}
 
 	@Nullable
-	public static String getRelativePath(@NotNull String root, @NotNull ContentRevision after)
+	public static String getRelativePath(@Nonnull String root, @Nonnull ContentRevision after)
 	{
 		return FileUtil.getRelativePath(root, after.getFile().getPath(), File.separatorChar);
 	}
@@ -1289,8 +1289,8 @@ public class GitUtil
 	 * <p>"The same" here means the changes made in the same files. It is possible that there was a change made in file A in the original
 	 * commit, but there are no local changes made in file A. Such situations are ignored.</p>
 	 */
-	@NotNull
-	public static Collection<Change> findCorrespondentLocalChanges(@NotNull ChangeListManager changeListManager, @NotNull Collection<Change> originalChanges)
+	@Nonnull
+	public static Collection<Change> findCorrespondentLocalChanges(@Nonnull ChangeListManager changeListManager, @Nonnull Collection<Change> originalChanges)
 	{
 		OpenTHashSet<Change> allChanges = new OpenTHashSet<>(changeListManager.getAllChanges());
 		return ContainerUtil.mapNotNull(originalChanges, allChanges::get);

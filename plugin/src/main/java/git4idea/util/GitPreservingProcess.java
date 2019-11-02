@@ -20,8 +20,8 @@ import static com.intellij.openapi.util.text.StringUtil.join;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
@@ -48,36 +48,36 @@ public class GitPreservingProcess
 
 	private static final Logger LOG = Logger.getInstance(GitPreservingProcess.class);
 
-	@NotNull
+	@Nonnull
 	private final Project myProject;
-	@NotNull
+	@Nonnull
 	private final Git myGit;
-	@NotNull
+	@Nonnull
 	private final Collection<VirtualFile> myRootsToSave;
-	@NotNull
+	@Nonnull
 	private final String myOperationTitle;
-	@NotNull
+	@Nonnull
 	private final String myDestinationName;
-	@NotNull
+	@Nonnull
 	private final ProgressIndicator myProgressIndicator;
-	@NotNull
+	@Nonnull
 	private final Runnable myOperation;
-	@NotNull
+	@Nonnull
 	private final String myStashMessage;
-	@NotNull
+	@Nonnull
 	private final GitChangesSaver mySaver;
 
-	@NotNull
+	@Nonnull
 	private final AtomicBoolean myLoaded = new AtomicBoolean();
 
-	public GitPreservingProcess(@NotNull Project project,
-			@NotNull Git git,
-			@NotNull Collection<VirtualFile> rootsToSave,
-			@NotNull String operationTitle,
-			@NotNull String destinationName,
-			@NotNull GitVcsSettings.UpdateChangesPolicy saveMethod,
-			@NotNull ProgressIndicator indicator,
-			@NotNull Runnable operation)
+	public GitPreservingProcess(@Nonnull Project project,
+			@Nonnull Git git,
+			@Nonnull Collection<VirtualFile> rootsToSave,
+			@Nonnull String operationTitle,
+			@Nonnull String destinationName,
+			@Nonnull GitVcsSettings.UpdateChangesPolicy saveMethod,
+			@Nonnull ProgressIndicator indicator,
+			@Nonnull Runnable operation)
 	{
 		myProject = project;
 		myGit = git;
@@ -136,26 +136,26 @@ public class GitPreservingProcess
 	/**
 	 * Configures the saver: i.e. notifications and texts for the GitConflictResolver used inside.
 	 */
-	@NotNull
-	private GitChangesSaver configureSaver(@NotNull GitVcsSettings.UpdateChangesPolicy saveMethod)
+	@Nonnull
+	private GitChangesSaver configureSaver(@Nonnull GitVcsSettings.UpdateChangesPolicy saveMethod)
 	{
 		GitChangesSaver saver = GitChangesSaver.getSaver(myProject, myGit, myProgressIndicator, myStashMessage, saveMethod);
 		MergeDialogCustomizer mergeDialogCustomizer = new MergeDialogCustomizer()
 		{
 			@Override
-			public String getMultipleFileMergeDescription(@NotNull Collection<VirtualFile> files)
+			public String getMultipleFileMergeDescription(@Nonnull Collection<VirtualFile> files)
 			{
 				return String.format("<html>Uncommitted changes that were saved before %s have conflicts with files from <code>%s</code></html>", myOperationTitle, myDestinationName);
 			}
 
 			@Override
-			public String getLeftPanelTitle(@NotNull VirtualFile file)
+			public String getLeftPanelTitle(@Nonnull VirtualFile file)
 			{
 				return "Uncommitted changes from stash";
 			}
 
 			@Override
-			public String getRightPanelTitle(@NotNull VirtualFile file, VcsRevisionNumber revisionNumber)
+			public String getRightPanelTitle(@Nonnull VirtualFile file, VcsRevisionNumber revisionNumber)
 			{
 				return String.format("<html>Changes from <b><code>%s</code></b></html>", myDestinationName);
 			}

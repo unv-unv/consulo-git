@@ -26,9 +26,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.swing.event.HyperlinkEvent;
 
-import org.jetbrains.annotations.NotNull;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationListener;
 import com.intellij.openapi.application.ApplicationManager;
@@ -61,20 +61,20 @@ public class GitConflictResolver
 
 	private static final Logger LOG = Logger.getInstance(GitConflictResolver.class);
 
-	@NotNull
+	@Nonnull
 	private final Collection<VirtualFile> myRoots;
-	@NotNull
+	@Nonnull
 	private final Params myParams;
 
-	@NotNull
+	@Nonnull
 	protected final Project myProject;
-	@NotNull
+	@Nonnull
 	private final Git myGit;
-	@NotNull
+	@Nonnull
 	private final GitRepositoryManager myRepositoryManager;
-	@NotNull
+	@Nonnull
 	private final AbstractVcsHelper myVcsHelper;
-	@NotNull
+	@Nonnull
 	private final GitVcs myVcs;
 
 	/**
@@ -89,7 +89,7 @@ public class GitConflictResolver
 		private MergeDialogCustomizer myMergeDialogCustomizer = new MergeDialogCustomizer()
 		{
 			@Override
-			public String getMultipleFileMergeDescription(@NotNull Collection<VirtualFile> files)
+			public String getMultipleFileMergeDescription(@Nonnull Collection<VirtualFile> files)
 			{
 				return myMergeDescription;
 			}
@@ -135,12 +135,12 @@ public class GitConflictResolver
 	 */
 	@SuppressWarnings("UnusedParameters")
 	@Deprecated
-	public GitConflictResolver(@NotNull Project project, @NotNull Git git, @NotNull GitPlatformFacade facade, @NotNull Collection<VirtualFile> roots, @NotNull Params params)
+	public GitConflictResolver(@Nonnull Project project, @Nonnull Git git, @Nonnull GitPlatformFacade facade, @Nonnull Collection<VirtualFile> roots, @Nonnull Params params)
 	{
 		this(project, git, roots, params);
 	}
 
-	public GitConflictResolver(@NotNull Project project, @NotNull Git git, @NotNull Collection<VirtualFile> roots, @NotNull Params params)
+	public GitConflictResolver(@Nonnull Project project, @Nonnull Git git, @Nonnull Collection<VirtualFile> roots, @Nonnull Params params)
 	{
 		myProject = project;
 		myGit = git;
@@ -272,7 +272,7 @@ public class GitConflictResolver
 
 	}
 
-	private void showMergeDialog(@NotNull final Collection<VirtualFile> initiallyUnmergedFiles)
+	private void showMergeDialog(@Nonnull final Collection<VirtualFile> initiallyUnmergedFiles)
 	{
 		ApplicationManager.getApplication().invokeAndWait(() -> {
 			MergeProvider mergeProvider = new GitMergeProvider(myProject, myParams.reverse);
@@ -289,7 +289,7 @@ public class GitConflictResolver
 	}
 
 
-	@NotNull
+	@Nonnull
 	protected NotificationListener getResolveLinkListener()
 	{
 		return new ResolveNotificationListener();
@@ -298,7 +298,7 @@ public class GitConflictResolver
 	private class ResolveNotificationListener implements NotificationListener
 	{
 		@Override
-		public void hyperlinkUpdate(@NotNull final Notification notification, @NotNull HyperlinkEvent event)
+		public void hyperlinkUpdate(@Nonnull final Notification notification, @Nonnull HyperlinkEvent event)
 		{
 			if(event.getEventType() == HyperlinkEvent.EventType.ACTIVATED && event.getDescription().equals("resolve"))
 			{
@@ -319,7 +319,7 @@ public class GitConflictResolver
 	 * @return unmerged files in the given Git roots, all in a single collection.
 	 * @see #getUnmergedFiles(com.intellij.openapi.vfs.VirtualFile)
 	 */
-	private Collection<VirtualFile> getUnmergedFiles(@NotNull Collection<VirtualFile> roots) throws VcsException
+	private Collection<VirtualFile> getUnmergedFiles(@Nonnull Collection<VirtualFile> roots) throws VcsException
 	{
 		final Collection<VirtualFile> unmergedFiles = new HashSet<>();
 		for(VirtualFile root : roots)
@@ -333,7 +333,7 @@ public class GitConflictResolver
 	 * @return unmerged files in the given Git root.
 	 * @see #getUnmergedFiles(java.util.Collection
 	 */
-	private Collection<VirtualFile> getUnmergedFiles(@NotNull VirtualFile root) throws VcsException
+	private Collection<VirtualFile> getUnmergedFiles(@Nonnull VirtualFile root) throws VcsException
 	{
 		return unmergedFiles(root);
 	}

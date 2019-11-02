@@ -18,7 +18,7 @@ package git4idea.ui;
 import java.util.Collection;
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.openapi.actionSystem.EmptyAction;
 import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.project.Project;
@@ -38,7 +38,7 @@ public class ChangesBrowserWithRollback extends ChangesBrowser
 {
 	private final List<Change> myOriginalChanges;
 
-	public ChangesBrowserWithRollback(@NotNull Project project, @NotNull List<Change> changes)
+	public ChangesBrowserWithRollback(@Nonnull Project project, @Nonnull List<Change> changes)
 	{
 		super(project, null, changes, null, false, true, null, MyUseCase.LOCAL_CHANGES, null);
 		myOriginalChanges = changes;
@@ -58,8 +58,8 @@ public class ChangesBrowserWithRollback extends ChangesBrowser
 		super.rebuildList();
 	}
 
-	@NotNull
-	private static List<Change> filterActualChanges(@NotNull Project project, @NotNull List<Change> originalChanges)
+	@Nonnull
+	private static List<Change> filterActualChanges(@Nonnull Project project, @Nonnull List<Change> originalChanges)
 	{
 		final Collection<Change> allChanges = ChangeListManager.getInstance(project).getAllChanges();
 		return ContainerUtil.filter(originalChanges, new Condition<Change>()

@@ -20,8 +20,8 @@ import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
@@ -106,7 +106,7 @@ public class GitTask
 	}
 
 	// this is always sync
-	@NotNull
+	@Nonnull
 	public GitTaskResult execute(boolean modal)
 	{
 		final AtomicReference<GitTaskResult> result = new AtomicReference<GitTaskResult>(GitTaskResult.INITIAL);
@@ -336,14 +336,14 @@ public class GitTask
 	{
 		private GitTaskDelegate myDelegate;
 
-		public BackgroundableTask(@Nullable final Project project, @NotNull GitHandler handler, @NotNull final String processTitle)
+		public BackgroundableTask(@Nullable final Project project, @Nonnull GitHandler handler, @Nonnull final String processTitle)
 		{
 			super(project, processTitle, true);
 			myDelegate = new GitTaskDelegate(myProject, handler, this);
 		}
 
 		@Override
-		public final void run(@NotNull ProgressIndicator indicator)
+		public final void run(@Nonnull ProgressIndicator indicator)
 		{
 			myDelegate.run(indicator);
 		}
@@ -401,14 +401,14 @@ public class GitTask
 	{
 		private GitTaskDelegate myDelegate;
 
-		public ModalTask(@Nullable final Project project, @NotNull GitHandler handler, @NotNull final String processTitle)
+		public ModalTask(@Nullable final Project project, @Nonnull GitHandler handler, @Nonnull final String processTitle)
 		{
 			super(project, processTitle, true);
 			myDelegate = new GitTaskDelegate(myProject, handler, this);
 		}
 
 		@Override
-		public final void run(@NotNull ProgressIndicator indicator)
+		public final void run(@Nonnull ProgressIndicator indicator)
 		{
 			myDelegate.run(indicator);
 		}

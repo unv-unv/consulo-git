@@ -19,8 +19,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.openapi.util.Condition;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.vcs.log.Hash;
@@ -45,31 +45,31 @@ public final class GitBranchesCollection
 
 	public static final GitBranchesCollection EMPTY = new GitBranchesCollection(Collections.<GitLocalBranch, Hash>emptyMap(), Collections.<GitRemoteBranch, Hash>emptyMap());
 
-	@NotNull
+	@Nonnull
 	private final Map<GitLocalBranch, Hash> myLocalBranches;
-	@NotNull
+	@Nonnull
 	private final Map<GitRemoteBranch, Hash> myRemoteBranches;
 
-	public GitBranchesCollection(@NotNull Map<GitLocalBranch, Hash> localBranches, @NotNull Map<GitRemoteBranch, Hash> remoteBranches)
+	public GitBranchesCollection(@Nonnull Map<GitLocalBranch, Hash> localBranches, @Nonnull Map<GitRemoteBranch, Hash> remoteBranches)
 	{
 		myRemoteBranches = remoteBranches;
 		myLocalBranches = localBranches;
 	}
 
-	@NotNull
+	@Nonnull
 	public Collection<GitLocalBranch> getLocalBranches()
 	{
 		return Collections.unmodifiableCollection(myLocalBranches.keySet());
 	}
 
-	@NotNull
+	@Nonnull
 	public Collection<GitRemoteBranch> getRemoteBranches()
 	{
 		return Collections.unmodifiableCollection(myRemoteBranches.keySet());
 	}
 
 	@Nullable
-	public Hash getHash(@NotNull GitBranch branch)
+	public Hash getHash(@Nonnull GitBranch branch)
 	{
 		if(branch instanceof GitLocalBranch)
 		{
@@ -83,20 +83,20 @@ public final class GitBranchesCollection
 	}
 
 	@Nullable
-	public GitLocalBranch findLocalBranch(@NotNull String name)
+	public GitLocalBranch findLocalBranch(@Nonnull String name)
 	{
 		return findByName(myLocalBranches.keySet(), name);
 	}
 
 	@Nullable
-	public GitBranch findBranchByName(@NotNull String name)
+	public GitBranch findBranchByName(@Nonnull String name)
 	{
 		GitLocalBranch branch = findByName(myLocalBranches.keySet(), name);
 		return branch != null ? branch : findByName(myRemoteBranches.keySet(), name);
 	}
 
 	@Nullable
-	private static <T extends GitBranch> T findByName(Collection<T> branches, @NotNull final String name)
+	private static <T extends GitBranch> T findByName(Collection<T> branches, @Nonnull final String name)
 	{
 		return ContainerUtil.find(branches, new Condition<T>()
 		{

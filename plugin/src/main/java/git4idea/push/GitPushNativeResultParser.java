@@ -19,10 +19,12 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.util.containers.ContainerUtil;
+
+import javax.annotation.Nullable;
 
 /**
  * Parses the output received from git push and returns a result.
@@ -96,8 +98,8 @@ public class GitPushNativeResultParser
 			"(?:\\((.+)\\))?.*$");    // reason
 	private static final Pattern RANGE = Pattern.compile("[0-9a-f]+[\\.]{2,3}[0-9a-f]+");
 
-	@NotNull
-	public static List<GitPushNativeResult> parse(@NotNull List<String> output)
+	@Nonnull
+	public static List<GitPushNativeResult> parse(@Nonnull List<String> output)
 	{
 		List<GitPushNativeResult> results = ContainerUtil.newArrayList();
 		for(String line : output)

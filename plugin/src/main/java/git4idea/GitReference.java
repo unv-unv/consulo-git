@@ -17,7 +17,7 @@ package git4idea;
 
 import gnu.trove.TObjectHashingStrategy;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.text.FilePathHashingStrategy;
@@ -30,10 +30,10 @@ public abstract class GitReference implements Comparable<GitReference>
 
 	public static final TObjectHashingStrategy<String> BRANCH_NAME_HASHING_STRATEGY = FilePathHashingStrategy.create();
 
-	@NotNull
+	@Nonnull
 	protected final String myName;
 
-	public GitReference(@NotNull String name)
+	public GitReference(@Nonnull String name)
 	{
 		myName = new String(name);
 	}
@@ -42,7 +42,7 @@ public abstract class GitReference implements Comparable<GitReference>
 	 * @return the name of the reference, e.g. "origin/master" or "feature".
 	 * @see #getFullName()
 	 */
-	@NotNull
+	@Nonnull
 	public String getName()
 	{
 		return myName;
@@ -51,7 +51,7 @@ public abstract class GitReference implements Comparable<GitReference>
 	/**
 	 * @return the full name of the reference, e.g. "refs/remotes/origin/master" or "refs/heads/master".
 	 */
-	@NotNull
+	@Nonnull
 	public abstract String getFullName();
 
 	@Override

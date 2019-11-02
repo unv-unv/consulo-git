@@ -20,7 +20,7 @@ import git4idea.GitBranch;
 import git4idea.branch.GitBranchUtil;
 import git4idea.branch.GitBranchesCollection;
 import git4idea.repo.GitRepository;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.util.Collection;
 
@@ -42,11 +42,11 @@ public final class GitNewBranchNameValidator implements InputValidatorEx {
   private final Collection<GitRepository> myRepositories;
   private String myErrorText;
 
-  private GitNewBranchNameValidator(@NotNull Collection<GitRepository> repositories) {
+  private GitNewBranchNameValidator(@Nonnull Collection<GitRepository> repositories) {
     myRepositories = repositories;
   }
 
-  public static GitNewBranchNameValidator newInstance(@NotNull Collection<GitRepository> repositories) {
+  public static GitNewBranchNameValidator newInstance(@Nonnull Collection<GitRepository> repositories) {
     return new GitNewBranchNameValidator(repositories);
   }
 
@@ -67,7 +67,7 @@ public final class GitNewBranchNameValidator implements InputValidatorEx {
     return true;
   }
 
-  private boolean isNotPermitted(@NotNull String inputString) {
+  private boolean isNotPermitted(@Nonnull String inputString) {
     if (inputString.equalsIgnoreCase("head")) {
       myErrorText = "Branch name " + inputString + " is not valid";
       return true;

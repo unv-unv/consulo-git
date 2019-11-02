@@ -21,8 +21,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionPlaces;
@@ -77,12 +77,12 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
 
 	private static final Logger LOG = Logger.getInstance(GitDiffFromHistoryHandler.class);
 
-	@NotNull
+	@Nonnull
 	private final Git myGit;
-	@NotNull
+	@Nonnull
 	private final GitRepositoryManager myRepositoryManager;
 
-	public GitDiffFromHistoryHandler(@NotNull Project project)
+	public GitDiffFromHistoryHandler(@Nonnull Project project)
 	{
 		super(project);
 		myGit = ServiceManager.getService(project, Git.class);
@@ -90,7 +90,7 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
 	}
 
 	@Override
-	public void showDiffForOne(@NotNull AnActionEvent e, @NotNull Project project, @NotNull FilePath filePath, @NotNull VcsFileRevision previousRevision, @NotNull VcsFileRevision revision)
+	public void showDiffForOne(@Nonnull AnActionEvent e, @Nonnull Project project, @Nonnull FilePath filePath, @Nonnull VcsFileRevision previousRevision, @Nonnull VcsFileRevision revision)
 	{
 		GitFileRevision rev = (GitFileRevision) revision;
 		Collection<String> parents = rev.getParents();
@@ -104,9 +104,9 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
 		}
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
-	protected List<Change> getChangesBetweenRevisions(@NotNull FilePath path, @NotNull GitFileRevision rev1, @Nullable GitFileRevision rev2) throws VcsException
+	protected List<Change> getChangesBetweenRevisions(@Nonnull FilePath path, @Nonnull GitFileRevision rev1, @Nullable GitFileRevision rev2) throws VcsException
 	{
 		GitRepository repository = getRepository(path);
 		String hash1 = rev1.getHash();
@@ -115,31 +115,31 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
 		return ContainerUtil.newArrayList(GitChangeUtils.getDiff(repository.getProject(), repository.getRoot(), hash1, hash2, Collections.singletonList(path)));
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
-	protected List<Change> getAffectedChanges(@NotNull FilePath path, @NotNull GitFileRevision rev) throws VcsException
+	protected List<Change> getAffectedChanges(@Nonnull FilePath path, @Nonnull GitFileRevision rev) throws VcsException
 	{
 		GitRepository repository = getRepository(path);
 
 		return ContainerUtil.newArrayList(GitChangeUtils.getRevisionChanges(repository.getProject(), repository.getRoot(), rev.getHash(), false, true, true).getChanges());
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
-	protected String getPresentableName(@NotNull GitFileRevision revision)
+	protected String getPresentableName(@Nonnull GitFileRevision revision)
 	{
 		return DvcsUtil.getShortHash(revision.getHash());
 	}
 
-	@NotNull
-	private GitRepository getRepository(@NotNull FilePath path)
+	@Nonnull
+	private GitRepository getRepository(@Nonnull FilePath path)
 	{
 		GitRepository repository = myRepositoryManager.getRepositoryForFile(path);
 		LOG.assertTrue(repository != null, "Repository is null for " + path);
 		return repository;
 	}
 
-	private void showDiffForMergeCommit(@NotNull final AnActionEvent event, @NotNull final FilePath filePath, @NotNull final GitFileRevision rev, @NotNull final Collection<String> parents)
+	private void showDiffForMergeCommit(@Nonnull final AnActionEvent event, @Nonnull final FilePath filePath, @Nonnull final GitFileRevision rev, @Nonnull final Collection<String> parents)
 	{
 
 		checkIfFileWasTouchedAndFindParentsInBackground(filePath, rev, parents, new Consumer<MergeCommitPreCheckInfo>()
@@ -179,17 +179,17 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
 		}
 	}
 
-	private void checkIfFileWasTouchedAndFindParentsInBackground(@NotNull final FilePath filePath,
-			@NotNull final GitFileRevision rev,
-			@NotNull final Collection<String> parentHashes,
-			@NotNull final Consumer<MergeCommitPreCheckInfo> resultHandler)
+	private void checkIfFileWasTouchedAndFindParentsInBackground(@Nonnull final FilePath filePath,
+			@Nonnull final GitFileRevision rev,
+			@Nonnull final Collection<String> parentHashes,
+			@Nonnull final Consumer<MergeCommitPreCheckInfo> resultHandler)
 	{
 		new Task.Backgroundable(myProject, "Loading changes...", true)
 		{
 			private MergeCommitPreCheckInfo myInfo;
 
 			@Override
-			public void run(@NotNull ProgressIndicator indicator)
+			public void run(@Nonnull ProgressIndicator indicator)
 			{
 				try
 				{
@@ -216,8 +216,8 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
 		}.queue();
 	}
 
-	@NotNull
-	private Collection<GitFileRevision> findParentRevisions(@NotNull GitRepository repository, @NotNull GitFileRevision currentRevision, @NotNull Collection<String> parentHashes) throws VcsException
+	@Nonnull
+	private Collection<GitFileRevision> findParentRevisions(@Nonnull GitRepository repository, @Nonnull GitFileRevision currentRevision, @Nonnull Collection<String> parentHashes) throws VcsException
 	{
 		// currentRevision is a merge revision.
 		// the file could be renamed in one of the branches, i.e. the name in one of the parent revisions may be different from the name
@@ -231,8 +231,8 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
 		return parents;
 	}
 
-	@NotNull
-	private GitFileRevision createParentRevision(@NotNull GitRepository repository, @NotNull GitFileRevision currentRevision, @NotNull String parentHash) throws VcsException
+	@Nonnull
+	private GitFileRevision createParentRevision(@Nonnull GitRepository repository, @Nonnull GitFileRevision currentRevision, @Nonnull String parentHash) throws VcsException
 	{
 		FilePath currentRevisionPath = currentRevision.getPath();
 		if(currentRevisionPath.isDirectory())
@@ -258,7 +258,7 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
 		return makeRevisionFromHash(currentRevisionPath, parentHash);
 	}
 
-	private void showPopup(@NotNull AnActionEvent event, @NotNull GitFileRevision rev, @NotNull FilePath filePath, @NotNull Collection<GitFileRevision> parents)
+	private void showPopup(@Nonnull AnActionEvent event, @Nonnull GitFileRevision rev, @Nonnull FilePath filePath, @Nonnull Collection<GitFileRevision> parents)
 	{
 		ActionGroup parentActions = createActionGroup(rev, filePath, parents);
 		DataContext dataContext = SimpleDataContext.getProjectContext(myProject);
@@ -266,7 +266,7 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
 		showPopupInBestPosition(popup, event, dataContext);
 	}
 
-	private static void showPopupInBestPosition(@NotNull ListPopup popup, @NotNull AnActionEvent event, @NotNull DataContext dataContext)
+	private static void showPopupInBestPosition(@Nonnull ListPopup popup, @Nonnull AnActionEvent event, @Nonnull DataContext dataContext)
 	{
 		if(event.getInputEvent() instanceof MouseEvent)
 		{
@@ -285,8 +285,8 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
 		}
 	}
 
-	@NotNull
-	private ActionGroup createActionGroup(@NotNull GitFileRevision rev, @NotNull FilePath filePath, @NotNull Collection<GitFileRevision> parents)
+	@Nonnull
+	private ActionGroup createActionGroup(@Nonnull GitFileRevision rev, @Nonnull FilePath filePath, @Nonnull Collection<GitFileRevision> parents)
 	{
 		Collection<AnAction> actions = new ArrayList<AnAction>(2);
 		for(GitFileRevision parent : parents)
@@ -296,19 +296,19 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
 		return new DefaultActionGroup(ArrayUtil.toObjectArray(actions, AnAction.class));
 	}
 
-	@NotNull
-	private AnAction createParentAction(@NotNull GitFileRevision rev, @NotNull FilePath filePath, @NotNull GitFileRevision parent)
+	@Nonnull
+	private AnAction createParentAction(@Nonnull GitFileRevision rev, @Nonnull FilePath filePath, @Nonnull GitFileRevision parent)
 	{
 		return new ShowDiffWithParentAction(filePath, rev, parent);
 	}
 
-	@NotNull
-	private GitFileRevision makeRevisionFromHash(@NotNull FilePath filePath, @NotNull String hash)
+	@Nonnull
+	private GitFileRevision makeRevisionFromHash(@Nonnull FilePath filePath, @Nonnull String hash)
 	{
 		return new GitFileRevision(myProject, filePath, new GitRevisionNumber(hash));
 	}
 
-	private boolean wasFileTouched(@NotNull GitRepository repository, @NotNull GitFileRevision rev) throws VcsException
+	private boolean wasFileTouched(@Nonnull GitRepository repository, @Nonnull GitFileRevision rev) throws VcsException
 	{
 		GitCommandResult result = myGit.show(repository, rev.getHash());
 		if(result.success())
@@ -318,7 +318,7 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
 		throw new VcsException(result.getErrorOutputAsJoinedString());
 	}
 
-	private static boolean isFilePresentInOutput(@NotNull GitRepository repository, @NotNull FilePath path, @NotNull List<String> output)
+	private static boolean isFilePresentInOutput(@Nonnull GitRepository repository, @Nonnull FilePath path, @Nonnull List<String> output)
 	{
 		String relativePath = getRelativePath(repository, path);
 		for(String line : output)
@@ -335,7 +335,7 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
 	}
 
 	@Nullable
-	private static String getRelativePath(@NotNull GitRepository repository, @NotNull FilePath path)
+	private static String getRelativePath(@Nonnull GitRepository repository, @Nonnull FilePath path)
 	{
 		return FileUtil.getRelativePath(repository.getRoot().getPath(), path.getPath(), '/');
 	}
@@ -343,14 +343,14 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
 	private class ShowDiffWithParentAction extends AnAction
 	{
 
-		@NotNull
+		@Nonnull
 		private final FilePath myFilePath;
-		@NotNull
+		@Nonnull
 		private final GitFileRevision myRevision;
-		@NotNull
+		@Nonnull
 		private final GitFileRevision myParentRevision;
 
-		public ShowDiffWithParentAction(@NotNull FilePath filePath, @NotNull GitFileRevision rev, @NotNull GitFileRevision parent)
+		public ShowDiffWithParentAction(@Nonnull FilePath filePath, @Nonnull GitFileRevision rev, @Nonnull GitFileRevision parent)
 		{
 			super(DvcsUtil.getShortHash(parent.getHash()));
 			myFilePath = filePath;

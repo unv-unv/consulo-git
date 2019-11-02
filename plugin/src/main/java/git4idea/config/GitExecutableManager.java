@@ -3,7 +3,7 @@ package git4idea.config;
 
 import javax.inject.Singleton;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.AtomicNotNullLazyValue;
@@ -21,32 +21,32 @@ public class GitExecutableManager
 		return ServiceManager.getService(GitExecutableManager.class);
 	}
 
-	@NotNull
+	@Nonnull
 	private final GitVcsApplicationSettings myApplicationSettings;
-	@NotNull
+	@Nonnull
 	private final AtomicNotNullLazyValue<String> myDetectedExecutable;
 
-	public GitExecutableManager(@NotNull GitVcsApplicationSettings applicationSettings)
+	public GitExecutableManager(@Nonnull GitVcsApplicationSettings applicationSettings)
 	{
 		myApplicationSettings = applicationSettings;
 		myDetectedExecutable = AtomicNotNullLazyValue.createValue(new GitExecutableDetector()::detect);
 	}
 
-	@NotNull
+	@Nonnull
 	public String getPathToGit()
 	{
 		String path = myApplicationSettings.getSavedPathToGit();
 		return path == null ? getDetectedExecutable() : path;
 	}
 
-	@NotNull
-	public String getPathToGit(@NotNull Project project)
+	@Nonnull
+	public String getPathToGit(@Nonnull Project project)
 	{
 		String path = GitVcsSettings.getInstance(project).getPathToGit();
 		return path == null ? getPathToGit() : path;
 	}
 
-	@NotNull
+	@Nonnull
 	public String getDetectedExecutable()
 	{
 		return myDetectedExecutable.getValue();

@@ -21,7 +21,7 @@ import com.intellij.openapi.vcs.changes.ChangeListManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.i18n.GitBundle;
 import git4idea.ui.GitUnstashDialog;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.util.List;
 import java.util.Set;
@@ -34,7 +34,7 @@ public class GitUnstash extends GitRepositoryAction {
   /**
    * {@inheritDoc}
    */
-  @NotNull
+  @Nonnull
   protected String getActionName() {
     return GitBundle.message("unstash.action.name");
   }
@@ -42,9 +42,9 @@ public class GitUnstash extends GitRepositoryAction {
   /**
    * {@inheritDoc}
    */
-  protected void perform(@NotNull final Project project,
-                         @NotNull final List<VirtualFile> gitRoots,
-                         @NotNull final VirtualFile defaultRoot,
+  protected void perform(@Nonnull final Project project,
+                         @Nonnull final List<VirtualFile> gitRoots,
+                         @Nonnull final VirtualFile defaultRoot,
                          final Set<VirtualFile> affectedRoots,
                          final List<VcsException> exceptions) throws VcsException {
     final ChangeListManager changeListManager = ChangeListManager.getInstance(project);

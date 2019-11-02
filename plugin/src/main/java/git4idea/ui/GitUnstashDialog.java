@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.annotation.Nonnull;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -37,7 +38,6 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.jetbrains.annotations.NotNull;
 import com.intellij.CommonBundle;
 import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.notification.Notification;
@@ -219,7 +219,7 @@ public class GitUnstashDialog extends DialogWrapper
 					ProgressManager.getInstance().run(new Task.Modal(myProject, "Removing stash " + stash.getStash(), false)
 					{
 						@Override
-						public void run(@NotNull ProgressIndicator indicator)
+						public void run(@Nonnull ProgressIndicator indicator)
 						{
 							final GitSimpleHandler h = dropHandler(stash.getStash());
 							try
@@ -286,7 +286,7 @@ public class GitUnstashDialog extends DialogWrapper
 	/**
 	 * Adds {@code stash@{x}} parameter to the handler, quotes it if needed.
 	 */
-	private void addStashParameter(@NotNull GitHandler handler, @NotNull String stash)
+	private void addStashParameter(@Nonnull GitHandler handler, @Nonnull String stash)
 	{
 		if(GitVersionSpecialty.NEEDS_QUOTES_IN_STASH_NAME.existsIn(myVcs.getVersion()))
 		{
@@ -539,7 +539,7 @@ public class GitUnstashDialog extends DialogWrapper
 					"you have unresolved merges in your working tree<br/>" + "<a href='resolve'>Resolve</a> conflicts.", new NotificationListener()
 			{
 				@Override
-				public void hyperlinkUpdate(@NotNull Notification notification, @NotNull HyperlinkEvent event)
+				public void hyperlinkUpdate(@Nonnull Notification notification, @Nonnull HyperlinkEvent event)
 				{
 					if(event.getEventType() == HyperlinkEvent.EventType.ACTIVATED)
 					{

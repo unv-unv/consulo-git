@@ -21,8 +21,8 @@ import git4idea.GitBranch;
 import git4idea.GitPlatformFacade;
 import git4idea.test.GitLightTest;
 import git4idea.test.GitTest;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -231,11 +231,11 @@ public class GitRepositoryTest extends GitTest {
     assertReaderAndRepo(NORMAL, curRev, branch);
   }
 
-  private void assertReaderAndRepo(@NotNull GitRepository.State state, @Nullable String curRev, @Nullable String branch) {
+  private void assertReaderAndRepo(@Nonnull GitRepository.State state, @Nullable String curRev, @Nullable String branch) {
     assertReaderAndRepo(state, curRev, branch, true);
   }
 
-  private void assertReaderAndRepo(@NotNull GitRepository.State state, @Nullable String curRev, @Nullable String branch, boolean waitForEvent) {
+  private void assertReaderAndRepo(@Nonnull GitRepository.State state, @Nullable String curRev, @Nullable String branch, boolean waitForEvent) {
     assertReader(state, curRev, branch);
 
     if (waitForEvent) {
@@ -243,7 +243,7 @@ public class GitRepositoryTest extends GitTest {
       final Object LOCK = new Object();
       myProject.getMessageBus().connect().subscribe(GitRepository.GIT_REPO_CHANGE, new GitRepositoryChangeListener() {
         @Override
-        public void repositoryChanged(@NotNull GitRepository repository) {
+        public void repositoryChanged(@Nonnull GitRepository repository) {
           repoChanged.set(true);
           synchronized (LOCK) {
             LOCK.notifyAll();

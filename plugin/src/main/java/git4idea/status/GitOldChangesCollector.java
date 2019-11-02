@@ -30,7 +30,7 @@ import git4idea.changes.GitChangeUtils;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitSimpleHandler;
 import git4idea.util.StringScanner;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.util.*;
 
@@ -102,28 +102,28 @@ class GitOldChangesCollector extends GitChangesCollector {
    * Collects the changes from git command line and returns the instance of GitNewChangesCollector from which these changes can be retrieved.
    * This may be lengthy.
    */
-  @NotNull
-  static GitOldChangesCollector collect(@NotNull Project project, @NotNull ChangeListManager changeListManager,
-                                        @NotNull ProjectLevelVcsManager vcsManager, @NotNull AbstractVcs vcs,
-                                        @NotNull VcsDirtyScope dirtyScope, @NotNull VirtualFile vcsRoot) throws VcsException {
+  @Nonnull
+  static GitOldChangesCollector collect(@Nonnull Project project, @Nonnull ChangeListManager changeListManager,
+										@Nonnull ProjectLevelVcsManager vcsManager, @Nonnull AbstractVcs vcs,
+										@Nonnull VcsDirtyScope dirtyScope, @Nonnull VirtualFile vcsRoot) throws VcsException {
     return new GitOldChangesCollector(project, changeListManager, vcsManager, vcs, dirtyScope, vcsRoot);
   }
 
-  @NotNull
+  @Nonnull
   @Override
   Collection<VirtualFile> getUnversionedFiles() {
     return myUnversioned;
   }
 
-  @NotNull
+  @Nonnull
   @Override
   Collection<Change> getChanges(){
     return myChanges;
   }
 
-  private GitOldChangesCollector(@NotNull Project project, @NotNull ChangeListManager changeListManager,
-                                 @NotNull ProjectLevelVcsManager vcsManager, @NotNull AbstractVcs vcs, @NotNull VcsDirtyScope dirtyScope,
-                                 @NotNull VirtualFile vcsRoot) throws VcsException {
+  private GitOldChangesCollector(@Nonnull Project project, @Nonnull ChangeListManager changeListManager,
+								 @Nonnull ProjectLevelVcsManager vcsManager, @Nonnull AbstractVcs vcs, @Nonnull VcsDirtyScope dirtyScope,
+								 @Nonnull VirtualFile vcsRoot) throws VcsException {
     super(project, changeListManager, vcsManager, vcs, dirtyScope, vcsRoot);
     updateIndex();
     collectUnmergedAndUnversioned();

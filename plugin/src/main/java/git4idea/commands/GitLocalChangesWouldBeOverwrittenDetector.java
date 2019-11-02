@@ -18,7 +18,7 @@ package git4idea.commands;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
 
@@ -46,7 +46,7 @@ public class GitLocalChangesWouldBeOverwrittenDetector extends GitMessageWithFil
 	public static final Event NEW_PATTERN = new Event("Your local changes to the following files would be overwritten by",
 			"commit your changes or stash them before");
 
-	@NotNull
+	@Nonnull
 	private final Operation myOperation;
 
 	public enum Operation
@@ -55,29 +55,29 @@ public class GitLocalChangesWouldBeOverwrittenDetector extends GitMessageWithFil
 		MERGE(OLD_MERGE_PATTERN),
 		RESET(RESET_PATTERNS);
 
-		@NotNull
+		@Nonnull
 		private final Pattern[] myPatterns;
 
-		Operation(@NotNull Pattern... patterns)
+		Operation(@Nonnull Pattern... patterns)
 		{
 			myPatterns = patterns;
 		}
 
-		@NotNull
+		@Nonnull
 		Pattern[] getPatterns()
 		{
 			return myPatterns;
 		}
 	}
 
-	public GitLocalChangesWouldBeOverwrittenDetector(@NotNull VirtualFile root, @NotNull Operation operation)
+	public GitLocalChangesWouldBeOverwrittenDetector(@Nonnull VirtualFile root, @Nonnull Operation operation)
 	{
 		super(NEW_PATTERN, root);
 		myOperation = operation;
 	}
 
 	@Override
-	public void onLineAvailable(@NotNull String line, @NotNull Key outputType)
+	public void onLineAvailable(@Nonnull String line, @Nonnull Key outputType)
 	{
 		super.onLineAvailable(line, outputType);
 		for(Pattern pattern : myOperation.getPatterns())

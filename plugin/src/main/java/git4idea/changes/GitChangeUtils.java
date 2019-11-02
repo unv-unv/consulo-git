@@ -28,8 +28,8 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
@@ -50,6 +50,8 @@ import git4idea.commands.GitHandler;
 import git4idea.commands.GitSimpleHandler;
 import git4idea.history.browser.SHAHash;
 import git4idea.util.StringScanner;
+
+import javax.annotation.Nullable;
 
 /**
  * Change related utilities
@@ -207,8 +209,8 @@ public class GitChangeUtils
 	/**
 	 * Load actual revision number with timestamp basing on a reference: name of a branch or tag, or revision number expression.
 	 */
-	@NotNull
-	public static GitRevisionNumber resolveReference(@NotNull Project project, @NotNull VirtualFile vcsRoot, @NotNull String reference) throws VcsException
+	@Nonnull
+	public static GitRevisionNumber resolveReference(@Nonnull Project project, @Nonnull VirtualFile vcsRoot, @Nonnull String reference) throws VcsException
 	{
 		GitSimpleHandler handler = createRefResolveHandler(project, vcsRoot, reference);
 		String output = handler.run();
@@ -236,8 +238,8 @@ public class GitChangeUtils
 		return new GitRevisionNumber(stk.nextToken(), timestamp);
 	}
 
-	@NotNull
-	private static GitSimpleHandler createRefResolveHandler(@NotNull Project project, @NotNull VirtualFile root, @NotNull String reference)
+	@Nonnull
+	private static GitSimpleHandler createRefResolveHandler(@Nonnull Project project, @Nonnull VirtualFile root, @Nonnull String reference)
 	{
 		GitSimpleHandler handler = new GitSimpleHandler(project, root, GitCommand.REV_LIST);
 		handler.addParameters("--timestamp", "--max-count=1", reference);
@@ -397,9 +399,9 @@ public class GitChangeUtils
 		return Long.parseLong(revisionNumber.substring(0, 15), 16) << 4 + Integer.parseInt(revisionNumber.substring(15, 16), 16);
 	}
 
-	@NotNull
-	public static Collection<Change> getDiff(@NotNull Project project,
-			@NotNull VirtualFile root,
+	@Nonnull
+	public static Collection<Change> getDiff(@Nonnull Project project,
+			@Nonnull VirtualFile root,
 			@Nullable String oldRevision,
 			@Nullable String newRevision,
 			@Nullable Collection<FilePath> dirtyPaths) throws VcsException
@@ -433,8 +435,8 @@ public class GitChangeUtils
 		return changes;
 	}
 
-	@NotNull
-	public static Collection<Change> getStagedChanges(@NotNull Project project, @NotNull VirtualFile root) throws VcsException
+	@Nonnull
+	public static Collection<Change> getStagedChanges(@Nonnull Project project, @Nonnull VirtualFile root) throws VcsException
 	{
 		GitSimpleHandler diff = new GitSimpleHandler(project, root, GitCommand.DIFF);
 		diff.addParameters("--name-status", "--cached", "-M");
@@ -445,10 +447,10 @@ public class GitChangeUtils
 		return changes;
 	}
 
-	@NotNull
-	public static Collection<Change> getDiffWithWorkingDir(@NotNull Project project,
-			@NotNull VirtualFile root,
-			@NotNull String oldRevision,
+	@Nonnull
+	public static Collection<Change> getDiffWithWorkingDir(@Nonnull Project project,
+			@Nonnull VirtualFile root,
+			@Nonnull String oldRevision,
 			@Nullable Collection<FilePath> dirtyPaths,
 			boolean reverse) throws VcsException
 	{
@@ -470,8 +472,8 @@ public class GitChangeUtils
 	 * @return output of the 'git diff' command.
 	 * @throws VcsException
 	 */
-	@NotNull
-	private static String getDiffOutput(@NotNull Project project, @NotNull VirtualFile root, @NotNull String diffRange, @Nullable Collection<FilePath> dirtyPaths, boolean reverse) throws VcsException
+	@Nonnull
+	private static String getDiffOutput(@Nonnull Project project, @Nonnull VirtualFile root, @Nonnull String diffRange, @Nullable Collection<FilePath> dirtyPaths, boolean reverse) throws VcsException
 	{
 		GitSimpleHandler handler = getDiffHandler(project, root, diffRange, dirtyPaths, reverse);
 		if(handler.isLargeCommandLine())
@@ -482,15 +484,15 @@ public class GitChangeUtils
 		return handler.run();
 	}
 
-	@NotNull
-	public static String getDiffOutput(@NotNull Project project, @NotNull VirtualFile root, @NotNull String diffRange, @Nullable Collection<FilePath> dirtyPaths) throws VcsException
+	@Nonnull
+	public static String getDiffOutput(@Nonnull Project project, @Nonnull VirtualFile root, @Nonnull String diffRange, @Nullable Collection<FilePath> dirtyPaths) throws VcsException
 	{
 		return getDiffOutput(project, root, diffRange, dirtyPaths, false);
 	}
 
 
-	@NotNull
-	private static GitSimpleHandler getDiffHandler(@NotNull Project project, @NotNull VirtualFile root, @NotNull String diffRange, @Nullable Collection<FilePath> dirtyPaths, boolean reverse)
+	@Nonnull
+	private static GitSimpleHandler getDiffHandler(@Nonnull Project project, @Nonnull VirtualFile root, @Nonnull String diffRange, @Nullable Collection<FilePath> dirtyPaths, boolean reverse)
 	{
 		GitSimpleHandler handler = new GitSimpleHandler(project, root, GitCommand.DIFF);
 		if(reverse)

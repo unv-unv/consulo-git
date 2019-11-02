@@ -24,6 +24,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JCheckBox;
@@ -31,8 +33,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.openapi.project.Project;
@@ -64,9 +64,9 @@ class GitRejectedPushUpdateDialog extends DialogWrapper
 	private final MergeAction myMergeAction;
 	private final JCheckBox myAutoUpdateInFuture;
 
-	protected GitRejectedPushUpdateDialog(@NotNull Project project,
-			@NotNull Collection<GitRepository> repositories,
-			@NotNull PushUpdateSettings initialSettings,
+	protected GitRejectedPushUpdateDialog(@Nonnull Project project,
+			@Nonnull Collection<GitRepository> repositories,
+			@Nonnull PushUpdateSettings initialSettings,
 			boolean rebaseOverMergeProblemDetected)
 	{
 		super(project);
@@ -188,7 +188,7 @@ class GitRejectedPushUpdateDialog extends DialogWrapper
 		}
 	}
 
-	@NotNull
+	@Nonnull
 	private String descriptionEnding()
 	{
 		String desc = "Remote changes need to be merged before pushing.";
@@ -201,7 +201,7 @@ class GitRejectedPushUpdateDialog extends DialogWrapper
 		return desc;
 	}
 
-	private static boolean allBranchesHaveTheSameName(@NotNull Map<GitRepository, GitBranch> branches)
+	private static boolean allBranchesHaveTheSameName(@Nonnull Map<GitRepository, GitBranch> branches)
 	{
 		String name = null;
 		for(GitBranch branch : branches.values())
@@ -218,7 +218,7 @@ class GitRejectedPushUpdateDialog extends DialogWrapper
 		return true;
 	}
 
-	@NotNull
+	@Nonnull
 	private Map<GitRepository, GitBranch> getCurrentBranches()
 	{
 		Map<GitRepository, GitBranch> currentBranches = new HashMap<GitRepository, GitBranch>();
@@ -229,7 +229,7 @@ class GitRejectedPushUpdateDialog extends DialogWrapper
 		return currentBranches;
 	}
 
-	@NotNull
+	@Nonnull
 	private static GitBranch getCurrentBranch(GitRepository repository)
 	{
 		GitBranch currentBranch = repository.getCurrentBranch();
@@ -237,7 +237,7 @@ class GitRejectedPushUpdateDialog extends DialogWrapper
 		return currentBranch;
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	protected Action[] createActions()
 	{

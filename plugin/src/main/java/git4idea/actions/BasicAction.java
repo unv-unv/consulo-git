@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.openapi.actionSystem.ActionPlaces;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -53,7 +53,7 @@ public abstract class BasicAction extends DumbAwareAction
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void actionPerformed(@NotNull AnActionEvent event)
+	public void actionPerformed(@Nonnull AnActionEvent event)
 	{
 		final Project project = event.getData(CommonDataKeys.PROJECT);
 		ApplicationManager.getApplication().runWriteAction(new Runnable()
@@ -81,7 +81,7 @@ public abstract class BasicAction extends DumbAwareAction
 		{
 			GitVcs.runInBackground(new Task.Backgroundable(project, getActionName())
 			{
-				public void run(@NotNull ProgressIndicator indicator)
+				public void run(@Nonnull ProgressIndicator indicator)
 				{
 					VfsUtil.markDirtyAndRefresh(false, true, false, affectedFiles);
 					VcsFileUtil.markFilesDirty(project, Arrays.asList(affectedFiles));
@@ -107,7 +107,7 @@ public abstract class BasicAction extends DumbAwareAction
 	 * @param affectedFiles the files to be affected by the operation
 	 * @return true if the operation scheduled a background job, or cleanup is not needed
 	 */
-	protected abstract boolean perform(@NotNull Project project, GitVcs mksVcs, @NotNull List<VcsException> exceptions, @NotNull VirtualFile[] affectedFiles);
+	protected abstract boolean perform(@Nonnull Project project, GitVcs mksVcs, @Nonnull List<VcsException> exceptions, @Nonnull VirtualFile[] affectedFiles);
 
 	/**
 	 * given a list of action-target files, returns ALL the files that should be
@@ -118,8 +118,8 @@ public abstract class BasicAction extends DumbAwareAction
 	 * @param files   the root selection
 	 * @return the complete set of files this action should apply to
 	 */
-	@NotNull
-	protected VirtualFile[] collectAffectedFiles(@NotNull Project project, @NotNull VirtualFile[] files)
+	@Nonnull
+	protected VirtualFile[] collectAffectedFiles(@Nonnull Project project, @Nonnull VirtualFile[] files)
 	{
 		List<VirtualFile> affectedFiles = new ArrayList<>(files.length);
 		ProjectLevelVcsManager projectLevelVcsManager = ProjectLevelVcsManager.getInstance(project);
@@ -148,12 +148,12 @@ public abstract class BasicAction extends DumbAwareAction
 	 * @param file    the file whose children should be added to the result list
 	 *                (recursively)
 	 */
-	private void addChildren(@NotNull final Project project, @NotNull final List<VirtualFile> files, @NotNull VirtualFile file)
+	private void addChildren(@Nonnull final Project project, @Nonnull final List<VirtualFile> files, @Nonnull VirtualFile file)
 	{
 		VfsUtilCore.visitChildrenRecursively(file, new VirtualFileVisitor(SKIP_ROOT, (isRecursive() ? null : ONE_LEVEL_DEEP))
 		{
 			@Override
-			public boolean visitFile(@NotNull VirtualFile file)
+			public boolean visitFile(@Nonnull VirtualFile file)
 			{
 				if(!file.isDirectory() && appliesTo(project, file))
 				{
@@ -167,7 +167,7 @@ public abstract class BasicAction extends DumbAwareAction
 	/**
 	 * @return the name of action (it is used in a number of ui elements)
 	 */
-	@NotNull
+	@Nonnull
 	protected abstract String getActionName();
 
 
@@ -191,7 +191,7 @@ public abstract class BasicAction extends DumbAwareAction
 			"MethodMayBeStatic",
 			"UnusedDeclaration"
 	})
-	protected boolean appliesTo(@NotNull Project project, @NotNull VirtualFile file)
+	protected boolean appliesTo(@Nonnull Project project, @Nonnull VirtualFile file)
 	{
 		return !file.isDirectory();
 	}
@@ -202,7 +202,7 @@ public abstract class BasicAction extends DumbAwareAction
 	 * @param e The update event
 	 */
 	@Override
-	public void update(@NotNull AnActionEvent e)
+	public void update(@Nonnull AnActionEvent e)
 	{
 		super.update(e);
 		Presentation presentation = e.getPresentation();
@@ -244,7 +244,7 @@ public abstract class BasicAction extends DumbAwareAction
 	 * @param vFiles  the set of files
 	 * @return true if the action should be enabled
 	 */
-	protected abstract boolean isEnabled(@NotNull Project project, @NotNull GitVcs vcs, @NotNull VirtualFile... vFiles);
+	protected abstract boolean isEnabled(@Nonnull Project project, @Nonnull GitVcs vcs, @Nonnull VirtualFile... vFiles);
 
 	/**
 	 * Save all files in the application (the operation creates write action)

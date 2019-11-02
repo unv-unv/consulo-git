@@ -1,6 +1,6 @@
 package git4idea.repo;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 /**
  * from kotlin
@@ -10,7 +10,7 @@ public class GitSubmoduleInfo
 	private final String myPath;
 	private final String myUrl;
 
-	public GitSubmoduleInfo(@NotNull String path, @NotNull  String url)
+	public GitSubmoduleInfo(@Nonnull String path, @Nonnull String url)
 	{
 		myPath = path;
 		myUrl = url;

@@ -15,9 +15,9 @@
  */
 package git4idea;
 
+import javax.annotation.Nonnull;
 import javax.inject.Singleton;
 
-import org.jetbrains.annotations.NotNull;
 import com.intellij.dvcs.DvcsPlatformFacadeImpl;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
@@ -33,23 +33,23 @@ import git4idea.repo.GitRepositoryManager;
 class GitPlatformFacadeImpl extends DvcsPlatformFacadeImpl implements GitPlatformFacade
 {
 
-	@NotNull
+	@Nonnull
 	@Override
-	public AbstractVcs getVcs(@NotNull Project project)
+	public AbstractVcs getVcs(@Nonnull Project project)
 	{
 		return ProjectLevelVcsManager.getInstance(project).findVcsByName(GitVcs.NAME);
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
-	public GitRepositoryManager getRepositoryManager(@NotNull Project project)
+	public GitRepositoryManager getRepositoryManager(@Nonnull Project project)
 	{
 		return ServiceManager.getService(project, GitRepositoryManager.class);
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
-	public GitVcsSettings getSettings(@NotNull Project project)
+	public GitVcsSettings getSettings(@Nonnull Project project)
 	{
 		return GitVcsSettings.getInstance(project);
 	}

@@ -20,7 +20,7 @@ import static java.util.Collections.singletonList;
 import java.util.Collection;
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
@@ -50,12 +50,12 @@ public class GitRebaseUpdater extends GitUpdater
 	private final ChangeListManager myChangeListManager;
 	private final ProjectLevelVcsManager myVcsManager;
 
-	public GitRebaseUpdater(@NotNull Project project,
-			@NotNull Git git,
-			@NotNull GitRepository repository,
-			@NotNull GitBranchPair branchAndTracked,
-			@NotNull ProgressIndicator progressIndicator,
-			@NotNull UpdatedFiles updatedFiles)
+	public GitRebaseUpdater(@Nonnull Project project,
+			@Nonnull Git git,
+			@Nonnull GitRepository repository,
+			@Nonnull GitBranchPair branchAndTracked,
+			@Nonnull ProgressIndicator progressIndicator,
+			@Nonnull UpdatedFiles updatedFiles)
 	{
 		super(project, git, repository, branchAndTracked, progressIndicator, updatedFiles);
 		myRebaser = new GitRebaser(myProject, git, myProgressIndicator);
@@ -70,7 +70,7 @@ public class GitRebaseUpdater extends GitUpdater
 		return !ContainerUtil.isEmpty(localChanges);
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	protected GitUpdateResult doUpdate()
 	{
@@ -80,7 +80,7 @@ public class GitRebaseUpdater extends GitUpdater
 		return myRebaser.rebase(myRoot, params, () -> cancel(), null);
 	}
 
-	@NotNull
+	@Nonnull
 	private String getRemoteBranchToMerge()
 	{
 		GitBranch dest = myBranchPair.getDest();

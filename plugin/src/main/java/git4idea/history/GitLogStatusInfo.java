@@ -15,8 +15,8 @@
  */
 package git4idea.history;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Information about a single file change as returned by {@code git log status --name-status}.
@@ -28,20 +28,20 @@ public class GitLogStatusInfo
 	private final String myPath;
 	private final String mySecondPath;
 
-	GitLogStatusInfo(@NotNull GitChangeType type, @NotNull String path, @Nullable String secondPath)
+	GitLogStatusInfo(@Nonnull GitChangeType type, @Nonnull String path, @Nullable String secondPath)
 	{
 		mySecondPath = secondPath;
 		myPath = path;
 		myType = type;
 	}
 
-	@NotNull
+	@Nonnull
 	public String getFirstPath()
 	{
 		return myPath;
 	}
 
-	@NotNull
+	@Nonnull
 	public GitChangeType getType()
 	{
 		return myType;

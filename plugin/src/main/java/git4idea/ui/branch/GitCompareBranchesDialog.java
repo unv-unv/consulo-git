@@ -24,7 +24,7 @@ import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 import git4idea.util.GitCommitCompareInfo;
 import icons.Git4ideaIcons;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import javax.swing.*;
 
@@ -41,8 +41,8 @@ public class GitCompareBranchesDialog extends DialogWrapper {
   private final GitRepository myInitialRepo;
   private JPanel myLogPanel;
 
-  public GitCompareBranchesDialog(@NotNull Project project, @NotNull String branchName, @NotNull String currentBranchName,
-                                  @NotNull GitCommitCompareInfo compareInfo, @NotNull GitRepository initialRepo) {
+  public GitCompareBranchesDialog(@Nonnull Project project, @Nonnull String branchName, @Nonnull String currentBranchName,
+								  @Nonnull GitCommitCompareInfo compareInfo, @Nonnull GitRepository initialRepo) {
     super(project, false);
     myCurrentBranchName = currentBranchName;
     myCompareInfo = compareInfo;
@@ -75,7 +75,7 @@ public class GitCompareBranchesDialog extends DialogWrapper {
   }
 
   // it is information dialog - no need to OK or Cancel. Close the dialog by clicking the cross button or pressing Esc.
-  @NotNull
+  @Nonnull
   @Override
   protected Action[] createActions() {
     return new Action[0];

@@ -25,8 +25,8 @@ import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.i18n.GitBundle;
 import git4idea.util.GitUIUtil;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import java.awt.EventQueue;
 import java.util.Collection;
@@ -118,7 +118,7 @@ public class GitHandlerUtil {
                                     final boolean setIndeterminateFlag) {
     final ProgressManager manager = ProgressManager.getInstance();
     manager.run(new Task.Modal(handler.project(), operationTitle, false) {
-      public void run(@NotNull final ProgressIndicator indicator) {
+      public void run(@Nonnull final ProgressIndicator indicator) {
         handler.addLineListener(new GitLineHandlerListenerProgress(indicator, handler, operationName, showErrors));
         runInCurrentThread(handler, indicator, setIndeterminateFlag, operationTitle);
       }
@@ -212,7 +212,7 @@ public class GitHandlerUtil {
     return handler.errors();
   }
 
-  public static String formatOperationName(String operation, @NotNull VirtualFile root) {
+  public static String formatOperationName(String operation, @Nonnull VirtualFile root) {
     return operation + " '" + root.getName() + "'...";
   }
 

@@ -24,7 +24,7 @@ import java.io.PrintWriter;
 import java.util.List;
 
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.io.FileUtil;
@@ -38,21 +38,21 @@ class GitInteractiveRebaseFile
 	@NonNls
 	private static final String CYGDRIVE_PREFIX = "/cygdrive/";
 
-	@NotNull
+	@Nonnull
 	private final Project myProject;
-	@NotNull
+	@Nonnull
 	private final VirtualFile myRoot;
-	@NotNull
+	@Nonnull
 	private final String myFile;
 
-	GitInteractiveRebaseFile(@NotNull Project project, @NotNull VirtualFile root, @NotNull String rebaseFilePath)
+	GitInteractiveRebaseFile(@Nonnull Project project, @Nonnull VirtualFile root, @Nonnull String rebaseFilePath)
 	{
 		myProject = project;
 		myRoot = root;
 		myFile = adjustFilePath(rebaseFilePath);
 	}
 
-	@NotNull
+	@Nonnull
 	public List<GitRebaseEntry> load() throws IOException, NoopException
 	{
 		String encoding = GitConfigUtil.getLogEncoding(myProject, myRoot);
@@ -98,7 +98,7 @@ class GitInteractiveRebaseFile
 		}
 	}
 
-	public void save(@NotNull List<GitRebaseEntry> entries) throws IOException
+	public void save(@Nonnull List<GitRebaseEntry> entries) throws IOException
 	{
 		String encoding = GitConfigUtil.getLogEncoding(myProject, myRoot);
 		PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(myFile), encoding));
@@ -118,8 +118,8 @@ class GitInteractiveRebaseFile
 		}
 	}
 
-	@NotNull
-	private static String adjustFilePath(@NotNull String file)
+	@Nonnull
+	private static String adjustFilePath(@Nonnull String file)
 	{
 		if(SystemInfo.isWindows && file.startsWith(CYGDRIVE_PREFIX))
 		{

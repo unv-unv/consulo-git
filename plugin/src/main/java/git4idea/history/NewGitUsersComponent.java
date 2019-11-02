@@ -22,8 +22,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
@@ -58,7 +59,7 @@ public class NewGitUsersComponent {
     }
   }
 
-  public void acceptUpdate(@NotNull final Collection<String> data) {
+  public void acceptUpdate(@Nonnull final Collection<String> data) {
     synchronized (myLock) {
       if (myState == null) return;
       final List<String> wasData = myState.get("");

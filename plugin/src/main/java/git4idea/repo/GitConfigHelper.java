@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.ini4j.Ini;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.openapi.diagnostic.Logger;
 
 /**
@@ -14,8 +14,8 @@ class GitConfigHelper
 {
 	private static final Logger LOGGER = Logger.getInstance(GitConfigHelper.class);
 
-	@NotNull
-	static Ini loadIniFile(@NotNull File configFile) throws IOException
+	@Nonnull
+	static Ini loadIniFile(@Nonnull File configFile) throws IOException
 	{
 		Ini ini = new Ini();
 		ini.getConfig().setMultiOption(true);  // duplicate keys (e.g. url in [remote])

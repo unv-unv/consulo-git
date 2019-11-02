@@ -20,7 +20,7 @@ import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 /**
  * Common class for most git actions.
@@ -29,7 +29,7 @@ import org.jetbrains.annotations.NotNull;
 public abstract class GitAction extends DumbAwareAction {
 
   @Override
-  public void update(@NotNull AnActionEvent e) {
+  public void update(@Nonnull AnActionEvent e) {
     Presentation presentation = e.getPresentation();
     Project project = e.getData(CommonDataKeys.PROJECT);
     if (project == null || project.isDisposed()) {
@@ -46,7 +46,7 @@ public abstract class GitAction extends DumbAwareAction {
    * Called in {@link #update(com.intellij.openapi.actionSystem.AnActionEvent)}, so don't execute long tasks here.
    * @return true if the action is enabled.
    */
-  protected boolean isEnabled(@NotNull AnActionEvent event) {
+  protected boolean isEnabled(@Nonnull AnActionEvent event) {
     return true;
   }
 

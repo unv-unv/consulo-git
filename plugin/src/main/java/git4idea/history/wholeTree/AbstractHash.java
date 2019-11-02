@@ -12,7 +12,7 @@
  */
 package git4idea.history.wholeTree;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.vcs.log.Hash;
 import com.intellij.vcs.log.impl.HashImpl;
 
@@ -22,13 +22,14 @@ import com.intellij.vcs.log.impl.HashImpl;
 @Deprecated
 public class AbstractHash {
 
-  @NotNull private final Hash myHash;
+  @Nonnull
+  private final Hash myHash;
 
-  private AbstractHash(@NotNull Hash hash) {
+  private AbstractHash(@Nonnull Hash hash) {
     myHash = hash;
   }
 
-  @NotNull
+  @Nonnull
   public static AbstractHash create(final String hash) {
     return new AbstractHash(HashImpl.build(hash));
   }
@@ -59,7 +60,7 @@ public class AbstractHash {
     return myHash.hashCode();
   }
 
-  public static boolean hashesEqual(@NotNull final AbstractHash hash1, @NotNull final AbstractHash hash2) {
+  public static boolean hashesEqual(@Nonnull final AbstractHash hash1, @Nonnull final AbstractHash hash2) {
     if (hash1.equals(hash2)) return true;
     final String s1 = hash1.getString();
     final String s2 = hash2.getString();

@@ -16,7 +16,7 @@
 package git4idea.commands;
 
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.openapi.util.registry.Registry;
 
 /**
@@ -81,13 +81,13 @@ public class GitCommand
 		WRITE
 	}
 
-	@NotNull
+	@Nonnull
 	@NonNls
 	private final String myName; // command name passed to git
-	@NotNull
+	@Nonnull
 	private final LockingPolicy myLocking; // Locking policy for the command
 
-	private GitCommand(@NotNull String name, @NotNull LockingPolicy lockingPolicy)
+	private GitCommand(@Nonnull String name, @Nonnull LockingPolicy lockingPolicy)
 	{
 		myLocking = lockingPolicy;
 		myName = name;
@@ -96,7 +96,7 @@ public class GitCommand
 	/**
 	 * Copy constructor with other locking policy.
 	 */
-	private GitCommand(@NotNull GitCommand command, @NotNull LockingPolicy lockingPolicy)
+	private GitCommand(@Nonnull GitCommand command, @Nonnull LockingPolicy lockingPolicy)
 	{
 		myName = command.name();
 		myLocking = lockingPolicy;
@@ -109,37 +109,37 @@ public class GitCommand
 	 * <p>Use this constructor with care: specifying read-policy on a write operation may result in a conflict during simultaneous
 	 * modification of index.</p>
 	 */
-	@NotNull
+	@Nonnull
 	public GitCommand readLockingCommand()
 	{
 		return new GitCommand(this, LockingPolicy.READ);
 	}
 
-	@NotNull
+	@Nonnull
 	public GitCommand writeLockingCommand()
 	{
 		return new GitCommand(this, LockingPolicy.WRITE);
 	}
 
-	@NotNull
-	private static GitCommand read(@NotNull String name)
+	@Nonnull
+	private static GitCommand read(@Nonnull String name)
 	{
 		return new GitCommand(name, LockingPolicy.READ);
 	}
 
-	@NotNull
-	private static GitCommand write(@NotNull String name)
+	@Nonnull
+	private static GitCommand write(@Nonnull String name)
 	{
 		return new GitCommand(name, LockingPolicy.WRITE);
 	}
 
-	@NotNull
+	@Nonnull
 	public String name()
 	{
 		return myName;
 	}
 
-	@NotNull
+	@Nonnull
 	public LockingPolicy lockingPolicy()
 	{
 		return myLocking;

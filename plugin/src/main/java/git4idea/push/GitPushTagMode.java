@@ -15,7 +15,7 @@
  */
 package git4idea.push;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.dvcs.push.VcsPushOptionValue;
 
 /**
@@ -26,9 +26,9 @@ public final class GitPushTagMode implements VcsPushOptionValue
 	public static final GitPushTagMode ALL = new GitPushTagMode("All", "--tags");
 	public static final GitPushTagMode FOLLOW = new GitPushTagMode("Current Branch", "--follow-tags");
 
-	@NotNull
+	@Nonnull
 	private String myTitle;
-	@NotNull
+	@Nonnull
 	private String myArgument;
 
 	// for deserialization
@@ -38,13 +38,13 @@ public final class GitPushTagMode implements VcsPushOptionValue
 		this(ALL.getTitle(), ALL.getArgument());
 	}
 
-	private GitPushTagMode(@NotNull String title, @NotNull String argument)
+	private GitPushTagMode(@Nonnull String title, @Nonnull String argument)
 	{
 		myTitle = title;
 		myArgument = argument;
 	}
 
-	@NotNull
+	@Nonnull
 	public static GitPushTagMode[] getValues()
 	{
 		return new GitPushTagMode[]{
@@ -53,13 +53,13 @@ public final class GitPushTagMode implements VcsPushOptionValue
 		};
 	}
 
-	@NotNull
+	@Nonnull
 	public String getTitle()
 	{
 		return myTitle;
 	}
 
-	@NotNull
+	@Nonnull
 	public String getArgument()
 	{
 		return myArgument;
@@ -67,14 +67,14 @@ public final class GitPushTagMode implements VcsPushOptionValue
 
 	// for deserialization
 	@SuppressWarnings("UnusedDeclaration")
-	public void setTitle(@NotNull String title)
+	public void setTitle(@Nonnull String title)
 	{
 		myTitle = title;
 	}
 
 	// for deserialization
 	@SuppressWarnings("UnusedDeclaration")
-	public void setArgument(@NotNull String argument)
+	public void setArgument(@Nonnull String argument)
 	{
 		myArgument = argument;
 	}

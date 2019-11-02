@@ -15,7 +15,7 @@
  */
 package git4idea.checkin;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 /**
  * Corrects some simple but popular mistakes on the author format.<p/>
@@ -24,8 +24,8 @@ import org.jetbrains.annotations.NotNull;
 class GitCommitAuthorCorrector
 {
 
-	@NotNull
-	public static String correct(@NotNull String author)
+	@Nonnull
+	public static String correct(@Nonnull String author)
 	{
 		author = author.trim();
 

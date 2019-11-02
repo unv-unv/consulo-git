@@ -29,8 +29,8 @@ import git4idea.rebase.GitInteractiveRebaseEditorHandler;
 import git4idea.rebase.GitRebaseEditorService;
 import git4idea.rebase.GitRebaseLineListener;
 import git4idea.repo.GitRepositoryManager;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import java.util.List;
 import java.util.Set;
@@ -42,9 +42,9 @@ public abstract class GitRebaseActionBase extends GitRepositoryAction {
   /**
    * {@inheritDoc}
    */
-  protected void perform(@NotNull final Project project,
-                         @NotNull final List<VirtualFile> gitRoots,
-                         @NotNull final VirtualFile defaultRoot,
+  protected void perform(@Nonnull final Project project,
+                         @Nonnull final List<VirtualFile> gitRoots,
+                         @Nonnull final VirtualFile defaultRoot,
                          final Set<VirtualFile> affectedRoots,
                          final List<VcsException> exceptions) throws VcsException {
     GitLineHandler h = createHandler(project, gitRoots, defaultRoot);

@@ -15,8 +15,9 @@
  */
 package git4idea.actions;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import com.intellij.dvcs.repo.AbstractRepositoryManager;
 import com.intellij.dvcs.ui.VcsLogSingleCommitAction;
 import com.intellij.openapi.components.ServiceManager;
@@ -28,16 +29,16 @@ import git4idea.repo.GitRepositoryManager;
 public abstract class GitLogSingleCommitAction extends VcsLogSingleCommitAction<GitRepository>
 {
 
-	@NotNull
+	@Nonnull
 	@Override
-	protected AbstractRepositoryManager<GitRepository> getRepositoryManager(@NotNull Project project)
+	protected AbstractRepositoryManager<GitRepository> getRepositoryManager(@Nonnull Project project)
 	{
 		return ServiceManager.getService(project, GitRepositoryManager.class);
 	}
 
 	@Override
 	@Nullable
-	protected GitRepository getRepositoryForRoot(@NotNull Project project, @NotNull VirtualFile root)
+	protected GitRepository getRepositoryForRoot(@Nonnull Project project, @Nonnull VirtualFile root)
 	{
 		return getRepositoryManager(project).getRepositoryForRoot(root);
 	}

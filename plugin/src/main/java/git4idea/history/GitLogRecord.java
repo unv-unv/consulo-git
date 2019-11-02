@@ -24,7 +24,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.FilePath;
 import com.intellij.openapi.vcs.VcsException;
@@ -53,9 +53,9 @@ class GitLogRecord
 	private GitHandler myHandler;
 
 	GitLogRecord(
-			@NotNull Map<GitLogParser.GitLogOption, String> options,
-			@NotNull List<String> paths,
-			@NotNull List<GitLogStatusInfo> statusInfo,
+			@Nonnull Map<GitLogParser.GitLogOption, String> options,
+			@Nonnull List<String> paths,
+			@Nonnull List<GitLogStatusInfo> statusInfo,
 			boolean supportsRawBody)
 	{
 		myOptions = options;
@@ -69,13 +69,13 @@ class GitLogRecord
 		return myPaths;
 	}
 
-	@NotNull
+	@Nonnull
 	List<GitLogStatusInfo> getStatusInfos()
 	{
 		return myStatusInfo;
 	}
 
-	@NotNull
+	@Nonnull
 	public List<FilePath> getFilePaths(VirtualFile root) throws VcsException
 	{
 		List<FilePath> res = new ArrayList<FilePath>();

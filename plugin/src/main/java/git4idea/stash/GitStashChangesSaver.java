@@ -19,10 +19,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
 import javax.swing.event.HyperlinkEvent;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationListener;
 import com.intellij.openapi.diagnostic.Logger;
@@ -53,19 +53,19 @@ public class GitStashChangesSaver extends GitChangesSaver
 	private static final Logger LOG = Logger.getInstance(GitStashChangesSaver.class);
 	private static final String NO_LOCAL_CHANGES_TO_SAVE = "No local changes to save";
 
-	@NotNull
+	@Nonnull
 	private final GitRepositoryManager myRepositoryManager;
-	@NotNull
+	@Nonnull
 	private final Set<VirtualFile> myStashedRoots = ContainerUtil.newHashSet(); // save stashed roots to unstash only them
 
-	public GitStashChangesSaver(@NotNull Project project, @NotNull Git git, @NotNull ProgressIndicator progressIndicator, @NotNull String stashMessage)
+	public GitStashChangesSaver(@Nonnull Project project, @Nonnull Git git, @Nonnull ProgressIndicator progressIndicator, @Nonnull String stashMessage)
 	{
 		super(project, git, progressIndicator, stashMessage);
 		myRepositoryManager = GitUtil.getRepositoryManager(project);
 	}
 
 	@Override
-	protected void save(@NotNull Collection<VirtualFile> rootsToSave) throws VcsException
+	protected void save(@Nonnull Collection<VirtualFile> rootsToSave) throws VcsException
 	{
 		LOG.info("saving " + rootsToSave);
 
@@ -104,7 +104,7 @@ public class GitStashChangesSaver extends GitChangesSaver
 		}
 	}
 
-	private static boolean somethingWasStashed(@NotNull GitCommandResult result)
+	private static boolean somethingWasStashed(@Nonnull GitCommandResult result)
 	{
 		return !StringUtil.containsIgnoreCase(result.getErrorOutputAsJoinedString(), NO_LOCAL_CHANGES_TO_SAVE) && !StringUtil.containsIgnoreCase(result.getOutputAsJoinedString(),
 				NO_LOCAL_CHANGES_TO_SAVE);
@@ -134,7 +134,7 @@ public class GitStashChangesSaver extends GitChangesSaver
 		return "stash";
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public String getOperationName()
 	{
@@ -193,7 +193,7 @@ public class GitStashChangesSaver extends GitChangesSaver
 
 		private final Set<VirtualFile> myStashedRoots;
 
-		public UnstashConflictResolver(@NotNull Project project, @NotNull Git git, @NotNull Set<VirtualFile> stashedRoots, @Nullable Params params)
+		public UnstashConflictResolver(@Nonnull Project project, @Nonnull Git git, @Nonnull Set<VirtualFile> stashedRoots, @Nullable Params params)
 		{
 			super(project, git, stashedRoots, makeParamsOrUse(params));
 			myStashedRoots = stashedRoots;
@@ -221,7 +221,7 @@ public class GitStashChangesSaver extends GitChangesSaver
 					"<a href='resolve'>Resolve</a> conflicts and drop the stash.", new NotificationListener()
 			{
 				@Override
-				public void hyperlinkUpdate(@NotNull Notification notification, @NotNull HyperlinkEvent event)
+				public void hyperlinkUpdate(@Nonnull Notification notification, @Nonnull HyperlinkEvent event)
 				{
 					if(event.getEventType() == HyperlinkEvent.EventType.ACTIVATED)
 					{
@@ -245,19 +245,19 @@ public class GitStashChangesSaver extends GitChangesSaver
 	{
 
 		@Override
-		public String getMultipleFileMergeDescription(@NotNull Collection<VirtualFile> files)
+		public String getMultipleFileMergeDescription(@Nonnull Collection<VirtualFile> files)
 		{
 			return "Uncommitted changes that were stashed before update have conflicts with updated files.";
 		}
 
 		@Override
-		public String getLeftPanelTitle(@NotNull VirtualFile file)
+		public String getLeftPanelTitle(@Nonnull VirtualFile file)
 		{
 			return getConflictLeftPanelTitle();
 		}
 
 		@Override
-		public String getRightPanelTitle(@NotNull VirtualFile file, VcsRevisionNumber revisionNumber)
+		public String getRightPanelTitle(@Nonnull VirtualFile file, VcsRevisionNumber revisionNumber)
 		{
 			return getConflictRightPanelTitle();
 		}

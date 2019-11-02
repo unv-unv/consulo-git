@@ -20,8 +20,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.util.containers.ContainerUtil;
 import git4idea.GitPlatformFacade;
 
@@ -76,21 +76,21 @@ public final class GitRemote implements Comparable<GitRemote>
 	 */
 	public static final String ORIGIN_NAME = "origin";
 
-	@NotNull
+	@Nonnull
 	private final String myName;
-	@NotNull
+	@Nonnull
 	private final List<String> myUrls;
-	@NotNull
+	@Nonnull
 	private final Collection<String> myPushUrls;
-	@NotNull
+	@Nonnull
 	final List<String> myFetchRefSpecs;
-	@NotNull
+	@Nonnull
 	private final List<String> myPushRefSpecs;
-	@NotNull
+	@Nonnull
 	private final Collection<String> myPuttyKeyFiles;
 
-	GitRemote(@NotNull String name, @NotNull List<String> urls, @NotNull Collection<String> pushUrls, @NotNull List<String> fetchRefSpecs,
-			@NotNull List<String> pushRefSpecs, @NotNull Collection<String> puttyKeyFiles)
+	GitRemote(@Nonnull String name, @Nonnull List<String> urls, @Nonnull Collection<String> pushUrls, @Nonnull List<String> fetchRefSpecs,
+			  @Nonnull List<String> pushRefSpecs, @Nonnull Collection<String> puttyKeyFiles)
 	{
 		myName = name;
 		myUrls = urls;
@@ -100,7 +100,7 @@ public final class GitRemote implements Comparable<GitRemote>
 		myPuttyKeyFiles = puttyKeyFiles;
 	}
 
-	@NotNull
+	@Nonnull
 	public String getName()
 	{
 		return myName;
@@ -111,7 +111,7 @@ public final class GitRemote implements Comparable<GitRemote>
 	 * If you need url to fetch, use {@link #getFirstUrl()}, because only the first url is fetched by Git,
 	 * others are ignored.
 	 */
-	@NotNull
+	@Nonnull
 	public List<String> getUrls()
 	{
 		return myUrls;
@@ -126,19 +126,19 @@ public final class GitRemote implements Comparable<GitRemote>
 		return myUrls.isEmpty() ? null : myUrls.get(0);
 	}
 
-	@NotNull
+	@Nonnull
 	public Collection<String> getPushUrls()
 	{
 		return myPushUrls;
 	}
 
-	@NotNull
+	@Nonnull
 	public List<String> getFetchRefSpecs()
 	{
 		return myFetchRefSpecs;
 	}
 
-	@NotNull
+	@Nonnull
 	public List<String> getPushRefSpecs()
 	{
 		return myPushRefSpecs;
@@ -177,7 +177,7 @@ public final class GitRemote implements Comparable<GitRemote>
 	}
 
 	@Override
-	public int compareTo(@NotNull GitRemote o)
+	public int compareTo(@Nonnull GitRemote o)
 	{
 		return getName().compareTo(o.getName());
 	}

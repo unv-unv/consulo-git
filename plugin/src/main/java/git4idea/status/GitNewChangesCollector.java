@@ -36,7 +36,7 @@ import git4idea.commands.GitHandler;
 import git4idea.commands.GitSimpleHandler;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitUntrackedFilesHolder;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -60,34 +60,35 @@ class GitNewChangesCollector extends GitChangesCollector {
   private final GitRepository myRepository;
   private final Collection<Change> myChanges = new HashSet<Change>();
   private final Set<VirtualFile> myUnversionedFiles = new HashSet<VirtualFile>();
-  @NotNull private final Git myGit;
+  @Nonnull
+  private final Git myGit;
 
   /**
    * Collects the changes from git command line and returns the instance of GitNewChangesCollector from which these changes can be retrieved.
    * This may be lengthy.
    */
-  @NotNull
-  static GitNewChangesCollector collect(@NotNull Project project, @NotNull Git git, @NotNull ChangeListManager changeListManager,
-                                        @NotNull ProjectLevelVcsManager vcsManager, @NotNull AbstractVcs vcs,
-                                        @NotNull VcsDirtyScope dirtyScope, @NotNull VirtualFile vcsRoot) throws VcsException {
+  @Nonnull
+  static GitNewChangesCollector collect(@Nonnull Project project, @Nonnull Git git, @Nonnull ChangeListManager changeListManager,
+										@Nonnull ProjectLevelVcsManager vcsManager, @Nonnull AbstractVcs vcs,
+										@Nonnull VcsDirtyScope dirtyScope, @Nonnull VirtualFile vcsRoot) throws VcsException {
     return new GitNewChangesCollector(project, git, changeListManager, vcsManager, vcs, dirtyScope, vcsRoot);
   }
 
   @Override
-  @NotNull
+  @Nonnull
   Collection<VirtualFile> getUnversionedFiles() {
     return myUnversionedFiles;
   }
 
-  @NotNull
+  @Nonnull
   @Override
   Collection<Change> getChanges() {
     return myChanges;
   }
 
-  private GitNewChangesCollector(@NotNull Project project, @NotNull Git git, @NotNull ChangeListManager changeListManager,
-                                 @NotNull ProjectLevelVcsManager vcsManager, @NotNull AbstractVcs vcs,
-                                 @NotNull VcsDirtyScope dirtyScope, @NotNull VirtualFile vcsRoot) throws VcsException
+  private GitNewChangesCollector(@Nonnull Project project, @Nonnull Git git, @Nonnull ChangeListManager changeListManager,
+								 @Nonnull ProjectLevelVcsManager vcsManager, @Nonnull AbstractVcs vcs,
+								 @Nonnull VcsDirtyScope dirtyScope, @Nonnull VirtualFile vcsRoot) throws VcsException
   {
     super(project, changeListManager, vcsManager, vcs, dirtyScope, vcsRoot);
     myGit = git;
@@ -141,7 +142,7 @@ class GitNewChangesCollector extends GitChangesCollector {
    * See <a href=http://www.kernel.org/pub/software/scm/git/docs/git-status.html#_output">Git man</a> for details.
    */
   // handler is here for debugging purposes in the case of parse error
-  private void parseOutput(@NotNull String output, @NotNull GitHandler handler) throws VcsException {
+  private void parseOutput(@Nonnull String output, @Nonnull GitHandler handler) throws VcsException {
     VcsRevisionNumber head = getHead();
 
     final String[] split = output.split("\u0000");
@@ -264,7 +265,7 @@ class GitNewChangesCollector extends GitChangesCollector {
     }
   }
 
-  @NotNull
+  @Nonnull
   private VcsRevisionNumber getHead() throws VcsException {
     if (myRepository != null) {
       // we force update the GitRepository, because update is asynchronous, and thus the GitChangeProvider may be asked for changes
@@ -279,7 +280,7 @@ class GitNewChangesCollector extends GitChangesCollector {
     }
   }
 
-  @NotNull
+  @Nonnull
   private VcsRevisionNumber getHeadFromGit() throws VcsException {
     VcsRevisionNumber nativeHead = VcsRevisionNumber.NULL;
     try {

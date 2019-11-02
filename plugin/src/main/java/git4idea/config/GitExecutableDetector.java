@@ -25,8 +25,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.execution.process.CapturingProcessHandler;
@@ -36,6 +36,8 @@ import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.CharsetToolkit;
+
+import javax.annotation.Nullable;
 
 /**
  * Tries to detect the path to Git executable.
@@ -61,7 +63,7 @@ public class GitExecutableDetector
 	public static final String DEFAULT_WIN_GIT = GIT_EXE;
 	public static final String PATH_ENV = "PATH";
 
-	@NotNull
+	@Nonnull
 	public String detect()
 	{
 		if(SystemInfo.isWindows)
@@ -71,7 +73,7 @@ public class GitExecutableDetector
 		return detectForUnix();
 	}
 
-	@NotNull
+	@Nonnull
 	private static String detectForUnix()
 	{
 		for(String p : UNIX_PATHS)
@@ -85,7 +87,7 @@ public class GitExecutableDetector
 		return UNIX_EXECUTABLE;
 	}
 
-	@NotNull
+	@Nonnull
 	private String detectForWindows()
 	{
 		String exec = checkInPath();
@@ -133,7 +135,7 @@ public class GitExecutableDetector
 		return null;
 	}
 
-	private static boolean looksLikeGit(@NotNull String path)
+	private static boolean looksLikeGit(@Nonnull String path)
 	{
 		List<String> dirs = FileUtil.splitPath(path);
 		for(String dir : dirs)
@@ -196,7 +198,7 @@ public class GitExecutableDetector
 		return null;
 	}
 
-	@NotNull
+	@Nonnull
 	private String checkSoleExecutable()
 	{
 		if(runs(GIT_CMD))
@@ -231,7 +233,7 @@ public class GitExecutableDetector
 	}
 
 	@Nullable
-	private static String checkBinDir(@NotNull File binDir)
+	private static String checkBinDir(@Nonnull File binDir)
 	{
 		if(!binDir.exists())
 		{
@@ -257,7 +259,7 @@ public class GitExecutableDetector
 	 * Checks if it is possible to run the specified program.
 	 * Made protected for tests not to start a process there.
 	 */
-	protected boolean runs(@NotNull String exec)
+	protected boolean runs(@Nonnull String exec)
 	{
 		GeneralCommandLine commandLine = new GeneralCommandLine();
 		commandLine.setExePath(exec);
@@ -317,7 +319,7 @@ public class GitExecutableDetector
 			return fallback(f1, f2);
 		}
 
-		private static int fallback(@NotNull File f1, @NotNull File f2)
+		private static int fallback(@Nonnull File f1, @Nonnull File f2)
 		{
 			// "Program Files" is preferable over "Program Files (x86)"
 			int compareParents = f1.getParentFile().getName().compareTo(f2.getParentFile().getName());

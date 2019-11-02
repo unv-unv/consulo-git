@@ -22,7 +22,7 @@ import com.intellij.openapi.vcs.changes.Change;
 import com.intellij.openapi.vcs.changes.CommitContext;
 import com.intellij.openapi.vcs.checkin.CheckinHandler;
 import com.intellij.openapi.vcs.checkin.CheckinHandlerFactory;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 /**
  * Checks if there are unresolved conflicts selected to commit.
@@ -30,7 +30,7 @@ import org.jetbrains.annotations.NotNull;
  * @author Kirill Likhodedov
  */
 public class UnresolvedMergeCheckFactory extends CheckinHandlerFactory {
-  @NotNull
+  @Nonnull
   @Override
   public CheckinHandler createHandler(final CheckinProjectPanel panel, CommitContext commitContext) {
     return new CheckinHandler() {
@@ -46,7 +46,7 @@ public class UnresolvedMergeCheckFactory extends CheckinHandlerFactory {
     };
   }
 
-  private static boolean containsUnresolvedConflicts(@NotNull CheckinProjectPanel panel) {
+  private static boolean containsUnresolvedConflicts(@Nonnull CheckinProjectPanel panel) {
     for (Change change : panel.getSelectedChanges()) {
       FileStatus status = change.getFileStatus();
       if (status.equals(FileStatus.MERGE) || status.equals(FileStatus.MERGED_WITH_BOTH_CONFLICTS) ||

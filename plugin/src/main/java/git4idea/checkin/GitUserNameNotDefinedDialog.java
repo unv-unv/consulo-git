@@ -27,8 +27,8 @@ import com.intellij.util.SystemProperties;
 import com.intellij.util.ui.GridBag;
 import com.intellij.util.ui.UIUtil;
 import com.intellij.xml.util.XmlStringUtil;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -45,18 +45,21 @@ import static com.intellij.util.ui.UIUtil.DEFAULT_VGAP;
  */
 class GitUserNameNotDefinedDialog extends DialogWrapper {
 
-  @NotNull private final Collection<VirtualFile> myRootsWithUndefinedProps;
-  @NotNull private final Collection<VirtualFile> myAllRootsAffectedByCommit;
-  @Nullable private final Pair<String,String> myProposedValues;
+  @Nonnull
+  private final Collection<VirtualFile> myRootsWithUndefinedProps;
+  @Nonnull
+  private final Collection<VirtualFile> myAllRootsAffectedByCommit;
+  @Nullable
+  private final Pair<String,String> myProposedValues;
 
   private JTextField myNameTextField;
   private JTextField myEmailTextField;
   private JBCheckBox myGlobalCheckbox;
 
-  GitUserNameNotDefinedDialog(@NotNull Project project,
-                                        @NotNull Collection<VirtualFile> rootsWithUndefinedProps,
-                                        @NotNull Collection<VirtualFile> allRootsAffectedByCommit,
-                                        @NotNull Map<VirtualFile, Pair<String, String>> rootsWithDefinedProps) {
+  GitUserNameNotDefinedDialog(@Nonnull Project project,
+                                        @Nonnull Collection<VirtualFile> rootsWithUndefinedProps,
+                                        @Nonnull Collection<VirtualFile> allRootsAffectedByCommit,
+                                        @Nonnull Map<VirtualFile, Pair<String, String>> rootsWithDefinedProps) {
     super(project, false);
     myRootsWithUndefinedProps = rootsWithUndefinedProps;
     myAllRootsAffectedByCommit = allRootsAffectedByCommit;
@@ -151,7 +154,7 @@ class GitUserNameNotDefinedDialog extends DialogWrapper {
     return null;
   }
 
-  @NotNull
+  @Nonnull
   private String getMessageText() {
     if (myAllRootsAffectedByCommit.size() == myRootsWithUndefinedProps.size()) {
       return "";

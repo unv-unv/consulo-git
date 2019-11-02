@@ -15,8 +15,8 @@
  */
 package git4idea.attributes;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * @author Kirill Likhodedov
@@ -25,13 +25,14 @@ public enum GitAttribute {
   TEXT("text"),
   CRLF("crlf");
 
-  @NotNull private final String myName;
+  @Nonnull
+  private final String myName;
 
-  GitAttribute(@NotNull String name) {
+  GitAttribute(@Nonnull String name) {
     myName = name;
   }
 
-  @NotNull
+  @Nonnull
   public String getName() {
     return myName;
   }

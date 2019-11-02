@@ -15,7 +15,7 @@
  */
 package git4idea.update;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,34 +40,34 @@ public final class GitFetchResult {
     ERROR
   }
 
-  public GitFetchResult(@NotNull Type type) {
+  public GitFetchResult(@Nonnull Type type) {
     myType = type;
   }
 
-  @NotNull
+  @Nonnull
   public static GitFetchResult success() {
     return new GitFetchResult(Type.SUCCESS);
   }
 
-  @NotNull
+  @Nonnull
   public static GitFetchResult cancel() {
     return new GitFetchResult(Type.CANCELLED);
   }
 
-  @NotNull
+  @Nonnull
   public static GitFetchResult error(Collection<Exception> errors) {
     GitFetchResult result = new GitFetchResult(Type.ERROR);
     result.myErrors = errors;
     return result;
   }
 
-  @NotNull
+  @Nonnull
   public static GitFetchResult error(Exception error) {
     return error(Collections.singletonList(error));
   }
 
-  @NotNull
-  public static GitFetchResult error(@NotNull String errorMessage) {
+  @Nonnull
+  public static GitFetchResult error(@Nonnull String errorMessage) {
     return error(new Exception(errorMessage));
   }
   
@@ -87,21 +87,21 @@ public final class GitFetchResult {
     return myType == Type.ERROR;
   }
 
-  @NotNull
+  @Nonnull
   public Collection<? extends Exception> getErrors() {
     return myErrors;
   }
 
-  public void addPruneInfo(@NotNull Collection<String> prunedRefs) {
+  public void addPruneInfo(@Nonnull Collection<String> prunedRefs) {
     myPrunedRefs.addAll(prunedRefs);
   }
 
-  @NotNull
+  @Nonnull
   public Collection<String> getPrunedRefs() {
     return myPrunedRefs;
   }
 
-  @NotNull
+  @Nonnull
   public String getAdditionalInfo() {
     if (!myPrunedRefs.isEmpty()) {
       return "Pruned obsolete remote " + pluralize("reference", myPrunedRefs.size()) + ": " + join(myPrunedRefs, ", ");

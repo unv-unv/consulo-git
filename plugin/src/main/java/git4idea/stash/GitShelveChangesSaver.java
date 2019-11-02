@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
@@ -49,7 +49,7 @@ public class GitShelveChangesSaver extends GitChangesSaver
 
 	private Map<String, ShelvedChangeList> myShelvedLists;
 
-	public GitShelveChangesSaver(@NotNull Project project, @NotNull Git git, @NotNull ProgressIndicator indicator, String stashMessage)
+	public GitShelveChangesSaver(@Nonnull Project project, @Nonnull Git git, @Nonnull ProgressIndicator indicator, String stashMessage)
 	{
 		super(project, git, indicator, stashMessage);
 		myShelveManager = ShelveChangesManager.getInstance(myProject);
@@ -58,7 +58,7 @@ public class GitShelveChangesSaver extends GitChangesSaver
 	}
 
 	@Override
-	protected void save(@NotNull Collection<VirtualFile> rootsToSave) throws VcsException
+	protected void save(@Nonnull Collection<VirtualFile> rootsToSave) throws VcsException
 	{
 		LOG.info("save " + rootsToSave);
 		final Map<String, Map<VirtualFile, Collection<Change>>> lists = new LocalChangesUnderRoots(myChangeManager, myVcsManager).getChangesByLists(rootsToSave);
@@ -126,7 +126,7 @@ public class GitShelveChangesSaver extends GitChangesSaver
 		return "shelf";
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public String getOperationName()
 	{

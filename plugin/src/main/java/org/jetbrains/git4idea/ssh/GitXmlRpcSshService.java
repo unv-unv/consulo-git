@@ -18,9 +18,9 @@ package org.jetbrains.git4idea.ssh;
 import java.util.UUID;
 import java.util.Vector;
 
+import javax.annotation.Nonnull;
 import javax.inject.Singleton;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.git4idea.util.ScriptGenerator;
 import com.trilead.ssh2.KnownHosts;
 import git4idea.commands.GitSSHGUIHandler;
@@ -38,13 +38,13 @@ public class GitXmlRpcSshService extends GitXmlRpcHandlerService<GitSSHGUIHandle
 	}
 
 	@Override
-	protected void customizeScriptGenerator(@NotNull ScriptGenerator generator)
+	protected void customizeScriptGenerator(@Nonnull ScriptGenerator generator)
 	{
 		generator.addClasses(KnownHosts.class);
 		generator.addResource(SSHMainBundle.class, "/org/jetbrains/git4idea/ssh/SSHMainBundle.properties");
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	protected Object createRpcRequestHandlerDelegate()
 	{

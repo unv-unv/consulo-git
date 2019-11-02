@@ -20,7 +20,7 @@ import com.intellij.openapi.fileTypes.ExactFileNameMatcher;
 import com.intellij.openapi.fileTypes.FileTypeConsumer;
 import com.intellij.openapi.fileTypes.FileTypeFactory;
 import com.intellij.openapi.fileTypes.PlainTextFileType;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 /**
  * The file type factory that declares types of git files
@@ -29,7 +29,7 @@ public class GitFileTypeFactory extends FileTypeFactory {
   /**
    * {@inheritDoc}
    */
-  public void createFileTypes(@NotNull FileTypeConsumer consumer) {
+  public void createFileTypes(@Nonnull FileTypeConsumer consumer) {
     consumer.consume(PlainTextFileType.INSTANCE, new ExactFileNameMatcher(".gitignore"), new ExactFileNameMatcher(".gitmodules"));
   }
 }

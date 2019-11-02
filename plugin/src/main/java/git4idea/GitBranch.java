@@ -16,11 +16,13 @@
 package git4idea;
 
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import com.intellij.vcs.log.Hash;
 import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRepository;
+
+import javax.annotation.Nullable;
 
 /**
  * <p>Represents a Git branch, local or remote.</p>
@@ -53,7 +55,7 @@ public abstract class GitBranch extends GitReference
 	@Nullable
 	public static final Hash DUMMY_HASH = null;
 
-	protected GitBranch(@NotNull String name)
+	protected GitBranch(@Nonnull String name)
 	{
 		super(GitBranchUtil.stripRefsPrefix(name));
 	}
@@ -63,7 +65,7 @@ public abstract class GitBranch extends GitReference
 	 */
 	public abstract boolean isRemote();
 
-	@NotNull
+	@Nonnull
 	public String getFullName()
 	{
 		return (isRemote() ? REFS_REMOTES_PREFIX : REFS_HEADS_PREFIX) + myName;

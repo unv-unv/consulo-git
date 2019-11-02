@@ -33,8 +33,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.git4idea.http.GitAskPassXmlRpcHandler;
 import org.jetbrains.git4idea.ssh.GitSSHHandler;
 import org.jetbrains.git4idea.ssh.GitXmlRpcSshService;
@@ -113,7 +113,7 @@ public abstract class GitHandler
 
 	@SuppressWarnings({"FieldAccessedSynchronizedAndUnsynchronized"})
 	@NonNls
-	@NotNull
+	@Nonnull
 	private Charset myCharset = CharsetToolkit.UTF8_CHARSET; // Character set to use for IO
 
 	private final EventDispatcher<ProcessEventListener> myListeners = EventDispatcher.create(ProcessEventListener.class);
@@ -141,7 +141,7 @@ public abstract class GitHandler
 	 * @param directory a process directory
 	 * @param command   a command to execute (if empty string, the parameter is ignored)
 	 */
-	protected GitHandler(@NotNull Project project, @NotNull File directory, @NotNull GitCommand command)
+	protected GitHandler(@Nonnull Project project, @Nonnull File directory, @Nonnull GitCommand command)
 	{
 		myProject = project;
 		myCommand = command;
@@ -277,12 +277,12 @@ public abstract class GitHandler
 		myPuttyKey = key;
 	}
 
-	public void setUrl(@NotNull String url)
+	public void setUrl(@Nonnull String url)
 	{
 		setUrls(singletonList(url));
 	}
 
-	public void setUrls(@NotNull Collection<String> urls)
+	public void setUrls(@Nonnull Collection<String> urls)
 	{
 		myUrls = urls;
 	}
@@ -316,7 +316,7 @@ public abstract class GitHandler
 	 * @param parameters a parameters to add
 	 */
 	@SuppressWarnings({"WeakerAccess"})
-	public void addParameters(@NonNls @NotNull String... parameters)
+	public void addParameters(@NonNls @Nonnull String... parameters)
 	{
 		addParameters(Arrays.asList(parameters));
 	}
@@ -335,8 +335,8 @@ public abstract class GitHandler
 		}
 	}
 
-	@NotNull
-	private String escapeParameterIfNeeded(@NotNull String parameter)
+	@Nonnull
+	private String escapeParameterIfNeeded(@Nonnull String parameter)
 	{
 		if(escapeNeeded(parameter))
 		{
@@ -345,7 +345,7 @@ public abstract class GitHandler
 		return parameter;
 	}
 
-	private boolean escapeNeeded(@NotNull String parameter)
+	private boolean escapeNeeded(@Nonnull String parameter)
 	{
 		return SystemInfo.isWindows && isCmd() && parameter.contains("^");
 	}
@@ -355,8 +355,8 @@ public abstract class GitHandler
 		return myAppSettings.getPathToGit().toLowerCase().endsWith("cmd");
 	}
 
-	@NotNull
-	private String unescapeCommandLine(@NotNull String commandLine)
+	@Nonnull
+	private String unescapeCommandLine(@Nonnull String commandLine)
 	{
 		if(escapeNeeded(commandLine))
 		{
@@ -371,7 +371,7 @@ public abstract class GitHandler
 	 * @param parameters a parameters to add
 	 * @throws IllegalArgumentException if some path is not under root.
 	 */
-	public void addRelativePaths(@NotNull FilePath... parameters)
+	public void addRelativePaths(@Nonnull FilePath... parameters)
 	{
 		addRelativePaths(Arrays.asList(parameters));
 	}
@@ -383,7 +383,7 @@ public abstract class GitHandler
 	 * @throws IllegalArgumentException if some path is not under root.
 	 */
 	@SuppressWarnings({"WeakerAccess"})
-	public void addRelativePaths(@NotNull final Collection<FilePath> filePaths)
+	public void addRelativePaths(@Nonnull final Collection<FilePath> filePaths)
 	{
 		checkNotStarted();
 		for(FilePath path : filePaths)
@@ -399,7 +399,7 @@ public abstract class GitHandler
 	 * @throws IllegalArgumentException if some path is not under root.
 	 */
 	@SuppressWarnings({"WeakerAccess"})
-	public void addRelativeFiles(@NotNull final Collection<VirtualFile> files)
+	public void addRelativeFiles(@Nonnull final Collection<VirtualFile> files)
 	{
 		checkNotStarted();
 		for(VirtualFile file : files)
@@ -613,7 +613,7 @@ public abstract class GitHandler
 		}
 	}
 
-	protected static boolean isSshUrlExcluded(@NotNull final HttpConfigurable httpConfigurable, @NotNull Collection<String> urls)
+	protected static boolean isSshUrlExcluded(@Nonnull final HttpConfigurable httpConfigurable, @Nonnull Collection<String> urls)
 	{
 		return ContainerUtil.exists(urls, new Condition<String>()
 		{
@@ -626,7 +626,7 @@ public abstract class GitHandler
 		});
 	}
 
-	private void addAuthListener(@NotNull final GitHttpAuthenticator authenticator)
+	private void addAuthListener(@Nonnull final GitHttpAuthenticator authenticator)
 	{
 		// TODO this code should be located in GitLineHandler, and the other remote code should be move there as well
 		if(this instanceof GitLineHandler)
@@ -800,7 +800,7 @@ public abstract class GitHandler
 	/**
 	 * @return a character set to use for IO
 	 */
-	@NotNull
+	@Nonnull
 	public Charset getCharset()
 	{
 		return myCharset;
@@ -812,7 +812,7 @@ public abstract class GitHandler
 	 * @param charset a character set
 	 */
 	@SuppressWarnings({"SameParameterValue"})
-	public void setCharset(@NotNull Charset charset)
+	public void setCharset(@Nonnull Charset charset)
 	{
 		myCharset = charset;
 	}
@@ -912,7 +912,7 @@ public abstract class GitHandler
 		}
 	}
 
-	@NotNull
+	@Nonnull
 	private String stringifyWorkingDir()
 	{
 		String basePath = myProject.getBasePath();

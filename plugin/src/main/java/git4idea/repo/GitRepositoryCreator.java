@@ -15,8 +15,8 @@
  */
 package git4idea.repo;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import com.intellij.dvcs.repo.Repository;
 import com.intellij.dvcs.repo.VcsRepositoryCreator;
 import com.intellij.openapi.project.Project;
@@ -25,25 +25,27 @@ import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
 
+import javax.annotation.Nullable;
+
 public class GitRepositoryCreator extends VcsRepositoryCreator
 {
-	@NotNull
+	@Nonnull
 	private final Project myProject;
 
-	public GitRepositoryCreator(@NotNull Project project)
+	public GitRepositoryCreator(@Nonnull Project project)
 	{
 		myProject = project;
 	}
 
 	@Override
 	@Nullable
-	public Repository createRepositoryIfValid(@NotNull VirtualFile root)
+	public Repository createRepositoryIfValid(@Nonnull VirtualFile root)
 	{
 		VirtualFile gitDir = GitUtil.findGitDir(root);
 		return gitDir == null ? null : GitRepositoryImpl.getInstance(root, gitDir, myProject, true);
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public VcsKey getVcsKey()
 	{

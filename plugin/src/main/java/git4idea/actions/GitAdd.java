@@ -15,7 +15,7 @@
  */
 package git4idea.actions;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.vcs.FileStatus;
 import com.intellij.openapi.vcs.changes.actions.ScheduleForAdditionAction;
@@ -33,7 +33,7 @@ public class GitAdd extends ScheduleForAdditionAction
 	}
 
 	@Override
-	protected boolean checkVirtualFiles(@NotNull AnActionEvent e)
+	protected boolean checkVirtualFiles(@Nonnull AnActionEvent e)
 	{
 		return true;
 	}

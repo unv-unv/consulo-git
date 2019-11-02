@@ -18,10 +18,10 @@ package git4idea.remote;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.inject.Singleton;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
@@ -71,12 +71,12 @@ public class GitRememberedInputs implements PersistentStateComponent<GitRemember
 		myState = state;
 	}
 
-	public void addUrl(@NotNull String url)
+	public void addUrl(@Nonnull String url)
 	{
 		addUrl(url, "");
 	}
 
-	public void addUrl(@NotNull String url, @NotNull String userName)
+	public void addUrl(@Nonnull String url, @Nonnull String userName)
 	{
 		for(UrlAndUserName visitedUrl : myState.visitedUrls)
 		{
@@ -109,7 +109,7 @@ public class GitRememberedInputs implements PersistentStateComponent<GitRemember
 		return null;
 	}
 
-	@NotNull
+	@Nonnull
 	public List<String> getVisitedUrls()
 	{
 		List<String> urls = new ArrayList<String>(myState.visitedUrls.size());

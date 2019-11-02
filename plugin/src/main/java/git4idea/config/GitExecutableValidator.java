@@ -19,7 +19,7 @@ import java.util.Collections;
 
 import javax.inject.Singleton;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.execution.ExecutableValidator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsException;
@@ -35,7 +35,7 @@ import git4idea.i18n.GitBundle;
 public class GitExecutableValidator extends ExecutableValidator
 {
 
-	public GitExecutableValidator(@NotNull Project project)
+	public GitExecutableValidator(@Nonnull Project project)
 	{
 		super(project, GitBundle.message("git.executable.notification.title"), GitBundle.message("git.executable.notification.description"));
 	}
@@ -46,7 +46,7 @@ public class GitExecutableValidator extends ExecutableValidator
 		return GitExecutableManager.getInstance().getPathToGit(myProject);
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	protected String getConfigurableDisplayName()
 	{
@@ -54,7 +54,7 @@ public class GitExecutableValidator extends ExecutableValidator
 	}
 
 	@Override
-	public boolean isExecutableValid(@NotNull String executable)
+	public boolean isExecutableValid(@Nonnull String executable)
 	{
 		return doCheckExecutable(executable, Collections.singletonList("--version"));
 	}

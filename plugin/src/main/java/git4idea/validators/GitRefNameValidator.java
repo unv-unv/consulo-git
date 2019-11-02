@@ -17,7 +17,7 @@ package git4idea.validators;
 
 import java.util.regex.Pattern;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.openapi.ui.InputValidator;
 import com.intellij.openapi.util.text.StringUtil;
 
@@ -76,8 +76,8 @@ public final class GitRefNameValidator implements InputValidator
 		return checkInput(inputString);
 	}
 
-	@NotNull
-	public String cleanUpBranchName(@NotNull String branchName)
+	@Nonnull
+	public String cleanUpBranchName(@Nonnull String branchName)
 	{
 		return branchName.replaceAll(ILLEGAL.pattern(), "_");
 	}

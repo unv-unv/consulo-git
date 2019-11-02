@@ -26,8 +26,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -55,6 +55,8 @@ import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import git4idea.util.GitUIUtil;
 
+import javax.annotation.Nullable;
+
 /**
  * @author Kirill Likhodedov
  */
@@ -75,7 +77,7 @@ public class GitFetcher
 	 * @param fetchAll Pass {@code true} to fetch all remotes and all branches (like {@code git fetch} without parameters does).
 	 *                 Pass {@code false} to fetch only the tracked branch of the current branch.
 	 */
-	public GitFetcher(@NotNull Project project, @NotNull ProgressIndicator progressIndicator, boolean fetchAll)
+	public GitFetcher(@Nonnull Project project, @Nonnull ProgressIndicator progressIndicator, boolean fetchAll)
 	{
 		myProject = project;
 		myProgressIndicator = progressIndicator;
@@ -89,7 +91,7 @@ public class GitFetcher
 	 *
 	 * @return true if fetch was successful, false in the case of error.
 	 */
-	public GitFetchResult fetch(@NotNull GitRepository repository)
+	public GitFetchResult fetch(@Nonnull GitRepository repository)
 	{
 		// TODO need to have a fair compound result here
 		GitFetchResult fetchResult = GitFetchResult.success();
@@ -106,8 +108,8 @@ public class GitFetcher
 		return fetchResult;
 	}
 
-	@NotNull
-	public GitFetchResult fetch(@NotNull VirtualFile root, @NotNull String remoteName)
+	@Nonnull
+	public GitFetchResult fetch(@Nonnull VirtualFile root, @Nonnull String remoteName)
 	{
 		GitRepository repository = myRepositoryManager.getRepositoryForRoot(root);
 		if(repository == null)
@@ -127,15 +129,15 @@ public class GitFetcher
 		return fetchRemote(repository, remote, url);
 	}
 
-	private static GitFetchResult logError(@NotNull String message, @Nullable String additionalInfo)
+	private static GitFetchResult logError(@Nonnull String message, @Nullable String additionalInfo)
 	{
 		String addInfo = additionalInfo != null ? "\n" + additionalInfo : "";
 		LOG.error(message + addInfo);
 		return GitFetchResult.error(message);
 	}
 
-	@NotNull
-	private GitFetchResult fetchCurrentRemote(@NotNull GitRepository repository)
+	@Nonnull
+	private GitFetchResult fetchCurrentRemote(@Nonnull GitRepository repository)
 	{
 		FetchParams fetchParams = getFetchParams(repository);
 		if(fetchParams.isError())
@@ -148,16 +150,16 @@ public class GitFetcher
 		return fetchRemote(repository, remote, url);
 	}
 
-	@NotNull
-	private GitFetchResult fetchRemote(@NotNull GitRepository repository, @NotNull GitRemote remote, @NotNull String url)
+	@Nonnull
+	private GitFetchResult fetchRemote(@Nonnull GitRepository repository, @Nonnull GitRemote remote, @Nonnull String url)
 	{
 		return fetchNatively(repository.getRoot(), remote, url, null);
 	}
 
 	// leaving this unused method, because the wanted behavior can change again
 	@SuppressWarnings("UnusedDeclaration")
-	@NotNull
-	private GitFetchResult fetchCurrentBranch(@NotNull GitRepository repository)
+	@Nonnull
+	private GitFetchResult fetchCurrentBranch(@Nonnull GitRepository repository)
 	{
 		FetchParams fetchParams = getFetchParams(repository);
 		if(fetchParams.isError())
@@ -171,8 +173,8 @@ public class GitFetcher
 		return fetchNatively(repository.getRoot(), remote, url, remoteBranch);
 	}
 
-	@NotNull
-	private static FetchParams getFetchParams(@NotNull GitRepository repository)
+	@Nonnull
+	private static FetchParams getFetchParams(@Nonnull GitRepository repository)
 	{
 		GitLocalBranch currentBranch = repository.getCurrentBranch();
 		if(currentBranch == null)
@@ -202,8 +204,8 @@ public class GitFetcher
 		return new FetchParams(remote, trackInfo.getRemoteBranch(), url);
 	}
 
-	@NotNull
-	private GitFetchResult fetchAll(@NotNull GitRepository repository, @NotNull GitFetchResult fetchResult)
+	@Nonnull
+	private GitFetchResult fetchAll(@Nonnull GitRepository repository, @Nonnull GitFetchResult fetchResult)
 	{
 		for(GitRemote remote : repository.getRemotes())
 		{
@@ -225,7 +227,7 @@ public class GitFetcher
 		return fetchResult;
 	}
 
-	private GitFetchResult fetchNatively(@NotNull VirtualFile root, @NotNull GitRemote remote, @NotNull String url, @Nullable String branch)
+	private GitFetchResult fetchNatively(@Nonnull VirtualFile root, @Nonnull GitRemote remote, @Nonnull String url, @Nullable String branch)
 	{
 		final GitLineHandlerPasswordRequestAware h = new GitLineHandlerPasswordRequestAware(myProject, root, GitCommand.FETCH);
 		h.setUrl(url);
@@ -295,24 +297,24 @@ public class GitFetcher
 		return branch;
 	}
 
-	@NotNull
-	public static String getFetchSpecForBranch(@NotNull String branch, @NotNull String remoteName)
+	@Nonnull
+	public static String getFetchSpecForBranch(@Nonnull String branch, @Nonnull String remoteName)
 	{
 		branch = getRidOfPrefixIfExists(branch);
 		return REFS_HEADS_PREFIX + branch + ":" + REFS_REMOTES_PREFIX + remoteName + "/" + branch;
 	}
 
-	@NotNull
+	@Nonnull
 	public Collection<Exception> getErrors()
 	{
 		return myErrors;
 	}
 
 	public static void displayFetchResult(
-			@NotNull Project project,
-			@NotNull GitFetchResult result,
+			@Nonnull Project project,
+			@Nonnull GitFetchResult result,
 			@Nullable String errorNotificationTitle,
-			@NotNull Collection<? extends Exception> errors)
+			@Nonnull Collection<? extends Exception> errors)
 	{
 		if(result.isSuccess())
 		{
@@ -361,7 +363,7 @@ public class GitFetcher
 	 * @return true if all fetches were successful, false if at least one fetch failed.
 	 */
 	public boolean fetchRootsAndNotify(
-			@NotNull Collection<GitRepository> roots, @Nullable String errorNotificationTitle, boolean notifySuccess)
+			@Nonnull Collection<GitRepository> roots, @Nullable String errorNotificationTitle, boolean notifySuccess)
 	{
 		Map<VirtualFile, String> additionalInfo = new HashMap<VirtualFile, String>();
 		for(GitRepository repository : roots)
@@ -395,8 +397,8 @@ public class GitFetcher
 		return true;
 	}
 
-	@NotNull
-	private String makeAdditionalInfoByRoot(@NotNull Map<VirtualFile, String> additionalInfo)
+	@Nonnull
+	private String makeAdditionalInfoByRoot(@Nonnull Map<VirtualFile, String> additionalInfo)
 	{
 		if(additionalInfo.isEmpty())
 		{
@@ -422,7 +424,7 @@ public class GitFetcher
 
 		private static final Pattern PRUNE_PATTERN = Pattern.compile("\\s*x\\s*\\[deleted\\].*->\\s*(\\S*)");
 
-		@NotNull
+		@Nonnull
 		private final Collection<String> myPrunedRefs = new ArrayList<String>();
 
 		@Override
@@ -436,7 +438,7 @@ public class GitFetcher
 			}
 		}
 
-		@NotNull
+		@Nonnull
 		public Collection<String> getPrunedRefs()
 		{
 			return myPrunedRefs;

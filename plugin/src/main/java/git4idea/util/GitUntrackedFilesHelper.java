@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -26,8 +28,6 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.HyperlinkEvent;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationListener;
 import com.intellij.openapi.application.ApplicationManager;
@@ -65,10 +65,10 @@ public class GitUntrackedFilesHelper
 	 * @param operation     the name of the Git operation that caused the error: {@code rebase, merge, checkout}.
 	 * @param description   the content of the notification or null if the default content is to be used.
 	 */
-	public static void notifyUntrackedFilesOverwrittenBy(@NotNull final Project project,
-			@NotNull final VirtualFile root,
-			@NotNull Collection<String> relativePaths,
-			@NotNull final String operation,
+	public static void notifyUntrackedFilesOverwrittenBy(@Nonnull final Project project,
+			@Nonnull final VirtualFile root,
+			@Nonnull Collection<String> relativePaths,
+			@Nonnull final String operation,
 			@Nullable String description)
 	{
 		final String notificationTitle = StringUtil.capitalize(operation) + " failed";
@@ -87,7 +87,7 @@ public class GitUntrackedFilesHelper
 		VcsNotifier.getInstance(project).notifyError(notificationTitle, notificationDesc, new NotificationListener()
 		{
 			@Override
-			public void hyperlinkUpdate(@NotNull Notification notification, @NotNull HyperlinkEvent event)
+			public void hyperlinkUpdate(@Nonnull Notification notification, @Nonnull HyperlinkEvent event)
 			{
 				if(event.getEventType() == HyperlinkEvent.EventType.ACTIVATED)
 				{
@@ -109,8 +109,8 @@ public class GitUntrackedFilesHelper
 		});
 	}
 
-	@NotNull
-	public static String createUntrackedFilesOverwrittenDescription(@NotNull final String operation, boolean addLinkToViewFiles)
+	@Nonnull
+	public static String createUntrackedFilesOverwrittenDescription(@Nonnull final String operation, boolean addLinkToViewFiles)
 	{
 		final String description1 = " untracked working tree files would be overwritten by " + operation + ".";
 		final String description2 = "Please move or remove them before you can " + operation + ".";
@@ -136,11 +136,11 @@ public class GitUntrackedFilesHelper
 	 *
 	 * @return true if the user agrees to rollback, false if the user decides to keep things as is and simply close the dialog.
 	 */
-	public static boolean showUntrackedFilesDialogWithRollback(@NotNull final Project project,
-			@NotNull final String operationName,
-			@NotNull final String rollbackProposal,
-			@NotNull VirtualFile root,
-			@NotNull final Collection<String> relativePaths)
+	public static boolean showUntrackedFilesDialogWithRollback(@Nonnull final Project project,
+			@Nonnull final String operationName,
+			@Nonnull final String rollbackProposal,
+			@Nonnull VirtualFile root,
+			@Nonnull final Collection<String> relativePaths)
 	{
 		final Collection<String> absolutePaths = GitUtil.toAbsolute(root, relativePaths);
 		final List<VirtualFile> untrackedFiles = ContainerUtil.mapNotNull(absolutePaths, new Function<String, VirtualFile>()
@@ -187,7 +187,7 @@ public class GitUntrackedFilesHelper
 			init();
 		}
 
-		@NotNull
+		@Nonnull
 		@Override
 		protected Action[] createActions()
 		{
@@ -199,14 +199,14 @@ public class GitUntrackedFilesHelper
 	private static class UntrackedFilesRollBackDialog extends DialogWrapper
 	{
 
-		@NotNull
+		@Nonnull
 		private final JComponent myFilesBrowser;
-		@NotNull
+		@Nonnull
 		private final String myPrompt;
-		@NotNull
+		@Nonnull
 		private final String myRollbackProposal;
 
-		public UntrackedFilesRollBackDialog(@NotNull Project project, @NotNull JComponent filesBrowser, @NotNull String prompt, @NotNull String rollbackProposal)
+		public UntrackedFilesRollBackDialog(@Nonnull Project project, @Nonnull JComponent filesBrowser, @Nonnull String prompt, @Nonnull String rollbackProposal)
 		{
 			super(project);
 			myFilesBrowser = filesBrowser;

@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.diagnostic.Logger;
@@ -57,19 +57,19 @@ public class GitRebaser
 
 	private static final Logger LOG = Logger.getInstance(GitRebaser.class);
 
-	@NotNull
+	@Nonnull
 	private final Project myProject;
-	@NotNull
+	@Nonnull
 	private final Git myGit;
-	@NotNull
+	@Nonnull
 	private GitVcs myVcs;
-	@NotNull
+	@Nonnull
 	private ProgressIndicator myProgressIndicator;
 
-	@NotNull
+	@Nonnull
 	private List<GitRebaseUtils.CommitInfo> mySkippedCommits;
 
-	public GitRebaser(@NotNull Project project, @NotNull Git git, @NotNull ProgressIndicator progressIndicator)
+	public GitRebaser(@Nonnull Project project, @Nonnull Git git, @Nonnull ProgressIndicator progressIndicator)
 	{
 		myProject = project;
 		myGit = git;
@@ -78,7 +78,7 @@ public class GitRebaser
 		mySkippedCommits = new ArrayList<>();
 	}
 
-	public GitUpdateResult rebase(@NotNull VirtualFile root, @NotNull List<String> parameters, @Nullable final Runnable onCancel, @Nullable GitLineHandlerListener lineListener)
+	public GitUpdateResult rebase(@Nonnull VirtualFile root, @Nonnull List<String> parameters, @Nullable final Runnable onCancel, @Nullable GitLineHandlerListener lineListener)
 	{
 		final GitLineHandler rebaseHandler = createHandler(root);
 		rebaseHandler.setStdoutSuppressed(false);
@@ -124,7 +124,7 @@ public class GitRebaser
 		return new GitLineHandler(myProject, root, GitCommand.REBASE);
 	}
 
-	public void abortRebase(@NotNull VirtualFile root)
+	public void abortRebase(@Nonnull VirtualFile root)
 	{
 		LOG.info("abortRebase " + root);
 		final GitLineHandler rh = new GitLineHandler(myProject, root, GitCommand.REBASE);
@@ -135,7 +135,7 @@ public class GitRebaser
 		task.executeAsync(new GitTaskResultNotificationHandler(myProject, "Rebase aborted", "Abort rebase cancelled", "Error aborting rebase"));
 	}
 
-	public boolean continueRebase(@NotNull VirtualFile root)
+	public boolean continueRebase(@Nonnull VirtualFile root)
 	{
 		return continueRebase(root, "--continue");
 	}
@@ -145,7 +145,7 @@ public class GitRebaser
 	 *
 	 * @return true if rebase successfully finished.
 	 */
-	public boolean continueRebase(@NotNull Collection<VirtualFile> rebasingRoots)
+	public boolean continueRebase(@Nonnull Collection<VirtualFile> rebasingRoots)
 	{
 		AccessToken token = DvcsUtil.workingTreeChangeStarted(myProject);
 		try
@@ -164,7 +164,7 @@ public class GitRebaser
 	}
 
 	// start operation may be "--continue" or "--skip" depending on the situation.
-	private boolean continueRebase(final @NotNull VirtualFile root, @NotNull String startOperation)
+	private boolean continueRebase(final @Nonnull VirtualFile root, @Nonnull String startOperation)
 	{
 		LOG.info("continueRebase " + root + " " + startOperation);
 		final GitLineHandler rh = new GitLineHandler(myProject, root, GitCommand.REBASE);
@@ -194,7 +194,7 @@ public class GitRebaser
 	 * @return Roots which have unfinished rebase process. May be empty.
 	 */
 	public
-	@NotNull
+	@Nonnull
 	Collection<VirtualFile> getRebasingRoots()
 	{
 		final Collection<VirtualFile> rebasingRoots = new HashSet<>();
@@ -215,7 +215,7 @@ public class GitRebaser
 	 * NB: If there are merges in the unpushed commits being reordered, a conflict would happen. The calling code should probably
 	 * prohibit reordering merge commits.
 	 */
-	public boolean reoderCommitsIfNeeded(@NotNull final VirtualFile root, @NotNull String parentCommit, @NotNull List<String> olderCommits) throws VcsException
+	public boolean reoderCommitsIfNeeded(@Nonnull final VirtualFile root, @Nonnull String parentCommit, @Nonnull List<String> olderCommits) throws VcsException
 	{
 		List<String> allCommits = new ArrayList<>(); //TODO
 		if(olderCommits.isEmpty() || olderCommits.size() == allCommits.size())
@@ -348,7 +348,7 @@ public class GitRebaser
 		}
 	}
 
-	private void stageEverything(@NotNull VirtualFile root) throws VcsException
+	private void stageEverything(@Nonnull VirtualFile root) throws VcsException
 	{
 		GitSimpleHandler handler = new GitSimpleHandler(myProject, root, GitCommand.ADD);
 		handler.setSilent(false);
@@ -367,7 +367,7 @@ public class GitRebaser
 
 	public static class TrivialEditor extends GitInteractiveRebaseEditorHandler
 	{
-		public TrivialEditor(@NotNull GitRebaseEditorService service, @NotNull Project project, @NotNull VirtualFile root, @NotNull GitHandler handler)
+		public TrivialEditor(@Nonnull GitRebaseEditorService service, @Nonnull Project project, @Nonnull VirtualFile root, @Nonnull GitHandler handler)
 		{
 			super(service, project, root, handler);
 		}
@@ -379,12 +379,12 @@ public class GitRebaser
 		}
 	}
 
-	@NotNull
-	public GitUpdateResult handleRebaseFailure(@NotNull GitLineHandler handler,
-			@NotNull VirtualFile root,
-			@NotNull GitRebaseProblemDetector rebaseConflictDetector,
-			@NotNull GitMessageWithFilesDetector untrackedWouldBeOverwrittenDetector,
-			@NotNull GitLocalChangesWouldBeOverwrittenDetector localChangesDetector)
+	@Nonnull
+	public GitUpdateResult handleRebaseFailure(@Nonnull GitLineHandler handler,
+			@Nonnull VirtualFile root,
+			@Nonnull GitRebaseProblemDetector rebaseConflictDetector,
+			@Nonnull GitMessageWithFilesDetector untrackedWouldBeOverwrittenDetector,
+			@Nonnull GitLocalChangesWouldBeOverwrittenDetector localChangesDetector)
 	{
 		if(rebaseConflictDetector.isMergeConflict())
 		{
@@ -413,12 +413,12 @@ public class GitRebaser
 
 	public static class ConflictResolver extends GitConflictResolver
 	{
-		@NotNull
+		@Nonnull
 		private final GitRebaser myRebaser;
-		@NotNull
+		@Nonnull
 		private final VirtualFile myRoot;
 
-		public ConflictResolver(@NotNull Project project, @NotNull Git git, @NotNull VirtualFile root, @NotNull GitRebaser rebaser)
+		public ConflictResolver(@Nonnull Project project, @Nonnull Git git, @Nonnull VirtualFile root, @Nonnull GitRebaser rebaser)
 		{
 			super(project, git, Collections.singleton(root), makeParams());
 			myRebaser = rebaser;

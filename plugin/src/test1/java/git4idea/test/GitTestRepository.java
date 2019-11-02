@@ -18,8 +18,8 @@ package git4idea.test;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.vcsUtil.VcsUtil;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,15 +36,15 @@ public class GitTestRepository {
   private File myRootDir;
   private GitTestRunEnv myRunEnv;
 
-  @NotNull
-  public static GitTestRepository init(@NotNull File dir) throws IOException {
+  @Nonnull
+  public static GitTestRepository init(@Nonnull File dir) throws IOException {
     GitTestRepository repo = new GitTestRepository(dir);
     repo.init();
     return repo;
   }
 
-  @NotNull
-  public static GitTestRepository clone(@NotNull GitTestRepository sourceRepo, @NotNull File targetDir) throws IOException {
+  @Nonnull
+  public static GitTestRepository clone(@Nonnull GitTestRepository sourceRepo, @Nonnull File targetDir) throws IOException {
     sourceRepo.run("clone", sourceRepo.getRootDir().getPath(), targetDir.getPath());
     return new GitTestRepository(targetDir);
   }
@@ -53,7 +53,7 @@ public class GitTestRepository {
    * Create new GitTestRepository related to the given directory - the Git repository root.
    * @param rootDir
    */
-  public GitTestRepository(@NotNull File rootDir) {
+  public GitTestRepository(@Nonnull File rootDir) {
     myRootDir = rootDir;
     myRunEnv = new GitTestRunEnv(myRootDir);
   }
@@ -62,12 +62,12 @@ public class GitTestRepository {
     myRunEnv.run("init");
   }
 
-  @NotNull
+  @Nonnull
   public File getRootDir() {
     return myRootDir;
   }
 
-  @NotNull
+  @Nonnull
   public VirtualFile getVFRootDir() {
     final VirtualFile vf = VcsUtil.getVirtualFile(myRootDir);
     assert vf != null;
@@ -86,12 +86,12 @@ public class GitTestRepository {
    * @param content  initial content for the file.
    * @return The created file.
    */
-  @NotNull
+  @Nonnull
   public File createFile(String filename, String content) throws IOException {
     return createFile(myRootDir, filename, content);
   }
   
-  @NotNull
+  @Nonnull
   public static File createFile(File parentDir, String filename, String content) throws IOException {
     File f = new File(parentDir, filename);
     assert f.createNewFile();
@@ -99,7 +99,7 @@ public class GitTestRepository {
     return f;
   }
 
-  @NotNull
+  @Nonnull
   public VirtualFile createVFile(String filename, String content) throws IOException {
     File f = createFile(filename, content);
     refresh();
@@ -108,12 +108,12 @@ public class GitTestRepository {
     return virtualFile;
   }
 
-  @NotNull
+  @Nonnull
   public File createDir(String dirname) {
     return createDir(myRootDir.getPath(), dirname);
   }
 
-  @NotNull
+  @Nonnull
   public VirtualFile createVDir(String dirname) {
     File d = createDir(dirname);
     refresh();

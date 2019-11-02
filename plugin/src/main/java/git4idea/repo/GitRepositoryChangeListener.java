@@ -15,7 +15,7 @@
  */
 package git4idea.repo;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 /**
  * {@link #repositoryChanged(GitRepository)} is called on every {@link GitRepository} change.
@@ -23,6 +23,6 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface GitRepositoryChangeListener {
 
-  void repositoryChanged(@NotNull GitRepository repository);
+  void repositoryChanged(@Nonnull GitRepository repository);
 
 }

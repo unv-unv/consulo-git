@@ -40,8 +40,8 @@ import git4idea.config.GitExecutableValidator;
 import git4idea.history.browser.SHAHash;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import javax.inject.Singleton;
 import javax.swing.*;
@@ -56,9 +56,10 @@ public class GitHistoryProvider implements VcsHistoryProvider, VcsCacheableHisto
                                            VcsBaseRevisionAdviser {
   private static final Logger log = Logger.getInstance(GitHistoryProvider.class.getName());
 
-  @NotNull private final Project myProject;
+  @Nonnull
+  private final Project myProject;
 
-  public GitHistoryProvider(@NotNull Project project) {
+  public GitHistoryProvider(@Nonnull Project project) {
     myProject = project;
   }
 
@@ -91,8 +92,8 @@ public class GitHistoryProvider implements VcsHistoryProvider, VcsCacheableHisto
 
   @Override
   public VcsAbstractHistorySession createFromCachedData(Boolean aBoolean,
-                                                        @NotNull List<VcsFileRevision> revisions,
-                                                        @NotNull FilePath filePath,
+                                                        @Nonnull List<VcsFileRevision> revisions,
+                                                        @Nonnull FilePath filePath,
                                                         VcsRevisionNumber currentRevision) {
     return createSession(filePath, revisions, currentRevision);
   }
@@ -186,8 +187,8 @@ public class GitHistoryProvider implements VcsHistoryProvider, VcsCacheableHisto
   /**
    * Refreshes the IO File inside this FilePath to let it survive moves.
    */
-  @NotNull
-  private static FilePath refreshPath(@NotNull FilePath path) {
+  @Nonnull
+  private static FilePath refreshPath(@Nonnull FilePath path) {
     VirtualFile virtualFile = path.getVirtualFile();
     if (virtualFile == null) {
       return path;
@@ -205,7 +206,7 @@ public class GitHistoryProvider implements VcsHistoryProvider, VcsCacheableHisto
   }
 
   @Override
-  public boolean canShowHistoryFor(@NotNull VirtualFile file) {
+  public boolean canShowHistoryFor(@Nonnull VirtualFile file) {
     GitRepositoryManager manager = GitUtil.getRepositoryManager(myProject);
     GitRepository repository = manager.getRepositoryForFile(file);
     return repository != null && !repository.isFresh();

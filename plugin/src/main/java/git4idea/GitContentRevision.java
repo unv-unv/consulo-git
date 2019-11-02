@@ -19,8 +19,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.Throwable2Computable;
@@ -46,17 +46,17 @@ public class GitContentRevision implements ContentRevision
 	/**
 	 * the file path
 	 */
-	@NotNull
+	@Nonnull
 	protected final FilePath myFile;
 	/**
 	 * the revision number
 	 */
-	@NotNull
+	@Nonnull
 	protected final GitRevisionNumber myRevision;
 	/**
 	 * the context project
 	 */
-	@NotNull
+	@Nonnull
 	protected final Project myProject;
 	/**
 	 * The charset for the file
@@ -64,7 +64,7 @@ public class GitContentRevision implements ContentRevision
 	@Nullable
 	private Charset myCharset;
 
-	protected GitContentRevision(@NotNull FilePath file, @NotNull GitRevisionNumber revision, @NotNull Project project, @Nullable Charset charset)
+	protected GitContentRevision(@Nonnull FilePath file, @Nonnull GitRevisionNumber revision, @Nonnull Project project, @Nullable Charset charset)
 	{
 		myProject = project;
 		myFile = file;
@@ -103,13 +103,13 @@ public class GitContentRevision implements ContentRevision
 		return GitFileUtils.getFileContent(myProject, root, myRevision.getRev(), VcsFileUtil.relativePath(root, myFile));
 	}
 
-	@NotNull
+	@Nonnull
 	public FilePath getFile()
 	{
 		return myFile;
 	}
 
-	@NotNull
+	@Nonnull
 	public VcsRevisionNumber getRevisionNumber()
 	{
 		return myRevision;
@@ -167,7 +167,7 @@ public class GitContentRevision implements ContentRevision
 		return createRevision(file, revisionNumber, project);
 	}
 
-	private static ContentRevision createRevision(@NotNull FilePath filePath, @Nullable VcsRevisionNumber revisionNumber, @NotNull Project project)
+	private static ContentRevision createRevision(@Nonnull FilePath filePath, @Nullable VcsRevisionNumber revisionNumber, @Nonnull Project project)
 	{
 		if(revisionNumber != null && revisionNumber != VcsRevisionNumber.NULL)
 		{
@@ -179,9 +179,9 @@ public class GitContentRevision implements ContentRevision
 		}
 	}
 
-	public static ContentRevision createRevisionForTypeChange(@NotNull Project project,
-			@NotNull VirtualFile vcsRoot,
-			@NotNull String path,
+	public static ContentRevision createRevisionForTypeChange(@Nonnull Project project,
+			@Nonnull VirtualFile vcsRoot,
+			@Nonnull String path,
 			@Nullable VcsRevisionNumber revisionNumber,
 			boolean unescapePath) throws VcsException
 	{
@@ -199,8 +199,8 @@ public class GitContentRevision implements ContentRevision
 		return createRevision(filePath, revisionNumber, project);
 	}
 
-	public static FilePath createPath(@NotNull VirtualFile vcsRoot,
-			@NotNull String path,
+	public static FilePath createPath(@Nonnull VirtualFile vcsRoot,
+			@Nonnull String path,
 			boolean isDeleted,
 			boolean canBeDeleted,
 			boolean unescapePath) throws VcsException
@@ -215,31 +215,31 @@ public class GitContentRevision implements ContentRevision
 		return file;
 	}
 
-	private static String makeAbsolutePath(@NotNull VirtualFile vcsRoot, @NotNull String path, boolean unescapePath) throws VcsException
+	private static String makeAbsolutePath(@Nonnull VirtualFile vcsRoot, @Nonnull String path, boolean unescapePath) throws VcsException
 	{
 		final String unescapedPath = unescapePath ? GitUtil.unescapePath(path) : path;
 		return vcsRoot.getPath() + "/" + unescapedPath;
 	}
 
-	public static ContentRevision createRevision(@NotNull final VirtualFile file,
+	public static ContentRevision createRevision(@Nonnull final VirtualFile file,
 			@Nullable final VcsRevisionNumber revisionNumber,
-			@NotNull final Project project)
+			@Nonnull final Project project)
 	{
 		return createRevision(file, revisionNumber, project, null);
 	}
 
-	public static ContentRevision createRevision(@NotNull final VirtualFile file,
+	public static ContentRevision createRevision(@Nonnull final VirtualFile file,
 			@Nullable final VcsRevisionNumber revisionNumber,
-			@NotNull final Project project,
+			@Nonnull final Project project,
 			@Nullable final Charset charset)
 	{
 		final FilePathImpl filePath = new FilePathImpl(file);
 		return createRevision(filePath, revisionNumber, project, charset);
 	}
 
-	public static ContentRevision createRevision(@NotNull final FilePath filePath,
+	public static ContentRevision createRevision(@Nonnull final FilePath filePath,
 			@Nullable final VcsRevisionNumber revisionNumber,
-			@NotNull final Project project,
+			@Nonnull final Project project,
 			@Nullable final Charset charset)
 	{
 		if(revisionNumber != null && revisionNumber != VcsRevisionNumber.NULL)
@@ -252,9 +252,9 @@ public class GitContentRevision implements ContentRevision
 		}
 	}
 
-	private static GitContentRevision createRevisionImpl(@NotNull FilePath path,
-			@NotNull GitRevisionNumber revisionNumber,
-			@NotNull Project project,
+	private static GitContentRevision createRevisionImpl(@Nonnull FilePath path,
+			@Nonnull GitRevisionNumber revisionNumber,
+			@Nonnull Project project,
 			@Nullable final Charset charset)
 	{
 		if(path.getFileType().isBinary())

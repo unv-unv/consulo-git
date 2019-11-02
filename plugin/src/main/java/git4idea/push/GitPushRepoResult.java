@@ -19,8 +19,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
 import git4idea.GitLocalBranch;
@@ -59,28 +59,28 @@ class GitPushRepoResult
 		}
 	};
 
-	@NotNull
+	@Nonnull
 	private final Type myType;
 	private final int myCommits;
-	@NotNull
+	@Nonnull
 	private final String mySourceBranch;
-	@NotNull
+	@Nonnull
 	private final String myTargetBranch;
-	@NotNull
+	@Nonnull
 	private final String myTargetRemote;
-	@NotNull
+	@Nonnull
 	private final List<String> myPushedTags;
 	@Nullable
 	private final String myError;
 	@Nullable
 	private final GitUpdateResult myUpdateResult;
 
-	@NotNull
-	static GitPushRepoResult convertFromNative(@NotNull GitPushNativeResult result,
-			@NotNull List<GitPushNativeResult> tagResults,
+	@Nonnull
+	static GitPushRepoResult convertFromNative(@Nonnull GitPushNativeResult result,
+			@Nonnull List<GitPushNativeResult> tagResults,
 			int commits,
-			@NotNull GitLocalBranch source,
-			@NotNull GitRemoteBranch target)
+			@Nonnull GitLocalBranch source,
+			@Nonnull GitRemoteBranch target)
 	{
 		List<String> tags = ContainerUtil.map(tagResults, new Function<GitPushNativeResult, String>()
 		{
@@ -93,31 +93,31 @@ class GitPushRepoResult
 		return new GitPushRepoResult(convertType(result), commits, source.getFullName(), target.getFullName(), target.getRemote().getName(), tags, null, null);
 	}
 
-	@NotNull
-	static GitPushRepoResult error(@NotNull GitLocalBranch source, @NotNull GitRemoteBranch target, @NotNull String error)
+	@Nonnull
+	static GitPushRepoResult error(@Nonnull GitLocalBranch source, @Nonnull GitRemoteBranch target, @Nonnull String error)
 	{
 		return new GitPushRepoResult(Type.ERROR, -1, source.getFullName(), target.getFullName(), target.getRemote().getName(), Collections.<String>emptyList(), error, null);
 	}
 
-	@NotNull
+	@Nonnull
 	static GitPushRepoResult notPushed(GitLocalBranch source, GitRemoteBranch target)
 	{
 		return new GitPushRepoResult(Type.NOT_PUSHED, -1, source.getFullName(), target.getFullName(), target.getRemote().getName(), Collections.<String>emptyList(), null, null);
 	}
 
-	@NotNull
+	@Nonnull
 	static GitPushRepoResult addUpdateResult(GitPushRepoResult original, GitUpdateResult updateResult)
 	{
 		return new GitPushRepoResult(original.getType(), original.getNumberOfPushedCommits(), original.getSourceBranch(), original.getTargetBranch(), original.getTargetRemote(),
 				original.getPushedTags(), original.getError(), updateResult);
 	}
 
-	private GitPushRepoResult(@NotNull Type type,
+	private GitPushRepoResult(@Nonnull Type type,
 			int pushedCommits,
-			@NotNull String sourceBranch,
-			@NotNull String targetBranch,
-			@NotNull String targetRemote,
-			@NotNull List<String> pushedTags,
+			@Nonnull String sourceBranch,
+			@Nonnull String targetBranch,
+			@Nonnull String targetRemote,
+			@Nonnull List<String> pushedTags,
 			@Nullable String error,
 			@Nullable GitUpdateResult result)
 	{
@@ -131,7 +131,7 @@ class GitPushRepoResult
 		myUpdateResult = result;
 	}
 
-	@NotNull
+	@Nonnull
 	Type getType()
 	{
 		return myType;
@@ -151,7 +151,7 @@ class GitPushRepoResult
 	/**
 	 * Returns the branch we were pushing from, in the full-name format, e.g. {@code refs/heads/master}.
 	 */
-	@NotNull
+	@Nonnull
 	String getSourceBranch()
 	{
 		return mySourceBranch;
@@ -160,7 +160,7 @@ class GitPushRepoResult
 	/**
 	 * Returns the branch we were pushing to, in the full-name format, e.g. {@code refs/remotes/origin/master}.
 	 */
-	@NotNull
+	@Nonnull
 	String getTargetBranch()
 	{
 		return myTargetBranch;
@@ -172,20 +172,20 @@ class GitPushRepoResult
 		return myError;
 	}
 
-	@NotNull
+	@Nonnull
 	List<String> getPushedTags()
 	{
 		return myPushedTags;
 	}
 
-	@NotNull
+	@Nonnull
 	public String getTargetRemote()
 	{
 		return myTargetRemote;
 	}
 
-	@NotNull
-	private static Type convertType(@NotNull GitPushNativeResult nativeResult)
+	@Nonnull
+	private static Type convertType(@Nonnull GitPushNativeResult nativeResult)
 	{
 		switch(nativeResult.getType())
 		{

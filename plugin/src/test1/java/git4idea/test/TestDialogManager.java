@@ -16,8 +16,8 @@
 package git4idea.test;
 
 import com.intellij.openapi.ui.DialogWrapper;
-import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;

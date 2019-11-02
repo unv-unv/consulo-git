@@ -15,6 +15,7 @@
  */
 package git4idea.remote;
 
+import javax.annotation.Nonnull;
 import javax.inject.Singleton;
 
 import com.intellij.openapi.application.ModalityState;
@@ -22,8 +23,8 @@ import com.intellij.openapi.project.Project;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitHttpAuthService;
 import git4idea.commands.GitHttpAuthenticator;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nullable;
 
 /**
  * @author Kirill Likhodedov
@@ -31,16 +32,17 @@ import org.jetbrains.annotations.Nullable;
 @Singleton
 public class GitHttpAuthTestService extends GitHttpAuthService {
 
-  @NotNull private GitHttpAuthenticator myAuthenticator = new GitHttpAuthenticator() {
-    @NotNull
+  @Nonnull
+  private GitHttpAuthenticator myAuthenticator = new GitHttpAuthenticator() {
+    @Nonnull
     @Override
-    public String askPassword(@NotNull String url) {
+    public String askPassword(@Nonnull String url) {
       throw new IllegalStateException("Authenticator was not registered");
     }
 
-    @NotNull
+    @Nonnull
     @Override
-    public String askUsername(@NotNull String url) {
+    public String askUsername(@Nonnull String url) {
       throw new IllegalStateException("Authenticator was not registered");
     }
 
@@ -55,14 +57,14 @@ public class GitHttpAuthTestService extends GitHttpAuthService {
     }
   };
 
-  @NotNull
+  @Nonnull
   @Override
-  public GitHttpAuthenticator createAuthenticator(@NotNull Project project, @Nullable ModalityState state, @NotNull GitCommand command,
-                                                  @NotNull String url) {
+  public GitHttpAuthenticator createAuthenticator(@Nonnull Project project, @Nullable ModalityState state, @Nonnull GitCommand command,
+												  @Nonnull String url) {
     return myAuthenticator;
   }
 
-  public void register(@NotNull GitHttpAuthenticator authenticator) {
+  public void register(@Nonnull GitHttpAuthenticator authenticator) {
     myAuthenticator = authenticator;
   }
 

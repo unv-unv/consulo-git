@@ -29,8 +29,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.dvcs.repo.RepoStateException;
 import com.intellij.dvcs.repo.Repository;
@@ -67,18 +67,18 @@ class GitRepositoryReader
 	@NonNls
 	private static final String REFS_REMOTES_PREFIX = "refs/remotes/";
 
-	@NotNull
+	@Nonnull
 	private final File myHeadFile;       // .git/HEAD
-	@NotNull
+	@Nonnull
 	private final File myRefsHeadsDir;   // .git/refs/heads/
-	@NotNull
+	@Nonnull
 	private final File myRefsRemotesDir; // .git/refs/remotes/
-	@NotNull
+	@Nonnull
 	private final File myPackedRefsFile; // .git/packed-refs
-	@NotNull
+	@Nonnull
 	private final GitRepositoryFiles myGitFiles;
 
-	GitRepositoryReader(@NotNull GitRepositoryFiles gitFiles)
+	GitRepositoryReader(@Nonnull GitRepositoryFiles gitFiles)
 	{
 		myGitFiles = gitFiles;
 		myHeadFile = gitFiles.getHeadFile();
@@ -88,8 +88,8 @@ class GitRepositoryReader
 		myPackedRefsFile = gitFiles.getPackedRefsPath();
 	}
 
-	@NotNull
-	GitBranchState readState(@NotNull Collection<GitRemote> remotes)
+	@Nonnull
+	GitBranchState readState(@Nonnull Collection<GitRemote> remotes)
 	{
 		Pair<Map<GitLocalBranch, Hash>, Map<GitRemoteBranch, Hash>> branches = readBranches(remotes);
 		Map<GitLocalBranch, Hash> localBranches = branches.first;
@@ -121,19 +121,19 @@ class GitRepositoryReader
 		return new GitBranchState(currentRevision, currentBranch, state, localBranches, branches.second);
 	}
 
-	@NotNull
+	@Nonnull
 	GitHooksInfo readHooksInfo()
 	{
 		return new GitHooksInfo(isExistingExecutableFile(myGitFiles.getPreCommitHookFile()), isExistingExecutableFile(myGitFiles.getPrePushHookFile()));
 	}
 
-	private static boolean isExistingExecutableFile(@NotNull File file)
+	private static boolean isExistingExecutableFile(@Nonnull File file)
 	{
 		return file.exists() && file.canExecute();
 	}
 
 	@Nullable
-	private static String getCurrentRevision(@NotNull HeadInfo headInfo, @Nullable Hash currentBranchHash)
+	private static String getCurrentRevision(@Nonnull HeadInfo headInfo, @Nullable Hash currentBranchHash)
 	{
 		String currentRevision;
 		if(!headInfo.isBranch)
@@ -152,7 +152,7 @@ class GitRepositoryReader
 	}
 
 	@Nullable
-	private GitLocalBranch findCurrentBranch(@NotNull HeadInfo headInfo, @NotNull Repository.State state, @NotNull Set<GitLocalBranch> localBranches)
+	private GitLocalBranch findCurrentBranch(@Nonnull HeadInfo headInfo, @Nonnull Repository.State state, @Nonnull Set<GitLocalBranch> localBranches)
 	{
 		final String currentBranchName = findCurrentBranchName(state, headInfo);
 		if(currentBranchName == null)
@@ -162,8 +162,8 @@ class GitRepositoryReader
 		return ContainerUtil.find(localBranches, branch -> BRANCH_NAME_HASHING_STRATEGY.equals(branch.getFullName(), currentBranchName));
 	}
 
-	@NotNull
-	private Repository.State readRepositoryState(@NotNull HeadInfo headInfo)
+	@Nonnull
+	private Repository.State readRepositoryState(@Nonnull HeadInfo headInfo)
 	{
 		if(isMergeInProgress())
 		{
@@ -181,7 +181,7 @@ class GitRepositoryReader
 	}
 
 	@Nullable
-	private String findCurrentBranchName(@NotNull Repository.State state, @NotNull HeadInfo headInfo)
+	private String findCurrentBranchName(@Nonnull Repository.State state, @Nonnull HeadInfo headInfo)
 	{
 		String currentBranch = null;
 		if(headInfo.isBranch)
@@ -233,7 +233,7 @@ class GitRepositoryReader
 		return myGitFiles.getRebaseApplyDir().exists() || myGitFiles.getRebaseMergeDir().exists();
 	}
 
-	@NotNull
+	@Nonnull
 	private Map<String, String> readPackedBranches()
 	{
 		if(!myPackedRefsFile.exists())
@@ -251,15 +251,15 @@ class GitRepositoryReader
 		}
 	}
 
-	@NotNull
-	private Pair<Map<GitLocalBranch, Hash>, Map<GitRemoteBranch, Hash>> readBranches(@NotNull Collection<GitRemote> remotes)
+	@Nonnull
+	private Pair<Map<GitLocalBranch, Hash>, Map<GitRemoteBranch, Hash>> readBranches(@Nonnull Collection<GitRemote> remotes)
 	{
 		Map<String, String> data = readBranchRefsFromFiles();
 		Map<String, Hash> resolvedRefs = resolveRefs(data);
 		return createBranchesFromData(remotes, resolvedRefs);
 	}
 
-	@NotNull
+	@Nonnull
 	private Map<String, String> readBranchRefsFromFiles()
 	{
 		Map<String, String> result = ContainerUtil.newHashMap(readPackedBranches()); // reading from packed-refs first to overwrite values by values from unpacked refs
@@ -269,8 +269,8 @@ class GitRepositoryReader
 		return result;
 	}
 
-	@NotNull
-	private static Pair<Map<GitLocalBranch, Hash>, Map<GitRemoteBranch, Hash>> createBranchesFromData(@NotNull Collection<GitRemote> remotes, @NotNull Map<String, Hash> data)
+	@Nonnull
+	private static Pair<Map<GitLocalBranch, Hash>, Map<GitRemoteBranch, Hash>> createBranchesFromData(@Nonnull Collection<GitRemote> remotes, @Nonnull Map<String, Hash> data)
 	{
 		Map<GitLocalBranch, Hash> localBranches = ContainerUtil.newHashMap();
 		Map<GitRemoteBranch, Hash> remoteBranches = ContainerUtil.newHashMap();
@@ -295,13 +295,13 @@ class GitRepositoryReader
 	}
 
 	@Nullable
-	private static String loadHashFromBranchFile(@NotNull File branchFile)
+	private static String loadHashFromBranchFile(@Nonnull File branchFile)
 	{
 		return DvcsUtil.tryLoadFileOrReturn(branchFile, null);
 	}
 
-	@NotNull
-	private static Map<String, String> readFromBranchFiles(@NotNull final File refsRootDir, @NotNull final String prefix)
+	@Nonnull
+	private static Map<String, String> readFromBranchFiles(@Nonnull final File refsRootDir, @Nonnull final String prefix)
 	{
 		if(!refsRootDir.exists())
 		{
@@ -332,13 +332,13 @@ class GitRepositoryReader
 		return result;
 	}
 
-	private static boolean isHidden(@NotNull File file)
+	private static boolean isHidden(@Nonnull File file)
 	{
 		return file.getName().startsWith(".");
 	}
 
-	@NotNull
-	private static GitRemoteBranch parseRemoteBranch(@NotNull String fullBranchName, @NotNull Collection<GitRemote> remotes)
+	@Nonnull
+	private static GitRemoteBranch parseRemoteBranch(@Nonnull String fullBranchName, @Nonnull Collection<GitRemote> remotes)
 	{
 		String stdName = GitBranchUtil.stripRefsPrefix(fullBranchName);
 
@@ -372,7 +372,7 @@ class GitRepositoryReader
 		}
 	}
 
-	@NotNull
+	@Nonnull
 	private HeadInfo readHead()
 	{
 		String headContent;
@@ -407,7 +407,7 @@ class GitRepositoryReader
 	 * A line indicating a hash which an annotated tag (specified in the previous line) points to, is ignored: null is returned.
 	 */
 	@Nullable
-	private static Pair<String, String> parsePackedRefsLine(@NotNull String line)
+	private static Pair<String, String> parsePackedRefsLine(@Nonnull String line)
 	{
 		line = line.trim();
 		if(line.isEmpty())
@@ -463,14 +463,14 @@ class GitRepositoryReader
 		return Pair.create(shortBuffer(branch), shortBuffer(hash.trim()));
 	}
 
-	@NotNull
+	@Nonnull
 	private static String shortBuffer(String raw)
 	{
 		return new String(raw);
 	}
 
-	@NotNull
-	private static Map<String, Hash> resolveRefs(@NotNull Map<String, String> data)
+	@Nonnull
+	private static Map<String, Hash> resolveRefs(@Nonnull Map<String, String> data)
 	{
 		final Map<String, Hash> resolved = getResolvedHashes(data);
 		Map<String, String> unresolved = ContainerUtil.filter(data, refName -> !resolved.containsKey(refName));
@@ -517,8 +517,8 @@ class GitRepositoryReader
 		return resolved;
 	}
 
-	@NotNull
-	private static Map<String, Hash> getResolvedHashes(@NotNull Map<String, String> data)
+	@Nonnull
+	private static Map<String, Hash> getResolvedHashes(@Nonnull Map<String, String> data)
 	{
 		Map<String, Hash> resolved = ContainerUtil.newHashMap();
 		for(Map.Entry<String, String> entry : data.entrySet())
@@ -534,7 +534,7 @@ class GitRepositoryReader
 	}
 
 	@Nullable
-	private static String getTarget(@NotNull String refName)
+	private static String getTarget(@Nonnull String refName)
 	{
 		Matcher matcher = BRANCH_PATTERN.matcher(refName);
 		if(!matcher.matches())
@@ -550,7 +550,7 @@ class GitRepositoryReader
 	}
 
 	@Nullable
-	private static Hash parseHash(@NotNull String value)
+	private static Hash parseHash(@Nonnull String value)
 	{
 		try
 		{
@@ -562,7 +562,7 @@ class GitRepositoryReader
 		}
 	}
 
-	private static boolean duplicateEntry(@NotNull Map<String, Hash> resolved, @NotNull String refName, @NotNull Object newValue)
+	private static boolean duplicateEntry(@Nonnull Map<String, Hash> resolved, @Nonnull String refName, @Nonnull Object newValue)
 	{
 		if(resolved.containsKey(refName))
 		{

@@ -17,8 +17,8 @@ package git4idea.branch;
 
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import git4idea.repo.GitRepository;
 
 /**
@@ -42,7 +42,7 @@ public interface GitBrancher
 	 * @param name         name of the new branch to check out.
 	 * @param repositories repositories to operate on.
 	 */
-	void checkoutNewBranch(@NotNull String name, @NotNull List<GitRepository> repositories);
+	void checkoutNewBranch(@Nonnull String name, @Nonnull List<GitRepository> repositories);
 
 	/**
 	 * <p>Creates new tag on the selected reference.</p>
@@ -53,7 +53,7 @@ public interface GitBrancher
 	 * @param callInAwtLater the Runnable that should be called after execution of the method (both successful and unsuccessful).
 	 *                       If given, it will be called in the EDT {@link javax.swing.SwingUtilities#invokeLater(Runnable) later}.
 	 */
-	void createNewTag(@NotNull String name, @NotNull String reference, @NotNull List<GitRepository> repositories, @Nullable Runnable callInAwtLater);
+	void createNewTag(@Nonnull String name, @Nonnull String reference, @Nonnull List<GitRepository> repositories, @Nullable Runnable callInAwtLater);
 
 	/**
 	 * <p>Checks out the given reference (a branch, or a reference name, or a commit hash).
@@ -70,7 +70,7 @@ public interface GitBrancher
 	 * @param callInAwtLater the Runnable that should be called after execution of the method (both successful and unsuccessful).
 	 *                       If given, it will be called in the EDT {@link javax.swing.SwingUtilities#invokeLater(Runnable) later}.
 	 */
-	void checkout(@NotNull String reference, boolean detach, @NotNull List<GitRepository> repositories, @Nullable Runnable callInAwtLater);
+	void checkout(@Nonnull String reference, boolean detach, @Nonnull List<GitRepository> repositories, @Nullable Runnable callInAwtLater);
 
 	/**
 	 * Creates and checks out a new local branch starting from the given reference:
@@ -83,7 +83,7 @@ public interface GitBrancher
 	 * @param callInAwtLater the Runnable that should be called after execution of the method (both successful and unsuccessful).
 	 *                       If given, it will be called in the EDT {@link javax.swing.SwingUtilities#invokeLater(Runnable) later}.
 	 */
-	void checkoutNewBranchStartingFrom(@NotNull String newBranchName, @NotNull String startPoint, @NotNull List<GitRepository> repositories, @Nullable Runnable callInAwtLater);
+	void checkoutNewBranchStartingFrom(@Nonnull String newBranchName, @Nonnull String startPoint, @Nonnull List<GitRepository> repositories, @Nullable Runnable callInAwtLater);
 
 	/**
 	 * <p>Deletes the branch with the specified name.</p>
@@ -95,7 +95,7 @@ public interface GitBrancher
 	 * @param branchName   the name of the branch to be deleted.
 	 * @param repositories repositories to operate on.
 	 */
-	void deleteBranch(@NotNull String branchName, @NotNull List<GitRepository> repositories);
+	void deleteBranch(@Nonnull String branchName, @Nonnull List<GitRepository> repositories);
 
 	/**
 	 * <p>Deletes the remote branch:</p>
@@ -104,7 +104,7 @@ public interface GitBrancher
 	 * @param branchName   name of the remote branch to delete.
 	 * @param repositories Repositories to operate on.
 	 */
-	void deleteRemoteBranch(@NotNull String branchName, @NotNull List<GitRepository> repositories);
+	void deleteRemoteBranch(@Nonnull String branchName, @Nonnull List<GitRepository> repositories);
 
 	/**
 	 * Compares the HEAD with the specified branch - shows a dialog with the differences.
@@ -115,7 +115,7 @@ public interface GitBrancher
 	 *                           The list of commits is displayed for the repository selected from the combobox.
 	 *                           This parameter tells which repository should be pre-selected in the combobox.
 	 */
-	void compare(@NotNull String branchName, @NotNull List<GitRepository> repositories, @NotNull GitRepository selectedRepository);
+	void compare(@Nonnull String branchName, @Nonnull List<GitRepository> repositories, @Nonnull GitRepository selectedRepository);
 
 	/**
 	 * <p>Merges the given branch to the HEAD.</p>
@@ -127,22 +127,22 @@ public interface GitBrancher
 	 * @param deleteOnMerge specify whether the branch should be automatically deleted or proposed to be deleted after merge.
 	 * @param repositories  repositories to operate on.
 	 */
-	void merge(@NotNull String branchName, @NotNull DeleteOnMergeOption deleteOnMerge, @NotNull List<GitRepository> repositories);
+	void merge(@Nonnull String branchName, @Nonnull DeleteOnMergeOption deleteOnMerge, @Nonnull List<GitRepository> repositories);
 
 	/**
 	 * Call {@code git rebase <branchName>} for each of the given repositories.
 	 */
-	void rebase(@NotNull List<GitRepository> repositories, @NotNull String branchName);
+	void rebase(@Nonnull List<GitRepository> repositories, @Nonnull String branchName);
 
 	/**
 	 * Call {@code git rebase <current branch> <branchName>} for each of the given repositories.
 	 */
-	void rebaseOnCurrent(@NotNull List<GitRepository> repositories, @NotNull String branchName);
+	void rebaseOnCurrent(@Nonnull List<GitRepository> repositories, @Nonnull String branchName);
 
 	/**
 	 * Renames the given branch.
 	 */
-	void renameBranch(@NotNull String currentName, @NotNull String newName, @NotNull List<GitRepository> repositories);
+	void renameBranch(@Nonnull String currentName, @Nonnull String newName, @Nonnull List<GitRepository> repositories);
 
 	/**
 	 * What should be done after successful merging a branch: delete the merged branch, propose to delete or do nothing.

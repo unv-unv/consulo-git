@@ -19,7 +19,7 @@ package git4idea;
 import com.intellij.openapi.vcs.AbstractVcs;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.containers.HashSet;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,8 +31,8 @@ public class GitRootConverter implements AbstractVcs.RootsConvertor {
 
   public static final GitRootConverter INSTANCE = new GitRootConverter();
 
-  @NotNull
-  public List<VirtualFile> convertRoots(@NotNull List<VirtualFile> result) {
+  @Nonnull
+  public List<VirtualFile> convertRoots(@Nonnull List<VirtualFile> result) {
     // TODO this should be faster, because it is called rather often. gitRootOrNull could be a bottle-neck.
     ArrayList<VirtualFile> roots = new ArrayList<VirtualFile>();
     HashSet<VirtualFile> listed = new HashSet<VirtualFile>();

@@ -29,8 +29,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.google.common.collect.Maps;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationAction;
@@ -73,19 +73,19 @@ class GitDeleteBranchOperation extends GitBranchOperation
 	static final String VIEW_COMMITS = "View Commits";
 	static final String DELETE_TRACKED_BRANCH = "Delete Tracked Branch";
 
-	@NotNull
+	@Nonnull
 	private final String myBranchName;
-	@NotNull
+	@Nonnull
 	private final VcsNotifier myNotifier;
-	@NotNull
+	@Nonnull
 	private final MultiMap<String, GitRepository> myTrackedBranches;
 
-	@NotNull
+	@Nonnull
 	private final Map<GitRepository, UnmergedBranchInfo> myUnmergedToBranches;
-	@NotNull
+	@Nonnull
 	private final Map<GitRepository, String> myDeletedBranchTips;
 
-	GitDeleteBranchOperation(@NotNull Project project, @NotNull Git git, @NotNull GitBranchUiHandler uiHandler, @NotNull Collection<GitRepository> repositories, @NotNull String branchName)
+	GitDeleteBranchOperation(@Nonnull Project project, @Nonnull Git git, @Nonnull GitBranchUiHandler uiHandler, @Nonnull Collection<GitRepository> repositories, @Nonnull String branchName)
 	{
 		super(project, git, uiHandler, repositories);
 		myBranchName = branchName;
@@ -162,7 +162,7 @@ class GitDeleteBranchOperation extends GitBranchOperation
 		notification.addAction(new NotificationAction(RESTORE)
 		{
 			@Override
-			public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification)
+			public void actionPerformed(@Nonnull AnActionEvent e, @Nonnull Notification notification)
 			{
 				restoreInBackground(notification);
 			}
@@ -172,7 +172,7 @@ class GitDeleteBranchOperation extends GitBranchOperation
 			notification.addAction(new NotificationAction(VIEW_COMMITS)
 			{
 				@Override
-				public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification)
+				public void actionPerformed(@Nonnull AnActionEvent e, @Nonnull Notification notification)
 				{
 					viewUnmergedCommitsInBackground(notification);
 				}
@@ -183,7 +183,7 @@ class GitDeleteBranchOperation extends GitBranchOperation
 			notification.addAction(new NotificationAction(DELETE_TRACKED_BRANCH)
 			{
 				@Override
-				public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification)
+				public void actionPerformed(@Nonnull AnActionEvent e, @Nonnull Notification notification)
 				{
 					deleteTrackedBranchInBackground();
 				}
@@ -192,7 +192,7 @@ class GitDeleteBranchOperation extends GitBranchOperation
 		myNotifier.notify(notification);
 	}
 
-	private static boolean hasOnlyTrackingBranch(@NotNull MultiMap<String, GitRepository> trackedBranches, @NotNull String localBranch)
+	private static boolean hasOnlyTrackingBranch(@Nonnull MultiMap<String, GitRepository> trackedBranches, @Nonnull String localBranch)
 	{
 		for(String remoteBranch : trackedBranches.keySet())
 		{
@@ -207,7 +207,7 @@ class GitDeleteBranchOperation extends GitBranchOperation
 		return true;
 	}
 
-	private static void refresh(@NotNull GitRepository... repositories)
+	private static void refresh(@Nonnull GitRepository... repositories)
 	{
 		for(GitRepository repository : repositories)
 		{
@@ -225,7 +225,7 @@ class GitDeleteBranchOperation extends GitBranchOperation
 		}
 	}
 
-	@NotNull
+	@Nonnull
 	private GitCompoundResult doRollback()
 	{
 		GitCompoundResult result = new GitCompoundResult(myProject);
@@ -252,8 +252,8 @@ class GitDeleteBranchOperation extends GitBranchOperation
 		return result;
 	}
 
-	@NotNull
-	private GitCommandResult setUpTracking(@NotNull GitRepository repository, @NotNull String branchName, @NotNull String trackedBranch)
+	@Nonnull
+	private GitCommandResult setUpTracking(@Nonnull GitRepository repository, @Nonnull String branchName, @Nonnull String trackedBranch)
 	{
 		GitLineHandler handler = new GitLineHandler(myProject, repository.getRoot(), GitCommand.BRANCH);
 		if(GitVersionSpecialty.KNOWS_SET_UPSTREAM_TO.existsIn(repository.getVcs().getVersion()))
@@ -267,19 +267,19 @@ class GitDeleteBranchOperation extends GitBranchOperation
 		return myGit.runCommand(handler);
 	}
 
-	@NotNull
+	@Nonnull
 	private String getErrorTitle()
 	{
 		return String.format("Branch %s wasn't deleted", myBranchName);
 	}
 
-	@NotNull
+	@Nonnull
 	public String getSuccessMessage()
 	{
 		return String.format("Deleted branch %s", formatBranchName(myBranchName));
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	protected String getRollbackProposal()
 	{
@@ -288,15 +288,15 @@ class GitDeleteBranchOperation extends GitBranchOperation
 				"<br/>You may rollback (recreate " + myBranchName + " in these roots) not to let branches diverge.";
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	protected String getOperationName()
 	{
 		return "branch deletion";
 	}
 
-	@NotNull
-	private static String formatBranchName(@NotNull String name)
+	@Nonnull
+	private static String formatBranchName(@Nonnull String name)
 	{
 		return "<b><code>" + name + "</code></b>";
 	}
@@ -308,7 +308,7 @@ class GitDeleteBranchOperation extends GitBranchOperation
 	 *
 	 * @return true if the branch should be restored.
 	 */
-	private boolean showNotFullyMergedDialog(@NotNull Map<GitRepository, UnmergedBranchInfo> unmergedBranches)
+	private boolean showNotFullyMergedDialog(@Nonnull Map<GitRepository, UnmergedBranchInfo> unmergedBranches)
 	{
 		Map<GitRepository, List<GitCommit>> history = new HashMap<>();
 		// we don't confuse user with the absence of repositories which branch was deleted w/o force,
@@ -329,8 +329,8 @@ class GitDeleteBranchOperation extends GitBranchOperation
 		return myUiHandler.showBranchIsNotFullyMergedDialog(myProject, history, baseBranches, myBranchName);
 	}
 
-	@NotNull
-	private static List<GitCommit> getUnmergedCommits(@NotNull GitRepository repository, @NotNull String branchName, @NotNull String baseBranch)
+	@Nonnull
+	private static List<GitCommit> getUnmergedCommits(@Nonnull GitRepository repository, @Nonnull String branchName, @Nonnull String baseBranch)
 	{
 		String range = baseBranch + ".." + branchName;
 		try
@@ -344,8 +344,8 @@ class GitDeleteBranchOperation extends GitBranchOperation
 		return Collections.emptyList();
 	}
 
-	@NotNull
-	private static MultiMap<String, GitRepository> groupByTrackedBranchName(@NotNull String branchName, @NotNull Collection<GitRepository> repositories)
+	@Nonnull
+	private static MultiMap<String, GitRepository> groupByTrackedBranchName(@Nonnull String branchName, @Nonnull Collection<GitRepository> repositories)
 	{
 		MultiMap<String, GitRepository> trackedBranchNames = MultiMap.createLinked();
 		for(GitRepository repository : repositories)
@@ -399,12 +399,12 @@ class GitDeleteBranchOperation extends GitBranchOperation
 
 	static class UnmergedBranchInfo
 	{
-		@NotNull
+		@Nonnull
 		private final String myTipOfDeletedUnmergedBranch;
-		@NotNull
+		@Nonnull
 		private final String myBaseBranch;
 
-		public UnmergedBranchInfo(@NotNull String tipOfDeletedUnmergedBranch, @NotNull String baseBranch)
+		public UnmergedBranchInfo(@Nonnull String tipOfDeletedUnmergedBranch, @Nonnull String baseBranch)
 		{
 			myTipOfDeletedUnmergedBranch = tipOfDeletedUnmergedBranch;
 			myBaseBranch = baseBranch;
@@ -416,7 +416,7 @@ class GitDeleteBranchOperation extends GitBranchOperation
 		new Task.Backgroundable(myProject, "Deleting Remote Branch " + myBranchName + "...")
 		{
 			@Override
-			public void run(@NotNull ProgressIndicator indicator)
+			public void run(@Nonnull ProgressIndicator indicator)
 			{
 				GitBrancher brancher = ServiceManager.getService(getProject(), GitBrancher.class);
 				for(String remoteBranch : myTrackedBranches.keySet())
@@ -427,19 +427,19 @@ class GitDeleteBranchOperation extends GitBranchOperation
 		}.queue();
 	}
 
-	private void restoreInBackground(@NotNull Notification notification)
+	private void restoreInBackground(@Nonnull Notification notification)
 	{
 		new Task.Backgroundable(myProject, "Restoring Branch " + myBranchName + "...")
 		{
 			@Override
-			public void run(@NotNull ProgressIndicator indicator)
+			public void run(@Nonnull ProgressIndicator indicator)
 			{
 				rollbackBranchDeletion(notification);
 			}
 		}.queue();
 	}
 
-	private void rollbackBranchDeletion(@NotNull Notification notification)
+	private void rollbackBranchDeletion(@Nonnull Notification notification)
 	{
 		GitCompoundResult result = doRollback();
 		if(result.totalSuccess())
@@ -452,12 +452,12 @@ class GitDeleteBranchOperation extends GitBranchOperation
 		}
 	}
 
-	private void viewUnmergedCommitsInBackground(@NotNull Notification notification)
+	private void viewUnmergedCommitsInBackground(@Nonnull Notification notification)
 	{
 		new Task.Backgroundable(myProject, "Collecting Unmerged Commits...")
 		{
 			@Override
-			public void run(@NotNull ProgressIndicator indicator)
+			public void run(@Nonnull ProgressIndicator indicator)
 			{
 				boolean restore = showNotFullyMergedDialog(myUnmergedToBranches);
 				if(restore)

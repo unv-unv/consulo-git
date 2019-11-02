@@ -18,7 +18,7 @@ package git4idea.commands;
 import java.util.Collection;
 import java.util.UUID;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.git4idea.http.GitAskPassApp;
 import org.jetbrains.git4idea.http.GitAskPassXmlRpcHandler;
 import org.jetbrains.git4idea.ssh.GitXmlRpcHandlerService;
@@ -37,11 +37,11 @@ public abstract class GitHttpAuthService extends GitXmlRpcHandlerService<GitHttp
 	}
 
 	@Override
-	protected void customizeScriptGenerator(@NotNull ScriptGenerator generator)
+	protected void customizeScriptGenerator(@Nonnull ScriptGenerator generator)
 	{
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	protected Object createRpcRequestHandlerDelegate()
 	{
@@ -51,24 +51,24 @@ public abstract class GitHttpAuthService extends GitXmlRpcHandlerService<GitHttp
 	/**
 	 * Creates new {@link GitHttpAuthenticator} that will be requested to handle username and password requests from Git.
 	 */
-	@NotNull
-	public abstract GitHttpAuthenticator createAuthenticator(@NotNull Project project, @NotNull GitCommand command, @NotNull Collection<String> urls);
+	@Nonnull
+	public abstract GitHttpAuthenticator createAuthenticator(@Nonnull Project project, @Nonnull GitCommand command, @Nonnull Collection<String> urls);
 
 	/**
 	 * Internal handler implementation class, it is made public to be accessible via XML RPC.
 	 */
 	public class InternalRequestHandlerDelegate implements GitAskPassXmlRpcHandler
 	{
-		@NotNull
+		@Nonnull
 		@Override
-		public String askUsername(String token, @NotNull String url)
+		public String askUsername(String token, @Nonnull String url)
 		{
 			return getHandler(UUID.fromString(token)).askUsername(url);
 		}
 
-		@NotNull
+		@Nonnull
 		@Override
-		public String askPassword(String token, @NotNull String url)
+		public String askPassword(String token, @Nonnull String url)
 		{
 			return getHandler(UUID.fromString(token)).askPassword(url);
 		}

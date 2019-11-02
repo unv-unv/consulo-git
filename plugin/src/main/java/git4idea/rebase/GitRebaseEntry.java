@@ -16,7 +16,7 @@
 package git4idea.rebase;
 
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.openapi.diagnostic.Logger;
 
 /**
@@ -121,8 +121,8 @@ class GitRebaseEntry
 
 		fixup;
 
-		@NotNull
-		static Action fromString(@NonNls @NotNull String actionName)
+		@Nonnull
+		static Action fromString(@NonNls @Nonnull String actionName)
 		{
 			try
 			{

@@ -18,20 +18,21 @@ package git4idea.commands;
 import java.io.File;
 import java.nio.charset.Charset;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.execution.process.KillableProcessHandler;
 import com.intellij.execution.process.OSProcessHandler;
 import com.intellij.execution.process.ProcessEvent;
-import com.intellij.execution.process.ProcessHandler;
 import com.intellij.execution.process.ProcessListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.registry.Registry;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.io.BaseOutputReader;
+
+import javax.annotation.Nullable;
 
 /**
  * The handler for git commands with text outputs
@@ -44,7 +45,7 @@ public abstract class GitTextHandler extends GitHandler
 	private volatile boolean myIsDestroyed;
 	private final Object myProcessStateLock = new Object();
 
-	protected GitTextHandler(@NotNull Project project, @NotNull File directory, @NotNull GitCommand command)
+	protected GitTextHandler(@Nonnull Project project, @Nonnull File directory, @Nonnull GitCommand command)
 	{
 		super(project, directory, command);
 	}
@@ -153,7 +154,7 @@ public abstract class GitTextHandler extends GitHandler
 		}
 	}
 
-	public OSProcessHandler createProcess(@NotNull GeneralCommandLine commandLine) throws ExecutionException
+	public OSProcessHandler createProcess(@Nonnull GeneralCommandLine commandLine) throws ExecutionException
 	{
 		commandLine.setCharset(getCharset());
 		return new MyOSProcessHandler(commandLine);
@@ -166,14 +167,14 @@ public abstract class GitTextHandler extends GitHandler
 			super(commandLine, true);
 		}
 
-		@NotNull
+		@Nonnull
 		@Override
 		public Charset getCharset()
 		{
 			return myCharset;
 		}
 
-		@NotNull
+		@Nonnull
 		@Override
 		protected BaseOutputReader.Options readerOptions()
 		{

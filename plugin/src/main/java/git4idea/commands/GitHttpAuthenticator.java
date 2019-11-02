@@ -15,7 +15,7 @@
  */
 package git4idea.commands;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 /**
  * Performs HTTP authentication, i. e. handles "ask username" and "ask password" requests from Git:
@@ -31,8 +31,8 @@ public interface GitHttpAuthenticator
 	 * @param url URL which needs authentication.
 	 * @return Password to access the URL.
 	 */
-	@NotNull
-	String askPassword(@NotNull String url);
+	@Nonnull
+	String askPassword(@Nonnull String url);
 
 	/**
 	 * Asks the username to access the specified URL. Password request will follow.
@@ -40,8 +40,8 @@ public interface GitHttpAuthenticator
 	 * @param url URL which needs authentication, without username in it.
 	 * @return Username to access the URL.
 	 */
-	@NotNull
-	String askUsername(@NotNull String url);
+	@Nonnull
+	String askUsername(@Nonnull String url);
 
 	/**
 	 * Saves the entered username and password to the database for the future access.

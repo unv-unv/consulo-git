@@ -21,13 +21,13 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JList;
 
-import org.jetbrains.annotations.NotNull;
 import com.intellij.dvcs.branch.DvcsSyncSettings;
 import com.intellij.dvcs.ui.DvcsBundle;
 import com.intellij.icons.AllIcons;
@@ -71,7 +71,7 @@ public class GitVcsPanel
 	private JBLabel myProtectedBranchesLabel;
 	private JComboBox myUpdateMethodComboBox;
 
-	public GitVcsPanel(@NotNull Project project)
+	public GitVcsPanel(@Nonnull Project project)
 	{
 		myVcs = GitVcs.getInstance(project);
 		myAppSettings = GitVcsApplicationSettings.getInstance();
@@ -178,7 +178,7 @@ public class GitVcsPanel
 	 *
 	 * @param settings the settings to load
 	 */
-	public void load(@NotNull GitVcsSettings settings, @NotNull GitSharedSettings sharedSettings)
+	public void load(@Nonnull GitVcsSettings settings, @Nonnull GitSharedSettings sharedSettings)
 	{
 		myGitField.setText(settings.getAppSettings().getPathToGit());
 		mySSHExecutableComboBox.setSelectedItem(settings.getAppSettings().getSshExecutableType());
@@ -197,7 +197,7 @@ public class GitVcsPanel
 	 *
 	 * @param settings the settings to load
 	 */
-	public boolean isModified(@NotNull GitVcsSettings settings, @NotNull GitSharedSettings sharedSettings)
+	public boolean isModified(@Nonnull GitVcsSettings settings, @Nonnull GitSharedSettings sharedSettings)
 	{
 		return !settings.getAppSettings().getPathToGit().equals(getCurrentExecutablePath()) ||
 				(settings.getAppSettings().getSshExecutableType() != mySSHExecutableComboBox.getSelectedItem()) ||
@@ -217,7 +217,7 @@ public class GitVcsPanel
 	 *
 	 * @param settings the settings object
 	 */
-	public void save(@NotNull GitVcsSettings settings, GitSharedSettings sharedSettings)
+	public void save(@Nonnull GitVcsSettings settings, GitSharedSettings sharedSettings)
 	{
 		settings.getAppSettings().setPathToGit(getCurrentExecutablePath());
 		myVcs.checkVersion();
@@ -233,7 +233,7 @@ public class GitVcsPanel
 		sharedSettings.setForcePushProhibitedPatters(getProtectedBranchesPatterns());
 	}
 
-	@NotNull
+	@Nonnull
 	private List<String> getProtectedBranchesPatterns()
 	{
 		return ParametersListUtil.COLON_LINE_PARSER.fun(myProtectedBranchesButton.getText());

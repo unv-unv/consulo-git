@@ -15,7 +15,7 @@
  */
 package git4idea.actions;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.components.ServiceManager;
@@ -101,7 +101,7 @@ public class GitInit extends DumbAwareAction
 				GitVcs.runInBackground(new Task.Backgroundable(project, GitBundle.message("common.refreshing"))
 				{
 					@Override
-					public void run(@NotNull ProgressIndicator indicator)
+					public void run(@Nonnull ProgressIndicator indicator)
 					{
 						refreshAndConfigureVcsMappings(project, root, path);
 					}

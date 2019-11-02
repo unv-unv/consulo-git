@@ -25,8 +25,8 @@ import org.apache.commons.codec.DecoderException;
 import org.apache.ws.commons.serialize.DOMSerializer;
 import org.apache.xmlrpc.XmlRpcConfig;
 import org.apache.xmlrpc.client.XmlRpcClient;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.jetbrains.git4idea.GitExternalApp;
 import org.jetbrains.git4idea.util.ScriptGenerator;
 
@@ -54,21 +54,21 @@ import java.util.UUID;
 public abstract class GitXmlRpcHandlerService<T>
 {
 
-	@NotNull
+	@Nonnull
 	private final String myScriptTempFilePrefix;
-	@NotNull
+	@Nonnull
 	private final String myHandlerName;
-	@NotNull
+	@Nonnull
 	private final Class<? extends GitExternalApp> myScriptMainClass;
 
 	@Nullable
 	private File myScriptPath;
-	@NotNull
+	@Nonnull
 	private final Object SCRIPT_FILE_LOCK = new Object();
 
-	@NotNull
+	@Nonnull
 	private final THashMap<UUID, T> handlers = new THashMap<>();
-	@NotNull
+	@Nonnull
 	private final Object HANDLERS_LOCK = new Object();
 
 	/**
@@ -76,7 +76,7 @@ public abstract class GitXmlRpcHandlerService<T>
 	 * @param aClass      Main class of the external application invoked by Git,
 	 *                    which is able to handle its requests and pass to the main IDEA instance.
 	 */
-	protected GitXmlRpcHandlerService(@NotNull String prefix, @NotNull String handlerName, @NotNull Class<? extends GitExternalApp> aClass)
+	protected GitXmlRpcHandlerService(@Nonnull String prefix, @Nonnull String handlerName, @Nonnull Class<? extends GitExternalApp> aClass)
 	{
 		myScriptTempFilePrefix = prefix;
 		myHandlerName = handlerName;
@@ -97,7 +97,7 @@ public abstract class GitXmlRpcHandlerService<T>
 	 * @return path to the script
 	 * @throws IOException if script cannot be generated
 	 */
-	@NotNull
+	@Nonnull
 	public File getScriptPath() throws IOException
 	{
 		ScriptGenerator generator = new ScriptGenerator(myScriptTempFilePrefix, myScriptMainClass);
@@ -117,7 +117,7 @@ public abstract class GitXmlRpcHandlerService<T>
 	/**
 	 * Adds more classes or resources to the script if needed.
 	 */
-	protected abstract void customizeScriptGenerator(@NotNull ScriptGenerator generator);
+	protected abstract void customizeScriptGenerator(@Nonnull ScriptGenerator generator);
 
 	/**
 	 * Register handler. Note that handlers must be unregistered using {@link #unregisterHandler(int)}.
@@ -126,7 +126,7 @@ public abstract class GitXmlRpcHandlerService<T>
 	 * @param parentDisposable a disposable to unregister the handler if it doesn't get unregistered manually
 	 * @return an identifier to pass to the environment variable
 	 */
-	public UUID registerHandler(@NotNull T handler, @NotNull Disposable parentDisposable)
+	public UUID registerHandler(@Nonnull T handler, @Nonnull Disposable parentDisposable)
 	{
 		synchronized(HANDLERS_LOCK)
 		{
@@ -156,7 +156,7 @@ public abstract class GitXmlRpcHandlerService<T>
 	 *
 	 * @return New instance of the xml rpc handler delegate.
 	 */
-	@NotNull
+	@Nonnull
 	protected abstract Object createRpcRequestHandlerDelegate();
 
 	/**
@@ -165,7 +165,7 @@ public abstract class GitXmlRpcHandlerService<T>
 	 * @param key the key to use
 	 * @return the registered handler
 	 */
-	@NotNull
+	@Nonnull
 	protected T getHandler(UUID key)
 	{
 		synchronized(HANDLERS_LOCK)

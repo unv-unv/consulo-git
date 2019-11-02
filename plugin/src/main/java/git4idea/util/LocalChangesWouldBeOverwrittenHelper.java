@@ -18,9 +18,9 @@ package git4idea.util;
 import java.util.Collection;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.swing.event.HyperlinkEvent;
 
-import org.jetbrains.annotations.NotNull;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationListener;
 import com.intellij.openapi.project.Project;
@@ -36,19 +36,19 @@ import git4idea.ui.ChangesBrowserWithRollback;
 public class LocalChangesWouldBeOverwrittenHelper
 {
 
-	@NotNull
+	@Nonnull
 	private static String getErrorNotificationDescription()
 	{
 		return getErrorDescription(true);
 	}
 
-	@NotNull
+	@Nonnull
 	private static String getErrorDialogDescription()
 	{
 		return getErrorDescription(false);
 	}
 
-	@NotNull
+	@Nonnull
 	private static String getErrorDescription(boolean forNotification)
 	{
 		String line1 = "Your local changes would be overwritten by merge.";
@@ -63,10 +63,10 @@ public class LocalChangesWouldBeOverwrittenHelper
 		}
 	}
 
-	public static void showErrorNotification(@NotNull final Project project,
-			@NotNull final VirtualFile root,
-			@NotNull final String operationName,
-			@NotNull final Collection<String> relativeFilePaths)
+	public static void showErrorNotification(@Nonnull final Project project,
+			@Nonnull final VirtualFile root,
+			@Nonnull final String operationName,
+			@Nonnull final Collection<String> relativeFilePaths)
 	{
 		final Collection<String> absolutePaths = GitUtil.toAbsolute(root, relativeFilePaths);
 		final List<Change> changes = GitUtil.findLocalChangesForPaths(project, root, absolutePaths, false);
@@ -74,27 +74,27 @@ public class LocalChangesWouldBeOverwrittenHelper
 		VcsNotifier.getInstance(project).notifyError(notificationTitle, getErrorNotificationDescription(), new NotificationListener.Adapter()
 		{
 			@Override
-			protected void hyperlinkActivated(@NotNull Notification notification, @NotNull HyperlinkEvent e)
+			protected void hyperlinkActivated(@Nonnull Notification notification, @Nonnull HyperlinkEvent e)
 			{
 				showErrorDialog(project, operationName, changes, absolutePaths);
 			}
 		});
 	}
 
-	public static void showErrorDialog(@NotNull Project project,
-			@NotNull VirtualFile root,
-			@NotNull String operationName,
-			@NotNull Collection<String> relativeFilePaths)
+	public static void showErrorDialog(@Nonnull Project project,
+			@Nonnull VirtualFile root,
+			@Nonnull String operationName,
+			@Nonnull Collection<String> relativeFilePaths)
 	{
 		Collection<String> absolutePaths = GitUtil.toAbsolute(root, relativeFilePaths);
 		List<Change> changes = GitUtil.findLocalChangesForPaths(project, root, absolutePaths, false);
 		showErrorDialog(project, operationName, changes, absolutePaths);
 	}
 
-	private static void showErrorDialog(@NotNull Project project,
-			@NotNull String operationName,
-			@NotNull List<Change> changes,
-			@NotNull Collection<String> absolutePaths)
+	private static void showErrorDialog(@Nonnull Project project,
+			@Nonnull String operationName,
+			@Nonnull List<Change> changes,
+			@Nonnull Collection<String> absolutePaths)
 	{
 		String title = "Local Changes Prevent from " + StringUtil.capitalize(operationName);
 		String description = getErrorDialogDescription();

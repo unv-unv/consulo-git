@@ -22,11 +22,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -68,14 +68,14 @@ public class GitShowExternalLogAction extends DumbAwareAction
 	private static final String EXTERNAL = "EXTERNAL";
 
 	@Override
-	public void update(@NotNull AnActionEvent e)
+	public void update(@Nonnull AnActionEvent e)
 	{
 		super.update(e);
 		e.getPresentation().setEnabledAndVisible(e.getProject() != null && GitVcs.getInstance(e.getProject()) != null);
 	}
 
 	@Override
-	public void actionPerformed(@NotNull AnActionEvent e)
+	public void actionPerformed(@Nonnull AnActionEvent e)
 	{
 		final Project project = e.getRequiredData(CommonDataKeys.PROJECT);
 		final GitVcs vcs = ObjectUtils.assertNotNull(GitVcs.getInstance(project));
@@ -120,8 +120,8 @@ public class GitShowExternalLogAction extends DumbAwareAction
 		}
 	}
 
-	@NotNull
-	private static MyContentComponent createManagerAndContent(@NotNull Project project, @NotNull final GitVcs vcs, @NotNull final List<VirtualFile> roots, @Nullable String tabName)
+	@Nonnull
+	private static MyContentComponent createManagerAndContent(@Nonnull Project project, @Nonnull final GitVcs vcs, @Nonnull final List<VirtualFile> roots, @Nullable String tabName)
 	{
 		final GitRepositoryManager repositoryManager = ServiceManager.getService(project, GitRepositoryManager.class);
 		for(VirtualFile root : roots)
@@ -138,14 +138,14 @@ public class GitShowExternalLogAction extends DumbAwareAction
 		});
 	}
 
-	@NotNull
-	private static String calcLogId(@NotNull List<VirtualFile> roots)
+	@Nonnull
+	private static String calcLogId(@Nonnull List<VirtualFile> roots)
 	{
 		return EXTERNAL + " " + StringUtil.join(roots, VirtualFile::getPath, File.pathSeparator);
 	}
 
-	@NotNull
-	private static String calcTabName(@NotNull ContentManager cm, @NotNull List<VirtualFile> roots)
+	@Nonnull
+	private static String calcTabName(@Nonnull ContentManager cm, @Nonnull List<VirtualFile> roots)
 	{
 		String name = VcsLogContentProvider.TAB_NAME + " (" + roots.get(0).getName();
 		if(roots.size() > 1)
@@ -164,13 +164,13 @@ public class GitShowExternalLogAction extends DumbAwareAction
 		return candidate;
 	}
 
-	private static boolean hasContentsWithName(@NotNull ContentManager cm, @NotNull final String candidate)
+	private static boolean hasContentsWithName(@Nonnull ContentManager cm, @Nonnull final String candidate)
 	{
 		return ContainerUtil.exists(cm.getContents(), content -> content.getDisplayName().equals(candidate));
 	}
 
-	@NotNull
-	private static List<VirtualFile> getGitRootsFromUser(@NotNull Project project)
+	@Nonnull
+	private static List<VirtualFile> getGitRootsFromUser(@Nonnull Project project)
 	{
 		FileChooserDescriptor descriptor = new FileChooserDescriptor(false, true, false, true, false, true);
 		VirtualFile[] virtualFiles = FileChooser.chooseFiles(descriptor, project, null);
@@ -190,7 +190,7 @@ public class GitShowExternalLogAction extends DumbAwareAction
 		return correctRoots;
 	}
 
-	private static boolean checkIfProjectLogMatches(@NotNull Project project, @NotNull GitVcs vcs, @NotNull ContentManager cm, @NotNull List<VirtualFile> requestedRoots)
+	private static boolean checkIfProjectLogMatches(@Nonnull Project project, @Nonnull GitVcs vcs, @Nonnull ContentManager cm, @Nonnull List<VirtualFile> requestedRoots)
 	{
 		VirtualFile[] projectRoots = ProjectLevelVcsManager.getInstance(project).getRootsUnderVcs(vcs);
 		if(Comparing.haveEqualElements(requestedRoots, Arrays.asList(projectRoots)))
@@ -208,7 +208,7 @@ public class GitShowExternalLogAction extends DumbAwareAction
 		return false;
 	}
 
-	private static boolean checkIfAlreadyOpened(@NotNull ContentManager cm, @NotNull Collection<VirtualFile> roots)
+	private static boolean checkIfAlreadyOpened(@Nonnull ContentManager cm, @Nonnull Collection<VirtualFile> roots)
 	{
 		for(Content content : cm.getContents())
 		{
@@ -227,12 +227,12 @@ public class GitShowExternalLogAction extends DumbAwareAction
 
 	private static class MyContentComponent extends JPanel
 	{
-		@NotNull
+		@Nonnull
 		private final Collection<VirtualFile> myRoots;
-		@NotNull
+		@Nonnull
 		private final Disposable myDisposable;
 
-		MyContentComponent(@NotNull JComponent actualComponent, @NotNull Collection<VirtualFile> roots, @NotNull Disposable disposable)
+		MyContentComponent(@Nonnull JComponent actualComponent, @Nonnull Collection<VirtualFile> roots, @Nonnull Disposable disposable)
 		{
 			super(new BorderLayout());
 			myDisposable = disposable;
@@ -243,15 +243,15 @@ public class GitShowExternalLogAction extends DumbAwareAction
 
 	private static class ShowLogInDialogTask extends Task.Backgroundable
 	{
-		@NotNull
+		@Nonnull
 		private final Project myProject;
-		@NotNull
+		@Nonnull
 		private final List<VirtualFile> myRoots;
-		@NotNull
+		@Nonnull
 		private final GitVcs myVcs;
 		private GitVersion myVersion;
 
-		private ShowLogInDialogTask(@NotNull Project project, @NotNull List<VirtualFile> roots, @NotNull GitVcs vcs)
+		private ShowLogInDialogTask(@Nonnull Project project, @Nonnull List<VirtualFile> roots, @Nonnull GitVcs vcs)
 		{
 			super(project, "Loading Git Log...", true);
 			myProject = project;
@@ -260,7 +260,7 @@ public class GitShowExternalLogAction extends DumbAwareAction
 		}
 
 		@Override
-		public void run(@NotNull ProgressIndicator indicator)
+		public void run(@Nonnull ProgressIndicator indicator)
 		{
 			myVersion = myVcs.getVersion();
 			if(myVersion.isNull())

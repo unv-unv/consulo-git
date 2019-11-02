@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.dvcs.actions.DvcsCompareWithBranchAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.FilePath;
@@ -43,7 +43,7 @@ import git4idea.repo.GitRepositoryManager;
 public class GitCompareWithBranchAction extends DvcsCompareWithBranchAction<GitRepository>
 {
 	@Override
-	protected boolean noBranchesToCompare(@NotNull GitRepository repository)
+	protected boolean noBranchesToCompare(@Nonnull GitRepository repository)
 	{
 		int locals = repository.getBranches().getLocalBranches().size();
 		boolean haveRemotes = !repository.getBranches().getRemoteBranches().isEmpty();
@@ -54,9 +54,9 @@ public class GitCompareWithBranchAction extends DvcsCompareWithBranchAction<GitR
 		return locals == 0 && !haveRemotes; // there are at least 1 branch to compare
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
-	protected List<String> getBranchNamesExceptCurrent(@NotNull GitRepository repository)
+	protected List<String> getBranchNamesExceptCurrent(@Nonnull GitRepository repository)
 	{
 		List<GitBranch> localBranches = new ArrayList<>(repository.getBranches().getLocalBranches());
 		Collections.sort(localBranches);
@@ -80,16 +80,16 @@ public class GitCompareWithBranchAction extends DvcsCompareWithBranchAction<GitR
 		return branchNames;
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
-	protected GitRepositoryManager getRepositoryManager(@NotNull Project project)
+	protected GitRepositoryManager getRepositoryManager(@Nonnull Project project)
 	{
 		return GitUtil.getRepositoryManager(project);
 	}
 
 	@Override
-	@NotNull
-	protected Collection<Change> getDiffChanges(@NotNull Project project, @NotNull VirtualFile file, @NotNull String branchToCompare) throws VcsException
+	@Nonnull
+	protected Collection<Change> getDiffChanges(@Nonnull Project project, @Nonnull VirtualFile file, @Nonnull String branchToCompare) throws VcsException
 	{
 		FilePath filePath = VcsUtil.getFilePath(file);
 		final GitRepository gitRepository = GitUtil.getRepositoryManager(project).getRepositoryForFile(file);

@@ -17,7 +17,7 @@ package git4idea.actions;
 
 import java.util.Collections;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.vcs.log.Hash;
@@ -29,7 +29,7 @@ public class GitCreateNewBranchAction extends GitLogSingleCommitAction
 {
 
 	@Override
-	protected void actionPerformed(@NotNull GitRepository repository, @NotNull Hash commit)
+	protected void actionPerformed(@Nonnull GitRepository repository, @Nonnull Hash commit)
 	{
 		Project project = repository.getProject();
 		String reference = commit.asString();

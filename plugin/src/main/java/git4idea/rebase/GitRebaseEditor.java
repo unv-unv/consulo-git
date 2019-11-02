@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -31,8 +32,7 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.CopyProvider;
 import com.intellij.ide.TextCopyProvider;
@@ -72,19 +72,19 @@ import git4idea.i18n.GitBundle;
 public class GitRebaseEditor extends DialogWrapper implements DataProvider
 {
 
-	@NotNull
+	@Nonnull
 	private final Project myProject;
-	@NotNull
+	@Nonnull
 	private final VirtualFile myRoot;
 
-	@NotNull
+	@Nonnull
 	private final MyTableModel myTableModel;
-	@NotNull
+	@Nonnull
 	private final JBTable myCommitsTable;
-	@NotNull
+	@Nonnull
 	private final CopyProvider myCopyProvider;
 
-	protected GitRebaseEditor(@NotNull Project project, @NotNull VirtualFile gitRoot, @NotNull List<GitRebaseEntry> entries) throws IOException
+	protected GitRebaseEditor(@Nonnull Project project, @Nonnull VirtualFile gitRoot, @Nonnull List<GitRebaseEntry> entries) throws IOException
 	{
 		super(project, true);
 		myProject = project;
@@ -209,7 +209,7 @@ public class GitRebaseEditor extends DialogWrapper implements DataProvider
 		return "reference.VersionControl.Git.RebaseCommits";
 	}
 
-	@NotNull
+	@Nonnull
 	public List<GitRebaseEntry> getEntries()
 	{
 		return myTableModel.myEntries;
@@ -217,7 +217,7 @@ public class GitRebaseEditor extends DialogWrapper implements DataProvider
 
 	@Nullable
 	@Override
-	public Object getData(@NotNull Key<?> dataId)
+	public Object getData(@Nonnull Key<?> dataId)
 	{
 		if(PlatformDataKeys.COPY_PROVIDER == dataId)
 		{
@@ -232,11 +232,11 @@ public class GitRebaseEditor extends DialogWrapper implements DataProvider
 		private static final int HASH_COLUMN = 1;
 		private static final int SUBJECT_COLUMN = 2;
 
-		@NotNull
+		@Nonnull
 		private final List<GitRebaseEntry> myEntries;
 		private int[] myLastEditableSelectedRows = new int[]{};
 
-		MyTableModel(@NotNull List<GitRebaseEntry> entries)
+		MyTableModel(@Nonnull List<GitRebaseEntry> entries)
 		{
 			myEntries = entries;
 		}
@@ -347,12 +347,12 @@ public class GitRebaseEditor extends DialogWrapper implements DataProvider
 			return e.getCommit() + " " + e.getSubject();
 		}
 
-		private void setSelection(@NotNull ContiguousIntIntervalTracker intervalBuilder)
+		private void setSelection(@Nonnull ContiguousIntIntervalTracker intervalBuilder)
 		{
 			myCommitsTable.getSelectionModel().setSelectionInterval(intervalBuilder.getMin(), intervalBuilder.getMax());
 		}
 
-		private void setRowAction(@NotNull Object aValue, int rowIndex, int columnIndex)
+		private void setRowAction(@Nonnull Object aValue, int rowIndex, int columnIndex)
 		{
 			GitRebaseEntry e = myEntries.get(rowIndex);
 			e.setAction((GitRebaseEntry.Action) aValue);
@@ -366,7 +366,7 @@ public class GitRebaseEditor extends DialogWrapper implements DataProvider
 			return columnIndex == ACTION_COLUMN;
 		}
 
-		public void moveRows(@NotNull int[] rows, @NotNull MoveDirection direction)
+		public void moveRows(@Nonnull int[] rows, @Nonnull MoveDirection direction)
 		{
 			myCommitsTable.removeEditor();
 
@@ -494,7 +494,7 @@ public class GitRebaseEditor extends DialogWrapper implements DataProvider
 	{
 		private final MoveDirection direction;
 
-		public MoveUpDownActionListener(@NotNull MoveDirection direction)
+		public MoveUpDownActionListener(@Nonnull MoveDirection direction)
 		{
 			this.direction = direction;
 		}

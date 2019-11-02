@@ -15,7 +15,7 @@
  */
 package git4idea.push;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import git4idea.config.UpdateMethod;
 
 // holds settings chosen in GitRejectedPushUpdate dialog to reuse if the next push is rejected again.
@@ -23,10 +23,10 @@ class PushUpdateSettings
 {
 
 	private final boolean myUpdateAllRoots;
-	@NotNull
+	@Nonnull
 	private final UpdateMethod myUpdateMethod;
 
-	PushUpdateSettings(boolean updateAllRoots, @NotNull UpdateMethod updateMethod)
+	PushUpdateSettings(boolean updateAllRoots, @Nonnull UpdateMethod updateMethod)
 	{
 		myUpdateAllRoots = updateAllRoots;
 		myUpdateMethod = updateMethod;
@@ -37,7 +37,7 @@ class PushUpdateSettings
 		return myUpdateAllRoots;
 	}
 
-	@NotNull
+	@Nonnull
 	UpdateMethod getUpdateMethod()
 	{
 		return myUpdateMethod;

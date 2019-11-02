@@ -22,7 +22,7 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vcs.LineHandlerHelper;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.EventDispatcher;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.io.File;
 import java.util.Iterator;
@@ -52,7 +52,7 @@ public class GitLineHandler extends GitTextHandler {
    * @param command   a command to execute
    */
   @SuppressWarnings({"WeakerAccess"})
-  public GitLineHandler(@NotNull Project project, @NotNull File directory, @NotNull GitCommand command) {
+  public GitLineHandler(@Nonnull Project project, @Nonnull File directory, @Nonnull GitCommand command) {
     super(project, directory, command);
   }
 
@@ -63,7 +63,7 @@ public class GitLineHandler extends GitTextHandler {
    * @param vcsRoot a process directory
    * @param command a command to execute
    */
-  public GitLineHandler(@NotNull final Project project, @NotNull final VirtualFile vcsRoot, @NotNull final GitCommand command) {
+  public GitLineHandler(@Nonnull final Project project, @Nonnull final VirtualFile vcsRoot, @Nonnull final GitCommand command) {
     super(project, vcsRoot, command);
   }
 

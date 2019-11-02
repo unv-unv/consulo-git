@@ -22,7 +22,7 @@ import static git4idea.GitUtil.getRootsFromRepositories;
 import java.io.File;
 import java.util.Collection;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.dvcs.repo.Repository;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Condition;
@@ -42,13 +42,13 @@ public class GitMerger
 	private final Project myProject;
 	private final GitRepositoryManager myRepositoryManager;
 
-	public GitMerger(@NotNull Project project)
+	public GitMerger(@Nonnull Project project)
 	{
 		myProject = project;
 		myRepositoryManager = GitUtil.getRepositoryManager(myProject);
 	}
 
-	@NotNull
+	@Nonnull
 	public Collection<VirtualFile> getMergingRoots()
 	{
 		return getRootsFromRepositories(filter(myRepositoryManager.getRepositories(), new Condition<GitRepository>()
@@ -61,7 +61,7 @@ public class GitMerger
 		}));
 	}
 
-	public void mergeCommit(@NotNull Collection<VirtualFile> roots) throws VcsException
+	public void mergeCommit(@Nonnull Collection<VirtualFile> roots) throws VcsException
 	{
 		for(VirtualFile root : roots)
 		{
@@ -69,7 +69,7 @@ public class GitMerger
 		}
 	}
 
-	public void mergeCommit(@NotNull VirtualFile root) throws VcsException
+	public void mergeCommit(@Nonnull VirtualFile root) throws VcsException
 	{
 		GitSimpleHandler handler = new GitSimpleHandler(myProject, root, GitCommand.COMMIT);
 		handler.setStdoutSuppressed(false);

@@ -16,7 +16,7 @@
 package git4idea.update;
 
 import git4idea.config.GitVcsSettings;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import javax.swing.*;
 
@@ -61,8 +61,8 @@ public class UpdatePolicyUtils {
    * @param keepRadioButton   the keep radio button
    * @return the policy value
    */
-  public static GitVcsSettings.UpdateChangesPolicy getUpdatePolicy(@NotNull JRadioButton stashRadioButton,
-                                                                   @NotNull JRadioButton shelveRadioButton) {
+  public static GitVcsSettings.UpdateChangesPolicy getUpdatePolicy(@Nonnull JRadioButton stashRadioButton,
+                                                                   @Nonnull JRadioButton shelveRadioButton) {
 
     if (stashRadioButton.isSelected()) {
       return GitVcsSettings.UpdateChangesPolicy.STASH;

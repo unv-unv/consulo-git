@@ -21,8 +21,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
@@ -112,7 +112,7 @@ public class GitUntrackedFilesHolder implements Disposable, BulkFileListener
 	private final Object LOCK = new Object();
 	private final GitRepositoryManager myRepositoryManager;
 
-	GitUntrackedFilesHolder(@NotNull GitRepository repository, @NotNull GitRepositoryFiles gitFiles)
+	GitUntrackedFilesHolder(@Nonnull GitRepository repository, @Nonnull GitRepositoryFiles gitFiles)
 	{
 		myProject = repository.getProject();
 		myRepository = repository;
@@ -126,7 +126,7 @@ public class GitUntrackedFilesHolder implements Disposable, BulkFileListener
 		myRepositoryFiles = gitFiles;
 	}
 
-	void setupVfsListener(@NotNull Project project)
+	void setupVfsListener(@Nonnull Project project)
 	{
 		if(!project.isDisposed())
 		{
@@ -151,7 +151,7 @@ public class GitUntrackedFilesHolder implements Disposable, BulkFileListener
 	/**
 	 * Adds the file to the list of untracked.
 	 */
-	public void add(@NotNull VirtualFile file)
+	public void add(@Nonnull VirtualFile file)
 	{
 		synchronized(myDefinitelyUntrackedFiles)
 		{
@@ -162,7 +162,7 @@ public class GitUntrackedFilesHolder implements Disposable, BulkFileListener
 	/**
 	 * Adds several files to the list of untracked.
 	 */
-	public void add(@NotNull Collection<VirtualFile> files)
+	public void add(@Nonnull Collection<VirtualFile> files)
 	{
 		synchronized(myDefinitelyUntrackedFiles)
 		{
@@ -173,7 +173,7 @@ public class GitUntrackedFilesHolder implements Disposable, BulkFileListener
 	/**
 	 * Removes several files from untracked.
 	 */
-	public void remove(@NotNull Collection<VirtualFile> files)
+	public void remove(@Nonnull Collection<VirtualFile> files)
 	{
 		synchronized(myDefinitelyUntrackedFiles)
 		{
@@ -188,7 +188,7 @@ public class GitUntrackedFilesHolder implements Disposable, BulkFileListener
 	 * @return untracked files.
 	 * @throws VcsException if there is an unexpected error during Git execution.
 	 */
-	@NotNull
+	@Nonnull
 	public Collection<VirtualFile> retrieveUntrackedFiles() throws VcsException
 	{
 		if(isReady())
@@ -267,12 +267,12 @@ public class GitUntrackedFilesHolder implements Disposable, BulkFileListener
 	}
 
 	@Override
-	public void before(@NotNull List<? extends VFileEvent> events)
+	public void before(@Nonnull List<? extends VFileEvent> events)
 	{
 	}
 
 	@Override
-	public void after(@NotNull List<? extends VFileEvent> events)
+	public void after(@Nonnull List<? extends VFileEvent> events)
 	{
 		boolean allChanged = false;
 		Set<VirtualFile> filesToRefresh = new HashSet<>();
@@ -317,46 +317,46 @@ public class GitUntrackedFilesHolder implements Disposable, BulkFileListener
 		}
 	}
 
-	private boolean totalRefreshNeeded(@NotNull String path)
+	private boolean totalRefreshNeeded(@Nonnull String path)
 	{
 		return indexChanged(path) || externallyCommitted(path) || headMoved(path) ||
 				headChanged(path) || currentBranchChanged(path) || gitignoreChanged(path);
 	}
 
-	private boolean headChanged(@NotNull String path)
+	private boolean headChanged(@Nonnull String path)
 	{
 		return myRepositoryFiles.isHeadFile(path);
 	}
 
-	private boolean currentBranchChanged(@NotNull String path)
+	private boolean currentBranchChanged(@Nonnull String path)
 	{
 		GitLocalBranch currentBranch = myRepository.getCurrentBranch();
 		return currentBranch != null && myRepositoryFiles.isBranchFile(path, currentBranch.getFullName());
 	}
 
-	private boolean headMoved(@NotNull String path)
+	private boolean headMoved(@Nonnull String path)
 	{
 		return myRepositoryFiles.isOrigHeadFile(path);
 	}
 
-	private boolean indexChanged(@NotNull String path)
+	private boolean indexChanged(@Nonnull String path)
 	{
 		return myRepositoryFiles.isIndexFile(path);
 	}
 
-	private boolean externallyCommitted(@NotNull String path)
+	private boolean externallyCommitted(@Nonnull String path)
 	{
 		return myRepositoryFiles.isCommitMessageFile(path);
 	}
 
-	private boolean gitignoreChanged(@NotNull String path)
+	private boolean gitignoreChanged(@Nonnull String path)
 	{
 		// TODO watch file stored in core.excludesfile
 		return path.endsWith(".gitignore") || myRepositoryFiles.isExclude(path);
 	}
 
 	@Nullable
-	private static VirtualFile getAffectedFile(@NotNull VFileEvent event)
+	private static VirtualFile getAffectedFile(@Nonnull VFileEvent event)
 	{
 		if(event instanceof VFileCreateEvent || event instanceof VFileDeleteEvent || event instanceof VFileMoveEvent || isRename(event))
 		{
@@ -370,7 +370,7 @@ public class GitUntrackedFilesHolder implements Disposable, BulkFileListener
 		return null;
 	}
 
-	private static boolean isRename(@NotNull VFileEvent event)
+	private static boolean isRename(@Nonnull VFileEvent event)
 	{
 		return event instanceof VFilePropertyChangeEvent && ((VFilePropertyChangeEvent) event).getPropertyName().equals(VirtualFile.PROP_NAME);
 	}

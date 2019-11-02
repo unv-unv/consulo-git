@@ -29,11 +29,11 @@ import java.text.ParseException;
 import java.util.Comparator;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.swing.JPanel;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import com.intellij.dvcs.push.PushTargetPanel;
 import com.intellij.dvcs.push.ui.PushLogTreeUtil;
 import com.intellij.dvcs.push.ui.PushTargetEditorListener;
@@ -79,20 +79,20 @@ public class GitPushTargetPanel extends PushTargetPanel<GitPushTarget>
 	private static final Comparator<GitRemoteBranch> REMOTE_BRANCH_COMPARATOR = new MyRemoteBranchComparator();
 	private static final String SEPARATOR = " : ";
 
-	@NotNull
+	@Nonnull
 	private final GitPushSupport myPushSupport;
-	@NotNull
+	@Nonnull
 	private final GitRepository myRepository;
-	@NotNull
+	@Nonnull
 	private final Git myGit;
 
-	@NotNull
+	@Nonnull
 	private final VcsEditableTextComponent myTargetRenderer;
-	@NotNull
+	@Nonnull
 	private final PushTargetTextField myTargetEditor;
-	@NotNull
+	@Nonnull
 	private final VcsLinkedTextComponent myRemoteRenderer;
-	@NotNull
+	@Nonnull
 	private final Project myProject;
 
 	@Nullable
@@ -102,7 +102,7 @@ public class GitPushTargetPanel extends PushTargetPanel<GitPushTarget>
 	@Nullable
 	private Runnable myFireOnChangeAction;
 
-	public GitPushTargetPanel(@NotNull GitPushSupport support, @NotNull GitRepository repository, @Nullable GitPushTarget defaultTarget)
+	public GitPushTargetPanel(@Nonnull GitPushSupport support, @Nonnull GitRepository repository, @Nullable GitPushTarget defaultTarget)
 	{
 		myPushSupport = support;
 		myRepository = repository;
@@ -114,7 +114,7 @@ public class GitPushTargetPanel extends PushTargetPanel<GitPushTarget>
 		myRemoteRenderer = new VcsLinkedTextComponent("", new VcsLinkListener()
 		{
 			@Override
-			public void hyperlinkActivated(@NotNull DefaultMutableTreeNode sourceNode, @NotNull MouseEvent event)
+			public void hyperlinkActivated(@Nonnull DefaultMutableTreeNode sourceNode, @Nonnull MouseEvent event)
 			{
 				if(myRepository.getRemotes().isEmpty())
 				{
@@ -208,14 +208,14 @@ public class GitPushTargetPanel extends PushTargetPanel<GitPushTarget>
 		}
 	}
 
-	private void addRemoteUnderModal(@NotNull final String remoteName, @NotNull final String remoteUrl)
+	private void addRemoteUnderModal(@Nonnull final String remoteName, @Nonnull final String remoteUrl)
 	{
 		ProgressManager.getInstance().run(new Task.Modal(myRepository.getProject(), "Adding remote...", true)
 		{
 			private GitCommandResult myResult;
 
 			@Override
-			public void run(@NotNull ProgressIndicator indicator)
+			public void run(@Nonnull ProgressIndicator indicator)
 			{
 				indicator.setIndeterminate(true);
 				myResult = myGit.addRemote(myRepository, remoteName, remoteUrl);
@@ -244,7 +244,7 @@ public class GitPushTargetPanel extends PushTargetPanel<GitPushTarget>
 		});
 	}
 
-	private void showRemoteSelector(@NotNull Component component, @NotNull Point point)
+	private void showRemoteSelector(@Nonnull Component component, @Nonnull Point point)
 	{
 		final List<String> remotes = getRemotes();
 		if(remotes.size() <= 1)
@@ -281,7 +281,7 @@ public class GitPushTargetPanel extends PushTargetPanel<GitPushTarget>
 		popup.show(new RelativePoint(component, point));
 	}
 
-	@NotNull
+	@Nonnull
 	private List<String> getRemotes()
 	{
 		return ContainerUtil.map(myRepository.getRemotes(), new Function<GitRemote, String>()
@@ -295,7 +295,7 @@ public class GitPushTargetPanel extends PushTargetPanel<GitPushTarget>
 	}
 
 	@Override
-	public void render(@NotNull ColoredTreeCellRenderer renderer, boolean isSelected, boolean isActive, @Nullable String forceRenderedText)
+	public void render(@Nonnull ColoredTreeCellRenderer renderer, boolean isSelected, boolean isActive, @Nullable String forceRenderedText)
 	{
 
 		SimpleTextAttributes targetTextAttributes = PushLogTreeUtil.addTransparencyIfNeeded(SimpleTextAttributes.REGULAR_ATTRIBUTES, isActive);
@@ -345,7 +345,7 @@ public class GitPushTargetPanel extends PushTargetPanel<GitPushTarget>
 		return myCurrentTarget;
 	}
 
-	@NotNull
+	@Nonnull
 	private static String getTextFieldText(@Nullable GitPushTarget target)
 	{
 		return (target != null ? target.getBranch().getNameForRemoteOperations() : "");
@@ -399,13 +399,13 @@ public class GitPushTargetPanel extends PushTargetPanel<GitPushTarget>
 
 	@SuppressWarnings("NullableProblems")
 	@Override
-	public void setFireOnChangeAction(@NotNull Runnable action)
+	public void setFireOnChangeAction(@Nonnull Runnable action)
 	{
 		myFireOnChangeAction = action;
 	}
 
-	@NotNull
-	private static List<String> getTargetNames(@NotNull GitRepository repository)
+	@Nonnull
+	private static List<String> getTargetNames(@Nonnull GitRepository repository)
 	{
 		List<GitRemoteBranch> remoteBranches = ContainerUtil.sorted(repository.getBranches().getRemoteBranches(), REMOTE_BRANCH_COMPARATOR);
 		return ContainerUtil.map(remoteBranches, new Function<GitRemoteBranch, String>()
@@ -421,7 +421,7 @@ public class GitPushTargetPanel extends PushTargetPanel<GitPushTarget>
 	private static class MyRemoteBranchComparator implements Comparator<GitRemoteBranch>
 	{
 		@Override
-		public int compare(@NotNull GitRemoteBranch o1, @NotNull GitRemoteBranch o2)
+		public int compare(@Nonnull GitRemoteBranch o1, @Nonnull GitRemoteBranch o2)
 		{
 			String remoteName1 = o1.getRemote().getName();
 			String remoteName2 = o2.getRemote().getName();
@@ -443,7 +443,7 @@ public class GitPushTargetPanel extends PushTargetPanel<GitPushTarget>
 	}
 
 	@Override
-	public void addTargetEditorListener(@NotNull final PushTargetEditorListener listener)
+	public void addTargetEditorListener(@Nonnull final PushTargetEditorListener listener)
 	{
 		myTargetEditor.addDocumentListener(new DocumentAdapter()
 		{
@@ -474,7 +474,7 @@ public class GitPushTargetPanel extends PushTargetPanel<GitPushTarget>
 		});
 	}
 
-	private void processActiveUserChanges(@NotNull PushTargetEditorListener listener)
+	private void processActiveUserChanges(@Nonnull PushTargetEditorListener listener)
 	{
 		//fire only about user's changes
 		if(myTargetEditor.isShowing())
@@ -484,7 +484,7 @@ public class GitPushTargetPanel extends PushTargetPanel<GitPushTarget>
 	}
 
 	@Override
-	public void forceUpdateEditableUiModel(@NotNull String forcedText)
+	public void forceUpdateEditableUiModel(@Nonnull String forcedText)
 	{
 		//if targetEditor is now editing by user, it shouldn't be force updated
 		if(!myTargetEditor.isShowing())
@@ -495,7 +495,7 @@ public class GitPushTargetPanel extends PushTargetPanel<GitPushTarget>
 
 	private class MyGitTargetFocusTraversalPolicy extends ComponentsListFocusTraversalPolicy
 	{
-		@NotNull
+		@Nonnull
 		@Override
 		protected List<Component> getOrderedComponents()
 		{

@@ -19,11 +19,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.swing.Action;
 import javax.swing.event.HyperlinkEvent;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationListener;
 import com.intellij.openapi.project.Project;
@@ -52,10 +52,10 @@ public class UntrackedFilesNotifier
 	 * @param operation     the name of the Git operation that caused the error: {@code rebase, merge, checkout}.
 	 * @param description   the content of the notification or null if the deafult content is to be used.
 	 */
-	public static void notifyUntrackedFilesOverwrittenBy(@NotNull final Project project,
-			@NotNull final VirtualFile root,
-			@NotNull Collection<String> relativePaths,
-			@NotNull final String operation,
+	public static void notifyUntrackedFilesOverwrittenBy(@Nonnull final Project project,
+			@Nonnull final VirtualFile root,
+			@Nonnull Collection<String> relativePaths,
+			@Nonnull final String operation,
 			@Nullable String description)
 	{
 		final String notificationTitle = StringUtil.capitalize(operation) + " failed";
@@ -74,7 +74,7 @@ public class UntrackedFilesNotifier
 		VcsNotifier.getInstance(project).notifyError(notificationTitle, notificationDesc, new NotificationListener()
 		{
 			@Override
-			public void hyperlinkUpdate(@NotNull Notification notification, @NotNull HyperlinkEvent event)
+			public void hyperlinkUpdate(@Nonnull Notification notification, @Nonnull HyperlinkEvent event)
 			{
 				if(event.getEventType() == HyperlinkEvent.EventType.ACTIVATED)
 				{
@@ -96,7 +96,7 @@ public class UntrackedFilesNotifier
 		});
 	}
 
-	public static String createUntrackedFilesOverwrittenDescription(@NotNull final String operation, boolean addLinkToViewFiles)
+	public static String createUntrackedFilesOverwrittenDescription(@Nonnull final String operation, boolean addLinkToViewFiles)
 	{
 		final String description1 = " untracked working tree files would be overwritten by " + operation + ".";
 		final String description2 = "Please move or remove them before you can " + operation + ".";
@@ -121,7 +121,7 @@ public class UntrackedFilesNotifier
 			init();
 		}
 
-		@NotNull
+		@Nonnull
 		@Override
 		protected Action[] createActions()
 		{

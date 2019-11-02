@@ -26,7 +26,7 @@ import git4idea.commands.GitLineHandler;
 import git4idea.commands.GitSimpleHandler;
 import git4idea.i18n.GitBundle;
 import git4idea.util.GitUIUtil;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import javax.swing.*;
 import java.awt.*;
@@ -85,7 +85,8 @@ public class GitMergeDialog extends DialogWrapper {
    */
   private JCheckBox myAddLogInformationCheckBox;
 
-  @NotNull private final Project myProject;
+  @Nonnull
+  private final Project myProject;
   private final GitVcs myVcs;
 
 
@@ -97,7 +98,7 @@ public class GitMergeDialog extends DialogWrapper {
    * @param roots       a git repository roots for the project
    * @param defaultRoot a guessed default root
    */
-  public GitMergeDialog(@NotNull Project project, List<VirtualFile> roots, VirtualFile defaultRoot) {
+  public GitMergeDialog(@Nonnull Project project, List<VirtualFile> roots, VirtualFile defaultRoot) {
     super(project, true);
     setTitle(GitBundle.message("merge.branch.title"));
     myProject = project;

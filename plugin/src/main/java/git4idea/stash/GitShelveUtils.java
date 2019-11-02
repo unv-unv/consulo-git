@@ -23,8 +23,8 @@ import java.util.List;
 
 import javax.swing.event.ChangeEvent;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.command.impl.UndoManagerImpl;
@@ -80,7 +80,7 @@ public class GitShelveUtils
 	}
 
 	@RequiredDispatchThread
-	private static void markUnshelvedFilesNonUndoable(@NotNull final Project project, @NotNull List<ShelvedChange> changes)
+	private static void markUnshelvedFilesNonUndoable(@Nonnull final Project project, @Nonnull List<ShelvedChange> changes)
 	{
 		final UndoManagerImpl undoManager = (UndoManagerImpl) UndoManager.getInstance(project);
 		if(undoManager != null && !changes.isEmpty())

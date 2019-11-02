@@ -21,9 +21,9 @@ import com.intellij.util.Function;
 import git4idea.GitFormatException;
 import git4idea.GitVcs;
 import git4idea.config.GitVersionSpecialty;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -157,8 +157,8 @@ public class GitLogParser {
 	 * @return The list of {@link GitLogRecord GitLogRecords} with information for each revision.
 	 *         The list is sorted as usual for git log - the first is the newest, the last is the oldest.
 	 */
-	@NotNull
-	List<GitLogRecord> parse(@NotNull String output) {
+	@Nonnull
+	List<GitLogRecord> parse(@Nonnull String output) {
 		// Here is what git log returns for --pretty=tformat:^%H#%s$
 		// ^2c815939f45fbcfda9583f84b14fe9d393ada790#sample commit$
 		//
@@ -184,7 +184,7 @@ public class GitLogParser {
 	 * @throws GitFormatException if the line is given in unexpected format.
 	 */
 	@Nullable
-	GitLogRecord parseOneRecord(@NotNull String line) {
+	GitLogRecord parseOneRecord(@Nonnull String line) {
 		if (line.isEmpty()) {
 			return null;
 		}
@@ -241,8 +241,8 @@ public class GitLogParser {
 	}
 
 
-	@NotNull
-	private Map<GitLogOption, String> parseCommitInfo(@NotNull String commitInfo) {
+	@Nonnull
+	private Map<GitLogOption, String> parseCommitInfo(@Nonnull String commitInfo) {
 		// parsing revision information
 		// we rely on the order of options
 		final String[] values = commitInfo.split(ITEMS_SEPARATOR);

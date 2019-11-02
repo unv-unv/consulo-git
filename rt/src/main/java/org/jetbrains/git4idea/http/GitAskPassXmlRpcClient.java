@@ -18,7 +18,7 @@ package org.jetbrains.git4idea.http;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -32,7 +32,7 @@ import java.util.List;
  */
 class GitAskPassXmlRpcClient
 {
-	@NotNull
+	@Nonnull
 	private final XmlRpcClient myClient;
 
 	GitAskPassXmlRpcClient(int port) throws MalformedURLException
@@ -43,7 +43,7 @@ class GitAskPassXmlRpcClient
 		myClient.setConfig(clientConfig);
 	}
 
-	String askUsername(String token, @NotNull String url)
+	String askUsername(String token, @Nonnull String url)
 	{
 		List<Object> parameters = new ArrayList<Object>();
 		parameters.add(token);
@@ -59,7 +59,7 @@ class GitAskPassXmlRpcClient
 		}
 	}
 
-	String askPassword(String token, @NotNull String url)
+	String askPassword(String token, @Nonnull String url)
 	{
 		List<Object> parameters = new ArrayList<Object>();
 		parameters.add(token);
@@ -75,8 +75,8 @@ class GitAskPassXmlRpcClient
 		}
 	}
 
-	@NotNull
-	private static String methodName(@NotNull String method)
+	@Nonnull
+	private static String methodName(@Nonnull String method)
 	{
 		return GitAskPassXmlRpcHandler.HANDLER_NAME + "." + method;
 	}

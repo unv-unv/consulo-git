@@ -18,28 +18,28 @@ package git4idea.rebase;
 import java.util.Collection;
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.openapi.util.text.StringUtil;
 
 class GitSuccessfulRebase extends GitRebaseStatus
 {
 	private final SuccessType mySuccessType;
 
-	private GitSuccessfulRebase(@NotNull SuccessType successType, @NotNull Collection<GitRebaseUtils.CommitInfo> skippedCommits)
+	private GitSuccessfulRebase(@Nonnull SuccessType successType, @Nonnull Collection<GitRebaseUtils.CommitInfo> skippedCommits)
 	{
 		super(Type.SUCCESS, skippedCommits);
 		mySuccessType = successType;
 	}
 
-	@NotNull
+	@Nonnull
 	public SuccessType getSuccessType()
 	{
 		return mySuccessType;
 	}
 
-	@NotNull
-	static GitSuccessfulRebase parseFromOutput(@NotNull List<String> output, @NotNull Collection<GitRebaseUtils.CommitInfo> skippedCommits)
+	@Nonnull
+	static GitSuccessfulRebase parseFromOutput(@Nonnull List<String> output, @Nonnull Collection<GitRebaseUtils.CommitInfo> skippedCommits)
 	{
 		return new GitSuccessfulRebase(SuccessType.fromOutput(output), skippedCommits);
 	}
@@ -48,9 +48,9 @@ class GitSuccessfulRebase extends GitRebaseStatus
 	{
 		REBASED
 				{
-					@NotNull
+					@Nonnull
 					@Override
-					public String formatMessage(@Nullable String currentBranch, @NotNull String baseBranch, boolean withCheckout)
+					public String formatMessage(@Nullable String currentBranch, @Nonnull String baseBranch, boolean withCheckout)
 					{
 						if(withCheckout)
 						{
@@ -64,9 +64,9 @@ class GitSuccessfulRebase extends GitRebaseStatus
 				},
 		UP_TO_DATE
 				{
-					@NotNull
+					@Nonnull
 					@Override
-					public String formatMessage(@Nullable String currentBranch, @NotNull String baseBranch, boolean withCheckout)
+					public String formatMessage(@Nullable String currentBranch, @Nonnull String baseBranch, boolean withCheckout)
 					{
 						String msg = currentBranch != null ? currentBranch + " is up-to-date" : "Up-to-date";
 						msg += " with " + baseBranch;
@@ -75,9 +75,9 @@ class GitSuccessfulRebase extends GitRebaseStatus
 				},
 		FAST_FORWARDED
 				{
-					@NotNull
+					@Nonnull
 					@Override
-					public String formatMessage(@Nullable String currentBranch, @NotNull String baseBranch, boolean withCheckout)
+					public String formatMessage(@Nullable String currentBranch, @Nonnull String baseBranch, boolean withCheckout)
 					{
 						if(withCheckout)
 						{
@@ -90,17 +90,17 @@ class GitSuccessfulRebase extends GitRebaseStatus
 					}
 				};
 
-		@NotNull
+		@Nonnull
 		private static String mention(@Nullable String currentBranch)
 		{
 			return currentBranch != null ? " " + currentBranch : "";
 		}
 
-		@NotNull
-		abstract String formatMessage(@Nullable String currentBranch, @NotNull String baseBranch, boolean withCheckout);
+		@Nonnull
+		abstract String formatMessage(@Nullable String currentBranch, @Nonnull String baseBranch, boolean withCheckout);
 
-		@NotNull
-		public static SuccessType fromOutput(@NotNull List<String> output)
+		@Nonnull
+		public static SuccessType fromOutput(@Nonnull List<String> output)
 		{
 			for(String line : output)
 			{

@@ -18,7 +18,7 @@ package git4idea.commands;
 import com.intellij.openapi.project.Project;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -71,7 +71,7 @@ public final class GitCompoundResult {
    * with only 1 root ever).
    * Otherwise adds repository URL to the error that repository produced.
    */
-  @NotNull
+  @Nonnull
   public String getErrorOutputWithReposIndication() {
     StringBuilder sb = new StringBuilder();
     for (Map.Entry<GitRepository, GitCommandResult> entry : resultsByRepos.entrySet()) {

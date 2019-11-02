@@ -15,10 +15,10 @@
  */
 package git4idea.config;
 
+import javax.annotation.Nonnull;
 import javax.swing.JComponent;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
@@ -31,18 +31,18 @@ public class GitVcsConfigurable implements Configurable
 
 	private final Project myProject;
 	private final GitVcsSettings mySettings;
-	@NotNull
+	@Nonnull
 	private final GitSharedSettings mySharedSettings;
 	private GitVcsPanel panel;
 
-	public GitVcsConfigurable(@NotNull Project project, @NotNull GitVcsSettings settings, @NotNull GitSharedSettings sharedSettings)
+	public GitVcsConfigurable(@Nonnull Project project, @Nonnull GitVcsSettings settings, @Nonnull GitSharedSettings sharedSettings)
 	{
 		myProject = project;
 		mySettings = settings;
 		mySharedSettings = sharedSettings;
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public String getDisplayName()
 	{
@@ -56,7 +56,7 @@ public class GitVcsConfigurable implements Configurable
 		return "project.propVCSSupport.VCSs.Git";
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public JComponent createComponent()
 	{

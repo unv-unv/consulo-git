@@ -17,26 +17,26 @@ package git4idea.push;
 
 import java.util.Map;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.util.containers.ContainerUtil;
 import git4idea.repo.GitRepository;
 
 class GroupedPushResult
 {
 
-	@NotNull
+	@Nonnull
 	final Map<GitRepository, GitPushRepoResult> successful;
-	@NotNull
+	@Nonnull
 	final Map<GitRepository, GitPushRepoResult> errors;
-	@NotNull
+	@Nonnull
 	final Map<GitRepository, GitPushRepoResult> rejected;
-	@NotNull
+	@Nonnull
 	final Map<GitRepository, GitPushRepoResult> customRejected;
 
-	private GroupedPushResult(@NotNull Map<GitRepository, GitPushRepoResult> successful,
-			@NotNull Map<GitRepository, GitPushRepoResult> errors,
-			@NotNull Map<GitRepository, GitPushRepoResult> rejected,
-			@NotNull Map<GitRepository, GitPushRepoResult> customRejected)
+	private GroupedPushResult(@Nonnull Map<GitRepository, GitPushRepoResult> successful,
+			@Nonnull Map<GitRepository, GitPushRepoResult> errors,
+			@Nonnull Map<GitRepository, GitPushRepoResult> rejected,
+			@Nonnull Map<GitRepository, GitPushRepoResult> customRejected)
 	{
 		this.successful = successful;
 		this.errors = errors;
@@ -44,8 +44,8 @@ class GroupedPushResult
 		this.customRejected = customRejected;
 	}
 
-	@NotNull
-	static GroupedPushResult group(@NotNull Map<GitRepository, GitPushRepoResult> results)
+	@Nonnull
+	static GroupedPushResult group(@Nonnull Map<GitRepository, GitPushRepoResult> results)
 	{
 		Map<GitRepository, GitPushRepoResult> successful = ContainerUtil.newHashMap();
 		Map<GitRepository, GitPushRepoResult> rejected = ContainerUtil.newHashMap();

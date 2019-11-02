@@ -4,13 +4,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.vcs.log.Hash;
 import com.intellij.vcs.log.VcsLogObjectsFactory;
 import com.intellij.vcs.log.VcsRef;
 import com.intellij.vcs.log.impl.HashImpl;
+
+import javax.annotation.Nullable;
 
 
 /**
@@ -29,7 +31,7 @@ class RefParser
 	}
 
 	// e25b7d8f (HEAD, refs/remotes/origin/master, refs/remotes/origin/HEAD, refs/heads/master)
-	public List<VcsRef> parseCommitRefs(@NotNull String input, @NotNull VirtualFile root)
+	public List<VcsRef> parseCommitRefs(@Nonnull String input, @Nonnull VirtualFile root)
 	{
 		int firstSpaceIndex = input.indexOf(' ');
 		if(firstSpaceIndex < 0)
@@ -53,7 +55,7 @@ class RefParser
 	}
 
 	@Nullable
-	private static String getRefName(@NotNull String longRefPath, @NotNull String startPatch)
+	private static String getRefName(@Nonnull String longRefPath, @Nonnull String startPatch)
 	{
 		String tagPrefix = "tag: ";
 		if(longRefPath.startsWith(tagPrefix))
@@ -72,7 +74,7 @@ class RefParser
 
 	// example input: fb29c80 refs/tags/92.29
 	@Nullable
-	private VcsRef createRef(@NotNull Hash hash, @NotNull String longRefPath, @NotNull VirtualFile root)
+	private VcsRef createRef(@Nonnull Hash hash, @Nonnull String longRefPath, @Nonnull VirtualFile root)
 	{
 		String name = getRefName(longRefPath, "refs/tags/");
 		if(name != null)

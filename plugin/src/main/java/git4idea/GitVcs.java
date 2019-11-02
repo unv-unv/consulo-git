@@ -26,10 +26,10 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Function;
 
+import javax.annotation.Nonnull;
 import javax.swing.event.HyperlinkEvent;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.notification.Notification;
@@ -112,7 +112,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 	private final GitAnnotationProvider myAnnotationProvider;
 	private final DiffProvider myDiffProvider;
 	private final VcsHistoryProvider myHistoryProvider;
-	@NotNull
+	@Nonnull
 	private final Git myGit;
 	private final ProjectLevelVcsManager myVcsManager;
 	private final GitVcsApplicationSettings myAppSettings;
@@ -144,17 +144,17 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 		return (GitVcs) ProjectLevelVcsManager.getInstance(project).findVcsByName(NAME);
 	}
 
-	public GitVcs(@NotNull Project project,
-			@NotNull Git git,
-			@NotNull final ProjectLevelVcsManager gitVcsManager,
-			@NotNull final GitAnnotationProvider gitAnnotationProvider,
-			@NotNull final GitDiffProvider gitDiffProvider,
-			@NotNull final GitHistoryProvider gitHistoryProvider,
-			@NotNull final GitRollbackEnvironment gitRollbackEnvironment,
-			@NotNull final GitVcsApplicationSettings gitSettings,
-			@NotNull final GitVcsSettings gitProjectSettings,
-			@NotNull GitSharedSettings sharedSettings,
-			@NotNull GitExecutableManager gitExecutableManager)
+	public GitVcs(@Nonnull Project project,
+			@Nonnull Git git,
+			@Nonnull final ProjectLevelVcsManager gitVcsManager,
+			@Nonnull final GitAnnotationProvider gitAnnotationProvider,
+			@Nonnull final GitDiffProvider gitDiffProvider,
+			@Nonnull final GitHistoryProvider gitHistoryProvider,
+			@Nonnull final GitRollbackEnvironment gitRollbackEnvironment,
+			@Nonnull final GitVcsApplicationSettings gitSettings,
+			@Nonnull final GitVcsSettings gitProjectSettings,
+			@Nonnull GitSharedSettings sharedSettings,
+			@Nonnull GitExecutableManager gitExecutableManager)
 	{
 		super(project, NAME);
 		myGit = git;
@@ -213,7 +213,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 		return myCheckinEnvironment;
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public MergeProvider getMergeProvider()
 	{
@@ -221,14 +221,14 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 	}
 
 	@Override
-	@NotNull
+	@Nonnull
 	public RollbackEnvironment createRollbackEnvironment()
 	{
 		return myRollbackEnvironment;
 	}
 
 	@Override
-	@NotNull
+	@Nonnull
 	public VcsHistoryProvider getVcsHistoryProvider()
 	{
 		return myHistoryProvider;
@@ -241,7 +241,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 	}
 
 	@Override
-	@NotNull
+	@Nonnull
 	public String getDisplayName()
 	{
 		return NAME;
@@ -255,14 +255,14 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 	}
 
 	@Override
-	@NotNull
+	@Nonnull
 	public GitAnnotationProvider getAnnotationProvider()
 	{
 		return myAnnotationProvider;
 	}
 
 	@Override
-	@NotNull
+	@Nonnull
 	public DiffProvider getDiffProvider()
 	{
 		return myDiffProvider;
@@ -392,7 +392,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 		}
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public synchronized Configurable getConfigurable()
 	{
@@ -411,7 +411,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 	 * @param list   a list of errors
 	 * @param action an action
 	 */
-	public void showErrors(@NotNull List<VcsException> list, @NotNull String action)
+	public void showErrors(@Nonnull List<VcsException> list, @Nonnull String action)
 	{
 		if(list.size() > 0)
 		{
@@ -438,7 +438,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 	/**
 	 * Shows a plain message in the Version Control Console.
 	 */
-	public void showMessages(@NotNull String message)
+	public void showMessages(@Nonnull String message)
 	{
 		if(message.length() == 0)
 		{
@@ -453,7 +453,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 	 * @param message     a message to show
 	 * @param contentType a style to use
 	 */
-	private void showMessage(@NotNull String message, @NotNull ConsoleViewContentType contentType)
+	private void showMessage(@Nonnull String message, @Nonnull ConsoleViewContentType contentType)
 	{
 		if(message.length() > MAX_CONSOLE_OUTPUT_SIZE)
 		{
@@ -483,7 +483,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 				VcsNotifier.getInstance(myProject).notifyError("Unsupported Git version", message, new NotificationListener.Adapter()
 				{
 					@Override
-					protected void hyperlinkActivated(@NotNull Notification notification, @NotNull HyperlinkEvent e)
+					protected void hyperlinkActivated(@Nonnull Notification notification, @Nonnull HyperlinkEvent e)
 					{
 						if(SETTINGS_LINK.equals(e.getDescription()))
 						{
@@ -515,7 +515,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 	/**
 	 * @return the version number of Git, which is used by IDEA. Or {@link GitVersion#NULL} if version info is unavailable yet.
 	 */
-	@NotNull
+	@Nonnull
 	public GitVersion getVersion()
 	{
 		return myVersion;
@@ -544,9 +544,9 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 		return true;
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
-	public <S> List<S> filterUniqueRoots(@NotNull List<S> in, @NotNull Function<S, VirtualFile> convertor)
+	public <S> List<S> filterUniqueRoots(@Nonnull List<S> in, @Nonnull Function<S, VirtualFile> convertor)
 	{
 		Collections.sort(in, Comparator.comparing(convertor, FilePathComparator.getInstance()));
 
@@ -620,7 +620,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 		return myCommitAndPushExecutor != null ? Collections.<CommitExecutor>singletonList(myCommitAndPushExecutor) : Collections.<CommitExecutor>emptyList();
 	}
 
-	@NotNull
+	@Nonnull
 	public GitExecutableValidator getExecutableValidator()
 	{
 		return myExecutableValidator;

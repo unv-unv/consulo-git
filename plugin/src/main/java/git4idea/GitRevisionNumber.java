@@ -19,7 +19,7 @@ import java.util.Date;
 import java.util.StringTokenizer;
 
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
@@ -46,12 +46,12 @@ public class GitRevisionNumber implements ShortVcsRevisionNumber
 	/**
 	 * the revision number (40 character hashcode, tag, or reference). In some cases incomplete hashcode could be used.
 	 */
-	@NotNull
+	@Nonnull
 	private final String myRevisionHash;
 	/**
 	 * the date when revision created
 	 */
-	@NotNull
+	@Nonnull
 	private final Date myTimestamp;
 
 	private static final Logger LOG = Logger.getInstance(GitRevisionNumber.class);
@@ -61,7 +61,7 @@ public class GitRevisionNumber implements ShortVcsRevisionNumber
 	 *
 	 * @param version the version number.
 	 */
-	public GitRevisionNumber(@NonNls @NotNull String version)
+	public GitRevisionNumber(@NonNls @Nonnull String version)
 	{
 		// TODO review usages
 		myRevisionHash = version;
@@ -74,13 +74,13 @@ public class GitRevisionNumber implements ShortVcsRevisionNumber
 	 * @param version   the version number
 	 * @param timeStamp the time when the version has been created
 	 */
-	public GitRevisionNumber(@NotNull String version, @NotNull Date timeStamp)
+	public GitRevisionNumber(@Nonnull String version, @Nonnull Date timeStamp)
 	{
 		myTimestamp = timeStamp;
 		myRevisionHash = version;
 	}
 
-	@NotNull
+	@Nonnull
 	public String asString()
 	{
 		return myRevisionHash;
@@ -95,7 +95,7 @@ public class GitRevisionNumber implements ShortVcsRevisionNumber
 	/**
 	 * @return revision time
 	 */
-	@NotNull
+	@Nonnull
 	public Date getTimestamp()
 	{
 		return myTimestamp;
@@ -104,7 +104,7 @@ public class GitRevisionNumber implements ShortVcsRevisionNumber
 	/**
 	 * @return revision number
 	 */
-	@NotNull
+	@Nonnull
 	public String getRev()
 	{
 		return myRevisionHash;
@@ -113,7 +113,7 @@ public class GitRevisionNumber implements ShortVcsRevisionNumber
 	/**
 	 * @return the short revision number. The revision number likely unambiguously identify local revision, however in rare cases there could be conflicts.
 	 */
-	@NotNull
+	@Nonnull
 	public String getShortRev()
 	{
 		return DvcsUtil.getShortHash(myRevisionHash);
@@ -245,7 +245,7 @@ public class GitRevisionNumber implements ShortVcsRevisionNumber
 	 * @return a resolved revision number with correct time
 	 * @throws VcsException if there is a problem with running git
 	 */
-	@NotNull
+	@Nonnull
 	public static GitRevisionNumber resolve(Project project, VirtualFile vcsRoot, @NonNls String rev) throws VcsException
 	{
 		GitSimpleHandler h = new GitSimpleHandler(project, vcsRoot, GitCommand.REV_LIST);
@@ -256,8 +256,8 @@ public class GitRevisionNumber implements ShortVcsRevisionNumber
 		return parseRevlistOutputAsRevisionNumber(h, output);
 	}
 
-	@NotNull
-	public static GitRevisionNumber parseRevlistOutputAsRevisionNumber(@NotNull GitSimpleHandler h, @NotNull String output) throws VcsException
+	@Nonnull
+	public static GitRevisionNumber parseRevlistOutputAsRevisionNumber(@Nonnull GitSimpleHandler h, @Nonnull String output) throws VcsException
 	{
 		try
 		{

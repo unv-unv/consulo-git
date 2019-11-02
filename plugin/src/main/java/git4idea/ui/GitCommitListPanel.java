@@ -20,14 +20,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.CommonShortcuts;
@@ -58,7 +58,7 @@ public class GitCommitListPanel extends JPanel implements TypeSafeDataProvider
 	private final List<GitCommit> myCommits;
 	private final TableView<GitCommit> myTable;
 
-	public GitCommitListPanel(@NotNull List<GitCommit> commits, @Nullable String emptyText)
+	public GitCommitListPanel(@Nonnull List<GitCommit> commits, @Nullable String emptyText)
 	{
 		myCommits = commits;
 
@@ -78,7 +78,7 @@ public class GitCommitListPanel extends JPanel implements TypeSafeDataProvider
 	/**
 	 * Adds a listener that would be called once user selects a commit in the table.
 	 */
-	public void addListSelectionListener(final @NotNull Consumer<GitCommit> listener)
+	public void addListSelectionListener(final @Nonnull Consumer<GitCommit> listener)
 	{
 		myTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
 		{
@@ -95,7 +95,7 @@ public class GitCommitListPanel extends JPanel implements TypeSafeDataProvider
 		});
 	}
 
-	public void addListMultipleSelectionListener(final @NotNull Consumer<List<Change>> listener)
+	public void addListMultipleSelectionListener(final @Nonnull Consumer<List<Change>> listener)
 	{
 		myTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
 		{
@@ -119,7 +119,7 @@ public class GitCommitListPanel extends JPanel implements TypeSafeDataProvider
 	/**
 	 * Registers the diff action which will be called when the diff shortcut is pressed in the table.
 	 */
-	public void registerDiffAction(@NotNull AnAction diffAction)
+	public void registerDiffAction(@Nonnull AnAction diffAction)
 	{
 		diffAction.registerCustomShortcutSet(CommonShortcuts.getDiff(), myTable);
 	}
@@ -144,7 +144,7 @@ public class GitCommitListPanel extends JPanel implements TypeSafeDataProvider
 		}
 	}
 
-	@NotNull
+	@Nonnull
 	public JComponent getPreferredFocusComponent()
 	{
 		return myTable;
@@ -155,7 +155,7 @@ public class GitCommitListPanel extends JPanel implements TypeSafeDataProvider
 		myTable.clearSelection();
 	}
 
-	public void setCommits(@NotNull List<GitCommit> commits)
+	public void setCommits(@Nonnull List<GitCommit> commits)
 	{
 		myCommits.clear();
 		myCommits.addAll(commits);
@@ -168,8 +168,8 @@ public class GitCommitListPanel extends JPanel implements TypeSafeDataProvider
 		myTable.setModelAndUpdateColumns(new ListTableModel<GitCommit>(generateColumnsInfo(myCommits), myCommits, 0));
 	}
 
-	@NotNull
-	private ColumnInfo[] generateColumnsInfo(@NotNull List<GitCommit> commits)
+	@Nonnull
+	private ColumnInfo[] generateColumnsInfo(@Nonnull List<GitCommit> commits)
 	{
 		ItemAndWidth hash = new ItemAndWidth("", 0);
 		ItemAndWidth author = new ItemAndWidth("", 0);
@@ -257,10 +257,10 @@ public class GitCommitListPanel extends JPanel implements TypeSafeDataProvider
 	private abstract static class GitCommitColumnInfo extends ColumnInfo<GitCommit, String>
 	{
 
-		@NotNull
+		@Nonnull
 		private final String myMaxString;
 
-		public GitCommitColumnInfo(@NotNull String name, @NotNull String maxString)
+		public GitCommitColumnInfo(@Nonnull String name, @Nonnull String maxString)
 		{
 			super(name);
 			myMaxString = maxString;

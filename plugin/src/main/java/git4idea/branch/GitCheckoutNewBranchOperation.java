@@ -19,7 +19,7 @@ import static git4idea.util.GitUIUtil.code;
 
 import java.util.Collection;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vcs.VcsNotifier;
@@ -35,12 +35,12 @@ import git4idea.repo.GitRepository;
 class GitCheckoutNewBranchOperation extends GitBranchOperation
 {
 
-	@NotNull
+	@Nonnull
 	private final Project myProject;
-	@NotNull
+	@Nonnull
 	private final String myNewBranchName;
 
-	GitCheckoutNewBranchOperation(@NotNull Project project, @NotNull Git git, @NotNull GitBranchUiHandler uiHandler, @NotNull Collection<GitRepository> repositories, @NotNull String newBranchName)
+	GitCheckoutNewBranchOperation(@Nonnull Project project, @Nonnull Git git, @Nonnull GitBranchUiHandler uiHandler, @Nonnull Collection<GitRepository> repositories, @Nonnull String newBranchName)
 	{
 		super(project, git, uiHandler, repositories);
 		myNewBranchName = newBranchName;
@@ -82,19 +82,19 @@ class GitCheckoutNewBranchOperation extends GitBranchOperation
 		}
 	}
 
-	private static void refresh(@NotNull GitRepository repository)
+	private static void refresh(@Nonnull GitRepository repository)
 	{
 		repository.update();
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public String getSuccessMessage()
 	{
 		return String.format("Branch <b><code>%s</code></b> was created", myNewBranchName);
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	protected String getRollbackProposal()
 	{
@@ -103,7 +103,7 @@ class GitCheckoutNewBranchOperation extends GitBranchOperation
 				"<br/>You may rollback (checkout previous branch back, and delete " + myNewBranchName + ") not to let branches diverge.";
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	protected String getOperationName()
 	{

@@ -27,7 +27,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
 import git4idea.repo.GitRepository;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.util.*;
 
@@ -37,7 +37,7 @@ import java.util.*;
 public class GitResolveConflictsAction extends GitAction {
 
   @Override
-  public void actionPerformed(@NotNull AnActionEvent event) {
+  public void actionPerformed(@Nonnull AnActionEvent event) {
     final Project project = event.getProject();
     if (project == null) {
       return;
@@ -45,7 +45,7 @@ public class GitResolveConflictsAction extends GitAction {
 
     final Set<VirtualFile> conflictedFiles = new TreeSet<VirtualFile>(new Comparator<VirtualFile>() {
       @Override
-      public int compare(@NotNull VirtualFile f1, @NotNull VirtualFile f2) {
+      public int compare(@Nonnull VirtualFile f1, @Nonnull VirtualFile f2) {
         return f1.getPresentableUrl().compareTo(f2.getPresentableUrl());
       }
     });
@@ -76,7 +76,7 @@ public class GitResolveConflictsAction extends GitAction {
   }
 
   @Override
-  protected boolean isEnabled(@NotNull AnActionEvent event) {
+  protected boolean isEnabled(@Nonnull AnActionEvent event) {
     final Collection<Change> changes = ChangeListManager.getInstance(event.getProject()).getAllChanges();
     if (changes.size() > 1000) {
       return true;
@@ -90,7 +90,7 @@ public class GitResolveConflictsAction extends GitAction {
   }
 
   @Override
-  public void update(@NotNull AnActionEvent e) {
+  public void update(@Nonnull AnActionEvent e) {
     super.update(e);
     if (ActionPlaces.isPopupPlace(e.getPlace())) {
       e.getPresentation().setVisible(e.getPresentation().isEnabled());

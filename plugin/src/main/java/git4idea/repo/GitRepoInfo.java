@@ -24,13 +24,15 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import com.intellij.dvcs.repo.Repository;
 import com.intellij.vcs.log.Hash;
 import git4idea.GitBranch;
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
+
+import javax.annotation.Nullable;
 
 public class GitRepoInfo
 {
@@ -39,30 +41,30 @@ public class GitRepoInfo
 	private final GitLocalBranch myCurrentBranch;
 	@Nullable
 	private final String myCurrentRevision;
-	@NotNull
+	@Nonnull
 	private final Repository.State myState;
-	@NotNull
+	@Nonnull
 	private final Set<GitRemote> myRemotes;
-	@NotNull
+	@Nonnull
 	private final Map<GitLocalBranch, Hash> myLocalBranches;
-	@NotNull
+	@Nonnull
 	private final Map<GitRemoteBranch, Hash> myRemoteBranches;
-	@NotNull
+	@Nonnull
 	private final Set<GitBranchTrackInfo> myBranchTrackInfos;
-	@NotNull
+	@Nonnull
 	private final Collection<GitSubmoduleInfo> mySubmodules;
-	@NotNull
+	@Nonnull
 	private final GitHooksInfo myHooksInfo;
 
 	public GitRepoInfo(@Nullable GitLocalBranch currentBranch,
 			@Nullable String currentRevision,
-			@NotNull Repository.State state,
-			@NotNull Collection<GitRemote> remotes,
-			@NotNull Map<GitLocalBranch, Hash> localBranches,
-			@NotNull Map<GitRemoteBranch, Hash> remoteBranches,
-			@NotNull Collection<GitBranchTrackInfo> branchTrackInfos,
-			@NotNull Collection<GitSubmoduleInfo> submodules,
-			@NotNull GitHooksInfo hooksInfo)
+			@Nonnull Repository.State state,
+			@Nonnull Collection<GitRemote> remotes,
+			@Nonnull Map<GitLocalBranch, Hash> localBranches,
+			@Nonnull Map<GitRemoteBranch, Hash> remoteBranches,
+			@Nonnull Collection<GitBranchTrackInfo> branchTrackInfos,
+			@Nonnull Collection<GitSubmoduleInfo> submodules,
+			@Nonnull GitHooksInfo hooksInfo)
 	{
 		myCurrentBranch = currentBranch;
 		myCurrentRevision = currentRevision;
@@ -81,32 +83,32 @@ public class GitRepoInfo
 		return myCurrentBranch;
 	}
 
-	@NotNull
+	@Nonnull
 	public Collection<GitRemote> getRemotes()
 	{
 		return myRemotes;
 	}
 
-	@NotNull
+	@Nonnull
 	public Map<GitLocalBranch, Hash> getLocalBranchesWithHashes()
 	{
 		return myLocalBranches;
 	}
 
-	@NotNull
+	@Nonnull
 	public Map<GitRemoteBranch, Hash> getRemoteBranchesWithHashes()
 	{
 		return myRemoteBranches;
 	}
 
-	@NotNull
+	@Nonnull
 	@Deprecated
 	public Collection<GitRemoteBranch> getRemoteBranches()
 	{
 		return myRemoteBranches.keySet();
 	}
 
-	@NotNull
+	@Nonnull
 	public Collection<GitBranchTrackInfo> getBranchTrackInfos()
 	{
 		return myBranchTrackInfos;
@@ -118,19 +120,19 @@ public class GitRepoInfo
 		return myCurrentRevision;
 	}
 
-	@NotNull
+	@Nonnull
 	public Repository.State getState()
 	{
 		return myState;
 	}
 
-	@NotNull
+	@Nonnull
 	public Collection<GitSubmoduleInfo> getSubmodules()
 	{
 		return mySubmodules;
 	}
 
-	@NotNull
+	@Nonnull
 	public GitHooksInfo getHooksInfo()
 	{
 		return myHooksInfo;
@@ -225,13 +227,13 @@ public class GitRepoInfo
 	{
 
 		@Override
-		public int computeHashCode(@NotNull Map.Entry<? extends GitBranch, Hash> branchEntry)
+		public int computeHashCode(@Nonnull Map.Entry<? extends GitBranch, Hash> branchEntry)
 		{
 			return 31 * branchEntry.getKey().getName().hashCode() + branchEntry.getValue().hashCode();
 		}
 
 		@Override
-		public boolean equals(@NotNull Map.Entry<? extends GitBranch, Hash> b1, @NotNull Map.Entry<? extends GitBranch, Hash> b2)
+		public boolean equals(@Nonnull Map.Entry<? extends GitBranch, Hash> b1, @Nonnull Map.Entry<? extends GitBranch, Hash> b2)
 		{
 			if(b1 == b2)
 			{

@@ -17,7 +17,7 @@ package git4idea.commands;
 
 import java.io.File;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.execution.process.ProcessOutputTypes;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
@@ -63,7 +63,7 @@ public class GitSimpleHandler extends GitTextHandler
 	 * @param command   a command to execute
 	 */
 	@SuppressWarnings({"WeakerAccess"})
-	public GitSimpleHandler(@NotNull Project project, @NotNull File directory, @NotNull GitCommand command)
+	public GitSimpleHandler(@Nonnull Project project, @Nonnull File directory, @Nonnull GitCommand command)
 	{
 		super(project, directory, command);
 	}
@@ -76,7 +76,7 @@ public class GitSimpleHandler extends GitTextHandler
 	 * @param command   a command to execute
 	 */
 	@SuppressWarnings({"WeakerAccess"})
-	public GitSimpleHandler(@NotNull final Project project, @NotNull final VirtualFile directory, @NotNull final GitCommand command)
+	public GitSimpleHandler(@Nonnull final Project project, @Nonnull final VirtualFile directory, @Nonnull final GitCommand command)
 	{
 		super(project, directory, command);
 	}

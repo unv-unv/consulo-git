@@ -21,7 +21,7 @@ import com.intellij.openapi.vcs.changes.VcsAnnotationRefresher;
 import git4idea.GitVcs;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 /**
  * Created with IntelliJ IDEA.
@@ -46,7 +46,7 @@ public class GitRepositoryForAnnotationsListener {
   private GitRepositoryChangeListener createListener() {
     return new GitRepositoryChangeListener() {
       @Override
-      public void repositoryChanged(@NotNull GitRepository repository) {
+      public void repositoryChanged(@Nonnull GitRepository repository) {
         final VcsAnnotationRefresher refresher = myProject.getMessageBus().syncPublisher(VcsAnnotationRefresher.LOCAL_CHANGES_CHANGED);
         refresher.dirtyUnder(repository.getRoot());
       }

@@ -31,8 +31,8 @@ import git4idea.branch.GitBranchUtil;
 import git4idea.branch.GitBrancher;
 import git4idea.repo.GitRepository;
 import git4idea.validators.GitNewBranchNameValidator;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import java.util.Collections;
 import java.util.List;
@@ -60,7 +60,7 @@ class GitBranchPopupActions
 		return createActions(null, "", false);
 	}
 
-	ActionGroup createActions(@Nullable LightActionGroup toInsert, @NotNull String repoInfo, boolean firstLevelGroup)
+	ActionGroup createActions(@Nullable LightActionGroup toInsert, @Nonnull String repoInfo, boolean firstLevelGroup)
 	{
 		LightActionGroup popupGroup = new LightActionGroup();
 		List<GitRepository> repositoryList = Collections.singletonList(myRepository);
@@ -91,7 +91,7 @@ class GitBranchPopupActions
 	public static class GitNewBranchAction extends NewBranchAction<GitRepository>
 	{
 
-		public GitNewBranchAction(@NotNull Project project, @NotNull List<GitRepository> repositories)
+		public GitNewBranchAction(@Nonnull Project project, @Nonnull List<GitRepository> repositories)
 		{
 			super(project, repositories);
 		}
@@ -159,11 +159,11 @@ class GitBranchPopupActions
 		private final Project myProject;
 		private final List<GitRepository> myRepositories;
 		private final String myBranchName;
-		@NotNull
+		@Nonnull
 		private final GitRepository mySelectedRepository;
 		private final GitBranchManager myGitBranchManager;
 
-		LocalBranchActions(@NotNull Project project, @NotNull List<GitRepository> repositories, @NotNull String branchName, @NotNull GitRepository selectedRepository)
+		LocalBranchActions(@Nonnull Project project, @Nonnull List<GitRepository> repositories, @Nonnull String branchName, @Nonnull GitRepository selectedRepository)
 		{
 			myProject = project;
 			myRepositories = repositories;
@@ -174,25 +174,25 @@ class GitBranchPopupActions
 			setFavorite(myGitBranchManager.isFavorite(LOCAL, repositories.size() > 1 ? null : mySelectedRepository, myBranchName));
 		}
 
-		@NotNull
+		@Nonnull
 		private String calcBranchText()
 		{
 			return myBranchName;
 		}
 
-		@NotNull
+		@Nonnull
 		List<GitRepository> getRepositories()
 		{
 			return myRepositories;
 		}
 
-		@NotNull
+		@Nonnull
 		public String getBranchName()
 		{
 			return myBranchName;
 		}
 
-		@NotNull
+		@Nonnull
 		@Override
 		public AnAction[] getChildren(@Nullable AnActionEvent e)
 		{
@@ -228,7 +228,7 @@ class GitBranchPopupActions
 			private final List<GitRepository> myRepositories;
 			private final String myBranchName;
 
-			CheckoutAction(@NotNull Project project, @NotNull List<GitRepository> repositories, @NotNull String branchName)
+			CheckoutAction(@Nonnull Project project, @Nonnull List<GitRepository> repositories, @Nonnull String branchName)
 			{
 				super("Checkout");
 				myProject = project;
@@ -251,7 +251,7 @@ class GitBranchPopupActions
 			private final List<GitRepository> myRepositories;
 			private final String myBranchName;
 
-			CheckoutAsNewBranch(@NotNull Project project, @NotNull List<GitRepository> repositories, @NotNull String branchName)
+			CheckoutAsNewBranch(@Nonnull Project project, @Nonnull List<GitRepository> repositories, @Nonnull String branchName)
 			{
 				super("Checkout as New Branch");
 				myProject = project;
@@ -275,14 +275,14 @@ class GitBranchPopupActions
 
 		private static class RenameBranchAction extends DumbAwareAction
 		{
-			@NotNull
+			@Nonnull
 			private final Project myProject;
-			@NotNull
+			@Nonnull
 			private final List<GitRepository> myRepositories;
-			@NotNull
+			@Nonnull
 			private final String myCurrentBranchName;
 
-			public RenameBranchAction(@NotNull Project project, @NotNull List<GitRepository> repositories, @NotNull String currentBranchName)
+			public RenameBranchAction(@Nonnull Project project, @Nonnull List<GitRepository> repositories, @Nonnull String currentBranchName)
 			{
 				super("Rename");
 				myProject = project;
@@ -291,7 +291,7 @@ class GitBranchPopupActions
 			}
 
 			@Override
-			public void actionPerformed(@NotNull AnActionEvent e)
+			public void actionPerformed(@Nonnull AnActionEvent e)
 			{
 				String newName = Messages.showInputDialog(myProject, "New name for the branch '" + myCurrentBranchName + "':", "Rename Branch " + myCurrentBranchName, null, myCurrentBranchName,
 						GitNewBranchNameValidator.newInstance(myRepositories));
@@ -337,12 +337,12 @@ class GitBranchPopupActions
 		private final Project myProject;
 		private final List<GitRepository> myRepositories;
 		private final String myBranchName;
-		@NotNull
+		@Nonnull
 		private final GitRepository mySelectedRepository;
-		@NotNull
+		@Nonnull
 		private final GitBranchManager myGitBranchManager;
 
-		RemoteBranchActions(@NotNull Project project, @NotNull List<GitRepository> repositories, @NotNull String branchName, @NotNull GitRepository selectedRepository)
+		RemoteBranchActions(@Nonnull Project project, @Nonnull List<GitRepository> repositories, @Nonnull String branchName, @Nonnull GitRepository selectedRepository)
 		{
 
 			myProject = project;
@@ -361,7 +361,7 @@ class GitBranchPopupActions
 			myGitBranchManager.setFavorite(REMOTE, myRepositories.size() > 1 ? null : mySelectedRepository, myBranchName, isFavorite());
 		}
 
-		@NotNull
+		@Nonnull
 		@Override
 		public AnAction[] getChildren(@Nullable AnActionEvent e)
 		{
@@ -380,7 +380,7 @@ class GitBranchPopupActions
 			private final List<GitRepository> myRepositories;
 			private final String myRemoteBranchName;
 
-			public CheckoutRemoteBranchAction(@NotNull Project project, @NotNull List<GitRepository> repositories, @NotNull String remoteBranchName)
+			public CheckoutRemoteBranchAction(@Nonnull Project project, @Nonnull List<GitRepository> repositories, @Nonnull String remoteBranchName)
 			{
 				super("Checkout as new local branch");
 				myProject = project;
@@ -415,7 +415,7 @@ class GitBranchPopupActions
 			private final List<GitRepository> myRepositories;
 			private final String myBranchName;
 
-			RemoteDeleteAction(@NotNull Project project, @NotNull List<GitRepository> repositories, @NotNull String branchName)
+			RemoteDeleteAction(@Nonnull Project project, @Nonnull List<GitRepository> repositories, @Nonnull String branchName)
 			{
 				super("Delete");
 				myProject = project;
@@ -441,7 +441,7 @@ class GitBranchPopupActions
 		private final String myBranchName;
 		private final GitRepository mySelectedRepository;
 
-		public CompareAction(@NotNull Project project, @NotNull List<GitRepository> repositories, @NotNull String branchName, @NotNull GitRepository selectedRepository)
+		public CompareAction(@Nonnull Project project, @Nonnull List<GitRepository> repositories, @Nonnull String branchName, @Nonnull GitRepository selectedRepository)
 		{
 			super("Compare");
 			myProject = project;
@@ -467,7 +467,7 @@ class GitBranchPopupActions
 		private final String myBranchName;
 		private final boolean myLocalBranch;
 
-		public MergeAction(@NotNull Project project, @NotNull List<GitRepository> repositories, @NotNull String branchName, boolean localBranch)
+		public MergeAction(@Nonnull Project project, @Nonnull List<GitRepository> repositories, @Nonnull String branchName, boolean localBranch)
 		{
 			super("Merge");
 			myProject = project;
@@ -500,7 +500,7 @@ class GitBranchPopupActions
 		private final List<GitRepository> myRepositories;
 		private final String myBranchName;
 
-		public RebaseAction(@NotNull Project project, @NotNull List<GitRepository> repositories, @NotNull String branchName)
+		public RebaseAction(@Nonnull Project project, @Nonnull List<GitRepository> repositories, @Nonnull String branchName)
 		{
 			super("Rebase onto");
 			myProject = project;
@@ -523,7 +523,7 @@ class GitBranchPopupActions
 		private final List<GitRepository> myRepositories;
 		private final String myBranchName;
 
-		public CheckoutWithRebaseAction(@NotNull Project project, @NotNull List<GitRepository> repositories, @NotNull String branchName)
+		public CheckoutWithRebaseAction(@Nonnull Project project, @Nonnull List<GitRepository> repositories, @Nonnull String branchName)
 		{
 			super("Checkout with Rebase", "Checkout the given branch, and rebase it on current branch in one step, " + "just like `git rebase HEAD " + branchName + "` would do.", null);
 			myProject = project;

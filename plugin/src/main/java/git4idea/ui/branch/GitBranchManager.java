@@ -21,10 +21,10 @@ import static git4idea.log.GitRefManager.ORIGIN_MASTER;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.inject.Singleton;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import com.intellij.dvcs.branch.BranchStorage;
 import com.intellij.dvcs.branch.DvcsBranchInfo;
 import com.intellij.util.containers.ContainerUtil;
@@ -36,14 +36,14 @@ import git4idea.repo.GitRepositoryManager;
 @Singleton
 public class GitBranchManager
 {
-	@NotNull
+	@Nonnull
 	private final GitRepositoryManager myRepositoryManager;
-	@NotNull
+	@Nonnull
 	private final GitVcsSettings mySettings;
-	@NotNull
+	@Nonnull
 	public final BranchStorage myPredefinedFavoriteBranches = new BranchStorage();
 
-	public GitBranchManager(@NotNull GitRepositoryManager repositoryManager, @NotNull GitVcsSettings settings)
+	public GitBranchManager(@Nonnull GitRepositoryManager repositoryManager, @Nonnull GitVcsSettings settings)
 	{
 		myRepositoryManager = repositoryManager;
 		mySettings = settings;
@@ -53,7 +53,7 @@ public class GitBranchManager
 		}
 	}
 
-	@NotNull
+	@Nonnull
 	private List<DvcsBranchInfo> constructDefaultBranchPredefinedList(GitBranchType type)
 	{
 		List<DvcsBranchInfo> branchInfos = ContainerUtil.newArrayList(new DvcsBranchInfo("", getDefaultBranchName(type)));
@@ -61,13 +61,13 @@ public class GitBranchManager
 		return branchInfos;
 	}
 
-	@NotNull
-	private static String getDefaultBranchName(@NotNull GitBranchType type)
+	@Nonnull
+	private static String getDefaultBranchName(@Nonnull GitBranchType type)
 	{
 		return type == GitBranchType.LOCAL ? MASTER : ORIGIN_MASTER;
 	}
 
-	public boolean isFavorite(@NotNull GitBranchType branchType, @Nullable GitRepository repository, @NotNull String branchName)
+	public boolean isFavorite(@Nonnull GitBranchType branchType, @Nullable GitRepository repository, @Nonnull String branchName)
 	{
 		if(mySettings.isFavorite(branchType, repository, branchName))
 		{
@@ -80,7 +80,7 @@ public class GitBranchManager
 		return myPredefinedFavoriteBranches.contains(branchType.toString(), repository, branchName);
 	}
 
-	public void setFavorite(@NotNull GitBranchType branchType, @Nullable GitRepository repository, @NotNull String branchName, boolean shouldBeFavorite)
+	public void setFavorite(@Nonnull GitBranchType branchType, @Nullable GitRepository repository, @Nonnull String branchName, boolean shouldBeFavorite)
 	{
 		if(shouldBeFavorite)
 		{

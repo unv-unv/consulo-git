@@ -18,7 +18,7 @@ package git4idea.rebase;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 class GitRebaseStatus
 {
@@ -49,30 +49,30 @@ class GitRebaseStatus
 		NOT_STARTED
 	}
 
-	@NotNull
+	@Nonnull
 	private final Type myType;
-	@NotNull
+	@Nonnull
 	private final Collection<GitRebaseUtils.CommitInfo> mySkippedCommits;
 
-	@NotNull
+	@Nonnull
 	static GitRebaseStatus notStarted()
 	{
 		return new GitRebaseStatus(Type.NOT_STARTED, Collections.<GitRebaseUtils.CommitInfo>emptyList());
 	}
 
-	GitRebaseStatus(@NotNull Type type, @NotNull Collection<GitRebaseUtils.CommitInfo> skippedCommits)
+	GitRebaseStatus(@Nonnull Type type, @Nonnull Collection<GitRebaseUtils.CommitInfo> skippedCommits)
 	{
 		myType = type;
 		mySkippedCommits = skippedCommits;
 	}
 
-	@NotNull
+	@Nonnull
 	Collection<GitRebaseUtils.CommitInfo> getSkippedCommits()
 	{
 		return mySkippedCommits;
 	}
 
-	@NotNull
+	@Nonnull
 	Type getType()
 	{
 		return myType;

@@ -25,10 +25,10 @@ import git4idea.history.browser.CachedRefs;
 import git4idea.history.browser.ChangesFilter;
 import git4idea.history.wholeTree.*;
 import git4idea.test.GitTest;
-import org.jetbrains.annotations.Nullable;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;

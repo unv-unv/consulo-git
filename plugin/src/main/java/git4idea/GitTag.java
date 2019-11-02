@@ -21,9 +21,9 @@ import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitSimpleHandler;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -41,14 +41,14 @@ public class GitTag extends GitReference {
    *
    * @param name the used name
    */
-  public GitTag(@NotNull String name) {
+  public GitTag(@Nonnull String name) {
     super(name);
   }
 
   /**
    * {@inheritDoc}
    */
-  @NotNull
+  @Nonnull
   public String getFullName() {
     return REFS_TAGS_PREFIX + myName;
   }

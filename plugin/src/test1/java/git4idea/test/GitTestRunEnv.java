@@ -17,7 +17,7 @@ package git4idea.test;
 
 import com.intellij.dvcs.test.Executor;
 import com.intellij.openapi.util.text.StringUtil;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,15 +32,15 @@ public class GitTestRunEnv {
 
   private File myRootDir;
 
-  public GitTestRunEnv(@NotNull File rootDir) {
+  public GitTestRunEnv(@Nonnull File rootDir) {
     myRootDir = rootDir;
   }
 
-  public String run(@NotNull String command, String... params) throws IOException {
+  public String run(@Nonnull String command, String... params) throws IOException {
     return run(false, command, params);
   }
 
-  public String run(boolean silent, @NotNull String command, String... params) throws IOException {
+  public String run(boolean silent, @Nonnull String command, String... params) throws IOException {
     new Executor().cd(myRootDir.getPath());
     return new GitExecutor().git(command + " " + StringUtil.join(params, " "));
   }

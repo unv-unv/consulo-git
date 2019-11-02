@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ApplicationManager;
@@ -55,22 +55,22 @@ import git4idea.util.GitPreservingProcess;
 public class GitResetOperation
 {
 
-	@NotNull
+	@Nonnull
 	private final Project myProject;
-	@NotNull
+	@Nonnull
 	private final Map<GitRepository, Hash> myCommits;
-	@NotNull
+	@Nonnull
 	private final GitResetMode myMode;
-	@NotNull
+	@Nonnull
 	private final ProgressIndicator myIndicator;
-	@NotNull
+	@Nonnull
 	private final Git myGit;
-	@NotNull
+	@Nonnull
 	private final VcsNotifier myNotifier;
-	@NotNull
+	@Nonnull
 	private final GitBranchUiHandlerImpl myUiHandler;
 
-	public GitResetOperation(@NotNull Project project, @NotNull Map<GitRepository, Hash> targetCommits, @NotNull GitResetMode mode, @NotNull ProgressIndicator indicator)
+	public GitResetOperation(@Nonnull Project project, @Nonnull Map<GitRepository, Hash> targetCommits, @Nonnull GitResetMode mode, @Nonnull ProgressIndicator indicator)
 	{
 		myProject = project;
 		myCommits = targetCommits;
@@ -117,7 +117,7 @@ public class GitResetOperation
 		notifyResult(results);
 	}
 
-	private GitCommandResult proposeSmartReset(@NotNull GitLocalChangesWouldBeOverwrittenDetector detector, @NotNull final GitRepository repository, @NotNull final String target)
+	private GitCommandResult proposeSmartReset(@Nonnull GitLocalChangesWouldBeOverwrittenDetector detector, @Nonnull final GitRepository repository, @Nonnull final String target)
 	{
 		Collection<String> absolutePaths = GitUtil.toAbsolute(repository.getRoot(), detector.getRelativeFilePaths());
 		List<Change> affectedChanges = GitUtil.findLocalChangesForPaths(myProject, repository.getRoot(), absolutePaths, false);
@@ -142,7 +142,7 @@ public class GitResetOperation
 		return null;
 	}
 
-	private void notifyResult(@NotNull Map<GitRepository, GitCommandResult> results)
+	private void notifyResult(@Nonnull Map<GitRepository, GitCommandResult> results)
 	{
 		Map<GitRepository, GitCommandResult> successes = ContainerUtil.newHashMap();
 		Map<GitRepository, GitCommandResult> errors = ContainerUtil.newHashMap();
@@ -175,8 +175,8 @@ public class GitResetOperation
 		}
 	}
 
-	@NotNull
-	private static String formErrorReport(@NotNull Map<GitRepository, GitCommandResult> errorResults)
+	@Nonnull
+	private static String formErrorReport(@Nonnull Map<GitRepository, GitCommandResult> errorResults)
 	{
 		MultiMap<String, GitRepository> grouped = groupByResult(errorResults);
 		if(grouped.size() == 1)
@@ -185,9 +185,9 @@ public class GitResetOperation
 		}
 		return StringUtil.join(grouped.entrySet(), new Function<Map.Entry<String, Collection<GitRepository>>, String>()
 		{
-			@NotNull
+			@Nonnull
 			@Override
-			public String fun(@NotNull Map.Entry<String, Collection<GitRepository>> entry)
+			public String fun(@Nonnull Map.Entry<String, Collection<GitRepository>> entry)
 			{
 				return joinRepos(entry.getValue()) + ":<br/><code>" + entry.getKey() + "</code>";
 			}
@@ -195,8 +195,8 @@ public class GitResetOperation
 	}
 
 	// to avoid duplicate error reports if they are the same for different repositories
-	@NotNull
-	private static MultiMap<String, GitRepository> groupByResult(@NotNull Map<GitRepository, GitCommandResult> results)
+	@Nonnull
+	private static MultiMap<String, GitRepository> groupByResult(@Nonnull Map<GitRepository, GitCommandResult> results)
 	{
 		MultiMap<String, GitRepository> grouped = MultiMap.create();
 		for(Map.Entry<GitRepository, GitCommandResult> entry : results.entrySet())
@@ -206,8 +206,8 @@ public class GitResetOperation
 		return grouped;
 	}
 
-	@NotNull
-	private static String joinRepos(@NotNull Collection<GitRepository> repositories)
+	@Nonnull
+	private static String joinRepos(@Nonnull Collection<GitRepository> repositories)
 	{
 		return StringUtil.join(DvcsUtil.sortRepositories(repositories), ", ");
 	}

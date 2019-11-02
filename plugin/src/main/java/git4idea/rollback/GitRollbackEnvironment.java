@@ -22,9 +22,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
 import javax.inject.Singleton;
 
-import org.jetbrains.annotations.NotNull;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.FilePath;
@@ -53,34 +53,34 @@ import git4idea.util.GitFileUtils;
 public class GitRollbackEnvironment implements RollbackEnvironment {
   private final Project myProject;
 
-  public GitRollbackEnvironment(@NotNull Project project) {
+  public GitRollbackEnvironment(@Nonnull Project project) {
     myProject = project;
   }
 
-  @NotNull
+  @Nonnull
   public String getRollbackOperationName() {
     return GitBundle.message("revert.action.name");
   }
 
-  public void rollbackModifiedWithoutCheckout(@NotNull List<VirtualFile> files,
+  public void rollbackModifiedWithoutCheckout(@Nonnull List<VirtualFile> files,
                                               final List<VcsException> exceptions,
                                               final RollbackProgressListener listener) {
     throw new UnsupportedOperationException("Explicit file checkout is not supported by GIT.");
   }
 
-  public void rollbackMissingFileDeletion(@NotNull List<FilePath> files,
+  public void rollbackMissingFileDeletion(@Nonnull List<FilePath> files,
                                           final List<VcsException> exceptions,
                                           final RollbackProgressListener listener) {
     throw new UnsupportedOperationException("Missing file delete is not reported by GIT.");
   }
 
-  public void rollbackIfUnchanged(@NotNull VirtualFile file) {
+  public void rollbackIfUnchanged(@Nonnull VirtualFile file) {
     // do nothing
   }
 
-  public void rollbackChanges(@NotNull List<Change> changes,
+  public void rollbackChanges(@Nonnull List<Change> changes,
                               final List<VcsException> exceptions,
-                              @NotNull final RollbackProgressListener listener) {
+                              @Nonnull final RollbackProgressListener listener) {
     HashMap<VirtualFile, List<FilePath>> toUnindex = new HashMap<VirtualFile, List<FilePath>>();
     HashMap<VirtualFile, List<FilePath>> toUnversion = new HashMap<VirtualFile, List<FilePath>>();
     HashMap<VirtualFile, List<FilePath>> toRevert = new HashMap<VirtualFile, List<FilePath>>();

@@ -18,7 +18,7 @@ package git4idea.actions;
 import java.util.List;
 import java.util.Set;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.history.Label;
 import com.intellij.history.LocalHistory;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -48,14 +48,14 @@ import git4idea.util.GitUIUtil;
 public class GitPull extends GitRepositoryAction {
 
   @Override
-  @NotNull
+  @Nonnull
   protected String getActionName() {
     return GitBundle.message("pull.action.name");
   }
 
-  protected void perform(@NotNull final Project project,
-                         @NotNull final List<VirtualFile> gitRoots,
-                         @NotNull final VirtualFile defaultRoot,
+  protected void perform(@Nonnull final Project project,
+                         @Nonnull final List<VirtualFile> gitRoots,
+                         @Nonnull final VirtualFile defaultRoot,
                          final Set<VirtualFile> affectedRoots,
                          final List<VcsException> exceptions) throws VcsException {
     final GitPullDialog dialog = new GitPullDialog(project, gitRoots, defaultRoot);
@@ -67,7 +67,7 @@ public class GitPull extends GitRepositoryAction {
     
     new Task.Backgroundable(project, GitBundle.message("pulling.title", dialog.getRemote()), true) {
       @Override
-      public void run(@NotNull ProgressIndicator indicator) {
+      public void run(@Nonnull ProgressIndicator indicator) {
         final GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager(myProject);
 
         GitRepository repository = repositoryManager.getRepositoryForRoot(dialog.gitRoot());

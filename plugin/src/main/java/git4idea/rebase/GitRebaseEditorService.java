@@ -26,7 +26,7 @@ import org.apache.ws.commons.serialize.DOMSerializer;
 import org.apache.xmlrpc.XmlRpcConfig;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.git4idea.util.ScriptGenerator;
 
 import javax.inject.Singleton;
@@ -69,7 +69,7 @@ public class GitRebaseEditorService
 	/**
 	 * @return an instance of the server
 	 */
-	@NotNull
+	@Nonnull
 	public static GitRebaseEditorService getInstance()
 	{
 		final GitRebaseEditorService service = ServiceManager.getService(GitRebaseEditorService.class);
@@ -94,7 +94,7 @@ public class GitRebaseEditorService
 	 *
 	 * @return the editor command
 	 */
-	@NotNull
+	@Nonnull
 	public synchronized String getEditorCommand()
 	{
 		synchronized(myScriptLock)
@@ -163,7 +163,7 @@ public class GitRebaseEditorService
 	 *
 	 * @param handlerNo the handler number.
 	 */
-	@NotNull
+	@Nonnull
 	GitRebaseEditorHandler getHandler(final int handlerNo)
 	{
 		synchronized(myHandlersLock)

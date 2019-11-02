@@ -17,10 +17,10 @@ package git4idea.stash;
 
 import java.util.Collection;
 
+import javax.annotation.Nonnull;
 import javax.swing.event.HyperlinkEvent;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationListener;
 import com.intellij.openapi.diagnostic.Logger;
@@ -46,15 +46,15 @@ public abstract class GitChangesSaver
 
 	private static final Logger LOG = Logger.getInstance(GitChangesSaver.class);
 
-	@NotNull
+	@Nonnull
 	protected final Project myProject;
-	@NotNull
+	@Nonnull
 	protected final ChangeListManagerEx myChangeManager;
-	@NotNull
+	@Nonnull
 	protected final Git myGit;
-	@NotNull
+	@Nonnull
 	protected final ProgressIndicator myProgressIndicator;
-	@NotNull
+	@Nonnull
 	protected final String myStashMessage;
 
 	protected GitConflictResolver.Params myParams;
@@ -64,12 +64,12 @@ public abstract class GitChangesSaver
 	 *
 	 * @return {@link GitStashChangesSaver} or {@link GitShelveChangesSaver}.
 	 */
-	@NotNull
-	public static GitChangesSaver getSaver(@NotNull Project project,
-			@NotNull Git git,
-			@NotNull ProgressIndicator progressIndicator,
-			@NotNull String stashMessage,
-			@NotNull GitVcsSettings.UpdateChangesPolicy saveMethod)
+	@Nonnull
+	public static GitChangesSaver getSaver(@Nonnull Project project,
+			@Nonnull Git git,
+			@Nonnull ProgressIndicator progressIndicator,
+			@Nonnull String stashMessage,
+			@Nonnull GitVcsSettings.UpdateChangesPolicy saveMethod)
 	{
 		if(saveMethod == GitVcsSettings.UpdateChangesPolicy.SHELVE)
 		{
@@ -78,7 +78,7 @@ public abstract class GitChangesSaver
 		return new GitStashChangesSaver(project, git, progressIndicator, stashMessage);
 	}
 
-	protected GitChangesSaver(@NotNull Project project, @NotNull Git git, @NotNull ProgressIndicator indicator, @NotNull String stashMessage)
+	protected GitChangesSaver(@Nonnull Project project, @Nonnull Git git, @Nonnull ProgressIndicator indicator, @Nonnull String stashMessage)
 	{
 		myProject = project;
 		myGit = git;
@@ -144,7 +144,7 @@ public abstract class GitChangesSaver
 	/**
 	 * @return the name of the saving operation: stash or shelve.
 	 */
-	@NotNull
+	@Nonnull
 	public abstract String getOperationName();
 
 	/**
@@ -155,7 +155,7 @@ public abstract class GitChangesSaver
 	/**
 	 * The right panel title of the merge conflict dialog: changes that came from update.
 	 */
-	@NotNull
+	@Nonnull
 	protected static String getConflictRightPanelTitle()
 	{
 		return "Changes from remote";
@@ -164,7 +164,7 @@ public abstract class GitChangesSaver
 	/**
 	 * The left panel title of the merge conflict dialog: changes that were preserved in this saver during update.
 	 */
-	@NotNull
+	@Nonnull
 	protected static String getConflictLeftPanelTitle()
 	{
 		return "Your uncommitted changes";
@@ -173,7 +173,7 @@ public abstract class GitChangesSaver
 	protected class ShowSavedChangesNotificationListener implements NotificationListener
 	{
 		@Override
-		public void hyperlinkUpdate(@NotNull Notification notification, @NotNull HyperlinkEvent event)
+		public void hyperlinkUpdate(@Nonnull Notification notification, @Nonnull HyperlinkEvent event)
 		{
 			if(event.getEventType() == HyperlinkEvent.EventType.ACTIVATED && event.getDescription().equals("saver"))
 			{

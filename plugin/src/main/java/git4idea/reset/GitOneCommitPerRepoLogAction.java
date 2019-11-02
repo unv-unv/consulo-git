@@ -1,7 +1,7 @@
 package git4idea.reset;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.dvcs.repo.AbstractRepositoryManager;
 import com.intellij.dvcs.ui.VcsLogOneCommitPerRepoAction;
 import com.intellij.openapi.components.ServiceManager;
@@ -13,16 +13,16 @@ import git4idea.repo.GitRepositoryManager;
 public abstract class GitOneCommitPerRepoLogAction extends VcsLogOneCommitPerRepoAction<GitRepository>
 {
 
-	@NotNull
+	@Nonnull
 	@Override
-	protected AbstractRepositoryManager<GitRepository> getRepositoryManager(@NotNull Project project)
+	protected AbstractRepositoryManager<GitRepository> getRepositoryManager(@Nonnull Project project)
 	{
 		return ServiceManager.getService(project, GitRepositoryManager.class);
 	}
 
 	@Nullable
 	@Override
-	protected GitRepository getRepositoryForRoot(@NotNull Project project, @NotNull VirtualFile root)
+	protected GitRepository getRepositoryForRoot(@Nonnull Project project, @Nonnull VirtualFile root)
 	{
 		return getRepositoryManager(project).getRepositoryForRoot(root);
 	}

@@ -18,7 +18,7 @@ package git4idea.push;
 import java.util.Collections;
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.dvcs.push.OutgoingCommitsProvider;
 import com.intellij.dvcs.push.OutgoingResult;
 import com.intellij.dvcs.push.PushSpec;
@@ -34,18 +34,18 @@ import git4idea.repo.GitRepository;
 public class GitOutgoingCommitsProvider extends OutgoingCommitsProvider<GitRepository, GitPushSource, GitPushTarget>
 {
 
-	@NotNull
+	@Nonnull
 	private final Project myProject;
 
-	public GitOutgoingCommitsProvider(@NotNull Project project)
+	public GitOutgoingCommitsProvider(@Nonnull Project project)
 	{
 		myProject = project;
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
-	public OutgoingResult getOutgoingCommits(@NotNull GitRepository repository,
-			@NotNull PushSpec<GitPushSource, GitPushTarget> pushSpec,
+	public OutgoingResult getOutgoingCommits(@Nonnull GitRepository repository,
+			@Nonnull PushSpec<GitPushSource, GitPushTarget> pushSpec,
 			boolean initial)
 	{
 		String source = pushSpec.getSource().getBranch().getFullName();

@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
@@ -128,7 +128,7 @@ public class GitVFSListener extends VcsVFSListener
 		progressManager.run(new Task.Backgroundable(myProject, GitBundle.message("vfs.listener.checking.ignored"), true)
 		{
 			@Override
-			public void run(@NotNull ProgressIndicator pi)
+			public void run(@Nonnull ProgressIndicator pi)
 			{
 				for(Map.Entry<VirtualFile, List<VirtualFile>> e : sortedFiles.entrySet())
 				{
@@ -178,7 +178,7 @@ public class GitVFSListener extends VcsVFSListener
 		performBackgroundOperation(filesToAdd, GitBundle.message("add.adding"), new LongOperationPerRootExecutor()
 		{
 			@Override
-			public void execute(@NotNull VirtualFile root, @NotNull List<FilePath> files) throws VcsException
+			public void execute(@Nonnull VirtualFile root, @Nonnull List<FilePath> files) throws VcsException
 			{
 				LOG.debug("Git: adding files: " + files);
 				GitFileUtils.addPaths(myProject, root, files);
@@ -214,7 +214,7 @@ public class GitVFSListener extends VcsVFSListener
 		{
 			HashSet<File> filesToRefresh = new HashSet<>();
 
-			public void execute(@NotNull VirtualFile root, @NotNull List<FilePath> files) throws VcsException
+			public void execute(@Nonnull VirtualFile root, @Nonnull List<FilePath> files) throws VcsException
 			{
 				GitFileUtils.delete(myProject, root, files, "--ignore-unmatch", "--cached");
 				if(!myProject.isDisposed())
@@ -262,14 +262,14 @@ public class GitVFSListener extends VcsVFSListener
 		performForceMove(toForceMove);
 	}
 
-	private void performForceMove(@NotNull List<MovedFileInfo> files)
+	private void performForceMove(@Nonnull List<MovedFileInfo> files)
 	{
 		Map<FilePath, MovedFileInfo> filesToMove = map2Map(files, (info) -> Pair.create(VcsUtil.getFilePath(info.myNewPath), info));
 		Set<File> toRefresh = newHashSet();
 		performBackgroundOperation(filesToMove.keySet(), "Moving Files...", new LongOperationPerRootExecutor()
 		{
 			@Override
-			public void execute(@NotNull VirtualFile root, @NotNull List<FilePath> files) throws VcsException
+			public void execute(@Nonnull VirtualFile root, @Nonnull List<FilePath> files) throws VcsException
 			{
 				for(FilePath file : files)
 				{
@@ -302,7 +302,7 @@ public class GitVFSListener extends VcsVFSListener
 		return deletedFiles;
 	}
 
-	private void performBackgroundOperation(@NotNull Collection<FilePath> files, @NotNull String operationTitle, @NotNull LongOperationPerRootExecutor executor)
+	private void performBackgroundOperation(@Nonnull Collection<FilePath> files, @Nonnull String operationTitle, @Nonnull LongOperationPerRootExecutor executor)
 	{
 		Map<VirtualFile, List<FilePath>> sortedFiles;
 		try
@@ -317,7 +317,7 @@ public class GitVFSListener extends VcsVFSListener
 
 		GitVcs.runInBackground(new Task.Backgroundable(myProject, operationTitle)
 		{
-			public void run(@NotNull ProgressIndicator indicator)
+			public void run(@Nonnull ProgressIndicator indicator)
 			{
 				for(Map.Entry<VirtualFile, List<FilePath>> e : sortedFiles.entrySet())
 				{
@@ -337,7 +337,7 @@ public class GitVFSListener extends VcsVFSListener
 
 	private interface LongOperationPerRootExecutor
 	{
-		void execute(@NotNull VirtualFile root, @NotNull List<FilePath> files) throws VcsException;
+		void execute(@Nonnull VirtualFile root, @Nonnull List<FilePath> files) throws VcsException;
 
 		Collection<File> getFilesToRefresh();
 	}

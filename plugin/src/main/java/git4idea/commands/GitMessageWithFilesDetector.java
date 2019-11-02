@@ -18,7 +18,7 @@ package git4idea.commands;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,13 +43,13 @@ public class GitMessageWithFilesDetector implements GitLineHandlerListener {
   protected boolean myMessageDetected;
   private boolean myFilesAreDisplayed;
 
-  public GitMessageWithFilesDetector(@NotNull Event event, @NotNull VirtualFile root) {
+  public GitMessageWithFilesDetector(@Nonnull Event event, @Nonnull VirtualFile root) {
     myEvent = event;
     myRoot = root;
   }
 
   @Override
-  public void onLineAvailable(@NotNull String line, @NotNull Key outputType) {
+  public void onLineAvailable(@Nonnull String line, @Nonnull Key outputType) {
     if (line.contains(myEvent.getMessageStartMarker())) {
       myMessageDetected = true;
       myFilesAreDisplayed = true;
@@ -80,12 +80,12 @@ public class GitMessageWithFilesDetector implements GitLineHandlerListener {
   /**
    * @return the set of files (maybe empty) that would be overwritten by checkout, as told by Git.
    */
-  @NotNull
+  @Nonnull
   public Set<String> getRelativeFilePaths() {
     return myAffectedFiles;
   }
   
-  @NotNull
+  @Nonnull
   public Collection<VirtualFile> getFiles() {
     Collection<VirtualFile> files = new ArrayList<VirtualFile>(myAffectedFiles.size());
     for (String affectedFile : myAffectedFiles) {

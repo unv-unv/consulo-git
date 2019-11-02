@@ -21,13 +21,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 
+import javax.annotation.Nonnull;
 import javax.swing.JComponent;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 
-import org.jetbrains.annotations.NotNull;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.CommonShortcuts;
 import com.intellij.openapi.actionSystem.CustomShortcutSet;
@@ -79,7 +79,7 @@ public class GitSkippedCommits extends PanelWithActionsAndCloseButton
 	 * @param project        the context project
 	 * @param skippedCommits the map with skipped commits
 	 */
-	public GitSkippedCommits(@NotNull ContentManager contentManager, Project project, SortedMap<VirtualFile, List<GitRebaseUtils.CommitInfo>> skippedCommits)
+	public GitSkippedCommits(@Nonnull ContentManager contentManager, Project project, SortedMap<VirtualFile, List<GitRebaseUtils.CommitInfo>> skippedCommits)
 	{
 		super(contentManager, null);
 		myProject = project;
@@ -162,7 +162,7 @@ public class GitSkippedCommits extends PanelWithActionsAndCloseButton
 	}
 
 	@Override
-	public Object getData(@NotNull Key<?> dataId)
+	public Object getData(@Nonnull Key<?> dataId)
 	{
 		if(CommonDataKeys.PROJECT == dataId)
 		{

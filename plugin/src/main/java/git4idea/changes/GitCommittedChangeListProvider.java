@@ -22,8 +22,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
@@ -68,15 +68,15 @@ public class GitCommittedChangeListProvider implements CommittedChangesProvider<
 
 	private static final Logger LOG = Logger.getInstance(GitCommittedChangeListProvider.class);
 
-	@NotNull
+	@Nonnull
 	private final Project myProject;
 
-	public GitCommittedChangeListProvider(@NotNull Project project)
+	public GitCommittedChangeListProvider(@Nonnull Project project)
 	{
 		myProject = project;
 	}
 
-	@NotNull
+	@Nonnull
 	public ChangeBrowserSettings createDefaultSettings()
 	{
 		return new ChangeBrowserSettings();
@@ -87,7 +87,7 @@ public class GitCommittedChangeListProvider implements CommittedChangesProvider<
 		return new GitVersionFilterComponent(showDateFilter);
 	}
 
-	public RepositoryLocation getLocationFor(@NotNull FilePath root)
+	public RepositoryLocation getLocationFor(@Nonnull FilePath root)
 	{
 		VirtualFile gitRoot = GitUtil.getGitRootOrNull(root);
 		if(gitRoot == null)

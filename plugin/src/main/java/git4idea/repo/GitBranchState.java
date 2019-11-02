@@ -17,12 +17,14 @@ package git4idea.repo;
 
 import java.util.Map;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import com.intellij.dvcs.repo.Repository;
 import com.intellij.vcs.log.Hash;
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
+
+import javax.annotation.Nullable;
 
 class GitBranchState
 {
@@ -30,18 +32,18 @@ class GitBranchState
 	private final String currentRevision;
 	@Nullable
 	private final GitLocalBranch currentBranch;
-	@NotNull
+	@Nonnull
 	private final Repository.State state;
-	@NotNull
+	@Nonnull
 	private final Map<GitLocalBranch, Hash> localBranches;
-	@NotNull
+	@Nonnull
 	private final Map<GitRemoteBranch, Hash> remoteBranches;
 
 	GitBranchState(@Nullable String currentRevision,
 			@Nullable GitLocalBranch currentBranch,
-			@NotNull Repository.State state,
-			@NotNull Map<GitLocalBranch, Hash> localBranches,
-			@NotNull Map<GitRemoteBranch, Hash> remoteBranches)
+			@Nonnull Repository.State state,
+			@Nonnull Map<GitLocalBranch, Hash> localBranches,
+			@Nonnull Map<GitRemoteBranch, Hash> remoteBranches)
 	{
 		this.currentRevision = currentRevision;
 		this.currentBranch = currentBranch;
@@ -62,19 +64,19 @@ class GitBranchState
 		return currentBranch;
 	}
 
-	@NotNull
+	@Nonnull
 	public Repository.State getState()
 	{
 		return state;
 	}
 
-	@NotNull
+	@Nonnull
 	public Map<GitLocalBranch, Hash> getLocalBranches()
 	{
 		return localBranches;
 	}
 
-	@NotNull
+	@Nonnull
 	public Map<GitRemoteBranch, Hash> getRemoteBranches()
 	{
 		return remoteBranches;

@@ -27,8 +27,8 @@ import com.intellij.util.text.DateFormatUtil;
 import git4idea.GitRevisionNumber;
 import git4idea.GitVcs;
 import git4idea.i18n.GitBundle;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import java.util.*;
 
@@ -95,7 +95,7 @@ public class GitFileAnnotation extends FileAnnotation {
    * @param monitorFlag if false the file system will not be listened for changes (used for annotated files from the repository).
    * @param revision
    */
-  public GitFileAnnotation(@NotNull final Project project, @NotNull VirtualFile file, final boolean monitorFlag, final VcsRevisionNumber revision) {
+  public GitFileAnnotation(@Nonnull final Project project, @Nonnull VirtualFile file, final boolean monitorFlag, final VcsRevisionNumber revision) {
     super(project);
     myProject = project;
     myVcs = GitVcs.getInstance(myProject);

@@ -25,8 +25,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import com.intellij.dvcs.repo.Repository;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -42,6 +42,8 @@ import git4idea.GitUtil;
 import git4idea.branch.GitRebaseParams;
 import git4idea.repo.GitRepository;
 import git4idea.stash.GitChangesSaver;
+
+import javax.annotation.Nullable;
 
 /**
  * The utilities related to rebase functionality
@@ -61,7 +63,7 @@ public class GitRebaseUtils
 	{
 	}
 
-	public static void rebase(@NotNull final Project project, @NotNull final List<GitRepository> repositories, @NotNull final GitRebaseParams params, @NotNull final ProgressIndicator indicator)
+	public static void rebase(@Nonnull final Project project, @Nonnull final List<GitRepository> repositories, @Nonnull final GitRebaseParams params, @Nonnull final ProgressIndicator indicator)
 	{
 		if(!isRebaseAllowed(project, repositories))
 		{
@@ -70,7 +72,7 @@ public class GitRebaseUtils
 		new GitRebaseProcess(project, GitRebaseSpec.forNewRebase(project, params, repositories, indicator), null).rebase();
 	}
 
-	public static void continueRebase(@NotNull Project project)
+	public static void continueRebase(@Nonnull Project project)
 	{
 		GitRebaseSpec spec = GitUtil.getRepositoryManager(project).getOngoingRebaseSpec();
 		if(spec != null)
@@ -84,7 +86,7 @@ public class GitRebaseUtils
 		}
 	}
 
-	public static void continueRebase(@NotNull Project project, @NotNull GitRepository repository, @NotNull ProgressIndicator indicator)
+	public static void continueRebase(@Nonnull Project project, @Nonnull GitRepository repository, @Nonnull ProgressIndicator indicator)
 	{
 		GitRebaseSpec spec = GitRebaseSpec.forResumeInSingleRepository(project, repository, indicator);
 		if(spec != null)
@@ -98,7 +100,7 @@ public class GitRebaseUtils
 		}
 	}
 
-	public static void skipRebase(@NotNull Project project)
+	public static void skipRebase(@Nonnull Project project)
 	{
 		GitRebaseSpec spec = GitUtil.getRepositoryManager(project).getOngoingRebaseSpec();
 		if(spec != null)
@@ -112,7 +114,7 @@ public class GitRebaseUtils
 		}
 	}
 
-	public static void skipRebase(@NotNull Project project, @NotNull GitRepository repository, @NotNull ProgressIndicator indicator)
+	public static void skipRebase(@Nonnull Project project, @Nonnull GitRepository repository, @Nonnull ProgressIndicator indicator)
 	{
 		GitRebaseSpec spec = GitRebaseSpec.forResumeInSingleRepository(project, repository, indicator);
 		if(spec != null)
@@ -132,7 +134,7 @@ public class GitRebaseUtils
 	 * <p>
 	 * Does nothing if no information about ongoing rebase is available, or if this information has become obsolete.
 	 */
-	public static void abort(@NotNull Project project, @NotNull ProgressIndicator indicator)
+	public static void abort(@Nonnull Project project, @Nonnull ProgressIndicator indicator)
 	{
 		GitRebaseSpec spec = GitUtil.getRepositoryManager(project).getOngoingRebaseSpec();
 		if(spec != null)
@@ -149,12 +151,12 @@ public class GitRebaseUtils
 	/**
 	 * Abort the ongoing rebase process in the given repository.
 	 */
-	public static void abort(@NotNull final Project project, @Nullable final GitRepository repository, @NotNull ProgressIndicator indicator)
+	public static void abort(@Nonnull final Project project, @Nullable final GitRepository repository, @Nonnull ProgressIndicator indicator)
 	{
 		new GitAbortRebaseProcess(project, repository, Collections.<GitRepository, String>emptyMap(), Collections.<GitRepository, String>emptyMap(), indicator, null).abortWithConfirmation();
 	}
 
-	private static boolean isRebaseAllowed(@NotNull Project project, @NotNull Collection<GitRepository> repositories)
+	private static boolean isRebaseAllowed(@Nonnull Project project, @Nonnull Collection<GitRepository> repositories)
 	{
 		// TODO links to 'rebase', 'resolve conflicts', etc.
 		for(GitRepository repository : repositories)
@@ -203,7 +205,7 @@ public class GitRebaseUtils
 	 * @return true if the rebase directory presents in the root
 	 */
 	@Deprecated
-	public static boolean isRebaseInTheProgress(@NotNull Project project, @NotNull VirtualFile root)
+	public static boolean isRebaseInTheProgress(@Nonnull Project project, @Nonnull VirtualFile root)
 	{
 		return getRebaseDir(project, root) != null;
 	}
@@ -215,7 +217,7 @@ public class GitRebaseUtils
 	 * @return the rebase directory or null if it does not exist.
 	 */
 	@Nullable
-	private static File getRebaseDir(@NotNull Project project, @NotNull VirtualFile root)
+	private static File getRebaseDir(@Nonnull Project project, @Nonnull VirtualFile root)
 	{
 		GitRepository repository = assertNotNull(GitUtil.getRepositoryManager(project).getRepositoryForRoot(root));
 		File f = repository.getRepositoryFiles().getRebaseApplyDir();
@@ -239,7 +241,7 @@ public class GitRebaseUtils
 	 * @return the commit information or null if no commit information could be detected
 	 */
 	@Nullable
-	public static CommitInfo getCurrentRebaseCommit(@NotNull Project project, @NotNull VirtualFile root)
+	public static CommitInfo getCurrentRebaseCommit(@Nonnull Project project, @Nonnull VirtualFile root)
 	{
 		File rebaseDir = getRebaseDir(project, root);
 		if(rebaseDir == null)
@@ -301,25 +303,25 @@ public class GitRebaseUtils
 		return new CommitInfo(new GitRevisionNumber(hash), subject);
 	}
 
-	@NotNull
+	@Nonnull
 	static String mentionLocalChangesRemainingInStash(@Nullable GitChangesSaver saver)
 	{
 		return saver != null && saver.wereChangesSaved() ? "<br/>Note that some local changes were <a href='stash'>" + toPast(saver.getOperationName()) + "</a> before rebase." : "";
 	}
 
-	@NotNull
-	private static String toPast(@NotNull String word)
+	@Nonnull
+	private static String toPast(@Nonnull String word)
 	{
 		return word.endsWith("e") ? word + "d" : word + "ed";
 	}
 
-	@NotNull
-	public static Collection<GitRepository> getRebasingRepositories(@NotNull Project project)
+	@Nonnull
+	public static Collection<GitRepository> getRebasingRepositories(@Nonnull Project project)
 	{
 		return ContainerUtil.filter(GitUtil.getRepositories(project), new Condition<GitRepository>()
 		{
 			@Override
-			public boolean value(@NotNull GitRepository repository)
+			public boolean value(@Nonnull GitRepository repository)
 			{
 				return repository.getState() == Repository.State.REBASING;
 			}

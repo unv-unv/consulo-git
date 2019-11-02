@@ -20,8 +20,8 @@ import static com.intellij.openapi.vcs.update.ActionInfo.UPDATE;
 import java.util.List;
 import java.util.Map;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationGroup;
@@ -40,6 +40,8 @@ import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRepository;
 import git4idea.update.GitUpdateResult;
 
+import javax.annotation.Nullable;
+
 class GitPushResultNotification extends Notification
 {
 
@@ -53,13 +55,13 @@ class GitPushResultNotification extends Notification
 
 	private static final Logger LOG = Logger.getInstance(GitPushResultNotification.class);
 
-	public GitPushResultNotification(@NotNull String groupDisplayId, @NotNull String title, @NotNull String content, @NotNull NotificationType type)
+	public GitPushResultNotification(@Nonnull String groupDisplayId, @Nonnull String title, @Nonnull String content, @Nonnull NotificationType type)
 	{
 		super(groupDisplayId, title, content, type);
 	}
 
-	@NotNull
-	static GitPushResultNotification create(@NotNull Project project, @NotNull GitPushResult pushResult, boolean multiRepoProject)
+	@Nonnull
+	static GitPushResultNotification create(@Nonnull Project project, @Nonnull GitPushResult pushResult, boolean multiRepoProject)
 	{
 		GroupedPushResult grouped = GroupedPushResult.group(pushResult.getResults());
 
@@ -118,7 +120,7 @@ class GitPushResultNotification extends Notification
 		return notification;
 	}
 
-	private static String formDescription(@NotNull Map<GitRepository, GitPushRepoResult> results, final boolean multiRepoProject)
+	private static String formDescription(@Nonnull Map<GitRepository, GitPushRepoResult> results, final boolean multiRepoProject)
 	{
 		List<Map.Entry<GitRepository, GitPushRepoResult>> entries = ContainerUtil.sorted(results.entrySet(), (o1, o2) ->
 		{
@@ -149,7 +151,7 @@ class GitPushResultNotification extends Notification
 		}, "<br/>");
 	}
 
-	private static String formRepoDescription(@NotNull GitPushRepoResult result)
+	private static String formRepoDescription(@Nonnull GitPushRepoResult result)
 	{
 		String description;
 		String sourceBranch = GitBranchUtil.stripRefsPrefix(result.getSourceBranch());
@@ -204,7 +206,7 @@ class GitPushResultNotification extends Notification
 	}
 
 	@Nullable
-	private static String formTagDescription(@NotNull List<String> pushedTags, @NotNull String remoteName)
+	private static String formTagDescription(@Nonnull List<String> pushedTags, @Nonnull String remoteName)
 	{
 		if(pushedTags.isEmpty())
 		{

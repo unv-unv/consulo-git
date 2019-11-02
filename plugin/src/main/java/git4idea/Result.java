@@ -15,7 +15,7 @@
  */
 package git4idea;
 
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 
 /**
  * Result of some operation.

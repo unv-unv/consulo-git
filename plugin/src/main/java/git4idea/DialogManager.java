@@ -1,10 +1,10 @@
 package git4idea;
 
+import javax.annotation.Nonnull;
 import javax.inject.Singleton;
 import javax.swing.Icon;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -21,14 +21,14 @@ import com.intellij.openapi.ui.Messages;
 @Singleton
 public class DialogManager
 {
-	public static void show(@NotNull DialogWrapper dialog)
+	public static void show(@Nonnull DialogWrapper dialog)
 	{
 		dialogManager().showDialog(dialog);
 	}
 
-	public static int showMessage(@NotNull final String description,
-			@NotNull final String title,
-			@NotNull final String[] options,
+	public static int showMessage(@Nonnull final String description,
+			@Nonnull final String title,
+			@Nonnull final String[] options,
 			final int defaultButtonIndex,
 			final int focusedButtonIndex,
 			@Nullable final Icon icon,
@@ -37,7 +37,7 @@ public class DialogManager
 		return dialogManager().showMessageDialog(description, title, options, defaultButtonIndex, focusedButtonIndex, icon, dontAskOption);
 	}
 
-	public static int showOkCancelDialog(@NotNull Project project, @NotNull String message, @NotNull String title, @NotNull String okButtonText, @NotNull String cancelButtonText, @Nullable Icon icon)
+	public static int showOkCancelDialog(@Nonnull Project project, @Nonnull String message, @Nonnull String title, @Nonnull String okButtonText, @Nonnull String cancelButtonText, @Nullable Icon icon)
 	{
 		return dialogManager().showMessageDialog(project, message, title, new String[]{
 				okButtonText,
@@ -45,12 +45,12 @@ public class DialogManager
 		}, 0, icon);
 	}
 
-	public static int showYesNoCancelDialog(@NotNull Project project,
-			@NotNull String message,
-			@NotNull String title,
-			@NotNull String yesButtonText,
-			@NotNull String noButtonText,
-			@NotNull String cancelButtonText,
+	public static int showYesNoCancelDialog(@Nonnull Project project,
+			@Nonnull String message,
+			@Nonnull String title,
+			@Nonnull String yesButtonText,
+			@Nonnull String noButtonText,
+			@Nonnull String cancelButtonText,
 			@Nullable Icon icon)
 	{
 		return dialogManager().showMessageDialog(project, message, title, new String[]{
@@ -60,19 +60,19 @@ public class DialogManager
 		}, 0, icon);
 	}
 
-	protected void showDialog(@NotNull DialogWrapper dialog)
+	protected void showDialog(@Nonnull DialogWrapper dialog)
 	{
 		dialog.show();
 	}
 
-	protected int showMessageDialog(@NotNull Project project, @NotNull String message, @NotNull String title, @NotNull String[] options, int defaultButtonIndex, @Nullable Icon icon)
+	protected int showMessageDialog(@Nonnull Project project, @Nonnull String message, @Nonnull String title, @Nonnull String[] options, int defaultButtonIndex, @Nullable Icon icon)
 	{
 		return Messages.showDialog(project, message, title, options, defaultButtonIndex, icon);
 	}
 
-	protected int showMessageDialog(@NotNull String description,
-			@NotNull String title,
-			@NotNull String[] options,
+	protected int showMessageDialog(@Nonnull String description,
+			@Nonnull String title,
+			@Nonnull String[] options,
 			int defaultButtonIndex,
 			int focusedButtonIndex,
 			@Nullable Icon icon,
@@ -81,7 +81,7 @@ public class DialogManager
 		return Messages.showDialog(description, title, options, defaultButtonIndex, focusedButtonIndex, icon, dontAskOption);
 	}
 
-	@NotNull
+	@Nonnull
 	private static DialogManager dialogManager()
 	{
 		return ServiceManager.getService(DialogManager.class);

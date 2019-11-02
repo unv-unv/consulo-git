@@ -15,7 +15,7 @@
  */
 package git4idea.commands;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.text.StringUtil;
 
@@ -25,7 +25,7 @@ import com.intellij.openapi.util.text.StringUtil;
 public class GitSimpleEventDetector implements GitLineHandlerListener
 {
 
-	@NotNull
+	@Nonnull
 	private final Event myEvent;
 	private boolean myHappened;
 
@@ -43,19 +43,19 @@ public class GitSimpleEventDetector implements GitLineHandlerListener
 
 		private final String myDetectionString;
 
-		Event(@NotNull String detectionString)
+		Event(@Nonnull String detectionString)
 		{
 			myDetectionString = detectionString;
 		}
 	}
 
-	public GitSimpleEventDetector(@NotNull Event event)
+	public GitSimpleEventDetector(@Nonnull Event event)
 	{
 		myEvent = event;
 	}
 
 	@Override
-	public void onLineAvailable(@NotNull String line, Key outputType)
+	public void onLineAvailable(@Nonnull String line, Key outputType)
 	{
 		if(StringUtil.containsIgnoreCase(line, myEvent.myDetectionString))
 		{

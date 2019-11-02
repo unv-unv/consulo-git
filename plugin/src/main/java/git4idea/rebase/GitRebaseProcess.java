@@ -36,11 +36,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
 import javax.swing.event.HyperlinkEvent;
 
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nullable;
 import com.google.common.annotations.VisibleForTesting;
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.notification.Notification;
@@ -83,27 +84,27 @@ public class GitRebaseProcess
 
 	private static final Logger LOG = Logger.getInstance(GitRebaseProcess.class);
 
-	@NotNull
+	@Nonnull
 	private final Project myProject;
-	@NotNull
+	@Nonnull
 	private final Git myGit;
-	@NotNull
+	@Nonnull
 	private final ChangeListManager myChangeListManager;
-	@NotNull
+	@Nonnull
 	private final VcsNotifier myNotifier;
-	@NotNull
+	@Nonnull
 	private final GitRepositoryManager myRepositoryManager;
 
-	@NotNull
+	@Nonnull
 	private final GitRebaseSpec myRebaseSpec;
 	@Nullable
 	private final GitRebaseResumeMode myCustomMode;
-	@NotNull
+	@Nonnull
 	private final GitChangesSaver mySaver;
-	@NotNull
+	@Nonnull
 	private final ProgressManager myProgressManager;
 
-	public GitRebaseProcess(@NotNull Project project, @NotNull GitRebaseSpec rebaseSpec, @Nullable GitRebaseResumeMode customMode)
+	public GitRebaseProcess(@Nonnull Project project, @Nonnull GitRebaseSpec rebaseSpec, @Nullable GitRebaseResumeMode customMode)
 	{
 		myProject = project;
 		myRebaseSpec = rebaseSpec;
@@ -205,7 +206,7 @@ public class GitRebaseProcess
 		}
 	}
 
-	private void saveUpdatedSpec(@NotNull Map<GitRepository, GitRebaseStatus> statuses)
+	private void saveUpdatedSpec(@Nonnull Map<GitRepository, GitRebaseStatus> statuses)
 	{
 		if(myRebaseSpec.shouldBeSaved())
 		{
@@ -218,8 +219,8 @@ public class GitRebaseProcess
 		}
 	}
 
-	@NotNull
-	private GitRebaseStatus rebaseSingleRoot(@NotNull GitRepository repository, @Nullable GitRebaseResumeMode customMode, @NotNull Map<GitRepository, GitSuccessfulRebase> alreadyRebased)
+	@Nonnull
+	private GitRebaseStatus rebaseSingleRoot(@Nonnull GitRepository repository, @Nullable GitRebaseResumeMode customMode, @Nonnull Map<GitRepository, GitSuccessfulRebase> alreadyRebased)
 	{
 		VirtualFile root = repository.getRoot();
 		String repoName = getShortRepositoryName(repository);
@@ -324,8 +325,8 @@ public class GitRebaseProcess
 		}
 	}
 
-	@NotNull
-	private GitCommandResult callRebase(@NotNull GitRepository repository, @Nullable GitRebaseResumeMode mode, @NotNull GitLineHandlerListener... listeners)
+	@Nonnull
+	private GitCommandResult callRebase(@Nonnull GitRepository repository, @Nullable GitRebaseResumeMode mode, @Nonnull GitLineHandlerListener... listeners)
 	{
 		if(mode == null)
 		{
@@ -344,25 +345,25 @@ public class GitRebaseProcess
 	}
 
 	@VisibleForTesting
-	@NotNull
-	protected Collection<GitRepository> getDirtyRoots(@NotNull Collection<GitRepository> repositories)
+	@Nonnull
+	protected Collection<GitRepository> getDirtyRoots(@Nonnull Collection<GitRepository> repositories)
 	{
 		return findRootsWithLocalChanges(repositories);
 	}
 
-	private static boolean shouldBeRefreshed(@NotNull GitRebaseStatus rebaseStatus)
+	private static boolean shouldBeRefreshed(@Nonnull GitRebaseStatus rebaseStatus)
 	{
 		return rebaseStatus.getType() != GitRebaseStatus.Type.SUCCESS || ((GitSuccessfulRebase) rebaseStatus).getSuccessType() != SuccessType.UP_TO_DATE;
 	}
 
-	private static void refresh(@NotNull Collection<GitRepository> repositories)
+	private static void refresh(@Nonnull Collection<GitRepository> repositories)
 	{
 		GitUtil.updateRepositories(repositories);
 		// TODO use --diff-stat, and refresh only what's needed
 		VfsUtil.markDirtyAndRefresh(false, true, false, toVirtualFileArray(getRootsFromRepositories(repositories)));
 	}
 
-	private boolean saveDirtyRootsInitially(@NotNull List<GitRepository> repositories)
+	private boolean saveDirtyRootsInitially(@Nonnull List<GitRepository> repositories)
 	{
 		Collection<GitRepository> repositoriesToSave = filter(repositories, new Condition<GitRepository>()
 		{
@@ -387,7 +388,7 @@ public class GitRebaseProcess
 	}
 
 	@Nullable
-	private String saveLocalChanges(@NotNull Collection<VirtualFile> rootsToSave)
+	private String saveLocalChanges(@Nonnull Collection<VirtualFile> rootsToSave)
 	{
 		try
 		{
@@ -401,7 +402,7 @@ public class GitRebaseProcess
 		}
 	}
 
-	private Collection<GitRepository> findRootsWithLocalChanges(@NotNull Collection<GitRepository> repositories)
+	private Collection<GitRepository> findRootsWithLocalChanges(@Nonnull Collection<GitRepository> repositories)
 	{
 		return filter(repositories, new Condition<GitRepository>()
 		{
@@ -413,13 +414,13 @@ public class GitRebaseProcess
 		});
 	}
 
-	private void notifySuccess(@NotNull Map<GitRepository, GitSuccessfulRebase> successful, final MultiMap<GitRepository, GitRebaseUtils.CommitInfo> skippedCommits)
+	private void notifySuccess(@Nonnull Map<GitRepository, GitSuccessfulRebase> successful, final MultiMap<GitRepository, GitRebaseUtils.CommitInfo> skippedCommits)
 	{
 		String rebasedBranch = getCommonCurrentBranchNameIfAllTheSame(myRebaseSpec.getAllRepositories());
 		List<SuccessType> successTypes = map(successful.values(), new Function<GitSuccessfulRebase, SuccessType>()
 		{
 			@Override
-			public SuccessType fun(@NotNull GitSuccessfulRebase rebase)
+			public SuccessType fun(@Nonnull GitSuccessfulRebase rebase)
 			{
 				return rebase.getSuccessType();
 			}
@@ -436,7 +437,7 @@ public class GitRebaseProcess
 		myNotifier.notifyMinorInfo("Rebase Successful", message, new NotificationListener.Adapter()
 		{
 			@Override
-			protected void hyperlinkActivated(@NotNull Notification notification, @NotNull HyperlinkEvent e)
+			protected void hyperlinkActivated(@Nonnull Notification notification, @Nonnull HyperlinkEvent e)
 			{
 				handlePossibleCommitLinks(e.getDescription(), skippedCommits);
 			}
@@ -444,12 +445,12 @@ public class GitRebaseProcess
 	}
 
 	@Nullable
-	private static String getCommonCurrentBranchNameIfAllTheSame(@NotNull Collection<GitRepository> repositories)
+	private static String getCommonCurrentBranchNameIfAllTheSame(@Nonnull Collection<GitRepository> repositories)
 	{
 		return getItemIfAllTheSame(map(repositories, new Function<GitRepository, String>()
 		{
 			@Override
-			public String fun(@NotNull GitRepository repository)
+			public String fun(@Nonnull GitRepository repository)
 			{
 				return repository.getCurrentBranchName();
 			}
@@ -457,12 +458,12 @@ public class GitRebaseProcess
 	}
 
 	@Contract("_, !null -> !null")
-	private static <T> T getItemIfAllTheSame(@NotNull Collection<T> collection, @Nullable T defaultItem)
+	private static <T> T getItemIfAllTheSame(@Nonnull Collection<T> collection, @Nullable T defaultItem)
 	{
 		return newHashSet(collection).size() == 1 ? getFirstItem(collection) : defaultItem;
 	}
 
-	private void notifyNotAllConflictsResolved(@NotNull GitRepository conflictingRepository, MultiMap<GitRepository, GitRebaseUtils.CommitInfo> skippedCommits)
+	private void notifyNotAllConflictsResolved(@Nonnull GitRepository conflictingRepository, MultiMap<GitRepository, GitRebaseUtils.CommitInfo> skippedCommits)
 	{
 		String description = "You have to <a href='resolve'>resolve</a> the conflicts and <a href='continue'>continue</a> rebase.<br/>" + "If you want to start from the beginning, " +
 				"you can <a href='abort'>abort</a> rebase.";
@@ -470,8 +471,8 @@ public class GitRebaseProcess
 		myNotifier.notifyImportantWarning("Rebase Suspended", description, new RebaseNotificationListener(conflictingRepository, skippedCommits));
 	}
 
-	@NotNull
-	private ResolveConflictResult showConflictResolver(@NotNull GitRepository conflicting, boolean calledFromNotification)
+	@Nonnull
+	private ResolveConflictResult showConflictResolver(@Nonnull GitRepository conflicting, boolean calledFromNotification)
 	{
 		GitConflictResolver.Params params = new GitConflictResolver.Params().setReverse(true);
 		RebaseConflictResolver conflictResolver = new RebaseConflictResolver(myProject, myGit, conflicting, params, calledFromNotification);
@@ -487,17 +488,17 @@ public class GitRebaseProcess
 		return ResolveConflictResult.UNRESOLVED_REMAIN;
 	}
 
-	private void showStoppedForEditingMessage(@NotNull GitRepository repository)
+	private void showStoppedForEditingMessage(@Nonnull GitRepository repository)
 	{
 		String description = "Once you are satisfied with your changes you may <a href='continue'>continue</a>";
 		myNotifier.notifyImportantInfo("Rebase Stopped for Editing", description, new RebaseNotificationListener(repository, MultiMap.<GitRepository, GitRebaseUtils.CommitInfo>empty()));
 	}
 
-	private void showFatalError(@NotNull final String error,
-			@NotNull final GitRepository currentRepository,
+	private void showFatalError(@Nonnull final String error,
+			@Nonnull final GitRepository currentRepository,
 			boolean somethingWasRebased,
-			@NotNull final Collection<GitRepository> successful,
-			@NotNull MultiMap<GitRepository, GitRebaseUtils.CommitInfo> skippedCommits)
+			@Nonnull final Collection<GitRepository> successful,
+			@Nonnull MultiMap<GitRepository, GitRebaseUtils.CommitInfo> skippedCommits)
 	{
 		String repo = myRepositoryManager.moreThanOneRoot() ? getShortRepositoryName(currentRepository) + ": " : "";
 		String description = repo + error + "<br/>" +
@@ -508,10 +509,10 @@ public class GitRebaseProcess
 		myNotifier.notifyError(title, description, new RebaseNotificationListener(currentRepository, skippedCommits));
 	}
 
-	private void showUntrackedFilesError(@NotNull Set<String> untrackedPaths,
-			@NotNull GitRepository currentRepository,
+	private void showUntrackedFilesError(@Nonnull Set<String> untrackedPaths,
+			@Nonnull GitRepository currentRepository,
 			boolean somethingWasRebased,
-			@NotNull Collection<GitRepository> successful,
+			@Nonnull Collection<GitRepository> successful,
 			MultiMap<GitRepository, GitRebaseUtils.CommitInfo> skippedCommits)
 	{
 		String message = GitUntrackedFilesHelper.createUntrackedFilesOverwrittenDescription("rebase", true) +
@@ -521,14 +522,14 @@ public class GitRebaseProcess
 		GitUntrackedFilesHelper.notifyUntrackedFilesOverwrittenBy(myProject, currentRepository.getRoot(), untrackedPaths, "rebase", message);
 	}
 
-	@NotNull
-	private static String mentionRetryAndAbort(boolean somethingWasRebased, @NotNull Collection<GitRepository> successful)
+	@Nonnull
+	private static String mentionRetryAndAbort(boolean somethingWasRebased, @Nonnull Collection<GitRepository> successful)
 	{
 		return somethingWasRebased || !successful.isEmpty() ? "You can <a href='retry'>retry</a> or <a href='abort'>abort</a> rebase." : "<a href='retry'>Retry.</a>";
 	}
 
-	@NotNull
-	private static String mentionSkippedCommits(@NotNull MultiMap<GitRepository, GitRebaseUtils.CommitInfo> skippedCommits)
+	@Nonnull
+	private static String mentionSkippedCommits(@Nonnull MultiMap<GitRepository, GitRebaseUtils.CommitInfo> skippedCommits)
 	{
 		if(skippedCommits.isEmpty())
 		{
@@ -546,7 +547,7 @@ public class GitRebaseProcess
 		message += StringUtil.join(skippedCommits.values(), new Function<GitRebaseUtils.CommitInfo, String>()
 		{
 			@Override
-			public String fun(@NotNull GitRebaseUtils.CommitInfo commitInfo)
+			public String fun(@Nonnull GitRebaseUtils.CommitInfo commitInfo)
 			{
 				String commitMessage = StringUtil.shortenPathWithEllipsis(commitInfo.subject, 72, true);
 				String hash = commitInfo.revision.asString();
@@ -557,8 +558,8 @@ public class GitRebaseProcess
 		return message;
 	}
 
-	@NotNull
-	private static MultiMap<GitRepository, GitRebaseUtils.CommitInfo> getSkippedCommits(@NotNull Map<GitRepository, ? extends GitRebaseStatus> statuses)
+	@Nonnull
+	private static MultiMap<GitRepository, GitRebaseUtils.CommitInfo> getSkippedCommits(@Nonnull Map<GitRepository, ? extends GitRebaseStatus> statuses)
 	{
 		MultiMap<GitRepository, GitRebaseUtils.CommitInfo> map = MultiMap.create();
 		for(GitRepository repository : statuses.keySet())
@@ -568,8 +569,8 @@ public class GitRebaseProcess
 		return map;
 	}
 
-	@NotNull
-	private static Map<GitRepository, GitSuccessfulRebase> getSuccessfulRepositories(@NotNull Map<GitRepository, GitRebaseStatus> statuses)
+	@Nonnull
+	private static Map<GitRepository, GitSuccessfulRebase> getSuccessfulRepositories(@Nonnull Map<GitRepository, GitRebaseStatus> statuses)
 	{
 		Map<GitRepository, GitSuccessfulRebase> map = newLinkedHashMap();
 		for(GitRepository repository : statuses.keySet())
@@ -588,7 +589,7 @@ public class GitRebaseProcess
 		private final boolean myCalledFromNotification;
 		private boolean myWasNothingToMerge;
 
-		RebaseConflictResolver(@NotNull Project project, @NotNull Git git, @NotNull GitRepository repository, @NotNull Params params, boolean calledFromNotification)
+		RebaseConflictResolver(@Nonnull Project project, @Nonnull Git git, @Nonnull GitRepository repository, @Nonnull Params params, boolean calledFromNotification)
 		{
 			super(project, git, singleton(repository.getRoot()), params);
 			myCalledFromNotification = calledFromNotification;
@@ -627,19 +628,19 @@ public class GitRebaseProcess
 
 	private class RebaseNotificationListener extends NotificationListener.Adapter
 	{
-		@NotNull
+		@Nonnull
 		private final GitRepository myCurrentRepository;
-		@NotNull
+		@Nonnull
 		private final MultiMap<GitRepository, GitRebaseUtils.CommitInfo> mySkippedCommits;
 
-		RebaseNotificationListener(@NotNull GitRepository currentRepository, @NotNull MultiMap<GitRepository, GitRebaseUtils.CommitInfo> skippedCommits)
+		RebaseNotificationListener(@Nonnull GitRepository currentRepository, @Nonnull MultiMap<GitRepository, GitRebaseUtils.CommitInfo> skippedCommits)
 		{
 			myCurrentRepository = currentRepository;
 			mySkippedCommits = skippedCommits;
 		}
 
 		@Override
-		protected void hyperlinkActivated(@NotNull Notification notification, @NotNull final HyperlinkEvent e)
+		protected void hyperlinkActivated(@Nonnull Notification notification, @Nonnull final HyperlinkEvent e)
 		{
 			final String href = e.getDescription();
 			if("abort".equals(href))
@@ -674,26 +675,26 @@ public class GitRebaseProcess
 		myProgressManager.run(new Task.Backgroundable(myProject, "Aborting Rebase Process...")
 		{
 			@Override
-			public void run(@NotNull ProgressIndicator indicator)
+			public void run(@Nonnull ProgressIndicator indicator)
 			{
 				GitRebaseUtils.abort(myProject, indicator);
 			}
 		});
 	}
 
-	private void retry(@NotNull final String processTitle)
+	private void retry(@Nonnull final String processTitle)
 	{
 		myProgressManager.run(new Task.Backgroundable(myProject, processTitle, true)
 		{
 			@Override
-			public void run(@NotNull ProgressIndicator indicator)
+			public void run(@Nonnull ProgressIndicator indicator)
 			{
 				GitRebaseUtils.continueRebase(myProject);
 			}
 		});
 	}
 
-	private void handlePossibleCommitLinks(@NotNull String href, MultiMap<GitRepository, GitRebaseUtils.CommitInfo> skippedCommits)
+	private void handlePossibleCommitLinks(@Nonnull String href, MultiMap<GitRepository, GitRebaseUtils.CommitInfo> skippedCommits)
 	{
 		GitRepository repository = findRootBySkippedCommit(href, skippedCommits);
 		if(repository != null)
@@ -703,7 +704,7 @@ public class GitRebaseProcess
 	}
 
 	@Nullable
-	private static GitRepository findRootBySkippedCommit(@NotNull final String hash, final MultiMap<GitRepository, GitRebaseUtils.CommitInfo> skippedCommits)
+	private static GitRepository findRootBySkippedCommit(@Nonnull final String hash, final MultiMap<GitRepository, GitRebaseUtils.CommitInfo> skippedCommits)
 	{
 		return find(skippedCommits.keySet(), new Condition<GitRepository>()
 		{

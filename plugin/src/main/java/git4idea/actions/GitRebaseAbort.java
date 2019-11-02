@@ -15,7 +15,7 @@
  */
 package git4idea.actions;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import git4idea.rebase.GitRebaseUtils;
@@ -23,7 +23,7 @@ import git4idea.repo.GitRepository;
 
 public class GitRebaseAbort extends GitAbstractRebaseAction
 {
-	@NotNull
+	@Nonnull
 	@Override
 	protected String getProgressTitle()
 	{
@@ -31,13 +31,13 @@ public class GitRebaseAbort extends GitAbstractRebaseAction
 	}
 
 	@Override
-	protected void performActionForProject(@NotNull Project project, @NotNull ProgressIndicator indicator)
+	protected void performActionForProject(@Nonnull Project project, @Nonnull ProgressIndicator indicator)
 	{
 		GitRebaseUtils.abort(project, indicator);
 	}
 
 	@Override
-	protected void performActionForRepository(@NotNull Project project, @NotNull GitRepository repository, @NotNull ProgressIndicator indicator)
+	protected void performActionForRepository(@Nonnull Project project, @Nonnull GitRepository repository, @Nonnull ProgressIndicator indicator)
 	{
 		GitRebaseUtils.abort(project, repository, indicator);
 	}

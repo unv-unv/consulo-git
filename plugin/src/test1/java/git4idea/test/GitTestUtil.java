@@ -22,8 +22,8 @@ import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.CharsetToolkit;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -122,7 +122,7 @@ public class GitTestUtil {
   /**
    * Testng compares by iterating over 2 collections, but it won't work for sets which may have different order.
    */
-  public static <T> void assertEqualCollections(@NotNull Collection<T> actual, @NotNull Collection<T> expected) {
+  public static <T> void assertEqualCollections(@Nonnull Collection<T> actual, @Nonnull Collection<T> expected) {
     if (actual.size() != expected.size()) {
       fail("Collections don't have the same size. " + stringifyActualExpected(actual, expected));
     }
@@ -142,7 +142,7 @@ public class GitTestUtil {
   /**
    * Testng compares by iterating over 2 collections, but it won't work for sets which may have different order.
    */
-  public static <T, E> void assertEqualCollections(@NotNull Collection<T> actual, @NotNull Collection<E> expected, @NotNull EqualityChecker<T, E> equalityChecker) {
+  public static <T, E> void assertEqualCollections(@Nonnull Collection<T> actual, @Nonnull Collection<E> expected, @Nonnull EqualityChecker<T, E> equalityChecker) {
     if (actual.size() != expected.size()) {
       fail("Collections don't have the same size. " + stringifyActualExpected(actual, expected));
     }
@@ -159,7 +159,7 @@ public class GitTestUtil {
     }
   }
 
-  private static <T, E> boolean contains(@NotNull Collection<T> collection, @NotNull E object, @NotNull EqualityChecker<T, E> equalityChecker) {
+  private static <T, E> boolean contains(@Nonnull Collection<T> collection, @Nonnull E object, @Nonnull EqualityChecker<T, E> equalityChecker) {
     for (T t : collection) {
       if (equalityChecker.areEqual(t, object)) {
         return true;
@@ -177,7 +177,7 @@ public class GitTestUtil {
     return false;
   }
 
-  public static Object[][] loadConfigData(@NotNull File dataFolder) throws IOException {
+  public static Object[][] loadConfigData(@Nonnull File dataFolder) throws IOException {
     File[] tests = dataFolder.listFiles(new FilenameFilter() {
       @Override
       public boolean accept(File dir, String name) {
@@ -222,8 +222,8 @@ public class GitTestUtil {
     boolean areEqual(T actual, E expected);
   }
 
-  @NotNull
-  public static String stringifyActualExpected(@NotNull Object actual, @NotNull Object expected) {
+  @Nonnull
+  public static String stringifyActualExpected(@Nonnull Object actual, @Nonnull Object expected) {
     return "\nExpected:\n" + expected + "\nActual:\n" + actual;
   }
 }

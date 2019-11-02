@@ -15,10 +15,10 @@
  */
 package git4idea.config;
 
+import javax.annotation.Nonnull;
 import javax.inject.Singleton;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.RoamingType;
 import com.intellij.openapi.components.ServiceManager;
@@ -75,7 +75,7 @@ public class GitVcsApplicationSettings implements PersistentStateComponent<GitVc
 	 * or use {@link GitExecutableManager#getPathToGit()}/{@link GitExecutableManager#getPathToGit(Project)} to get git executable with
 	 * auto-detection
 	 */
-	@NotNull
+	@Nonnull
 	@Deprecated
 	public String getPathToGit()
 	{
@@ -93,7 +93,7 @@ public class GitVcsApplicationSettings implements PersistentStateComponent<GitVc
 		myState.myPathToGit = pathToGit;
 	}
 
-	public void setIdeaSsh(@NotNull SshExecutable executable)
+	public void setIdeaSsh(@Nonnull SshExecutable executable)
 	{
 		myState.SSH_EXECUTABLE = executable;
 	}
@@ -105,7 +105,7 @@ public class GitVcsApplicationSettings implements PersistentStateComponent<GitVc
 		return getSshExecutableType();
 	}
 
-	@NotNull
+	@Nonnull
 	public SshExecutable getSshExecutableType()
 	{
 		if(myState.SSH_EXECUTABLE == null)

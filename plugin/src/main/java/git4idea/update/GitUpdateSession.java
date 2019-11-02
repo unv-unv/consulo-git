@@ -17,7 +17,7 @@ package git4idea.update;
 
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.update.UpdateSession;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.util.Collections;
 import java.util.List;
@@ -32,7 +32,7 @@ public class GitUpdateSession implements UpdateSession {
     myResult = result;
   }
 
-  @NotNull
+  @Nonnull
   public List<VcsException> getExceptions() {
     return Collections.emptyList();
   }

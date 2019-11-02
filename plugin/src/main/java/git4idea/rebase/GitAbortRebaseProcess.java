@@ -26,8 +26,8 @@ import static git4idea.rebase.GitRebaseUtils.mentionLocalChangesRemainingInStash
 import java.util.List;
 import java.util.Map;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ApplicationManager;
@@ -53,29 +53,29 @@ class GitAbortRebaseProcess
 {
 	private static final Logger LOG = Logger.getInstance(GitAbortRebaseProcess.class);
 
-	@NotNull
+	@Nonnull
 	private final Project myProject;
-	@NotNull
+	@Nonnull
 	private final Git myGit;
-	@NotNull
+	@Nonnull
 	private final VcsNotifier myNotifier;
 
 	@Nullable
 	private final GitRepository myRepositoryToAbort;
-	@NotNull
+	@Nonnull
 	private final Map<GitRepository, String> myRepositoriesToRollback;
-	@NotNull
+	@Nonnull
 	private final Map<GitRepository, String> myInitialCurrentBranches;
-	@NotNull
+	@Nonnull
 	private final ProgressIndicator myIndicator;
 	@Nullable
 	private final GitChangesSaver mySaver;
 
-	GitAbortRebaseProcess(@NotNull Project project,
+	GitAbortRebaseProcess(@Nonnull Project project,
 			@Nullable GitRepository repositoryToAbort,
-			@NotNull Map<GitRepository, String> repositoriesToRollback,
-			@NotNull Map<GitRepository, String> initialCurrentBranches,
-			@NotNull ProgressIndicator progressIndicator,
+			@Nonnull Map<GitRepository, String> repositoriesToRollback,
+			@Nonnull Map<GitRepository, String> initialCurrentBranches,
+			@Nonnull ProgressIndicator progressIndicator,
 			@Nullable GitChangesSaver changesSaver)
 	{
 		myProject = project;
@@ -114,7 +114,7 @@ class GitAbortRebaseProcess
 		}
 	}
 
-	@NotNull
+	@Nonnull
 	private AbortChoice confirmAbort()
 	{
 		String title = "Abort Rebase";
@@ -236,7 +236,7 @@ class GitAbortRebaseProcess
 		}).execute();
 	}
 
-	private static void refresh(@NotNull List<GitRepository> toRefresh)
+	private static void refresh(@Nonnull List<GitRepository> toRefresh)
 	{
 		for(GitRepository repository : toRefresh)
 		{

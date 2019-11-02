@@ -30,7 +30,7 @@ import git4idea.i18n.GitBundle;
 import git4idea.merge.GitMergeDialog;
 import git4idea.merge.GitMergeUtil;
 import git4idea.repo.GitRepositoryManager;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.util.Collections;
 import java.util.List;
@@ -45,7 +45,7 @@ public class GitMerge extends GitRepositoryAction {
    * {@inheritDoc}
    */
   @Override
-  @NotNull
+  @Nonnull
   protected String getActionName() {
     return GitBundle.message("merge.action.name");
   }
@@ -53,9 +53,9 @@ public class GitMerge extends GitRepositoryAction {
   /**
    * {@inheritDoc}
    */
-  protected void perform(@NotNull final Project project,
-                         @NotNull final List<VirtualFile> gitRoots,
-                         @NotNull final VirtualFile defaultRoot,
+  protected void perform(@Nonnull final Project project,
+                         @Nonnull final List<VirtualFile> gitRoots,
+                         @Nonnull final VirtualFile defaultRoot,
                          final Set<VirtualFile> affectedRoots,
                          final List<VcsException> exceptions) throws VcsException {
     GitVcs vcs = GitVcs.getInstance(project);

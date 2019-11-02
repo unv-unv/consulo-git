@@ -17,34 +17,36 @@ package git4idea.repo;
 
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 /**
  * @author Kirill Likhodedov
  */
 public class GitBranchTrackInfo {
 
-  @NotNull private final GitLocalBranch myLocalBranch;
-  @NotNull private final GitRemoteBranch myRemoteBranch;
+  @Nonnull
+  private final GitLocalBranch myLocalBranch;
+  @Nonnull
+  private final GitRemoteBranch myRemoteBranch;
   private final boolean myMerge;
 
-  GitBranchTrackInfo(@NotNull GitLocalBranch localBranch, @NotNull GitRemoteBranch remoteBranch, boolean merge) {
+  GitBranchTrackInfo(@Nonnull GitLocalBranch localBranch, @Nonnull GitRemoteBranch remoteBranch, boolean merge) {
     myLocalBranch = localBranch;
     myRemoteBranch = remoteBranch;
     myMerge = merge;
   }
 
-  @NotNull
+  @Nonnull
   public GitLocalBranch getLocalBranch() {
     return myLocalBranch;
   }
 
-  @NotNull
+  @Nonnull
   public GitRemote getRemote() {
     return myRemoteBranch.getRemote();
   }
 
-  @NotNull
+  @Nonnull
   public GitRemoteBranch getRemoteBranch() {
     return myRemoteBranch;
   }

@@ -18,8 +18,8 @@ package git4idea;
 import com.intellij.openapi.vcs.diff.RevisionSelector;
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Git revision selector class.
@@ -29,7 +29,7 @@ public class GitRevisionSelector implements RevisionSelector {
    * {@inheritDoc}
    */
   @Nullable
-  public VcsRevisionNumber selectNumber(@NotNull VirtualFile file) {
+  public VcsRevisionNumber selectNumber(@Nonnull VirtualFile file) {
     //GitVirtualFile gitFile = (GitVirtualFile) file;
     //TODO: implement selectNumber()
     return null;

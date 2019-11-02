@@ -18,10 +18,10 @@ package git4idea.checkout;
 import java.io.File;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -46,7 +46,7 @@ public class GitCheckoutProvider implements CheckoutProvider
 	private final Git myGit;
 
 	@Inject
-	public GitCheckoutProvider(@NotNull Git git)
+	public GitCheckoutProvider(@Nonnull Git git)
 	{
 		myGit = git;
 	}
@@ -56,7 +56,7 @@ public class GitCheckoutProvider implements CheckoutProvider
 		return "_Git";
 	}
 
-	public void doCheckout(@NotNull final Project project, @Nullable final Listener listener)
+	public void doCheckout(@Nonnull final Project project, @Nullable final Listener listener)
 	{
 		BasicAction.saveAll();
 		GitCloneDialog dialog = new GitCloneDialog(project);
@@ -84,15 +84,15 @@ public class GitCheckoutProvider implements CheckoutProvider
 		clone(project, myGit, listener, destinationParent, sourceRepositoryURL, directoryName, parentDirectory, puttyKey);
 	}
 
-	public static void clone(final Project project, @NotNull final Git git, final Listener listener, final VirtualFile destinationParent,
-			final String sourceRepositoryURL, final String directoryName, final String parentDirectory, final String puttyKey)
+	public static void clone(final Project project, @Nonnull final Git git, final Listener listener, final VirtualFile destinationParent,
+							 final String sourceRepositoryURL, final String directoryName, final String parentDirectory, final String puttyKey)
 	{
 
 		final AtomicBoolean cloneResult = new AtomicBoolean();
 		new Task.Backgroundable(project, GitBundle.message("cloning.repository", sourceRepositoryURL))
 		{
 			@Override
-			public void run(@NotNull ProgressIndicator indicator)
+			public void run(@Nonnull ProgressIndicator indicator)
 			{
 				cloneResult.set(doClone(project, indicator, git, directoryName, parentDirectory, sourceRepositoryURL, puttyKey));
 			}
@@ -122,14 +122,14 @@ public class GitCheckoutProvider implements CheckoutProvider
 		}.queue();
 	}
 
-	public static boolean doClone(@NotNull Project project, @NotNull ProgressIndicator indicator, @NotNull Git git, @NotNull String directoryName,
-			@NotNull String parentDirectory, @NotNull String sourceRepositoryURL, String puttyKey)
+	public static boolean doClone(@Nonnull Project project, @Nonnull ProgressIndicator indicator, @Nonnull Git git, @Nonnull String directoryName,
+								  @Nonnull String parentDirectory, @Nonnull String sourceRepositoryURL, String puttyKey)
 	{
 		return cloneNatively(project, indicator, git, new File(parentDirectory), sourceRepositoryURL, directoryName, puttyKey);
 	}
 
-	private static boolean cloneNatively(@NotNull Project project, @NotNull final ProgressIndicator indicator, @NotNull Git git,
-			@NotNull File directory, @NotNull String url, @NotNull String cloneDirectoryName, String puttyKey)
+	private static boolean cloneNatively(@Nonnull Project project, @Nonnull final ProgressIndicator indicator, @Nonnull Git git,
+										 @Nonnull File directory, @Nonnull String url, @Nonnull String cloneDirectoryName, String puttyKey)
 	{
 		indicator.setIndeterminate(false);
 		GitLineHandlerListener progressListener = GitStandardProgressAnalyzer.createListener(indicator);

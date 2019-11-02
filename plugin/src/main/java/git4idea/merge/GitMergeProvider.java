@@ -40,8 +40,8 @@ import git4idea.i18n.GitBundle;
 import git4idea.repo.GitRepository;
 import git4idea.util.GitFileUtils;
 import git4idea.util.StringScanner;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -59,12 +59,14 @@ public class GitMergeProvider implements MergeProvider2 {
 
   private static final Logger LOG = Logger.getInstance(GitMergeProvider.class);
 
-  @NotNull private final Project myProject;
+  @Nonnull
+  private final Project myProject;
   /**
    * If true the merge provider has a reverse meaning, i. e. yours and theirs are swapped.
    * It should be used when conflict is resolved after rebase or unstash.
    */
-  @NotNull private final Set<VirtualFile> myReverseRoots;
+  @Nonnull
+  private final Set<VirtualFile> myReverseRoots;
 
   private enum ReverseRequest {
     REVERSE,
@@ -72,22 +74,22 @@ public class GitMergeProvider implements MergeProvider2 {
     DETECT
   }
 
-  private GitMergeProvider(@NotNull Project project, @NotNull Set<VirtualFile> reverseRoots) {
+  private GitMergeProvider(@Nonnull Project project, @Nonnull Set<VirtualFile> reverseRoots) {
     myProject = project;
     myReverseRoots = reverseRoots;
   }
 
-  public GitMergeProvider(@NotNull Project project, boolean reverse) {
+  public GitMergeProvider(@Nonnull Project project, boolean reverse) {
     this(project, findReverseRoots(project, reverse ? ReverseRequest.REVERSE : ReverseRequest.FORWARD));
   }
 
-  @NotNull
-  public static MergeProvider detect(@NotNull Project project) {
+  @Nonnull
+  public static MergeProvider detect(@Nonnull Project project) {
     return new GitMergeProvider(project, findReverseRoots(project, ReverseRequest.DETECT));
   }
 
-  @NotNull
-  private static Set<VirtualFile> findReverseRoots(@NotNull Project project, @NotNull ReverseRequest reverseOrDetect) {
+  @Nonnull
+  private static Set<VirtualFile> findReverseRoots(@Nonnull Project project, @Nonnull ReverseRequest reverseOrDetect) {
     Set<VirtualFile> reverseMap = ContainerUtil.newHashSet();
     for (GitRepository repository : GitUtil.getRepositoryManager(project).getRepositories()) {
       boolean reverse;
@@ -104,7 +106,7 @@ public class GitMergeProvider implements MergeProvider2 {
     return reverseMap;
   }
 
-  @NotNull
+  @Nonnull
   public MergeData loadRevisions(final VirtualFile file) throws VcsException {
     final MergeData mergeData = new MergeData();
     if (file == null) return mergeData;
@@ -140,7 +142,7 @@ public class GitMergeProvider implements MergeProvider2 {
   }
 
   @Nullable
-  private VcsRevisionNumber findLastRevisionNumber(@NotNull VirtualFile root) {
+  private VcsRevisionNumber findLastRevisionNumber(@Nonnull VirtualFile root) {
     if (myReverseRoots.contains(root)) {
       return resolveHead(root);
     }
@@ -163,7 +165,7 @@ public class GitMergeProvider implements MergeProvider2 {
   }
 
   @Nullable
-  private GitRevisionNumber resolveHead(@NotNull VirtualFile root) {
+  private GitRevisionNumber resolveHead(@Nonnull VirtualFile root) {
     try {
       return GitRevisionNumber.resolve(myProject, root, "HEAD");
     }
@@ -173,7 +175,7 @@ public class GitMergeProvider implements MergeProvider2 {
     }
   }
 
-  private static byte[] loadRevisionCatchingErrors(@NotNull GitFileRevision revision) throws VcsException, IOException {
+  private static byte[] loadRevisionCatchingErrors(@Nonnull GitFileRevision revision) throws VcsException, IOException {
     try {
       return revision.getContent();
     } catch (VcsException e) {
@@ -193,7 +195,7 @@ public class GitMergeProvider implements MergeProvider2 {
    * @return number for "yours" revision  (taking {@code reverse} flag in account)
    * @param root
    */
-  private int yoursRevision(@NotNull VirtualFile root) {
+  private int yoursRevision(@Nonnull VirtualFile root) {
     return myReverseRoots.contains(root) ? THEIRS_REVISION_NUM : YOURS_REVISION_NUM;
   }
 
@@ -201,7 +203,7 @@ public class GitMergeProvider implements MergeProvider2 {
    * @return number for "theirs" revision (taking {@code reverse} flag in account)
    * @param root
    */
-  private int theirsRevision(@NotNull VirtualFile root) {
+  private int theirsRevision(@Nonnull VirtualFile root) {
     return myReverseRoots.contains(root) ? YOURS_REVISION_NUM : THEIRS_REVISION_NUM;
   }
 
@@ -215,11 +217,11 @@ public class GitMergeProvider implements MergeProvider2 {
     }
   }
 
-  public boolean isBinary(@NotNull VirtualFile file) {
+  public boolean isBinary(@Nonnull VirtualFile file) {
     return file.getFileType().isBinary();
   }
 
-  @NotNull
+  @Nonnull
   public MergeSession createMergeSession(List<VirtualFile> files) {
     return new MyMergeSession(files);
   }

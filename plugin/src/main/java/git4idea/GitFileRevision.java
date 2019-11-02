@@ -20,8 +20,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Couple;
 import com.intellij.openapi.vcs.FilePath;
@@ -38,11 +38,11 @@ import git4idea.util.GitFileUtils;
 public class GitFileRevision extends VcsFileRevisionEx implements Comparable<VcsFileRevision>, VcsFileRevisionDvcsSpecific
 {
 
-	@NotNull
+	@Nonnull
 	private final Project myProject;
-	@NotNull
+	@Nonnull
 	private final FilePath myPath;
-	@NotNull
+	@Nonnull
 	private final GitRevisionNumber myRevision;
 	@Nullable
 	private final Couple<Couple<String>> myAuthorAndCommitter;
@@ -52,25 +52,25 @@ public class GitFileRevision extends VcsFileRevisionEx implements Comparable<Vcs
 	private final String myBranch;
 	@Nullable
 	private final Date myAuthorTime;
-	@NotNull
+	@Nonnull
 	private final Collection<String> myParents;
 	@Nullable
 	private final VirtualFile myRoot;
 
-	public GitFileRevision(@NotNull Project project, @NotNull FilePath path, @NotNull GitRevisionNumber revision)
+	public GitFileRevision(@Nonnull Project project, @Nonnull FilePath path, @Nonnull GitRevisionNumber revision)
 	{
 		this(project, null, path, revision, null, null, null, null, Collections.<String>emptyList());
 	}
 
-	public GitFileRevision(@NotNull Project project,
+	public GitFileRevision(@Nonnull Project project,
 			@Nullable VirtualFile root,
-			@NotNull FilePath path,
-			@NotNull GitRevisionNumber revision,
+			@Nonnull FilePath path,
+			@Nonnull GitRevisionNumber revision,
 			@Nullable Couple<Couple<String>> authorAndCommitter,
 			@Nullable String message,
 			@Nullable String branch,
 			@Nullable final Date authorTime,
-			@NotNull Collection<String> parents)
+			@Nonnull Collection<String> parents)
 	{
 		myProject = project;
 		myRoot = root;
@@ -84,7 +84,7 @@ public class GitFileRevision extends VcsFileRevisionEx implements Comparable<Vcs
 	}
 
 	@Override
-	@NotNull
+	@Nonnull
 	public FilePath getPath()
 	{
 		return myPath;
@@ -98,7 +98,7 @@ public class GitFileRevision extends VcsFileRevisionEx implements Comparable<Vcs
 	}
 
 	@Override
-	@NotNull
+	@Nonnull
 	public VcsRevisionNumber getRevisionNumber()
 	{
 		return myRevision;
@@ -209,13 +209,13 @@ public class GitFileRevision extends VcsFileRevisionEx implements Comparable<Vcs
 		return myPath.getName() + ":" + myRevision.getShortRev();
 	}
 
-	@NotNull
+	@Nonnull
 	public Collection<String> getParents()
 	{
 		return myParents;
 	}
 
-	@NotNull
+	@Nonnull
 	public String getHash()
 	{
 		return myRevision.getRev();

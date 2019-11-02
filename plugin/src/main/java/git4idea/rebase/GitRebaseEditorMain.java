@@ -18,14 +18,13 @@ package git4idea.rebase;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Vector;
 
 /**
  * The rebase editor application, this editor is invoked by the git.
@@ -39,7 +38,7 @@ public class GitRebaseEditorMain
 	 * The environment variable for handler no
 	 */
 	@NonNls
-	@NotNull
+	@Nonnull
 	public static final String IDEA_REBASE_HANDER_NO = "IDEA_REBASE_HANDER_NO";
 	/**
 	 * The exit code used to indicate that editing was canceled or has failed in some other way.

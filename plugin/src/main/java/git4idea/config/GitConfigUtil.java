@@ -22,8 +22,8 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Couple;
 import com.intellij.openapi.util.Pair;
@@ -33,6 +33,8 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.containers.ContainerUtil;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitSimpleHandler;
+
+import javax.annotation.Nullable;
 
 /**
  * Git utilities for working with configuration
@@ -94,7 +96,7 @@ public class GitConfigUtil
 	 * @return true if the value represents "true", false if the value represents "false", null if the value doesn't look like a boolean value.
 	 */
 	@Nullable
-	public static Boolean getBooleanValue(@NotNull String value)
+	public static Boolean getBooleanValue(@Nonnull String value)
 	{
 		value = value.toLowerCase(Locale.ENGLISH);
 		if(ContainerUtil.newHashSet("true", "yes", "on", "1").contains(value))

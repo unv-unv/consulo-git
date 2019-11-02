@@ -24,8 +24,8 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.vcs.CommittedChangesProvider;
@@ -81,7 +81,7 @@ public class GitDiffProvider implements DiffProvider, DiffMixin
 	 * @param project the context project
 	 */
 	@Inject
-	public GitDiffProvider(@NotNull Project project)
+	public GitDiffProvider(@Nonnull Project project)
 	{
 		myProject = project;
 		myStatusManager = FileStatusManager.getInstance(myProject);

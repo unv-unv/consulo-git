@@ -16,8 +16,8 @@
 package org.jetbrains.git4idea.ssh;
 
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import java.io.*;
 import java.net.InetAddress;
@@ -62,8 +62,8 @@ public class SSHConfig {
    * @param port a port
    * @return a create host entry
    */
-  @NotNull
-  public Host lookup(@Nullable String user, @NotNull String host, @Nullable Integer port) {
+  @Nonnull
+  public Host lookup(@Nullable String user, @Nonnull String host, @Nullable Integer port) {
     final Host rc = new Host();
     entriesLoop:
     for (HostEntry e : myEntries) {
@@ -102,7 +102,7 @@ public class SSHConfig {
    * @throws IOException if config could not be loaded
    */
   @SuppressWarnings({"HardCodedStringLiteral"})
-  @NotNull
+  @Nonnull
   public static SSHConfig load() throws IOException {
     SSHConfig rc = new SSHConfig();
     File configFile = new File(USER_HOME + File.separatorChar + ".ssh", "config");
@@ -371,7 +371,8 @@ public class SSHConfig {
     /**
      * Identity file
      */
-    @Nullable private String myIdentityFile;
+    @Nullable
+	private String myIdentityFile;
     /**
      * Preferred authentication methods
      */
@@ -379,32 +380,38 @@ public class SSHConfig {
     /**
      * Preferred authentication methods
      */
-    @Nullable private List<String> myHostKeyAlgorithms;
+    @Nullable
+	private List<String> myHostKeyAlgorithms;
     /**
      * Batch mode parameter
      */
-    @Nullable private Boolean myBatchMode;
+    @Nullable
+	private Boolean myBatchMode;
     /**
      * Alias for host key
      */
-    @Nullable private String myHostKeyAlias;
+    @Nullable
+	private String myHostKeyAlias;
     /**
      * Number of password prompts
      */
-    @Nullable private Integer myNumberOfPasswordPrompts;
+    @Nullable
+	private Integer myNumberOfPasswordPrompts;
     /**
      * If true password authentication is enabled
      */
-    @Nullable private Boolean myPasswordAuthentication;
+    @Nullable
+	private Boolean myPasswordAuthentication;
     /**
      * If true, public key authentication is allowed
      */
-    @Nullable private Boolean myPubkeyAuthentication;
+    @Nullable
+	private Boolean myPubkeyAuthentication;
 
     /**
      * @return remote user name
      */
-    @NotNull
+    @Nonnull
     public String getUser() {
       return notNull(myUser);
     }
@@ -412,7 +419,7 @@ public class SSHConfig {
     /**
      * @return real host name
      */
-    @NotNull
+    @Nonnull
     public String getHostName() {
       return notNull(myHostName);
     }
@@ -439,7 +446,7 @@ public class SSHConfig {
     /**
      * @return preferred authentication methods
      */
-    @NotNull
+    @Nonnull
     public List<String> getPreferredMethods() {
       return notNull(myPreferredMethods);
     }
@@ -455,7 +462,7 @@ public class SSHConfig {
     /**
      * @return algorithms that should be used for the host
      */
-    @NotNull
+    @Nonnull
     public List<String> getHostKeyAlgorithms() {
       return notNull(myHostKeyAlgorithms);
     }
@@ -471,7 +478,7 @@ public class SSHConfig {
     /**
      * @return alias for host to be used in known hosts file
      */
-    @NotNull
+    @Nonnull
     public String getHostKeyAlias() {
       return notNull(myHostKeyAlias);
     }
@@ -533,7 +540,7 @@ public class SSHConfig {
      * @return the provided argument if not null
      * @throws IllegalStateException if the value is null
      */
-    @NotNull
+    @Nonnull
     private static <T> T notNull(@Nullable T value) {
       if (value == null) {
         throw new IllegalStateException("The value must not be null");

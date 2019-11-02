@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.FilePath;
 import com.intellij.openapi.vcs.FileStatus;
@@ -36,14 +36,14 @@ import git4idea.history.wholeTree.AbstractHash;
 public class GitChangesParser
 {
 
-	@NotNull
+	@Nonnull
 	public static List<Change> parse(
-			@NotNull Project project,
-			@NotNull VirtualFile root,
-			@NotNull List<GitLogStatusInfo> statusInfos,
-			@NotNull String hash,
-			@NotNull Date date,
-			@NotNull List<String> parentsHashes) throws VcsException
+			@Nonnull Project project,
+			@Nonnull VirtualFile root,
+			@Nonnull List<GitLogStatusInfo> statusInfos,
+			@Nonnull String hash,
+			@Nonnull Date date,
+			@Nonnull List<String> parentsHashes) throws VcsException
 	{
 		GitRevisionNumber thisRevision = new GitRevisionNumber(hash, date);
 		List<GitRevisionNumber> parentRevisions = prepareParentRevisions(parentsHashes);

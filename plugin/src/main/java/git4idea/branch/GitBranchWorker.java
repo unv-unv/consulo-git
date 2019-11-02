@@ -18,7 +18,7 @@ package git4idea.branch;
 import java.util.Collection;
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
@@ -49,21 +49,21 @@ public final class GitBranchWorker
 
 	private static final Logger LOG = Logger.getInstance(GitBranchWorker.class);
 
-	@NotNull
+	@Nonnull
 	private final Project myProject;
-	@NotNull
+	@Nonnull
 	private final Git myGit;
-	@NotNull
+	@Nonnull
 	private final GitBranchUiHandler myUiHandler;
 
-	public GitBranchWorker(@NotNull Project project, @NotNull Git git, @NotNull GitBranchUiHandler uiHandler)
+	public GitBranchWorker(@Nonnull Project project, @Nonnull Git git, @Nonnull GitBranchUiHandler uiHandler)
 	{
 		myProject = project;
 		myGit = git;
 		myUiHandler = uiHandler;
 	}
 
-	public void checkoutNewBranch(@NotNull final String name, @NotNull List<GitRepository> repositories)
+	public void checkoutNewBranch(@Nonnull final String name, @Nonnull List<GitRepository> repositories)
 	{
 		updateInfo(repositories);
 		repositories = ContainerUtil.filter(repositories, new Condition<GitRepository>()
@@ -85,7 +85,7 @@ public final class GitBranchWorker
 		}
 	}
 
-	public void createNewTag(@NotNull final String name, @NotNull final String reference, @NotNull final List<GitRepository> repositories)
+	public void createNewTag(@Nonnull final String name, @Nonnull final String reference, @Nonnull final List<GitRepository> repositories)
 	{
 		for(GitRepository repository : repositories)
 		{
@@ -94,56 +94,56 @@ public final class GitBranchWorker
 		}
 	}
 
-	public void checkoutNewBranchStartingFrom(@NotNull String newBranchName, @NotNull String startPoint, @NotNull List<GitRepository> repositories)
+	public void checkoutNewBranchStartingFrom(@Nonnull String newBranchName, @Nonnull String startPoint, @Nonnull List<GitRepository> repositories)
 	{
 		updateInfo(repositories);
 		new GitCheckoutOperation(myProject, myGit, myUiHandler, repositories, startPoint, false, true, newBranchName).execute();
 	}
 
-	public void checkout(@NotNull final String reference, boolean detach, @NotNull List<GitRepository> repositories)
+	public void checkout(@Nonnull final String reference, boolean detach, @Nonnull List<GitRepository> repositories)
 	{
 		updateInfo(repositories);
 		new GitCheckoutOperation(myProject, myGit, myUiHandler, repositories, reference, detach, false, null).execute();
 	}
 
 
-	public void deleteBranch(@NotNull final String branchName, @NotNull final List<GitRepository> repositories)
+	public void deleteBranch(@Nonnull final String branchName, @Nonnull final List<GitRepository> repositories)
 	{
 		updateInfo(repositories);
 		new GitDeleteBranchOperation(myProject, myGit, myUiHandler, repositories, branchName).execute();
 	}
 
-	public void deleteRemoteBranch(@NotNull final String branchName, @NotNull final List<GitRepository> repositories)
+	public void deleteRemoteBranch(@Nonnull final String branchName, @Nonnull final List<GitRepository> repositories)
 	{
 		updateInfo(repositories);
 		new GitDeleteRemoteBranchOperation(myProject, myGit, myUiHandler, repositories, branchName).execute();
 	}
 
-	public void merge(@NotNull final String branchName, @NotNull final GitBrancher.DeleteOnMergeOption deleteOnMerge, @NotNull final List<GitRepository> repositories)
+	public void merge(@Nonnull final String branchName, @Nonnull final GitBrancher.DeleteOnMergeOption deleteOnMerge, @Nonnull final List<GitRepository> repositories)
 	{
 		updateInfo(repositories);
 		new GitMergeOperation(myProject, myGit, myUiHandler, repositories, branchName, deleteOnMerge).execute();
 	}
 
-	public void rebase(@NotNull List<GitRepository> repositories, @NotNull String branchName)
+	public void rebase(@Nonnull List<GitRepository> repositories, @Nonnull String branchName)
 	{
 		updateInfo(repositories);
 		GitRebaseUtils.rebase(myProject, repositories, new GitRebaseParams(branchName), myUiHandler.getProgressIndicator());
 	}
 
-	public void rebaseOnCurrent(@NotNull List<GitRepository> repositories, @NotNull String branchName)
+	public void rebaseOnCurrent(@Nonnull List<GitRepository> repositories, @Nonnull String branchName)
 	{
 		updateInfo(repositories);
 		GitRebaseUtils.rebase(myProject, repositories, new GitRebaseParams(branchName, null, "HEAD", false, false), myUiHandler.getProgressIndicator());
 	}
 
-	public void renameBranch(@NotNull String currentName, @NotNull String newName, @NotNull List<GitRepository> repositories)
+	public void renameBranch(@Nonnull String currentName, @Nonnull String newName, @Nonnull List<GitRepository> repositories)
 	{
 		updateInfo(repositories);
 		new GitRenameBranchOperation(myProject, myGit, myUiHandler, currentName, newName, repositories).execute();
 	}
 
-	public void compare(@NotNull final String branchName, @NotNull final List<GitRepository> repositories, @NotNull final GitRepository selectedRepository)
+	public void compare(@Nonnull final String branchName, @Nonnull final List<GitRepository> repositories, @Nonnull final GitRepository selectedRepository)
 	{
 		final GitCommitCompareInfo myCompareInfo = loadCommitsToCompare(repositories, branchName);
 		if(myCompareInfo == null)
@@ -172,8 +172,8 @@ public final class GitBranchWorker
 		return compareInfo;
 	}
 
-	@NotNull
-	private static Collection<Change> loadTotalDiff(@NotNull GitRepository repository, @NotNull String branchName)
+	@Nonnull
+	private static Collection<Change> loadTotalDiff(@Nonnull GitRepository repository, @Nonnull String branchName)
 	{
 		try
 		{
@@ -187,8 +187,8 @@ public final class GitBranchWorker
 		}
 	}
 
-	@NotNull
-	private Couple<List<GitCommit>> loadCommitsToCompare(@NotNull GitRepository repository, @NotNull final String branchName)
+	@Nonnull
+	private Couple<List<GitCommit>> loadCommitsToCompare(@Nonnull GitRepository repository, @Nonnull final String branchName)
 	{
 		final List<GitCommit> headToBranch;
 		final List<GitCommit> branchToHead;
@@ -205,7 +205,7 @@ public final class GitBranchWorker
 		return Couple.of(headToBranch, branchToHead);
 	}
 
-	private void displayCompareDialog(@NotNull String branchName, @NotNull String currentBranch, @NotNull GitCommitCompareInfo compareInfo, @NotNull GitRepository selectedRepository)
+	private void displayCompareDialog(@Nonnull String branchName, @Nonnull String currentBranch, @Nonnull GitCommitCompareInfo compareInfo, @Nonnull GitRepository selectedRepository)
 	{
 		if(compareInfo.isEmpty())
 		{
@@ -217,7 +217,7 @@ public final class GitBranchWorker
 		}
 	}
 
-	private static void updateInfo(@NotNull Collection<GitRepository> repositories)
+	private static void updateInfo(@Nonnull Collection<GitRepository> repositories)
 	{
 		for(GitRepository repository : repositories)
 		{

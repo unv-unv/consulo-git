@@ -18,7 +18,7 @@ package git4idea.rebase;
 import java.io.Closeable;
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.CommonBundle;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
@@ -82,7 +82,7 @@ public class GitInteractiveRebaseEditorHandler implements Closeable, GitRebaseEd
 	 * @param root    the git repository root
 	 * @param handler the handler for process that needs this editor
 	 */
-	public GitInteractiveRebaseEditorHandler(@NotNull final GitRebaseEditorService service, @NotNull final Project project, @NotNull final VirtualFile root, @NotNull GitHandler handler)
+	public GitInteractiveRebaseEditorHandler(@Nonnull final GitRebaseEditorService service, @Nonnull final Project project, @Nonnull final VirtualFile root, @Nonnull GitHandler handler)
 	{
 		myService = service;
 		myProject = project;

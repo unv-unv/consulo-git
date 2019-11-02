@@ -50,8 +50,8 @@ import git4idea.crlf.GitCrlfUtil;
 import git4idea.i18n.GitBundle;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -69,18 +69,20 @@ public class GitCheckinHandlerFactory extends VcsCheckinHandlerFactory {
     super(GitVcs.getKey());
   }
 
-  @NotNull
+  @Nonnull
   @Override
   protected CheckinHandler createVcsHandler(final CheckinProjectPanel panel) {
     return new MyCheckinHandler(panel);
   }
 
   private class MyCheckinHandler extends CheckinHandler {
-    @NotNull private final CheckinProjectPanel myPanel;
-    @NotNull private final Project myProject;
+    @Nonnull
+	private final CheckinProjectPanel myPanel;
+    @Nonnull
+	private final Project myProject;
 
 
-    public MyCheckinHandler(@NotNull CheckinProjectPanel panel) {
+    public MyCheckinHandler(@Nonnull CheckinProjectPanel panel) {
       myPanel = panel;
       myProject = myPanel.getProject();
     }
@@ -105,7 +107,7 @@ public class GitCheckinHandlerFactory extends VcsCheckinHandlerFactory {
       return ReturnResult.COMMIT;
     }
 
-    @NotNull
+    @Nonnull
     private ReturnResult warnAboutCrlfIfNeeded() {
       GitVcsSettings settings = GitVcsSettings.getInstance(myProject);
       if (!settings.warnAboutCrlf()) {
@@ -120,7 +122,7 @@ public class GitCheckinHandlerFactory extends VcsCheckinHandlerFactory {
       ProgressManager.getInstance().run(
         new Task.Modal(myProject, "Checking for line separator issues...", true) {
           @Override
-          public void run(@NotNull ProgressIndicator indicator) {
+          public void run(@Nonnull ProgressIndicator indicator) {
             crlfHelper.set(GitCrlfProblemsDetector.detect(GitCheckinHandlerFactory.MyCheckinHandler.this.myProject,
                                                           platformFacade, git, files));
           }
@@ -158,7 +160,7 @@ public class GitCheckinHandlerFactory extends VcsCheckinHandlerFactory {
       return ReturnResult.COMMIT;
     }
 
-    private void setCoreAutoCrlfAttribute(@NotNull VirtualFile aRoot) {
+    private void setCoreAutoCrlfAttribute(@Nonnull VirtualFile aRoot) {
       try {
         GitConfigUtil.setValue(myProject, aRoot, GitConfigUtil.CORE_AUTOCRLF, GitCrlfUtil.RECOMMENDED_VALUE, "--global");
       }
@@ -257,8 +259,8 @@ public class GitCheckinHandlerFactory extends VcsCheckinHandlerFactory {
       return ReturnResult.CLOSE_WINDOW;
     }
 
-    @NotNull
-    private Pair<String, String> getUserNameAndEmailFromGitConfig(@NotNull Project project, @NotNull VirtualFile root) throws VcsException {
+    @Nonnull
+    private Pair<String, String> getUserNameAndEmailFromGitConfig(@Nonnull Project project, @Nonnull VirtualFile root) throws VcsException {
       String name = GitConfigUtil.getValue(project, root, GitConfigUtil.USER_NAME);
       String email = GitConfigUtil.getValue(project, root, GitConfigUtil.USER_EMAIL);
       return Pair.create(name, email);
@@ -342,7 +344,7 @@ public class GitCheckinHandlerFactory extends VcsCheckinHandlerFactory {
       return null;
     }
 
-    @NotNull
+    @Nonnull
     private Collection<VirtualFile> getSelectedRoots() {
       ProjectLevelVcsManager vcsManager = ProjectLevelVcsManager.getInstance(myProject);
       Collection<VirtualFile> result = new HashSet<VirtualFile>();
@@ -359,7 +361,7 @@ public class GitCheckinHandlerFactory extends VcsCheckinHandlerFactory {
       final VirtualFile myRoot;
       final boolean myRebase; // rebase in progress, or just detached due to a checkout of a commit.
 
-      public DetachedRoot(@NotNull VirtualFile root, boolean rebase) {
+      public DetachedRoot(@Nonnull VirtualFile root, boolean rebase) {
         myRoot = root;
         myRebase = rebase;
       }

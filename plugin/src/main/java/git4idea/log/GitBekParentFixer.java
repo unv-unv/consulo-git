@@ -19,8 +19,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.Function;
@@ -30,21 +30,21 @@ import com.intellij.vcs.log.util.BekUtil;
 
 class GitBekParentFixer
 {
-	@NotNull
+	@Nonnull
 	private static final String MAGIC_TEXT = "Merge remote";
-	@NotNull
+	@Nonnull
 	private static final VcsLogFilterCollection MAGIC_FILTER = createVcsLogFilterCollection();
 
-	@NotNull
+	@Nonnull
 	private final Set<Hash> myWrongCommits;
 
-	private GitBekParentFixer(@NotNull Set<Hash> wrongCommits)
+	private GitBekParentFixer(@Nonnull Set<Hash> wrongCommits)
 	{
 		myWrongCommits = wrongCommits;
 	}
 
-	@NotNull
-	static GitBekParentFixer prepare(@NotNull VirtualFile root, @NotNull GitLogProvider provider) throws VcsException
+	@Nonnull
+	static GitBekParentFixer prepare(@Nonnull VirtualFile root, @Nonnull GitLogProvider provider) throws VcsException
 	{
 		if(!BekUtil.isBekEnabled())
 		{
@@ -53,8 +53,8 @@ class GitBekParentFixer
 		return new GitBekParentFixer(getWrongCommits(provider, root));
 	}
 
-	@NotNull
-	TimedVcsCommit fixCommit(@NotNull TimedVcsCommit commit)
+	@Nonnull
+	TimedVcsCommit fixCommit(@Nonnull TimedVcsCommit commit)
 	{
 		if(!myWrongCommits.contains(commit.getId()))
 		{
@@ -63,8 +63,8 @@ class GitBekParentFixer
 		return reverseParents(commit);
 	}
 
-	@NotNull
-	private static Set<Hash> getWrongCommits(@NotNull GitLogProvider provider, @NotNull VirtualFile root) throws VcsException
+	@Nonnull
+	private static Set<Hash> getWrongCommits(@Nonnull GitLogProvider provider, @Nonnull VirtualFile root) throws VcsException
 	{
 		List<TimedVcsCommit> commitsMatchingFilter = provider.getCommitsMatchingFilter(root, MAGIC_FILTER, -1);
 		return ContainerUtil.map2Set(commitsMatchingFilter, new Function<TimedVcsCommit, Hash>()
@@ -77,8 +77,8 @@ class GitBekParentFixer
 		});
 	}
 
-	@NotNull
-	private static TimedVcsCommit reverseParents(@NotNull final TimedVcsCommit commit)
+	@Nonnull
+	private static TimedVcsCommit reverseParents(@Nonnull final TimedVcsCommit commit)
 	{
 		return new TimedVcsCommit()
 		{
@@ -88,14 +88,14 @@ class GitBekParentFixer
 				return commit.getTimestamp();
 			}
 
-			@NotNull
+			@Nonnull
 			@Override
 			public Hash getId()
 			{
 				return commit.getId();
 			}
 
-			@NotNull
+			@Nonnull
 			@Override
 			public List<Hash> getParents()
 			{
@@ -120,7 +120,7 @@ class GitBekParentFixer
 				return false;
 			}
 
-			@NotNull
+			@Nonnull
 			@Override
 			public String getText()
 			{
@@ -128,7 +128,7 @@ class GitBekParentFixer
 			}
 
 			@Override
-			public boolean matches(@NotNull VcsCommitMetadata details)
+			public boolean matches(@Nonnull VcsCommitMetadata details)
 			{
 				return details.getFullMessage().contains(MAGIC_TEXT);
 			}
@@ -191,7 +191,7 @@ class GitBekParentFixer
 				return false;
 			}
 
-			@NotNull
+			@Nonnull
 			@Override
 			public List<VcsLogDetailsFilter> getDetailsFilters()
 			{

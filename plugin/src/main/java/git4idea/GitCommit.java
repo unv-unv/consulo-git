@@ -19,7 +19,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.openapi.vcs.VcsException;
@@ -43,16 +43,16 @@ public final class GitCommit extends VcsChangesLazilyParsedDetails
 
 	public GitCommit(
 			Project project,
-			@NotNull Hash hash,
-			@NotNull List<Hash> parents,
+			@Nonnull Hash hash,
+			@Nonnull List<Hash> parents,
 			long time,
-			@NotNull VirtualFile root,
-			@NotNull String subject,
-			@NotNull VcsUser author,
-			@NotNull String message,
-			@NotNull VcsUser committer,
+			@Nonnull VirtualFile root,
+			@Nonnull String subject,
+			@Nonnull VcsUser author,
+			@Nonnull String message,
+			@Nonnull VcsUser committer,
 			long authorTime,
-			@NotNull List<GitLogStatusInfo> reportedChanges)
+			@Nonnull List<GitLogStatusInfo> reportedChanges)
 	{
 		super(hash, parents, time, root, subject, author, message, committer, authorTime, new MyChangesComputable(new Data(project, root,
 				reportedChanges, hash, time, parents)));

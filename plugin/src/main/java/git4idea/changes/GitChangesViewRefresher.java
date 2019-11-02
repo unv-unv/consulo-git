@@ -20,7 +20,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.changes.ChangesViewRefresher;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 /**
  * Untracked files in Git are not queried within the normal refresh procedure - they are watched separately.
@@ -31,7 +31,7 @@ import org.jetbrains.annotations.NotNull;
 public class GitChangesViewRefresher implements ChangesViewRefresher {
 
   @Override
-  public void refresh(@NotNull Project project) {
+  public void refresh(@Nonnull Project project) {
     GitRepositoryManager repositoryManager = ServiceManager.getService(project, GitRepositoryManager.class);
     for (GitRepository repository : repositoryManager.getRepositories()) {
       repository.getUntrackedFilesHolder().invalidate();

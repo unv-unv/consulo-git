@@ -20,7 +20,7 @@ import cucumber.annotation.en.Then;
 import cucumber.annotation.en.When;
 import git4idea.checkout.GitCheckoutProvider;
 import git4idea.commands.GitHttpAuthenticator;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.io.File;
 import java.util.concurrent.CountDownLatch;
@@ -102,9 +102,9 @@ public class GitRemoteSteps {
     private volatile String myPassword;
     private volatile String myUsername;
 
-    @NotNull
+    @Nonnull
     @Override
-    public String askPassword(@NotNull String url) {
+    public String askPassword(@Nonnull String url) {
       myPasswordAskedWaiter.countDown();
       myPasswordAsked  = true;
       try {
@@ -117,9 +117,9 @@ public class GitRemoteSteps {
       return myPassword;
     }
 
-    @NotNull
+    @Nonnull
     @Override
-    public String askUsername(@NotNull String url) {
+    public String askUsername(@Nonnull String url) {
       myUsernameAskedWaiter.countDown();
       myUsernameAsked  = true;
       try {
@@ -133,12 +133,12 @@ public class GitRemoteSteps {
     }
 
 
-    void supplyPassword(@NotNull String password) {
+    void supplyPassword(@Nonnull String password) {
       myPasswordSuppliedWaiter.countDown();
       myPassword = password;
     }
 
-    void supplyUsername(@NotNull String username) {
+    void supplyUsername(@Nonnull String username) {
       myUsernameSuppliedWaiter.countDown();
       myUsername = username;
     }

@@ -17,7 +17,7 @@ package git4idea.commands;
 
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -46,7 +46,7 @@ public class GitUntrackedFilesOverwrittenByOperationDetector extends GitMessageW
   }
 
   @Override
-  public void onLineAvailable(@NotNull String line, @NotNull Key outputType) {
+  public void onLineAvailable(@Nonnull String line, @Nonnull Key outputType) {
     super.onLineAvailable(line, outputType);
     Matcher m = OLD_UNTRACKED_FILES_PATTERN.matcher(line);
     if (m.matches()) {

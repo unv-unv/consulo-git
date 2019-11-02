@@ -1,4 +1,4 @@
-<idea-plugin>
+<consulo-plugin>
 	<id>com.intellij.git</id>
 	<name>Git Integration</name>
 	<description>Provides integration with Git version control system</description>
@@ -178,4 +178,4 @@
 	<extensionPoints>
 		<extensionPoint name="httpAuthDataProvider" interface="git4idea.remote.GitHttpAuthDataProvider"/>
 	</extensionPoints>
-</idea-plugin>
+</consulo-plugin>

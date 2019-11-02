@@ -15,12 +15,12 @@
  */
 package git4idea.config;
 
-import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.components.StoragePathMacros;
 
+import javax.annotation.Nullable;
 import javax.inject.Singleton;
 
 @State(name = "Git.Rebase.Settings", storages = {@Storage(file = StoragePathMacros.WORKSPACE_FILE)})

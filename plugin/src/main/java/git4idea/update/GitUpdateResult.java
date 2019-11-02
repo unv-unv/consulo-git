@@ -15,7 +15,7 @@
  */
 package git4idea.update;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 /**
  * @author Kirill Likhodedov
@@ -46,8 +46,8 @@ public enum GitUpdateResult {
     return this == SUCCESS || this == SUCCESS_WITH_RESOLVED_CONFLICTS || this == INCOMPLETE || this == NOTHING_TO_UPDATE;
   }
 
-  @NotNull
-  public GitUpdateResult join(@NotNull GitUpdateResult next) {
+  @Nonnull
+  public GitUpdateResult join(@Nonnull GitUpdateResult next) {
     if (myPriority >= next.myPriority) {
       return this;
     }

@@ -21,7 +21,7 @@ import static git4idea.config.UpdateMethod.REBASE;
 
 import java.util.ArrayList;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
@@ -55,34 +55,34 @@ public abstract class GitUpdater
 {
 	private static final Logger LOG = Logger.getInstance(GitUpdater.class);
 
-	@NotNull
+	@Nonnull
 	protected final Project myProject;
-	@NotNull
+	@Nonnull
 	protected final Git myGit;
-	@NotNull
+	@Nonnull
 	protected final VirtualFile myRoot;
-	@NotNull
+	@Nonnull
 	protected final GitRepository myRepository;
-	@NotNull
+	@Nonnull
 	protected final GitBranchPair myBranchPair;
-	@NotNull
+	@Nonnull
 	protected final ProgressIndicator myProgressIndicator;
-	@NotNull
+	@Nonnull
 	protected final UpdatedFiles myUpdatedFiles;
-	@NotNull
+	@Nonnull
 	protected final AbstractVcsHelper myVcsHelper;
-	@NotNull
+	@Nonnull
 	protected final GitRepositoryManager myRepositoryManager;
 	protected final GitVcs myVcs;
 
 	protected GitRevisionNumber myBefore; // The revision that was before update
 
-	protected GitUpdater(@NotNull Project project,
-			@NotNull Git git,
-			@NotNull GitRepository repository,
-			@NotNull GitBranchPair branchAndTracked,
-			@NotNull ProgressIndicator progressIndicator,
-			@NotNull UpdatedFiles updatedFiles)
+	protected GitUpdater(@Nonnull Project project,
+			@Nonnull Git git,
+			@Nonnull GitRepository repository,
+			@Nonnull GitBranchPair branchAndTracked,
+			@Nonnull ProgressIndicator progressIndicator,
+			@Nonnull UpdatedFiles updatedFiles)
 	{
 		myProject = project;
 		myGit = git;
@@ -101,14 +101,14 @@ public abstract class GitUpdater
 	 *
 	 * @return {@link GitMergeUpdater} or {@link GitRebaseUpdater}.
 	 */
-	@NotNull
-	public static GitUpdater getUpdater(@NotNull Project project,
-			@NotNull Git git,
-			@NotNull GitBranchPair trackedBranches,
-			@NotNull GitRepository repository,
-			@NotNull ProgressIndicator progressIndicator,
-			@NotNull UpdatedFiles updatedFiles,
-			@NotNull UpdateMethod updateMethod)
+	@Nonnull
+	public static GitUpdater getUpdater(@Nonnull Project project,
+			@Nonnull Git git,
+			@Nonnull GitBranchPair trackedBranches,
+			@Nonnull GitRepository repository,
+			@Nonnull ProgressIndicator progressIndicator,
+			@Nonnull UpdatedFiles updatedFiles,
+			@Nonnull UpdateMethod updateMethod)
 	{
 		if(updateMethod == UpdateMethod.BRANCH_DEFAULT)
 		{
@@ -118,8 +118,8 @@ public abstract class GitUpdater
 				trackedBranches, progressIndicator, updatedFiles);
 	}
 
-	@NotNull
-	public static UpdateMethod resolveUpdateMethod(@NotNull GitRepository repository)
+	@Nonnull
+	public static UpdateMethod resolveUpdateMethod(@Nonnull GitRepository repository)
 	{
 		Project project = repository.getProject();
 		GitLocalBranch branch = repository.getCurrentBranch();
@@ -168,13 +168,13 @@ public abstract class GitUpdater
 		return MERGE;
 	}
 
-	private static boolean isRebaseValue(@NotNull String configValue)
+	private static boolean isRebaseValue(@Nonnull String configValue)
 	{
 		return GitConfigUtil.getBooleanValue(configValue) == Boolean.TRUE || configValue.equalsIgnoreCase("interactive") || configValue.equalsIgnoreCase("preserve"); // 'yes' is not specified in the
 		// man, but actually works
 	}
 
-	@NotNull
+	@Nonnull
 	public GitUpdateResult update() throws VcsException
 	{
 		markStart(myRoot);
@@ -218,10 +218,10 @@ public abstract class GitUpdater
 	/**
 	 * Performs update (via rebase or merge - depending on the implementing classes).
 	 */
-	@NotNull
+	@Nonnull
 	protected abstract GitUpdateResult doUpdate();
 
-	@NotNull
+	@Nonnull
 	GitBranchPair getSourceAndTarget()
 	{
 		return myBranchPair;
@@ -245,7 +245,7 @@ public abstract class GitUpdater
 		}
 	}
 
-	protected boolean hasRemoteChanges(@NotNull String remoteBranch) throws VcsException
+	protected boolean hasRemoteChanges(@Nonnull String remoteBranch) throws VcsException
 	{
 		GitLineHandler handler = new GitLineHandler(myProject, myRoot, GitCommand.REV_LIST);
 		handler.setSilent(true);

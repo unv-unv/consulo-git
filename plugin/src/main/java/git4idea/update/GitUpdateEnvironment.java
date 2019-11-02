@@ -24,8 +24,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -40,12 +40,14 @@ import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.config.GitVcsSettings;
 import git4idea.repo.GitRepositoryManager;
 
+import javax.annotation.Nullable;
+
 public class GitUpdateEnvironment implements UpdateEnvironment
 {
 	private final Project myProject;
 	private final GitVcsSettings mySettings;
 
-	public GitUpdateEnvironment(@NotNull Project project, @NotNull GitVcsSettings settings)
+	public GitUpdateEnvironment(@Nonnull Project project, @Nonnull GitVcsSettings settings)
 	{
 		myProject = project;
 		mySettings = settings;
@@ -56,11 +58,11 @@ public class GitUpdateEnvironment implements UpdateEnvironment
 		//unused, there are no custom categories yet
 	}
 
-	@NotNull
-	public UpdateSession updateDirectories(@NotNull FilePath[] filePaths,
+	@Nonnull
+	public UpdateSession updateDirectories(@Nonnull FilePath[] filePaths,
 			UpdatedFiles updatedFiles,
 			ProgressIndicator progressIndicator,
-			@NotNull Ref<SequentialUpdatesContext> sequentialUpdatesContextRef) throws ProcessCanceledException
+			@Nonnull Ref<SequentialUpdatesContext> sequentialUpdatesContextRef) throws ProcessCanceledException
 	{
 		Set<VirtualFile> roots = gitRoots(Arrays.asList(filePaths));
 		GitRepositoryManager repositoryManager = getRepositoryManager(myProject);

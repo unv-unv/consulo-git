@@ -22,7 +22,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.containers.Convertor;
 import git4idea.GitCommit;
 import git4idea.history.wholeTree.AbstractHash;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.util.*;
 
@@ -34,9 +34,12 @@ import java.util.*;
  */
 @Deprecated
 public class GitHeavyCommit {
-  @NotNull private final VirtualFile myRoot;
-  @NotNull private final AbstractHash myShortHash;
-  @NotNull private final SHAHash myHash;
+  @Nonnull
+  private final VirtualFile myRoot;
+  @Nonnull
+  private final AbstractHash myShortHash;
+  @Nonnull
+  private final SHAHash myHash;
   private final String myAuthor;
   private final String myCommitter;
   private final String mySubject;
@@ -64,22 +67,22 @@ public class GitHeavyCommit {
   // very expensive to calculate it massively, seems it wouldnt be shown
   private boolean myOnTracked;
 
-  public GitHeavyCommit(@NotNull VirtualFile root, @NotNull final AbstractHash shortHash,
-                        @NotNull final SHAHash hash,
-                        final String author,
-                        final String committer,
-                        final Date date,
-                        final String subject,
-                        final String description,
-                        final Set<String> parentsHashes,
-                        final List<FilePath> pathsList,
-                        final String authorEmail,
-                        final String comitterEmail,
-                        List<String> tags,
-                        final List<String> localBranches,
-                        final List<String> remoteBranches,
-                        List<Change> changes,
-                        long authorTime) {
+  public GitHeavyCommit(@Nonnull VirtualFile root, @Nonnull final AbstractHash shortHash,
+						@Nonnull final SHAHash hash,
+						final String author,
+						final String committer,
+						final Date date,
+						final String subject,
+						final String description,
+						final Set<String> parentsHashes,
+						final List<FilePath> pathsList,
+						final String authorEmail,
+						final String comitterEmail,
+						List<String> tags,
+						final List<String> localBranches,
+						final List<String> remoteBranches,
+						List<Change> changes,
+						long authorTime) {
     myRoot = root;
     myShortHash = shortHash;
     myAuthor = author;
@@ -121,7 +124,7 @@ public class GitHeavyCommit {
     return myDescription;
   }
 
-  @NotNull
+  @Nonnull
   public SHAHash getHash() {
     return myHash;
   }
@@ -186,7 +189,7 @@ public class GitHeavyCommit {
     return myHash.getValue();
   }
 
-  @NotNull
+  @Nonnull
   public AbstractHash getShortHash() {
     return myShortHash;
   }

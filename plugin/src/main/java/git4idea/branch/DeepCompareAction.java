@@ -20,7 +20,7 @@ import java.awt.event.MouseEvent;
 import java.util.Collection;
 import java.util.Set;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -100,16 +100,16 @@ public class DeepCompareAction extends ToggleAction implements DumbAware
 		}
 	}
 
-	private static void selectBranchAndPerformAction(@NotNull VcsLogDataPack dataPack,
-			@NotNull AnActionEvent event,
-			@NotNull final Consumer<String> consumer,
-			@NotNull Collection<VirtualFile> visibleRoots)
+	private static void selectBranchAndPerformAction(@Nonnull VcsLogDataPack dataPack,
+			@Nonnull AnActionEvent event,
+			@Nonnull final Consumer<String> consumer,
+			@Nonnull Collection<VirtualFile> visibleRoots)
 	{
 		ActionGroup actionGroup = new BranchPopupBuilder(dataPack, visibleRoots, null)
 		{
-			@NotNull
+			@Nonnull
 			@Override
-			protected AnAction createAction(@NotNull final String name)
+			protected AnAction createAction(@Nonnull final String name)
 			{
 				return new DumbAwareAction(name)
 				{
@@ -134,7 +134,7 @@ public class DeepCompareAction extends ToggleAction implements DumbAware
 	}
 
 	@Override
-	public void update(@NotNull AnActionEvent e)
+	public void update(@Nonnull AnActionEvent e)
 	{
 		super.update(e);
 		Project project = e.getData(CommonDataKeys.PROJECT);
@@ -143,7 +143,7 @@ public class DeepCompareAction extends ToggleAction implements DumbAware
 				hasGitRoots(project, getAllVisibleRoots(ui)));
 	}
 
-	private static boolean hasGitRoots(@NotNull Project project, @NotNull Set<VirtualFile> roots)
+	private static boolean hasGitRoots(@Nonnull Project project, @Nonnull Set<VirtualFile> roots)
 	{
 		final GitRepositoryManager manager = ServiceManager.getService(project, GitRepositoryManager.class);
 		return ContainerUtil.exists(roots, new Condition<VirtualFile>()
@@ -156,8 +156,8 @@ public class DeepCompareAction extends ToggleAction implements DumbAware
 		});
 	}
 
-	@NotNull
-	private static Set<VirtualFile> getAllVisibleRoots(@NotNull VcsLogUi ui)
+	@Nonnull
+	private static Set<VirtualFile> getAllVisibleRoots(@Nonnull VcsLogUi ui)
 	{
 		return VcsLogUtil.getAllVisibleRoots(ui.getDataPack().getLogProviders().keySet(), ui.getFilterUi().getFilters().getRootFilter(), ui.getFilterUi().getFilters().getStructureFilter());
 	}

@@ -24,8 +24,8 @@ import static git4idea.GitUtil.hasGitRepositories;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -43,7 +43,7 @@ abstract class GitAbstractRebaseAction extends DumbAwareAction
 {
 
 	@Override
-	public void update(@NotNull AnActionEvent e)
+	public void update(@Nonnull AnActionEvent e)
 	{
 		super.update(e);
 		Project project = e.getProject();
@@ -68,7 +68,7 @@ abstract class GitAbstractRebaseAction extends DumbAwareAction
 			progressManager.run(new Task.Backgroundable(project, progressTitle)
 			{
 				@Override
-				public void run(@NotNull ProgressIndicator indicator)
+				public void run(@Nonnull ProgressIndicator indicator)
 				{
 					performActionForProject(project, indicator);
 				}
@@ -82,7 +82,7 @@ abstract class GitAbstractRebaseAction extends DumbAwareAction
 				progressManager.run(new Task.Backgroundable(project, progressTitle)
 				{
 					@Override
-					public void run(@NotNull ProgressIndicator indicator)
+					public void run(@Nonnull ProgressIndicator indicator)
 					{
 						performActionForRepository(project, repositoryToOperate, indicator);
 					}
@@ -91,20 +91,20 @@ abstract class GitAbstractRebaseAction extends DumbAwareAction
 		}
 	}
 
-	@NotNull
+	@Nonnull
 	protected abstract String getProgressTitle();
 
-	protected abstract void performActionForProject(@NotNull Project project, @NotNull ProgressIndicator indicator);
+	protected abstract void performActionForProject(@Nonnull Project project, @Nonnull ProgressIndicator indicator);
 
-	protected abstract void performActionForRepository(@NotNull Project project, @NotNull GitRepository repository, @NotNull ProgressIndicator indicator);
+	protected abstract void performActionForRepository(@Nonnull Project project, @Nonnull GitRepository repository, @Nonnull ProgressIndicator indicator);
 
-	private static boolean hasRebaseInProgress(@NotNull Project project)
+	private static boolean hasRebaseInProgress(@Nonnull Project project)
 	{
 		return !GitRebaseUtils.getRebasingRepositories(project).isEmpty();
 	}
 
 	@Nullable
-	private GitRepository chooseRepository(@NotNull Project project, @NotNull Collection<GitRepository> repositories)
+	private GitRepository chooseRepository(@Nonnull Project project, @Nonnull Collection<GitRepository> repositories)
 	{
 		GitRepository firstRepo = assertNotNull(ContainerUtil.getFirstItem(repositories));
 		if(repositories.size() == 1)

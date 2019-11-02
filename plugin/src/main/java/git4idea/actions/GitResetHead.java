@@ -24,7 +24,7 @@ import git4idea.commands.GitLineHandler;
 import git4idea.i18n.GitBundle;
 import git4idea.repo.GitRepositoryManager;
 import git4idea.ui.GitResetDialog;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.util.List;
 import java.util.Set;
@@ -36,7 +36,7 @@ public class GitResetHead extends GitRepositoryAction {
   /**
    * {@inheritDoc}
    */
-  @NotNull
+  @Nonnull
   protected String getActionName() {
     return GitBundle.message("reset.action.name");
   }
@@ -44,9 +44,9 @@ public class GitResetHead extends GitRepositoryAction {
   /**
    * {@inheritDoc}
    */
-  protected void perform(@NotNull Project project,
-                         @NotNull List<VirtualFile> gitRoots,
-                         @NotNull VirtualFile defaultRoot,
+  protected void perform(@Nonnull Project project,
+                         @Nonnull List<VirtualFile> gitRoots,
+                         @Nonnull VirtualFile defaultRoot,
                          Set<VirtualFile> affectedRoots,
                          List<VcsException> exceptions) throws VcsException {
     GitResetDialog d = new GitResetDialog(project, gitRoots, defaultRoot);

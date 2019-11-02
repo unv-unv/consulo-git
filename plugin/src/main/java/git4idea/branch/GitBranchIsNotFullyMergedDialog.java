@@ -23,12 +23,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
 import javax.swing.Action;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import org.jetbrains.annotations.NotNull;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -57,9 +57,9 @@ public class GitBranchIsNotFullyMergedDialog extends DialogWrapper
 
 	private final GitCommitListWithDiffPanel myCommitListWithDiffPanel;
 	private final Collection<GitRepository> myRepositories;
-	@NotNull
+	@Nonnull
 	private final String myRemovedBranch;
-	@NotNull
+	@Nonnull
 	private final Map<GitRepository, String> myBaseBranches;
 	private final GitRepository myInitialRepository;
 
@@ -71,20 +71,20 @@ public class GitBranchIsNotFullyMergedDialog extends DialogWrapper
 	 * @param baseBranches base branches (which Git reported as not containing commits from the removed branch) per repository.
 	 * @return true if user decided to restore the branch.
 	 */
-	public static boolean showAndGetAnswer(@NotNull Project project,
-			@NotNull Map<GitRepository, List<GitCommit>> commits,
-			@NotNull Map<GitRepository, String> baseBranches,
-			@NotNull String removedBranch)
+	public static boolean showAndGetAnswer(@Nonnull Project project,
+			@Nonnull Map<GitRepository, List<GitCommit>> commits,
+			@Nonnull Map<GitRepository, String> baseBranches,
+			@Nonnull String removedBranch)
 	{
 		GitBranchIsNotFullyMergedDialog dialog = new GitBranchIsNotFullyMergedDialog(project, commits, baseBranches, removedBranch);
 		DialogManager.show(dialog);
 		return dialog.isOK();
 	}
 
-	private GitBranchIsNotFullyMergedDialog(@NotNull Project project,
-			@NotNull Map<GitRepository, List<GitCommit>> commits,
-			@NotNull Map<GitRepository, String> baseBranches,
-			@NotNull String removedBranch)
+	private GitBranchIsNotFullyMergedDialog(@Nonnull Project project,
+			@Nonnull Map<GitRepository, List<GitCommit>> commits,
+			@Nonnull Map<GitRepository, String> baseBranches,
+			@Nonnull String removedBranch)
 	{
 		super(project, false);
 		myProject = project;
@@ -104,7 +104,7 @@ public class GitBranchIsNotFullyMergedDialog extends DialogWrapper
 		getCancelAction().putValue(DEFAULT_ACTION, Boolean.TRUE);
 	}
 
-	@NotNull
+	@Nonnull
 	private GitRepository calcInitiallySelectedRepository()
 	{
 		for(GitRepository repository : myRepositories)
@@ -117,8 +117,8 @@ public class GitBranchIsNotFullyMergedDialog extends DialogWrapper
 		throw new AssertionError("The dialog shouldn't be shown. Unmerged commits: " + myCommits);
 	}
 
-	@NotNull
-	private String makeDescription(@NotNull GitRepository repository)
+	@Nonnull
+	private String makeDescription(@Nonnull GitRepository repository)
 	{
 		String baseBranch = myBaseBranches.get(repository);
 		String description;
@@ -177,14 +177,14 @@ public class GitBranchIsNotFullyMergedDialog extends DialogWrapper
 		return rootPanel;
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	protected Action[] createLeftSideActions()
 	{
 		return new Action[]{getOKAction()};
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	protected Action[] createActions()
 	{

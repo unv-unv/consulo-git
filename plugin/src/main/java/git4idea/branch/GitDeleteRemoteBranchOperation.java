@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.MessageDialogBuilder;
@@ -38,11 +38,13 @@ import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import git4idea.ui.branch.GitMultiRootBranchConfig;
 
+import javax.annotation.Nullable;
+
 class GitDeleteRemoteBranchOperation extends GitBranchOperation
 {
 	private final String myBranchName;
 
-	public GitDeleteRemoteBranchOperation(@NotNull Project project, @NotNull Git git, @NotNull GitBranchUiHandler handler, @NotNull List<GitRepository> repositories, @NotNull String name)
+	public GitDeleteRemoteBranchOperation(@Nonnull Project project, @Nonnull Git git, @Nonnull GitBranchUiHandler handler, @Nonnull List<GitRepository> repositories, @Nonnull String name)
 	{
 		super(project, git, handler, repositories);
 		myBranchName = name;
@@ -87,7 +89,7 @@ class GitDeleteRemoteBranchOperation extends GitBranchOperation
 						new GitDeleteBranchOperation(myProject, myGit, myUiHandler, repositories, branch)
 						{
 							@Override
-							protected void notifySuccess(@NotNull String message)
+							protected void notifySuccess(@Nonnull String message)
 							{
 								// do nothing - will display a combo notification for all deleted branches below
 								successfullyDeletedLocalBranches.add(branch);
@@ -107,34 +109,34 @@ class GitDeleteRemoteBranchOperation extends GitBranchOperation
 		throw new UnsupportedOperationException();
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public String getSuccessMessage()
 	{
 		throw new UnsupportedOperationException();
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	protected String getRollbackProposal()
 	{
 		throw new UnsupportedOperationException();
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	protected String getOperationName()
 	{
 		throw new UnsupportedOperationException();
 	}
 
-	@NotNull
-	private static Collection<String> findTrackingBranches(@NotNull String remoteBranch, @NotNull Collection<GitRepository> repositories)
+	@Nonnull
+	private static Collection<String> findTrackingBranches(@Nonnull String remoteBranch, @Nonnull Collection<GitRepository> repositories)
 	{
 		return new GitMultiRootBranchConfig(repositories).getTrackingBranches(remoteBranch);
 	}
 
-	private boolean doDeleteRemote(@NotNull String branchName, @NotNull Collection<GitRepository> repositories)
+	private boolean doDeleteRemote(@Nonnull String branchName, @Nonnull Collection<GitRepository> repositories)
 	{
 		Couple<String> pair = splitNameOfRemoteBranch(branchName);
 		String remoteName = pair.getFirst();
@@ -169,7 +171,7 @@ class GitDeleteRemoteBranchOperation extends GitBranchOperation
 		return result.totalSuccess();
 	}
 
-	private static boolean isAlreadyDeletedError(@NotNull String errorOutput)
+	private static boolean isAlreadyDeletedError(@Nonnull String errorOutput)
 	{
 		return errorOutput.contains("remote ref does not exist");
 	}
@@ -186,14 +188,14 @@ class GitDeleteRemoteBranchOperation extends GitBranchOperation
 		return Couple.of(remoteName, remoteBranchName);
 	}
 
-	@NotNull
-	private GitCommandResult pushDeletion(@NotNull GitRepository repository, @NotNull GitRemote remote, @NotNull String branchName)
+	@Nonnull
+	private GitCommandResult pushDeletion(@Nonnull GitRepository repository, @Nonnull GitRemote remote, @Nonnull String branchName)
 	{
 		return myGit.push(repository, remote, ":" + branchName, false, false, false, null);
 	}
 
 	@Nullable
-	private static GitRemote getRemoteByName(@NotNull GitRepository repository, @NotNull String remoteName)
+	private static GitRemote getRemoteByName(@Nonnull GitRepository repository, @Nonnull String remoteName)
 	{
 		for(GitRemote remote : repository.getRemotes())
 		{
@@ -205,7 +207,7 @@ class GitDeleteRemoteBranchOperation extends GitBranchOperation
 		return null;
 	}
 
-	private void notifySuccessfulDeletion(@NotNull String remoteBranchName, @NotNull Collection<String> localBranches)
+	private void notifySuccessfulDeletion(@Nonnull String remoteBranchName, @Nonnull Collection<String> localBranches)
 	{
 		String message = "";
 		if(!localBranches.isEmpty())
@@ -215,10 +217,10 @@ class GitDeleteRemoteBranchOperation extends GitBranchOperation
 		VcsNotifier.getInstance(myProject).notifySuccess("Deleted remote branch " + remoteBranchName, message);
 	}
 
-	private DeleteRemoteBranchDecision confirmBranchDeletion(@NotNull String branchName,
-			@NotNull Collection<String> trackingBranches,
+	private DeleteRemoteBranchDecision confirmBranchDeletion(@Nonnull String branchName,
+			@Nonnull Collection<String> trackingBranches,
 			boolean currentBranchTracksBranchToDelete,
-			@NotNull Collection<GitRepository> repositories)
+			@Nonnull Collection<GitRepository> repositories)
 	{
 		String title = "Delete Remote Branch";
 		String message = "Delete remote branch " + branchName;
@@ -255,7 +257,7 @@ class GitDeleteRemoteBranchOperation extends GitBranchOperation
 					deleteChoice.set(isSelected);
 				}
 
-				@NotNull
+				@Nonnull
 				@Override
 				public String getDoNotShowMessage()
 				{

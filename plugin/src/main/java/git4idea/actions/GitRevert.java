@@ -28,7 +28,7 @@ import git4idea.GitUtil;
 import git4idea.GitVcs;
 import git4idea.i18n.GitBundle;
 import git4idea.repo.GitRepository;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,7 +40,7 @@ import java.util.List;
 public class GitRevert extends BasicAction {
 
   @Override
-  public boolean perform(@NotNull final Project project, GitVcs vcs, @NotNull final List<VcsException> exceptions, @NotNull VirtualFile[] affectedFiles) {
+  public boolean perform(@Nonnull final Project project, GitVcs vcs, @Nonnull final List<VcsException> exceptions, @Nonnull VirtualFile[] affectedFiles) {
     final ChangeListManager changeListManager = ChangeListManager.getInstance(project);
     if (changeListManager.isFreezedWithNotification("Can not revert now")) return true;
     final List<Change> changes = new ArrayList<Change>(affectedFiles.length);
@@ -58,13 +58,13 @@ public class GitRevert extends BasicAction {
   }
 
   @Override
-  @NotNull
+  @Nonnull
   protected String getActionName() {
     return UIUtil.removeMnemonic(GitBundle.message("revert.action.name"));
   }
 
   @Override
-  protected boolean isEnabled(@NotNull Project project, @NotNull GitVcs vcs, @NotNull VirtualFile... vFiles) {
+  protected boolean isEnabled(@Nonnull Project project, @Nonnull GitVcs vcs, @Nonnull VirtualFile... vFiles) {
     for (VirtualFile file : vFiles) {
       FileStatus fileStatus = FileStatusManager.getInstance(project).getStatus(file);
       if (file.isDirectory() || (fileStatus != FileStatus.NOT_CHANGED && fileStatus != FileStatus.UNKNOWN)) {

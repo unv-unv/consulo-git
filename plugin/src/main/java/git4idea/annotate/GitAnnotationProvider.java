@@ -39,7 +39,7 @@ import git4idea.util.StringScanner;
 import git4idea.history.GitHistoryUtils;
 import git4idea.i18n.GitBundle;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -74,21 +74,21 @@ public class GitAnnotationProvider implements AnnotationProvider, VcsCacheableAn
    *
    * @param project a context project
    */
-  public GitAnnotationProvider(@NotNull Project project) {
+  public GitAnnotationProvider(@Nonnull Project project) {
     myProject = project;
   }
 
   /**
    * {@inheritDoc}
    */
-  public FileAnnotation annotate(@NotNull VirtualFile file) throws VcsException {
+  public FileAnnotation annotate(@Nonnull VirtualFile file) throws VcsException {
     return annotate(file, null);
   }
 
   /**
    * {@inheritDoc}
    */
-  public FileAnnotation annotate(@NotNull final VirtualFile file, final VcsFileRevision revision) throws VcsException {
+  public FileAnnotation annotate(@Nonnull final VirtualFile file, final VcsFileRevision revision) throws VcsException {
     if (file.isDirectory()) {
       throw new VcsException("Cannot annotate a directory");
     }

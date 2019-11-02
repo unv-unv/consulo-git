@@ -23,14 +23,14 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.event.DocumentEvent;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
@@ -66,7 +66,7 @@ public class GitRebaseDialog extends DialogWrapper
 
 	private static final Logger LOG = Logger.getInstance(GitRebaseDialog.class);
 
-	@NotNull
+	@Nonnull
 	private final GitRepositoryManager myRepositoryManager;
 
 	/**
@@ -150,7 +150,7 @@ public class GitRebaseDialog extends DialogWrapper
 	 * The validator for from field
 	 */
 	private final GitReferenceValidator myFromValidator;
-	@NotNull
+	@Nonnull
 	private final GitRebaseSettings mySettings;
 
 	@Nullable
@@ -211,7 +211,7 @@ public class GitRebaseDialog extends DialogWrapper
 		return myOntoComboBox;
 	}
 
-	private void overwriteOntoForCurrentBranch(@NotNull GitRebaseSettings settings)
+	private void overwriteOntoForCurrentBranch(@Nonnull GitRebaseSettings settings)
 	{
 		String onto = settings.getOnto();
 		if(onto != null && !onto.equals(myBranchComboBox.getSelectedItem()))
@@ -227,7 +227,7 @@ public class GitRebaseDialog extends DialogWrapper
 		}
 	}
 
-	private boolean isValidRevision(@NotNull String revisionExpression)
+	private boolean isValidRevision(@Nonnull String revisionExpression)
 	{
 		try
 		{
@@ -505,13 +505,13 @@ public class GitRebaseDialog extends DialogWrapper
 		return (VirtualFile) myGitRootComboBox.getSelectedItem();
 	}
 
-	@NotNull
+	@Nonnull
 	public GitRepository getSelectedRepository()
 	{
 		return assertNotNull(myRepositoryManager.getRepositoryForRoot(gitRoot()));
 	}
 
-	@NotNull
+	@Nonnull
 	public GitRebaseParams getSelectedParams()
 	{
 		String selectedBranch = (String) myBranchComboBox.getSelectedItem();

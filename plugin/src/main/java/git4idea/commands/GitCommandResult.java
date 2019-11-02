@@ -19,8 +19,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.util.ObjectUtils;
@@ -42,7 +42,7 @@ public class GitCommandResult
 	@Nullable
 	private final Throwable myException;
 
-	public GitCommandResult(boolean success, int exitCode, @NotNull List<String> errorOutput, @NotNull List<String> output, @Nullable Throwable exception)
+	public GitCommandResult(boolean success, int exitCode, @Nonnull List<String> errorOutput, @Nonnull List<String> output, @Nullable Throwable exception)
 	{
 		myExitCode = exitCode;
 		mySuccess = success;
@@ -51,8 +51,8 @@ public class GitCommandResult
 		myException = exception;
 	}
 
-	@NotNull
-	public static GitCommandResult merge(@Nullable GitCommandResult first, @NotNull GitCommandResult second)
+	@Nonnull
+	public static GitCommandResult merge(@Nullable GitCommandResult first, @Nonnull GitCommandResult second)
 	{
 		if(first == null)
 		{
@@ -84,7 +84,7 @@ public class GitCommandResult
 		return mySuccess;
 	}
 
-	@NotNull
+	@Nonnull
 	public List<String> getOutput()
 	{
 		return Collections.unmodifiableList(myOutput);
@@ -95,7 +95,7 @@ public class GitCommandResult
 		return myExitCode;
 	}
 
-	@NotNull
+	@Nonnull
 	public List<String> getErrorOutput()
 	{
 		return Collections.unmodifiableList(myErrorOutput);
@@ -107,26 +107,26 @@ public class GitCommandResult
 		return String.format("{%d} %nOutput: %n%s %nError output: %n%s", myExitCode, myOutput, myErrorOutput);
 	}
 
-	@NotNull
+	@Nonnull
 	public String getErrorOutputAsHtmlString()
 	{
 		return StringUtil.join(cleanup(getErrorOrStdOutput()), "<br/>");
 	}
 
-	@NotNull
+	@Nonnull
 	public String getErrorOutputAsJoinedString()
 	{
 		return StringUtil.join(cleanup(getErrorOrStdOutput()), "\n");
 	}
 
 	// in some cases operation fails but no explicit error messages are given, in this case return the output to display something to user
-	@NotNull
+	@Nonnull
 	private List<String> getErrorOrStdOutput()
 	{
 		return myErrorOutput.isEmpty() && !success() ? myOutput : myErrorOutput;
 	}
 
-	@NotNull
+	@Nonnull
 	public String getOutputAsJoinedString()
 	{
 		return StringUtil.join(myOutput, "\n");
@@ -138,8 +138,8 @@ public class GitCommandResult
 		return myException;
 	}
 
-	@NotNull
-	public static GitCommandResult error(@NotNull String error)
+	@Nonnull
+	public static GitCommandResult error(@Nonnull String error)
 	{
 		return new GitCommandResult(false, 1, Collections.singletonList(error), Collections.<String>emptyList(), null);
 	}
@@ -149,8 +149,8 @@ public class GitCommandResult
 		return false; // will be implemented later
 	}
 
-	@NotNull
-	private static Collection<String> cleanup(@NotNull Collection<String> errorOutput)
+	@Nonnull
+	private static Collection<String> cleanup(@Nonnull Collection<String> errorOutput)
 	{
 		return ContainerUtil.map(errorOutput, errorMessage -> GitUtil.cleanupErrorPrefixes(errorMessage));
 	}
@@ -162,7 +162,7 @@ public class GitCommandResult
 	 * @return result of {@link #getOutputAsJoinedString()}
 	 * @throws VcsException with message from {@link #getErrorOutputAsJoinedString()}
 	 */
-	@NotNull
+	@Nonnull
 	public String getOutputOrThrow() throws VcsException
 	{
 		if (!success()) throw new VcsException(getErrorOutputAsJoinedString());

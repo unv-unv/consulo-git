@@ -29,7 +29,7 @@ import git4idea.repo.GitRepository;
 import git4idea.ui.StashInfo;
 import git4idea.util.GitUIUtil;
 import git4idea.util.StringScanner;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.nio.charset.Charset;
 
@@ -43,17 +43,17 @@ public class GitStashUtils {
   private GitStashUtils() {
   }
 
-  public static boolean saveStash(@NotNull Git git, @NotNull GitRepository repository, final String message) {
+  public static boolean saveStash(@Nonnull Git git, @Nonnull GitRepository repository, final String message) {
     GitCommandResult result = git.stashSave(repository, message);
     return result.success() && !result.getErrorOutputAsJoinedString().contains("No local changes to save");
   }
 
-  public static void loadStashStack(@NotNull Project project, @NotNull VirtualFile root, Consumer<StashInfo> consumer) {
+  public static void loadStashStack(@Nonnull Project project, @Nonnull VirtualFile root, Consumer<StashInfo> consumer) {
     loadStashStack(project, root, Charset.forName(GitConfigUtil.getLogEncoding(project, root)), consumer);
   }
 
-  public static void loadStashStack(@NotNull Project project, @NotNull VirtualFile root, final Charset charset,
-                                    final Consumer<StashInfo> consumer) {
+  public static void loadStashStack(@Nonnull Project project, @Nonnull VirtualFile root, final Charset charset,
+									final Consumer<StashInfo> consumer) {
     GitSimpleHandler h = new GitSimpleHandler(project, root, GitCommand.STASH.readLockingCommand());
     h.setSilent(true);
     h.addParameters("list");

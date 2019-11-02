@@ -18,7 +18,7 @@ package git4idea.branch;
 import java.util.Collection;
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.commands.Git;
@@ -28,19 +28,19 @@ import git4idea.repo.GitRepository;
 
 public class GitRenameBranchOperation extends GitBranchOperation
 {
-	@NotNull
+	@Nonnull
 	private final VcsNotifier myNotifier;
-	@NotNull
+	@Nonnull
 	private final String myCurrentName;
-	@NotNull
+	@Nonnull
 	private final String myNewName;
 
-	public GitRenameBranchOperation(@NotNull Project project,
-			@NotNull Git git,
-			@NotNull GitBranchUiHandler uiHandler,
-			@NotNull String currentName,
-			@NotNull String newName,
-			@NotNull List<GitRepository> repositories)
+	public GitRenameBranchOperation(@Nonnull Project project,
+			@Nonnull Git git,
+			@Nonnull GitBranchUiHandler uiHandler,
+			@Nonnull String currentName,
+			@Nonnull String newName,
+			@Nonnull List<GitRepository> repositories)
 	{
 		super(project, git, uiHandler, repositories);
 		myCurrentName = currentName;
@@ -89,14 +89,14 @@ public class GitRenameBranchOperation extends GitBranchOperation
 		}
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public String getSuccessMessage()
 	{
 		return String.format("Branch <b><code>%s</code></b> was renamed to <b><code>%s</code></b>", myCurrentName, myNewName);
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	protected String getRollbackProposal()
 	{
@@ -105,14 +105,14 @@ public class GitRenameBranchOperation extends GitBranchOperation
 				"<br/>You may rollback (rename branch back to " + myCurrentName + ") not to let branches diverge.";
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	protected String getOperationName()
 	{
 		return "rename";
 	}
 
-	private static void refresh(@NotNull GitRepository repository)
+	private static void refresh(@Nonnull GitRepository repository)
 	{
 		repository.update();
 	}

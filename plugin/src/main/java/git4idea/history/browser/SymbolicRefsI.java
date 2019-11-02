@@ -17,9 +17,8 @@ package git4idea.history.browser;
 
 import git4idea.GitBranch;
 import git4idea.history.wholeTree.AbstractHash;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.TreeSet;
+import javax.annotation.Nullable;
 
 /**
  * Created by IntelliJ IDEA.

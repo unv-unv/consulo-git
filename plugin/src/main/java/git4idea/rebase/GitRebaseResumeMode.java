@@ -15,22 +15,22 @@
  */
 package git4idea.rebase;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 public enum GitRebaseResumeMode
 {
 	CONTINUE("--continue"),
 	SKIP("--skip");
 
-	@NotNull
+	@Nonnull
 	private final String myCommandLineArgument;
 
-	GitRebaseResumeMode(@NotNull String argument)
+	GitRebaseResumeMode(@Nonnull String argument)
 	{
 		myCommandLineArgument = argument;
 	}
 
-	@NotNull
+	@Nonnull
 	public String asCommandLineArgument()
 	{
 		return myCommandLineArgument;

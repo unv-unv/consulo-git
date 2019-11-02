@@ -35,7 +35,7 @@ import git4idea.history.browser.SHAHash;
 import git4idea.history.wholeTree.AbstractHash;
 import git4idea.history.wholeTree.CommitHashPlusParents;
 import git4idea.test.GitTest;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.junit.Before;
 
 import java.io.File;
@@ -230,8 +230,8 @@ public class GitHistoryUtilsTest extends GitTest {
     FileUtil.appendToFile(new File(file), content);
   }
 
-  @NotNull
-  private String toReadable(@NotNull Collection<VcsFileRevision> history) {
+  @Nonnull
+  private String toReadable(@Nonnull Collection<VcsFileRevision> history) {
     int maxSubjectLength = findMaxLength(history, new Function<VcsFileRevision, String>() {
       @Override
       public String fun(VcsFileRevision revision) {
@@ -262,7 +262,7 @@ public class GitHistoryUtilsTest extends GitTest {
     return sb.toString();
   }
 
-  private static <T> int findMaxLength(@NotNull Collection<T> list, @NotNull Function<T, String> convertor) {
+  private static <T> int findMaxLength(@Nonnull Collection<T> list, @Nonnull Function<T, String> convertor) {
     int max = 0;
     for (T element : list) {
       int length = convertor.fun(element).length();

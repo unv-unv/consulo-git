@@ -25,8 +25,9 @@ import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.util.containers.ContainerUtil;
 import git4idea.GitUtil;
 import git4idea.test.GitTest;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -492,7 +493,7 @@ public class GitLogParserTest extends GitTest {
       }
     }
 
-    private static String outputString(@NotNull String type, @Nullable String beforePath, @Nullable String afterPath) {
+    private static String outputString(@Nonnull String type, @Nullable String beforePath, @Nullable String afterPath) {
       StringBuilder sb = new StringBuilder();
       sb.append(type).append("\t");
       if (beforePath != null) {

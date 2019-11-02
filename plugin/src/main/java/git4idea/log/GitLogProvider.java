@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Attachment;
 import com.intellij.openapi.diagnostic.Logger;
@@ -79,32 +79,32 @@ public class GitLogProvider implements VcsLogProvider
 	public static final TObjectHashingStrategy<VcsRef> DONT_CONSIDER_SHA = new TObjectHashingStrategy<VcsRef>()
 	{
 		@Override
-		public int computeHashCode(@NotNull VcsRef ref)
+		public int computeHashCode(@Nonnull VcsRef ref)
 		{
 			return 31 * ref.getName().hashCode() + ref.getType().hashCode();
 		}
 
 		@Override
-		public boolean equals(@NotNull VcsRef ref1, @NotNull VcsRef ref2)
+		public boolean equals(@Nonnull VcsRef ref1, @Nonnull VcsRef ref2)
 		{
 			return ref1.getName().equals(ref2.getName()) && ref1.getType().equals(ref2.getType());
 		}
 	};
 
-	@NotNull
+	@Nonnull
 	private final Project myProject;
-	@NotNull
+	@Nonnull
 	private final GitVcs myVcs;
-	@NotNull
+	@Nonnull
 	private final GitRepositoryManager myRepositoryManager;
-	@NotNull
+	@Nonnull
 	private final GitUserRegistry myUserRegistry;
-	@NotNull
+	@Nonnull
 	private final VcsLogRefManager myRefSorter;
-	@NotNull
+	@Nonnull
 	private final VcsLogObjectsFactory myVcsObjectsFactory;
 
-	public GitLogProvider(@NotNull Project project, @NotNull GitRepositoryManager repositoryManager, @NotNull VcsLogObjectsFactory factory, @NotNull GitUserRegistry userRegistry)
+	public GitLogProvider(@Nonnull Project project, @Nonnull GitRepositoryManager repositoryManager, @Nonnull VcsLogObjectsFactory factory, @Nonnull GitUserRegistry userRegistry)
 	{
 		myProject = project;
 		myRepositoryManager = repositoryManager;
@@ -114,9 +114,9 @@ public class GitLogProvider implements VcsLogProvider
 		myVcs = ObjectUtils.assertNotNull(GitVcs.getInstance(project));
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
-	public DetailedLogData readFirstBlock(@NotNull VirtualFile root, @NotNull Requirements requirements) throws VcsException
+	public DetailedLogData readFirstBlock(@Nonnull VirtualFile root, @Nonnull Requirements requirements) throws VcsException
 	{
 		if(!isRepositoryReady(root))
 		{
@@ -188,11 +188,11 @@ public class GitLogProvider implements VcsLogProvider
 		return new LogDataImpl(allRefs, sortedCommits);
 	}
 
-	private static void validateDataAndReportError(@NotNull final VirtualFile root,
-			@NotNull final Set<VcsRef> allRefs,
-			@NotNull final List<VcsCommitMetadata> sortedCommits,
-			@NotNull final DetailedLogData firstBlockSyncData,
-			@NotNull final Set<VcsRef> manuallyReadBranches,
+	private static void validateDataAndReportError(@Nonnull final VirtualFile root,
+			@Nonnull final Set<VcsRef> allRefs,
+			@Nonnull final List<VcsCommitMetadata> sortedCommits,
+			@Nonnull final DetailedLogData firstBlockSyncData,
+			@Nonnull final Set<VcsRef> manuallyReadBranches,
 			@Nullable final Set<String> currentTagNames,
 			@Nullable final DetailedLogData commitsFromTags)
 	{
@@ -202,19 +202,19 @@ public class GitLogProvider implements VcsLogProvider
 		PermanentGraphImpl.newInstance(sortedCommits, new GraphColorManager<Hash>()
 		{
 			@Override
-			public int getColorOfBranch(@NotNull Hash headCommit)
+			public int getColorOfBranch(@Nonnull Hash headCommit)
 			{
 				return 0;
 			}
 
 			@Override
-			public int getColorOfFragment(@NotNull Hash headCommit, int magicIndex)
+			public int getColorOfFragment(@Nonnull Hash headCommit, int magicIndex)
 			{
 				return 0;
 			}
 
 			@Override
-			public int compareHeads(@NotNull Hash head1, @NotNull Hash head2)
+			public int compareHeads(@Nonnull Hash head1, @Nonnull Hash head2)
 			{
 				if(!refs.contains(head1) || !refs.contains(head2))
 				{
@@ -228,11 +228,11 @@ public class GitLogProvider implements VcsLogProvider
 	}
 
 	@SuppressWarnings("StringConcatenationInsideStringBufferAppend")
-	private static String printErrorDetails(@NotNull VirtualFile root,
-			@NotNull Set<VcsRef> allRefs,
-			@NotNull List<VcsCommitMetadata> sortedCommits,
-			@NotNull DetailedLogData firstBlockSyncData,
-			@NotNull Set<VcsRef> manuallyReadBranches,
+	private static String printErrorDetails(@Nonnull VirtualFile root,
+			@Nonnull Set<VcsRef> allRefs,
+			@Nonnull List<VcsCommitMetadata> sortedCommits,
+			@Nonnull DetailedLogData firstBlockSyncData,
+			@Nonnull Set<VcsRef> manuallyReadBranches,
 			@Nullable Set<String> currentTagNames,
 			@Nullable DetailedLogData commitsFromTags)
 	{
@@ -269,14 +269,14 @@ public class GitLogProvider implements VcsLogProvider
 		return sb.toString();
 	}
 
-	@NotNull
-	private static String printLogData(@NotNull DetailedLogData firstBlockSyncData)
+	@Nonnull
+	private static String printLogData(@Nonnull DetailedLogData firstBlockSyncData)
 	{
 		return String.format("Last 100 commits:\n%s\nRefs:\n%s", printCommits(firstBlockSyncData.getCommits()), printRefs(firstBlockSyncData.getRefs()));
 	}
 
-	@NotNull
-	private static String printCommits(@NotNull List<VcsCommitMetadata> commits)
+	@Nonnull
+	private static String printCommits(@Nonnull List<VcsCommitMetadata> commits)
 	{
 		StringBuilder sb = new StringBuilder();
 		for(int i = 0; i < Math.min(commits.size(), 100); i++)
@@ -287,13 +287,13 @@ public class GitLogProvider implements VcsLogProvider
 		return sb.toString();
 	}
 
-	@NotNull
-	private static String printRefs(@NotNull Set<VcsRef> refs)
+	@Nonnull
+	private static String printRefs(@Nonnull Set<VcsRef> refs)
 	{
 		return StringUtil.join(refs, ref -> ref.getCommitHash().toShortString() + " : " + ref.getName(), "\n");
 	}
 
-	private static void addOldStillExistingTags(@NotNull Set<VcsRef> allRefs, @NotNull Set<String> currentTags, @NotNull Collection<VcsRef> previousRefs)
+	private static void addOldStillExistingTags(@Nonnull Set<VcsRef> allRefs, @Nonnull Set<String> currentTags, @Nonnull Collection<VcsRef> previousRefs)
 	{
 		for(VcsRef ref : previousRefs)
 		{
@@ -304,8 +304,8 @@ public class GitLogProvider implements VcsLogProvider
 		}
 	}
 
-	@NotNull
-	private Set<String> readCurrentTagNames(@NotNull VirtualFile root) throws VcsException
+	@Nonnull
+	private Set<String> readCurrentTagNames(@Nonnull VirtualFile root) throws VcsException
 	{
 		StopWatch sw = StopWatch.start("reading tags in " + root.getName());
 		Set<String> tags = newHashSet();
@@ -314,8 +314,8 @@ public class GitLogProvider implements VcsLogProvider
 		return tags;
 	}
 
-	@NotNull
-	private static <T> Set<T> remove(@NotNull Set<T> original, @NotNull Set<T>... toRemove)
+	@Nonnull
+	private static <T> Set<T> remove(@Nonnull Set<T> original, @Nonnull Set<T>... toRemove)
 	{
 		Set<T> result = newHashSet(original);
 		for(Set<T> set : toRemove)
@@ -325,7 +325,7 @@ public class GitLogProvider implements VcsLogProvider
 		return result;
 	}
 
-	private static <T> void addNewElements(@NotNull Collection<T> original, @NotNull Collection<T> toAdd)
+	private static <T> void addNewElements(@Nonnull Collection<T> original, @Nonnull Collection<T> toAdd)
 	{
 		for(T item : toAdd)
 		{
@@ -336,8 +336,8 @@ public class GitLogProvider implements VcsLogProvider
 		}
 	}
 
-	@NotNull
-	private DetailedLogData loadSomeCommitsOnTaggedBranches(@NotNull VirtualFile root, int commitCount, @NotNull Collection<String> unmatchedTags) throws VcsException
+	@Nonnull
+	private DetailedLogData loadSomeCommitsOnTaggedBranches(@Nonnull VirtualFile root, int commitCount, @Nonnull Collection<String> unmatchedTags) throws VcsException
 	{
 		StopWatch sw = StopWatch.start("loading commits on tagged branch in " + root.getName());
 		List<String> params = new ArrayList<>();
@@ -348,8 +348,8 @@ public class GitLogProvider implements VcsLogProvider
 	}
 
 	@Override
-	@NotNull
-	public LogData readAllHashes(@NotNull VirtualFile root, @NotNull final Consumer<TimedVcsCommit> commitConsumer) throws VcsException
+	@Nonnull
+	public LogData readAllHashes(@Nonnull VirtualFile root, @Nonnull final Consumer<TimedVcsCommit> commitConsumer) throws VcsException
 	{
 		if(!isRepositoryReady(root))
 		{
@@ -367,7 +367,7 @@ public class GitLogProvider implements VcsLogProvider
 	}
 
 	@Override
-	public void readAllFullDetails(@NotNull VirtualFile root, @NotNull Consumer<VcsFullCommitDetails> commitConsumer) throws VcsException
+	public void readAllFullDetails(@Nonnull VirtualFile root, @Nonnull Consumer<VcsFullCommitDetails> commitConsumer) throws VcsException
 	{
 		if(!isRepositoryReady(root))
 		{
@@ -378,7 +378,7 @@ public class GitLogProvider implements VcsLogProvider
 	}
 
 	@Override
-	public void readFullDetails(@NotNull VirtualFile root, @NotNull List<String> hashes, @NotNull Consumer<VcsFullCommitDetails> commitConsumer) throws VcsException
+	public void readFullDetails(@Nonnull VirtualFile root, @Nonnull List<String> hashes, @Nonnull Consumer<VcsFullCommitDetails> commitConsumer) throws VcsException
 	{
 		if(!isRepositoryReady(root))
 		{
@@ -395,24 +395,24 @@ public class GitLogProvider implements VcsLogProvider
 		});
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
-	public List<? extends VcsShortCommitDetails> readShortDetails(@NotNull final VirtualFile root, @NotNull List<String> hashes) throws VcsException
+	public List<? extends VcsShortCommitDetails> readShortDetails(@Nonnull final VirtualFile root, @Nonnull List<String> hashes) throws VcsException
 	{
 		//noinspection Convert2Lambda
 		return VcsFileUtil.foreachChunk(hashes, new ThrowableNotNullFunction<List<String>, List<? extends VcsShortCommitDetails>, VcsException>()
 		{
-			@NotNull
+			@Nonnull
 			@Override
-			public List<? extends VcsShortCommitDetails> fun(@NotNull List<String> hashes) throws VcsException
+			public List<? extends VcsShortCommitDetails> fun(@Nonnull List<String> hashes) throws VcsException
 			{
 				return GitHistoryUtils.readMiniDetails(myProject, root, hashes);
 			}
 		});
 	}
 
-	@NotNull
-	private Set<VcsRef> readBranches(@NotNull GitRepository repository)
+	@Nonnull
+	private Set<VcsRef> readBranches(@Nonnull GitRepository repository)
 	{
 		StopWatch sw = StopWatch.start("readBranches in " + repository.getRoot().getName());
 		VirtualFile root = repository.getRoot();
@@ -442,23 +442,23 @@ public class GitLogProvider implements VcsLogProvider
 		return refs;
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public VcsKey getSupportedVcs()
 	{
 		return GitVcs.getKey();
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public VcsLogRefManager getReferenceManager()
 	{
 		return myRefSorter;
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
-	public Disposable subscribeToRootRefreshEvents(@NotNull final Collection<VirtualFile> roots, @NotNull final VcsLogRefresher refresher)
+	public Disposable subscribeToRootRefreshEvents(@Nonnull final Collection<VirtualFile> roots, @Nonnull final VcsLogRefresher refresher)
 	{
 		MessageBusConnection connection = myProject.getMessageBus().connect(myProject);
 		connection.subscribe(GitRepository.GIT_REPO_CHANGE, repository ->
@@ -472,9 +472,9 @@ public class GitLogProvider implements VcsLogProvider
 		return connection::disconnect;
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
-	public List<TimedVcsCommit> getCommitsMatchingFilter(@NotNull final VirtualFile root, @NotNull VcsLogFilterCollection filterCollection, int maxCount) throws VcsException
+	public List<TimedVcsCommit> getCommitsMatchingFilter(@Nonnull final VirtualFile root, @Nonnull VcsLogFilterCollection filterCollection, int maxCount) throws VcsException
 	{
 		if(!isRepositoryReady(root))
 		{
@@ -591,21 +591,21 @@ public class GitLogProvider implements VcsLogProvider
 
 	@Nullable
 	@Override
-	public VcsUser getCurrentUser(@NotNull VirtualFile root) throws VcsException
+	public VcsUser getCurrentUser(@Nonnull VirtualFile root) throws VcsException
 	{
 		return myUserRegistry.getOrReadUser(root);
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
-	public Collection<String> getContainingBranches(@NotNull VirtualFile root, @NotNull Hash commitHash) throws VcsException
+	public Collection<String> getContainingBranches(@Nonnull VirtualFile root, @Nonnull Hash commitHash) throws VcsException
 	{
 		return GitBranchUtil.getBranches(myProject, root, true, true, commitHash.asString());
 	}
 
 	@Nullable
 	@Override
-	public String getCurrentBranch(@NotNull VirtualFile root)
+	public String getCurrentBranch(@Nonnull VirtualFile root)
 	{
 		GitRepository repository = myRepositoryManager.getRepositoryForRoot(root);
 		if(repository == null)
@@ -642,12 +642,12 @@ public class GitLogProvider implements VcsLogProvider
 	}
 
 	@Nullable
-	private GitRepository getRepository(@NotNull VirtualFile root)
+	private GitRepository getRepository(@Nonnull VirtualFile root)
 	{
 		return myRepositoryManager.getRepositoryForRoot(root);
 	}
 
-	private boolean isRepositoryReady(@NotNull VirtualFile root)
+	private boolean isRepositoryReady(@Nonnull VirtualFile root)
 	{
 		GitRepository repository = getRepository(root);
 		if(repository == null)
@@ -663,14 +663,14 @@ public class GitLogProvider implements VcsLogProvider
 		return true;
 	}
 
-	@NotNull
+	@Nonnull
 	private static <T> Set<T> newHashSet()
 	{
 		return new THashSet<>();
 	}
 
-	@NotNull
-	private static <T> Set<T> newHashSet(@NotNull Collection<T> initialCollection)
+	@Nonnull
+	private static <T> Set<T> newHashSet(@Nonnull Collection<T> initialCollection)
 	{
 		return new THashSet<>(initialCollection);
 	}

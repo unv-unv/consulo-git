@@ -20,9 +20,9 @@ import com.intellij.util.ArrayUtilRt;
 import com.trilead.ssh2.*;
 import com.trilead.ssh2.crypto.PEMDecoder;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.git4idea.GitExternalApp;
 
+import javax.annotation.Nullable;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.Semaphore;

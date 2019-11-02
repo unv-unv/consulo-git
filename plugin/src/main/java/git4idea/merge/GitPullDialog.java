@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -29,8 +30,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 import com.intellij.ide.util.ElementsChooser;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
@@ -159,7 +159,7 @@ public class GitPullDialog extends DialogWrapper {
   /**
    * @return a pull handler configured according to dialog options
    */
-  public GitLineHandler makeHandler(@NotNull String url, @Nullable String puttyKeyFile) {
+  public GitLineHandler makeHandler(@Nonnull String url, @Nullable String puttyKeyFile) {
     GitLineHandler h = new GitLineHandler(myProject, gitRoot(), GitCommand.PULL);
     // ignore merge failure for the pull
     h.ignoreErrorCode(1);
@@ -199,8 +199,8 @@ public class GitPullDialog extends DialogWrapper {
     return h;
   }
 
-  @NotNull
-  private static String removeRemotePrefix(@NotNull String branch, @NotNull String remote) {
+  @Nonnull
+  private static String removeRemotePrefix(@Nonnull String branch, @Nonnull String remote) {
     String prefix = remote + "/";
     if (branch.startsWith(prefix)) {
       return branch.substring(prefix.length());
@@ -235,7 +235,7 @@ public class GitPullDialog extends DialogWrapper {
     validateDialog();
   }
 
-  private static boolean belongsToRemote(@NotNull GitBranch branch, @NotNull String remote) {
+  private static boolean belongsToRemote(@Nonnull GitBranch branch, @Nonnull String remote) {
     return branch.getName().startsWith(remote + "/");
   }
 
@@ -262,7 +262,7 @@ public class GitPullDialog extends DialogWrapper {
    * Otherwise tries to guess: if there is origin, returns origin, otherwise returns the first remote in the list.
    */
   @Nullable
-  private static GitRemote getCurrentOrDefaultRemote(@NotNull GitRepository repository) {
+  private static GitRemote getCurrentOrDefaultRemote(@Nonnull GitRepository repository) {
     Collection<GitRemote> remotes = repository.getRemotes();
     if (remotes.isEmpty()) {
       return null;
@@ -284,7 +284,7 @@ public class GitPullDialog extends DialogWrapper {
   }
 
   @Nullable
-  private static GitRemote getOriginRemote(@NotNull Collection<GitRemote> remotes) {
+  private static GitRemote getOriginRemote(@Nonnull Collection<GitRemote> remotes) {
     for (GitRemote remote : remotes) {
       if (remote.getName().equals(GitRemote.ORIGIN_NAME)) {
         return remote;

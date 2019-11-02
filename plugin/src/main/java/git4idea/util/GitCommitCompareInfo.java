@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.vcs.changes.Change;
@@ -44,35 +44,35 @@ public class GitCommitCompareInfo
 		this(InfoType.BOTH);
 	}
 
-	public GitCommitCompareInfo(@NotNull InfoType infoType)
+	public GitCommitCompareInfo(@Nonnull InfoType infoType)
 	{
 		myInfoType = infoType;
 	}
 
-	public void put(@NotNull GitRepository repository, @NotNull Pair<List<GitCommit>, List<GitCommit>> commits)
+	public void put(@Nonnull GitRepository repository, @Nonnull Pair<List<GitCommit>, List<GitCommit>> commits)
 	{
 		myInfo.put(repository, commits);
 	}
 
-	public void put(@NotNull GitRepository repository, @NotNull Collection<Change> totalDiff)
+	public void put(@Nonnull GitRepository repository, @Nonnull Collection<Change> totalDiff)
 	{
 		myTotalDiff.put(repository, totalDiff);
 	}
 
-	@NotNull
-	public List<GitCommit> getHeadToBranchCommits(@NotNull GitRepository repo)
+	@Nonnull
+	public List<GitCommit> getHeadToBranchCommits(@Nonnull GitRepository repo)
 	{
 		return getCompareInfo(repo).getFirst();
 	}
 
-	@NotNull
-	public List<GitCommit> getBranchToHeadCommits(@NotNull GitRepository repo)
+	@Nonnull
+	public List<GitCommit> getBranchToHeadCommits(@Nonnull GitRepository repo)
 	{
 		return getCompareInfo(repo).getSecond();
 	}
 
-	@NotNull
-	private Pair<List<GitCommit>, List<GitCommit>> getCompareInfo(@NotNull GitRepository repo)
+	@Nonnull
+	private Pair<List<GitCommit>, List<GitCommit>> getCompareInfo(@Nonnull GitRepository repo)
 	{
 		Pair<List<GitCommit>, List<GitCommit>> pair = myInfo.get(repo);
 		if(pair == null)
@@ -83,7 +83,7 @@ public class GitCommitCompareInfo
 		return pair;
 	}
 
-	@NotNull
+	@Nonnull
 	public Collection<GitRepository> getRepositories()
 	{
 		return myInfo.keySet();
@@ -99,7 +99,7 @@ public class GitCommitCompareInfo
 		return myInfoType;
 	}
 
-	@NotNull
+	@Nonnull
 	public List<Change> getTotalDiff()
 	{
 		List<Change> changes = new ArrayList<Change>();

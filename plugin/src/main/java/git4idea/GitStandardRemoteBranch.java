@@ -15,41 +15,42 @@
  */
 package git4idea;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import com.intellij.vcs.log.Hash;
 import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRemote;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 public class GitStandardRemoteBranch extends GitRemoteBranch
 {
 
-	@NotNull
+	@Nonnull
 	private final GitRemote myRemote;
-	@NotNull
+	@Nonnull
 	private final String myNameAtRemote;
 
 	@Deprecated
-	public GitStandardRemoteBranch(@NotNull GitRemote remote, @NotNull String nameAtRemote, @Nullable Hash hash)
+	public GitStandardRemoteBranch(@Nonnull GitRemote remote, @Nonnull String nameAtRemote, @Nullable Hash hash)
 	{
 		this(remote, nameAtRemote);
 	}
 
-	public GitStandardRemoteBranch(@NotNull GitRemote remote, @NotNull String nameAtRemote)
+	public GitStandardRemoteBranch(@Nonnull GitRemote remote, @Nonnull String nameAtRemote)
 	{
 		super(formStandardName(remote, GitBranchUtil.stripRefsPrefix(nameAtRemote)));
 		myRemote = remote;
 		myNameAtRemote = GitBranchUtil.stripRefsPrefix(nameAtRemote);
 	}
 
-	@NotNull
-	private static String formStandardName(@NotNull GitRemote remote, @NotNull String nameAtRemote)
+	@Nonnull
+	private static String formStandardName(@Nonnull GitRemote remote, @Nonnull String nameAtRemote)
 	{
 		return remote.getName() + "/" + nameAtRemote;
 	}
 
 	@Override
-	@NotNull
+	@Nonnull
 	public GitRemote getRemote()
 	{
 		return myRemote;
@@ -100,14 +101,14 @@ public class GitStandardRemoteBranch extends GitRemoteBranch
 		return super.toString();
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public String getNameForRemoteOperations()
 	{
 		return myNameAtRemote;
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public String getNameForLocalOperations()
 	{

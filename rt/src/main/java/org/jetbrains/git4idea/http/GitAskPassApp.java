@@ -17,7 +17,7 @@ package org.jetbrains.git4idea.http;
 
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.text.StringUtilRt;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import org.jetbrains.git4idea.GitExternalApp;
 
 /**
@@ -75,8 +75,8 @@ public class GitAskPassApp implements GitExternalApp {
     }
   }
 
-  @NotNull
-  private static String getNotNull(@NotNull String env) {
+  @Nonnull
+  private static String getNotNull(@Nonnull String env) {
     String handlerValue = System.getenv(env);
     if (handlerValue == null) {
       throw new IllegalStateException(env + " environment variable is not defined!");
@@ -84,8 +84,8 @@ public class GitAskPassApp implements GitExternalApp {
     return handlerValue;
   }
 
-  @NotNull
-  private static Pair<Boolean, String> parseArguments(@NotNull String arg) {
+  @Nonnull
+  private static Pair<Boolean, String> parseArguments(@Nonnull String arg) {
     boolean username = StringUtilRt.startsWithIgnoreCase(arg, "username");
     String url;
     String[] split = arg.split(" ");
@@ -98,7 +98,7 @@ public class GitAskPassApp implements GitExternalApp {
     return Pair.create(username, url);
   }
 
-  private static String parseUrl(@NotNull String urlArg) {
+  private static String parseUrl(@Nonnull String urlArg) {
     // un-quote and remove the trailing colon
     String url = urlArg;
     if (url.startsWith("'")) {

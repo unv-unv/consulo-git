@@ -15,6 +15,7 @@
  */
 package git4idea.test;
 
+import javax.annotation.Nonnull;
 import javax.inject.Singleton;
 
 import com.intellij.notification.Notification;
@@ -22,8 +23,8 @@ import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationListener;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nullable;
 
 /**
  * @author Kirill Likhodedov
@@ -34,7 +35,7 @@ public class TestNotificator extends Notificator {
   private static final String TEST_NOTIFICATION_GROUP = "Test";
   private Notification myLastNotification;
 
-  public TestNotificator(@NotNull Project project) {
+  public TestNotificator(@Nonnull Project project) {
     super(project);
   }
 
@@ -42,37 +43,37 @@ public class TestNotificator extends Notificator {
     return myLastNotification;
   }
 
-  public void notify(@NotNull NotificationGroup notificationGroup, @NotNull String title, @NotNull String message, @NotNull NotificationType type) {
+  public void notify(@Nonnull NotificationGroup notificationGroup, @Nonnull String title, @Nonnull String message, @Nonnull NotificationType type) {
     notify(notificationGroup, title, message, type, null);
   }
 
   @Override
-  public void notifyError(@NotNull String title, @NotNull String message, @Nullable NotificationListener listener) {
+  public void notifyError(@Nonnull String title, @Nonnull String message, @Nullable NotificationListener listener) {
     myLastNotification = createNotification(title, message, NotificationType.ERROR);
   }
 
   @Override
-  public void notifySuccess(@NotNull String title, @NotNull String message) {
+  public void notifySuccess(@Nonnull String title, @Nonnull String message) {
     myLastNotification = createNotification(title, message, NotificationType.INFORMATION);
   }
 
   @Override
-  public void notifyWeakWarning(@NotNull String title, @NotNull String message, @Nullable NotificationListener listener) {
+  public void notifyWeakWarning(@Nonnull String title, @Nonnull String message, @Nullable NotificationListener listener) {
     myLastNotification = createNotification(title, message, NotificationType.WARNING);
   }
 
   @Override
-  public void notifyStrongWarning(@NotNull String title, @NotNull String content, @Nullable NotificationListener listener) {
+  public void notifyStrongWarning(@Nonnull String title, @Nonnull String content, @Nullable NotificationListener listener) {
     myLastNotification = createNotification(title, content, NotificationType.WARNING);
   }
 
-  @NotNull
-  private static Notification createNotification(@NotNull String title, @NotNull String message, NotificationType type) {
+  @Nonnull
+  private static Notification createNotification(@Nonnull String title, @Nonnull String message, NotificationType type) {
     return new Notification(TEST_NOTIFICATION_GROUP, title, message, type);
   }
 
-  public void notify(@NotNull NotificationGroup notificationGroup, @NotNull String title, @NotNull String message,
-                     @NotNull NotificationType type, @Nullable NotificationListener listener) {
+  public void notify(@Nonnull NotificationGroup notificationGroup, @Nonnull String title, @Nonnull String message,
+					 @Nonnull NotificationType type, @Nullable NotificationListener listener) {
     myLastNotification = createNotification(notificationGroup, title, message, type, listener);
   }
 

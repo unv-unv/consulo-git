@@ -19,8 +19,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
@@ -42,15 +42,15 @@ import git4idea.util.GitFileUtils;
 final class GitRepositoryUpdater implements Disposable, BulkFileListener
 {
 
-	@NotNull
+	@Nonnull
 	private final GitRepository myRepository;
-	@NotNull
+	@Nonnull
 	private final GitRepositoryFiles myRepositoryFiles;
 	@Nullable
 	private final MessageBusConnection myMessageBusConnection;
-	@NotNull
+	@Nonnull
 	private final QueueProcessor<Object> myUpdateQueue;
-	@NotNull
+	@Nonnull
 	private final Object DUMMY_UPDATE_OBJECT = new Object();
 	@Nullable
 	private final VirtualFile myRemotesDir;
@@ -61,7 +61,7 @@ final class GitRepositoryUpdater implements Disposable, BulkFileListener
 	@Nullable
 	private final Set<LocalFileSystem.WatchRequest> myWatchRequests;
 
-	GitRepositoryUpdater(@NotNull GitRepository repository, @NotNull GitRepositoryFiles gitFiles)
+	GitRepositoryUpdater(@Nonnull GitRepository repository, @Nonnull GitRepositoryFiles gitFiles)
 	{
 		myRepository = repository;
 		Collection<String> rootPaths = ContainerUtil.map(gitFiles.getRootDirs(), new Function<VirtualFile, String>()
@@ -104,13 +104,13 @@ final class GitRepositoryUpdater implements Disposable, BulkFileListener
 	}
 
 	@Override
-	public void before(@NotNull List<? extends VFileEvent> events)
+	public void before(@Nonnull List<? extends VFileEvent> events)
 	{
 		// everything is handled in #after()
 	}
 
 	@Override
-	public void after(@NotNull List<? extends VFileEvent> events)
+	public void after(@Nonnull List<? extends VFileEvent> events)
 	{
 		// which files in .git were changed
 		boolean configChanged = false;

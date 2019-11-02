@@ -17,7 +17,7 @@ package git4idea.update;
 
 import java.util.Arrays;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.CommonBundle;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
@@ -54,12 +54,12 @@ public class GitRebaseOverMergeProblem
 
 		private final String myButtonText;
 
-		Decision(@NotNull String buttonText)
+		Decision(@Nonnull String buttonText)
 		{
 			myButtonText = buttonText;
 		}
 
-		@NotNull
+		@Nonnull
 		private static String[] getButtonTitles()
 		{
 			return ContainerUtil.map2Array(values(), String.class, new Function<Decision, String>()
@@ -72,7 +72,7 @@ public class GitRebaseOverMergeProblem
 			});
 		}
 
-		@NotNull
+		@Nonnull
 		public static Decision getOption(final int index)
 		{
 			return ObjectUtils.assertNotNull(ContainerUtil.find(values(), new Condition<Decision>()
@@ -96,7 +96,7 @@ public class GitRebaseOverMergeProblem
 		}
 	}
 
-	public static boolean hasProblem(@NotNull Project project, @NotNull VirtualFile root, @NotNull String baseRef, @NotNull String currentRef)
+	public static boolean hasProblem(@Nonnull Project project, @Nonnull VirtualFile root, @Nonnull String baseRef, @Nonnull String currentRef)
 	{
 		final Ref<Boolean> mergeFound = Ref.create(Boolean.FALSE);
 		Consumer<TimedVcsCommit> detectingConsumer = new Consumer<TimedVcsCommit>()
@@ -121,7 +121,7 @@ public class GitRebaseOverMergeProblem
 		return mergeFound.get();
 	}
 
-	@NotNull
+	@Nonnull
 	public static Decision showDialog()
 	{
 		final Ref<Decision> decision = Ref.create();
@@ -136,7 +136,7 @@ public class GitRebaseOverMergeProblem
 		return decision.get();
 	}
 
-	@NotNull
+	@Nonnull
 	private static Decision doShowDialog()
 	{
 		int decision = DialogManager.showMessage(DESCRIPTION, "Rebasing Merge Commits", Decision.getButtonTitles(),

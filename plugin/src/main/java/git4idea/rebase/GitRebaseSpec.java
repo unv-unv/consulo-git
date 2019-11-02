@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
@@ -51,21 +51,21 @@ public class GitRebaseSpec
 
 	@Nullable
 	private final GitRebaseParams myParams;
-	@NotNull
+	@Nonnull
 	private final Map<GitRepository, GitRebaseStatus> myStatuses;
-	@NotNull
+	@Nonnull
 	private final Map<GitRepository, String> myInitialHeadPositions;
-	@NotNull
+	@Nonnull
 	private final Map<GitRepository, String> myInitialBranchNames;
-	@NotNull
+	@Nonnull
 	private final GitChangesSaver mySaver;
 	private final boolean myShouldBeSaved;
 
 	public GitRebaseSpec(@Nullable GitRebaseParams params,
-			@NotNull Map<GitRepository, GitRebaseStatus> statuses,
-			@NotNull Map<GitRepository, String> initialHeadPositions,
-			@NotNull Map<GitRepository, String> initialBranchNames,
-			@NotNull GitChangesSaver saver,
+			@Nonnull Map<GitRepository, GitRebaseStatus> statuses,
+			@Nonnull Map<GitRepository, String> initialHeadPositions,
+			@Nonnull Map<GitRepository, String> initialBranchNames,
+			@Nonnull GitChangesSaver saver,
 			boolean shouldBeSaved)
 	{
 		myParams = params;
@@ -76,8 +76,8 @@ public class GitRebaseSpec
 		myShouldBeSaved = shouldBeSaved;
 	}
 
-	@NotNull
-	public static GitRebaseSpec forNewRebase(@NotNull Project project, @NotNull GitRebaseParams params, @NotNull Collection<GitRepository> repositories, @NotNull ProgressIndicator indicator)
+	@Nonnull
+	public static GitRebaseSpec forNewRebase(@Nonnull Project project, @Nonnull GitRebaseParams params, @Nonnull Collection<GitRepository> repositories, @Nonnull ProgressIndicator indicator)
 	{
 		GitUtil.updateRepositories(repositories);
 		Map<GitRepository, String> initialHeadPositions = findInitialHeadPositions(repositories, params.getBranch());
@@ -91,7 +91,7 @@ public class GitRebaseSpec
 	}
 
 	@Nullable
-	public static GitRebaseSpec forResumeInSingleRepository(@NotNull Project project, @NotNull GitRepository repository, @NotNull ProgressIndicator indicator)
+	public static GitRebaseSpec forResumeInSingleRepository(@Nonnull Project project, @Nonnull GitRepository repository, @Nonnull ProgressIndicator indicator)
 	{
 		if(!repository.isRebaseInProgress())
 		{
@@ -107,13 +107,13 @@ public class GitRebaseSpec
 		return singleOngoingRebase() && rebaseStatusesMatch();
 	}
 
-	@NotNull
+	@Nonnull
 	public GitChangesSaver getSaver()
 	{
 		return mySaver;
 	}
 
-	@NotNull
+	@Nonnull
 	public Collection<GitRepository> getAllRepositories()
 	{
 		return myStatuses.keySet();
@@ -131,13 +131,13 @@ public class GitRebaseSpec
 		return myParams;
 	}
 
-	@NotNull
+	@Nonnull
 	public Map<GitRepository, GitRebaseStatus> getStatuses()
 	{
 		return Collections.unmodifiableMap(myStatuses);
 	}
 
-	@NotNull
+	@Nonnull
 	public Map<GitRepository, String> getHeadPositionsToRollback()
 	{
 		return ContainerUtil.filter(myInitialHeadPositions, new Condition<GitRepository>()
@@ -154,14 +154,14 @@ public class GitRebaseSpec
 	 * Returns names of branches which were current at the moment of this GitRebaseSpec creation. <br/>
 	 * The map may contain null elements, if some repositories were in the detached HEAD state.
 	 */
-	@NotNull
+	@Nonnull
 	public Map<GitRepository, String> getInitialBranchNames()
 	{
 		return myInitialBranchNames;
 	}
 
-	@NotNull
-	public GitRebaseSpec cloneWithNewStatuses(@NotNull Map<GitRepository, GitRebaseStatus> statuses)
+	@Nonnull
+	public GitRebaseSpec cloneWithNewStatuses(@Nonnull Map<GitRepository, GitRebaseStatus> statuses)
 	{
 		return new GitRebaseSpec(myParams, statuses, myInitialHeadPositions, myInitialBranchNames, mySaver, true);
 	}
@@ -175,7 +175,7 @@ public class GitRebaseSpec
 	 * Returns repositories for which rebase is in progress, has failed and we want to retry, or didn't start yet. <br/>
 	 * It is guaranteed that if there is a rebase in progress (returned by {@link #getOngoingRebase()}, it will be the first in the list.
 	 */
-	@NotNull
+	@Nonnull
 	public List<GitRepository> getIncompleteRepositories()
 	{
 		List<GitRepository> incompleteRepositories = ContainerUtil.newArrayList();
@@ -187,7 +187,7 @@ public class GitRebaseSpec
 		incompleteRepositories.addAll(DvcsUtil.sortRepositories(ContainerUtil.filter(myStatuses.keySet(), new Condition<GitRepository>()
 		{
 			@Override
-			public boolean value(@NotNull GitRepository repository)
+			public boolean value(@Nonnull GitRepository repository)
 			{
 				return !repository.equals(ongoingRebase) && myStatuses.get(repository).getType() != GitRebaseStatus.Type.SUCCESS;
 			}
@@ -195,20 +195,20 @@ public class GitRebaseSpec
 		return incompleteRepositories;
 	}
 
-	@NotNull
-	private static GitStashChangesSaver newSaver(@NotNull Project project, @NotNull ProgressIndicator indicator)
+	@Nonnull
+	private static GitStashChangesSaver newSaver(@Nonnull Project project, @Nonnull ProgressIndicator indicator)
 	{
 		Git git = ServiceManager.getService(Git.class);
 		return new GitStashChangesSaver(project, git, indicator, "Uncommitted changes before rebase");
 	}
 
-	@NotNull
-	private static Map<GitRepository, String> findInitialHeadPositions(@NotNull Collection<GitRepository> repositories, @Nullable final String branchToCheckout)
+	@Nonnull
+	private static Map<GitRepository, String> findInitialHeadPositions(@Nonnull Collection<GitRepository> repositories, @Nullable final String branchToCheckout)
 	{
 		return ContainerUtil.map2Map(repositories, new Function<GitRepository, Pair<GitRepository, String>>()
 		{
 			@Override
-			public Pair<GitRepository, String> fun(@NotNull GitRepository repository)
+			public Pair<GitRepository, String> fun(@Nonnull GitRepository repository)
 			{
 				String currentRevision = findCurrentRevision(repository, branchToCheckout);
 				LOG.debug("Current revision in [" + repository.getRoot().getName() + "] is [" + currentRevision + "]");
@@ -218,7 +218,7 @@ public class GitRebaseSpec
 	}
 
 	@Nullable
-	private static String findCurrentRevision(@NotNull GitRepository repository, @Nullable String branchToCheckout)
+	private static String findCurrentRevision(@Nonnull GitRepository repository, @Nullable String branchToCheckout)
 	{
 		if(branchToCheckout != null)
 		{
@@ -243,13 +243,13 @@ public class GitRebaseSpec
 		return repository.getCurrentRevision();
 	}
 
-	@NotNull
-	private static Map<GitRepository, String> findInitialBranchNames(@NotNull Collection<GitRepository> repositories)
+	@Nonnull
+	private static Map<GitRepository, String> findInitialBranchNames(@Nonnull Collection<GitRepository> repositories)
 	{
 		return ContainerUtil.map2Map(repositories, new Function<GitRepository, Pair<GitRepository, String>>()
 		{
 			@Override
-			public Pair<GitRepository, String> fun(@NotNull GitRepository repository)
+			public Pair<GitRepository, String> fun(@Nonnull GitRepository repository)
 			{
 				String currentBranchName = repository.getCurrentBranchName();
 				LOG.debug("Current branch in [" + repository.getRoot().getName() + "] is [" + currentBranchName + "]");
@@ -258,13 +258,13 @@ public class GitRebaseSpec
 		});
 	}
 
-	@NotNull
+	@Nonnull
 	private Collection<GitRepository> getOngoingRebases()
 	{
 		return ContainerUtil.filter(myStatuses.keySet(), new Condition<GitRepository>()
 		{
 			@Override
-			public boolean value(@NotNull GitRepository repository)
+			public boolean value(@Nonnull GitRepository repository)
 			{
 				return myStatuses.get(repository).getType() == GitRebaseStatus.Type.SUSPENDED;
 			}
@@ -308,7 +308,7 @@ public class GitRebaseSpec
 		String initialHeadPositions = StringUtil.join(myInitialHeadPositions.keySet(), new Function<GitRepository, String>()
 		{
 			@Override
-			public String fun(@NotNull GitRepository repository)
+			public String fun(@Nonnull GitRepository repository)
 			{
 				return DvcsUtil.getShortRepositoryName(repository) + ": " + myInitialHeadPositions.get(repository);
 			}

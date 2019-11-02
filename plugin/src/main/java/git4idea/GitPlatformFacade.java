@@ -15,18 +15,19 @@
  */
 package git4idea;
 
-import org.jetbrains.annotations.NotNull;
 import com.intellij.dvcs.DvcsPlatformFacade;
 import com.intellij.dvcs.repo.RepositoryManager;
 import com.intellij.openapi.project.Project;
 import git4idea.config.GitVcsSettings;
 import git4idea.repo.GitRepository;
 
+import javax.annotation.Nonnull;
+
 public interface GitPlatformFacade extends DvcsPlatformFacade {
 
-	@NotNull
-	<T extends RepositoryManager<GitRepository>> T getRepositoryManager(@NotNull Project project);
+	@Nonnull
+	<T extends RepositoryManager<GitRepository>> T getRepositoryManager(@Nonnull Project project);
 
-	@NotNull
+	@Nonnull
 	GitVcsSettings getSettings(Project project);
 }

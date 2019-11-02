@@ -27,11 +27,11 @@ import static java.util.stream.Collectors.toList;
 import java.util.List;
 import java.util.Objects;
 
-import javax.swing.SwingConstants;
+import javax.annotation.Nonnull;
 
 import com.intellij.dvcs.ui.LightActionGroup;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nullable;
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.dvcs.branch.DvcsBranchPopup;
 import com.intellij.dvcs.repo.AbstractRepositoryManager;
@@ -39,7 +39,6 @@ import com.intellij.dvcs.ui.BranchActionGroup;
 import com.intellij.dvcs.ui.RootAction;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Condition;
 import com.intellij.util.containers.ContainerUtil;
@@ -66,7 +65,7 @@ class GitBranchPopup extends DvcsBranchPopup<GitRepository>
 	 *                          In the case of synchronized branch operations current repository matter much less, but sometimes is used,
 	 *                          for example, it is preselected in the repositories combobox in the compare branches dialog.
 	 */
-	static GitBranchPopup getInstance(@NotNull final Project project, @NotNull GitRepository currentRepository)
+	static GitBranchPopup getInstance(@Nonnull final Project project, @Nonnull GitRepository currentRepository)
 	{
 		final GitVcsSettings vcsSettings = GitVcsSettings.getInstance(project);
 		Condition<AnAction> preselectActionCondition = action ->
@@ -97,16 +96,16 @@ class GitBranchPopup extends DvcsBranchPopup<GitRepository>
 		return new GitBranchPopup(currentRepository, GitUtil.getRepositoryManager(project), vcsSettings, preselectActionCondition);
 	}
 
-	private GitBranchPopup(@NotNull GitRepository currentRepository,
-			@NotNull GitRepositoryManager repositoryManager,
-			@NotNull GitVcsSettings vcsSettings,
-			@NotNull Condition<AnAction> preselectActionCondition)
+	private GitBranchPopup(@Nonnull GitRepository currentRepository,
+			@Nonnull GitRepositoryManager repositoryManager,
+			@Nonnull GitVcsSettings vcsSettings,
+			@Nonnull Condition<AnAction> preselectActionCondition)
 	{
 		super(currentRepository, repositoryManager, new GitMultiRootBranchConfig(repositoryManager.getRepositories()), vcsSettings, preselectActionCondition, DIMENSION_SERVICE_KEY);
 	}
 
 	@Override
-	protected void fillWithCommonRepositoryActions(@NotNull LightActionGroup popupGroup, @NotNull AbstractRepositoryManager<GitRepository> repositoryManager)
+	protected void fillWithCommonRepositoryActions(@Nonnull LightActionGroup popupGroup, @Nonnull AbstractRepositoryManager<GitRepository> repositoryManager)
 	{
 		List<GitRepository> allRepositories = repositoryManager.getRepositories();
 		popupGroup.add(new GitBranchPopupActions.GitNewBranchAction(myProject, allRepositories));
@@ -125,13 +124,13 @@ class GitBranchPopup extends DvcsBranchPopup<GitRepository>
 	}
 
 	@Nullable
-	private GitBranchPopupActions.LocalBranchActions createLocalBranchActions(@NotNull List<GitRepository> allRepositories, @NotNull String branch)
+	private GitBranchPopupActions.LocalBranchActions createLocalBranchActions(@Nonnull List<GitRepository> allRepositories, @Nonnull String branch)
 	{
 		List<GitRepository> repositories = filterRepositoriesNotOnThisBranch(branch, allRepositories);
 		return repositories.isEmpty() ? null : new GitBranchPopupActions.LocalBranchActions(myProject, repositories, branch, myCurrentRepository);
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	protected LightActionGroup createRepositoriesActions()
 	{
@@ -144,7 +143,7 @@ class GitBranchPopup extends DvcsBranchPopup<GitRepository>
 	}
 
 	@Override
-	protected void fillPopupWithCurrentRepositoryActions(@NotNull LightActionGroup popupGroup, @Nullable LightActionGroup actions)
+	protected void fillPopupWithCurrentRepositoryActions(@Nonnull LightActionGroup popupGroup, @Nullable LightActionGroup actions)
 	{
 		popupGroup.addAll(new GitBranchPopupActions(myCurrentRepository.getProject(), myCurrentRepository).createActions(actions, myRepoTitleInfo, true));
 	}

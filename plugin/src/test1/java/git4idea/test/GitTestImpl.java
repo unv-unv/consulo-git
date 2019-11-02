@@ -30,8 +30,8 @@ import git4idea.commands.GitLineHandlerListener;
 import git4idea.history.browser.GitCommit;
 import git4idea.push.GitPushSpec;
 import git4idea.repo.GitRepository;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -48,39 +48,39 @@ import static java.lang.String.format;
  */
 public class GitTestImpl implements Git {
 
-  @NotNull
+  @Nonnull
   @Override
-  public GitCommandResult init(@NotNull Project project, @NotNull VirtualFile root, @NotNull GitLineHandlerListener... listeners) {
+  public GitCommandResult init(@Nonnull Project project, @Nonnull VirtualFile root, @Nonnull GitLineHandlerListener... listeners) {
     return execute(root.getPath(), "init", listeners);
   }
 
-  @NotNull
+  @Nonnull
   @Override
-  public Set<VirtualFile> untrackedFiles(@NotNull Project project, @NotNull VirtualFile root, @Nullable Collection<VirtualFile> files)
+  public Set<VirtualFile> untrackedFiles(@Nonnull Project project, @Nonnull VirtualFile root, @Nullable Collection<VirtualFile> files)
     throws VcsException {
     throw new UnsupportedOperationException();
   }
 
-  @NotNull
+  @Nonnull
   @Override
-  public Collection<VirtualFile> untrackedFilesNoChunk(@NotNull Project project,
-                                                       @NotNull VirtualFile root,
+  public Collection<VirtualFile> untrackedFilesNoChunk(@Nonnull Project project,
+                                                       @Nonnull VirtualFile root,
                                                        @Nullable List<String> relativePaths) throws VcsException {
     throw new UnsupportedOperationException();
   }
 
-  @NotNull
+  @Nonnull
   @Override
-  public GitCommandResult clone(@NotNull Project project,
-                                @NotNull File parentDirectory,
-                                @NotNull String url,
-                                @NotNull String clonedDirectoryName, @NotNull GitLineHandlerListener... progressListeners) {
+  public GitCommandResult clone(@Nonnull Project project,
+								@Nonnull File parentDirectory,
+								@Nonnull String url,
+								@Nonnull String clonedDirectoryName, @Nonnull GitLineHandlerListener... progressListeners) {
     throw new UnsupportedOperationException();
   }
 
-  @NotNull
+  @Nonnull
   @Override
-  public GitCommandResult config(@NotNull GitRepository repository, String... params) {
+  public GitCommandResult config(@Nonnull GitRepository repository, String... params) {
     cd(repository);
     String output = git("config " + join(params, " "));
     int exitCode = output.trim().isEmpty() ? 1 : 0;
@@ -88,16 +88,16 @@ public class GitTestImpl implements Git {
                                 Arrays.asList(StringUtil.splitByLines(output)), null);
   }
 
-  @NotNull
+  @Nonnull
   @Override
-  public GitCommandResult diff(@NotNull GitRepository repository, @NotNull List<String> parameters, @NotNull String range) {
+  public GitCommandResult diff(@Nonnull GitRepository repository, @Nonnull List<String> parameters, @Nonnull String range) {
     return execute(repository, format("diff %s %s", join(parameters, " "), range));
   }
 
-  @NotNull
+  @Nonnull
   @Override
-  public GitCommandResult checkAttr(@NotNull final GitRepository repository, @NotNull Collection<String> attributes,
-                                    @NotNull Collection<VirtualFile> files) {
+  public GitCommandResult checkAttr(@Nonnull final GitRepository repository, @Nonnull Collection<String> attributes,
+									@Nonnull Collection<VirtualFile> files) {
     cd(repository);
     Collection<String> relativePaths = Collections2.transform(files, new Function<VirtualFile, String>() {
       @Override
@@ -109,126 +109,126 @@ public class GitTestImpl implements Git {
     return commandResult(output);
   }
 
-  @NotNull
+  @Nonnull
   @Override
-  public GitCommandResult stashSave(@NotNull GitRepository repository, @NotNull String message) {
+  public GitCommandResult stashSave(@Nonnull GitRepository repository, @Nonnull String message) {
     return execute(repository, "stash save " + message);
   }
 
-  @NotNull
+  @Nonnull
   @Override
-  public GitCommandResult stashPop(@NotNull GitRepository repository, @NotNull GitLineHandlerListener... listeners) {
+  public GitCommandResult stashPop(@Nonnull GitRepository repository, @Nonnull GitLineHandlerListener... listeners) {
     return execute(repository, "stash pop");
   }
 
-  @NotNull
+  @Nonnull
   @Override
-  public List<GitCommit> history(@NotNull GitRepository repository, @NotNull String range) {
+  public List<GitCommit> history(@Nonnull GitRepository repository, @Nonnull String range) {
     return Collections.emptyList();
   }
 
-  @NotNull
+  @Nonnull
   @Override
-  public GitCommandResult merge(@NotNull GitRepository repository, @NotNull String branchToMerge, @Nullable List<String> additionalParams,
-                                @NotNull GitLineHandlerListener... listeners) {
+  public GitCommandResult merge(@Nonnull GitRepository repository, @Nonnull String branchToMerge, @Nullable List<String> additionalParams,
+								@Nonnull GitLineHandlerListener... listeners) {
     String addParams = additionalParams == null ? "" : join(additionalParams, " ");
     return execute(repository, format("merge %s %s", addParams, branchToMerge), listeners);
   }
 
-  @NotNull
+  @Nonnull
   @Override
-  public GitCommandResult checkout(@NotNull GitRepository repository, @NotNull String reference, @Nullable String newBranch, boolean force,
-                                   @NotNull GitLineHandlerListener... listeners) {
+  public GitCommandResult checkout(@Nonnull GitRepository repository, @Nonnull String reference, @Nullable String newBranch, boolean force,
+								   @Nonnull GitLineHandlerListener... listeners) {
     return execute(repository, format("checkout %s %s %s",
                                       force ? "--force" : "",
                                       newBranch != null ? " -b " + newBranch : "", reference), listeners);
   }
 
-  @NotNull
+  @Nonnull
   @Override
-  public GitCommandResult checkoutNewBranch(@NotNull GitRepository repository, @NotNull String branchName,
-                                            @Nullable GitLineHandlerListener listener) {
+  public GitCommandResult checkoutNewBranch(@Nonnull GitRepository repository, @Nonnull String branchName,
+											@Nullable GitLineHandlerListener listener) {
     return execute(repository, "checkout -b " + branchName, listener);
   }
 
-  @NotNull
+  @Nonnull
   @Override
-  public GitCommandResult branchDelete(@NotNull GitRepository repository, @NotNull String branchName, boolean force,
-                                       @NotNull GitLineHandlerListener... listeners) {
+  public GitCommandResult branchDelete(@Nonnull GitRepository repository, @Nonnull String branchName, boolean force,
+									   @Nonnull GitLineHandlerListener... listeners) {
     return execute(repository, format("branch %s %s", force ? "-D" : "-d", branchName), listeners);
   }
 
-  @NotNull
+  @Nonnull
   @Override
-  public GitCommandResult branchContains(@NotNull GitRepository repository, @NotNull String commit) {
+  public GitCommandResult branchContains(@Nonnull GitRepository repository, @Nonnull String commit) {
     return execute(repository, "branch --contains " + commit);
   }
 
-  @NotNull
+  @Nonnull
   @Override
-  public GitCommandResult branchCreate(@NotNull GitRepository repository, @NotNull String branchName) {
+  public GitCommandResult branchCreate(@Nonnull GitRepository repository, @Nonnull String branchName) {
     return execute(repository, "branch " + branchName);
   }
 
-  @NotNull
+  @Nonnull
   @Override
-  public GitCommandResult resetHard(@NotNull GitRepository repository, @NotNull String revision) {
+  public GitCommandResult resetHard(@Nonnull GitRepository repository, @Nonnull String revision) {
     return execute(repository, "reset --hard " + revision);
   }
 
-  @NotNull
+  @Nonnull
   @Override
-  public GitCommandResult resetMerge(@NotNull GitRepository repository, @Nullable String revision) {
+  public GitCommandResult resetMerge(@Nonnull GitRepository repository, @Nullable String revision) {
     return execute(repository, "reset --merge " + revision);
   }
 
-  @NotNull
+  @Nonnull
   @Override
-  public GitCommandResult tip(@NotNull GitRepository repository, @NotNull String branchName) {
+  public GitCommandResult tip(@Nonnull GitRepository repository, @Nonnull String branchName) {
     return execute(repository, "rev-list -1 " + branchName);
   }
 
-  @NotNull
+  @Nonnull
   @Override
-  public GitCommandResult push(@NotNull GitRepository repository, @NotNull String remote, @NotNull String url, @NotNull String spec,
-                               @NotNull GitLineHandlerListener... listeners) {
+  public GitCommandResult push(@Nonnull GitRepository repository, @Nonnull String remote, @Nonnull String url, @Nonnull String spec,
+							   @Nonnull GitLineHandlerListener... listeners) {
     throw new UnsupportedOperationException();
   }
 
-  @NotNull
+  @Nonnull
   @Override
-  public GitCommandResult push(@NotNull GitRepository repository,
-                               @NotNull GitPushSpec spec, @NotNull String url, @NotNull GitLineHandlerListener... listeners) {
+  public GitCommandResult push(@Nonnull GitRepository repository,
+							   @Nonnull GitPushSpec spec, @Nonnull String url, @Nonnull GitLineHandlerListener... listeners) {
     throw new UnsupportedOperationException();
   }
 
-  @NotNull
+  @Nonnull
   @Override
-  public GitCommandResult show(@NotNull GitRepository repository, @NotNull String... params) {
+  public GitCommandResult show(@Nonnull GitRepository repository, @Nonnull String... params) {
     throw new UnsupportedOperationException();
   }
 
-  @NotNull
+  @Nonnull
   @Override
-  public GitCommandResult cherryPick(@NotNull GitRepository repository,
-                                     @NotNull String hash,
+  public GitCommandResult cherryPick(@Nonnull GitRepository repository,
+                                     @Nonnull String hash,
                                      boolean autoCommit,
-                                     @NotNull GitLineHandlerListener... listeners) {
+                                     @Nonnull GitLineHandlerListener... listeners) {
     return execute(repository, format("cherry-pick -x %s %s", autoCommit ? "" : "-n", hash), listeners);
   }
 
-  @NotNull
+  @Nonnull
   @Override
-  public GitCommandResult getUnmergedFiles(@NotNull GitRepository repository) {
+  public GitCommandResult getUnmergedFiles(@Nonnull GitRepository repository) {
     return execute(repository, "ls-files --unmerged");
   }
 
-  @NotNull
+  @Nonnull
   @Override
-  public GitCommandResult createNewTag(@NotNull GitRepository repository,
-                                       @NotNull String tagName,
+  public GitCommandResult createNewTag(@Nonnull GitRepository repository,
+                                       @Nonnull String tagName,
                                        @Nullable GitLineHandlerListener listener,
-                                       @NotNull String reference) {
+                                       @Nonnull String reference) {
     throw new UnsupportedOperationException();
   }
 

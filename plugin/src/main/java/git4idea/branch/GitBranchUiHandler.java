@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.intellij.lang.annotations.MagicConstant;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.changes.Change;
@@ -37,10 +37,10 @@ import git4idea.repo.GitRepository;
 public interface GitBranchUiHandler
 {
 
-	@NotNull
+	@Nonnull
 	ProgressIndicator getProgressIndicator();
 
-	boolean notifyErrorWithRollbackProposal(@NotNull String title, @NotNull String message, @NotNull String rollbackProposal);
+	boolean notifyErrorWithRollbackProposal(@Nonnull String title, @Nonnull String message, @Nonnull String rollbackProposal);
 
 	/**
 	 * Shows notification about unmerged files preventing checkout, merge, etc.
@@ -48,7 +48,7 @@ public interface GitBranchUiHandler
 	 * @param operationName
 	 * @param repositories
 	 */
-	void showUnmergedFilesNotification(@NotNull String operationName, @NotNull Collection<GitRepository> repositories);
+	void showUnmergedFilesNotification(@Nonnull String operationName, @Nonnull Collection<GitRepository> repositories);
 
 	/**
 	 * Shows a modal notification about unmerged files preventing an operation, with "Rollback" button.
@@ -58,14 +58,14 @@ public interface GitBranchUiHandler
 	 * @param rollbackProposal
 	 * @return true if user has agreed to rollback, false if user denied the rollback proposal.
 	 */
-	boolean showUnmergedFilesMessageWithRollback(@NotNull String operationName, @NotNull String rollbackProposal);
+	boolean showUnmergedFilesMessageWithRollback(@Nonnull String operationName, @Nonnull String rollbackProposal);
 
 	/**
 	 * Show notification about "untracked files would be overwritten by merge/checkout".
 	 */
-	void showUntrackedFilesNotification(@NotNull String operationName, @NotNull VirtualFile root, @NotNull Collection<String> relativePaths);
+	void showUntrackedFilesNotification(@Nonnull String operationName, @Nonnull VirtualFile root, @Nonnull Collection<String> relativePaths);
 
-	boolean showUntrackedFilesDialogWithRollback(@NotNull String operationName, @NotNull String rollbackProposal, @NotNull VirtualFile root, @NotNull Collection<String> relativePaths);
+	boolean showUntrackedFilesDialogWithRollback(@Nonnull String operationName, @Nonnull String rollbackProposal, @Nonnull VirtualFile root, @Nonnull Collection<String> relativePaths);
 
 	/**
 	 * Shows the dialog proposing to execute the operation (checkout or merge) smartly, i.e. stash-execute-unstash.
@@ -79,14 +79,14 @@ public interface GitBranchUiHandler
 	 * @return the code of the decision.
 	 */
 	@MagicConstant(valuesFromClass = GitSmartOperationDialog.class)
-	int showSmartOperationDialog(@NotNull Project project, @NotNull List<Change> changes, @NotNull Collection<String> paths, @NotNull String operation, @Nullable String forceButtonTitle);
+	int showSmartOperationDialog(@Nonnull Project project, @Nonnull List<Change> changes, @Nonnull Collection<String> paths, @Nonnull String operation, @Nullable String forceButtonTitle);
 
 	/**
 	 * @return true if user decided to restore the branch.
 	 */
-	boolean showBranchIsNotFullyMergedDialog(@NotNull Project project,
-			@NotNull Map<GitRepository, List<GitCommit>> history,
-			@NotNull Map<GitRepository, String> baseBranches,
-			@NotNull String removedBranch);
+	boolean showBranchIsNotFullyMergedDialog(@Nonnull Project project,
+			@Nonnull Map<GitRepository, List<GitCommit>> history,
+			@Nonnull Map<GitRepository, String> baseBranches,
+			@Nonnull String removedBranch);
 
 }

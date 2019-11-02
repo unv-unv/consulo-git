@@ -15,7 +15,7 @@
  */
 package git4idea.push;
 
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import git4idea.GitRemoteBranch;
 import git4idea.repo.GitRemote;
 
@@ -27,35 +27,35 @@ class GitSpecialRefRemoteBranch extends GitRemoteBranch
 	private final String myRef;
 	private final GitRemote myRemote;
 
-	public GitSpecialRefRemoteBranch(@NotNull String ref, @NotNull GitRemote remote)
+	public GitSpecialRefRemoteBranch(@Nonnull String ref, @Nonnull GitRemote remote)
 	{
 		super(ref);
 		myRef = ref;
 		myRemote = remote;
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public String getNameForRemoteOperations()
 	{
 		return myRef;
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public String getNameForLocalOperations()
 	{
 		return myRef;
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public GitRemote getRemote()
 	{
 		return myRemote;
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public String getFullName()
 	{

@@ -21,11 +21,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
 import javax.inject.Singleton;
 
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nullable;
 import com.intellij.dvcs.branch.BranchStorage;
 import com.intellij.dvcs.branch.DvcsSyncSettings;
 import com.intellij.dvcs.repo.Repository;
@@ -120,7 +121,7 @@ public class GitVcsSettings implements PersistentStateComponent<GitVcsSettings.S
 		return ServiceManager.getService(project, GitVcsSettings.class);
 	}
 
-	@NotNull
+	@Nonnull
 	public UpdateMethod getUpdateType()
 	{
 		return ObjectUtils.notNull(myState.UPDATE_TYPE, UpdateMethod.BRANCH_DEFAULT);
@@ -131,7 +132,7 @@ public class GitVcsSettings implements PersistentStateComponent<GitVcsSettings.S
 		myState.UPDATE_TYPE = updateType;
 	}
 
-	@NotNull
+	@Nonnull
 	public UpdateChangesPolicy updateChangesPolicy()
 	{
 		return myState.UPDATE_CHANGES_POLICY;
@@ -203,13 +204,13 @@ public class GitVcsSettings implements PersistentStateComponent<GitVcsSettings.S
 		myState.PUSH_UPDATE_ALL_ROOTS = updateAllRoots;
 	}
 
-	@NotNull
+	@Nonnull
 	public Value getSyncSetting()
 	{
 		return myState.ROOT_SYNC;
 	}
 
-	public void setSyncSetting(@NotNull Value syncSetting)
+	public void setSyncSetting(@Nonnull Value syncSetting)
 	{
 		myState.ROOT_SYNC = syncSetting;
 	}
@@ -220,18 +221,18 @@ public class GitVcsSettings implements PersistentStateComponent<GitVcsSettings.S
 		return myState.RECENT_GIT_ROOT_PATH;
 	}
 
-	public void setRecentRoot(@NotNull String recentGitRootPath)
+	public void setRecentRoot(@Nonnull String recentGitRootPath)
 	{
 		myState.RECENT_GIT_ROOT_PATH = recentGitRootPath;
 	}
 
-	@NotNull
+	@Nonnull
 	public Map<String, String> getRecentBranchesByRepository()
 	{
 		return myState.RECENT_BRANCH_BY_REPOSITORY;
 	}
 
-	public void setRecentBranchOfRepository(@NotNull String repositoryPath, @NotNull String branch)
+	public void setRecentBranchOfRepository(@Nonnull String repositoryPath, @Nonnull String branch)
 	{
 		myState.RECENT_BRANCH_BY_REPOSITORY.put(repositoryPath, branch);
 	}
@@ -242,7 +243,7 @@ public class GitVcsSettings implements PersistentStateComponent<GitVcsSettings.S
 		return myState.RECENT_COMMON_BRANCH;
 	}
 
-	public void setRecentCommonBranch(@NotNull String branch)
+	public void setRecentCommonBranch(@Nonnull String branch)
 	{
 		myState.RECENT_COMMON_BRANCH = branch;
 	}
@@ -283,7 +284,7 @@ public class GitVcsSettings implements PersistentStateComponent<GitVcsSettings.S
 		return myState.RESET_MODE;
 	}
 
-	public void setResetMode(@NotNull GitResetMode mode)
+	public void setResetMode(@Nonnull GitResetMode mode)
 	{
 		myState.RESET_MODE = mode;
 	}
@@ -335,7 +336,7 @@ public class GitVcsSettings implements PersistentStateComponent<GitVcsSettings.S
 	}
 
 	@Nullable
-	public GitRemoteBranch getPushTarget(@NotNull GitRepository repository, @NotNull String sourceBranch)
+	public GitRemoteBranch getPushTarget(@Nonnull GitRepository repository, @Nonnull String sourceBranch)
 	{
 		Iterator<PushTargetInfo> iterator = myState.PUSH_TARGETS.iterator();
 		PushTargetInfo targetInfo = find(iterator, repository, sourceBranch);
@@ -351,7 +352,7 @@ public class GitVcsSettings implements PersistentStateComponent<GitVcsSettings.S
 		return GitUtil.findOrCreateRemoteBranch(repository, remote, targetInfo.targetBranchName);
 	}
 
-	public void setPushTarget(@NotNull GitRepository repository, @NotNull String sourceBranch, @NotNull String targetRemote, @NotNull String targetBranch)
+	public void setPushTarget(@Nonnull GitRepository repository, @Nonnull String sourceBranch, @Nonnull String targetRemote, @Nonnull String targetBranch)
 	{
 		String repositoryPath = repository.getRoot().getPath();
 		List<PushTargetInfo> targets = new ArrayList<>(myState.PUSH_TARGETS);
@@ -368,7 +369,7 @@ public class GitVcsSettings implements PersistentStateComponent<GitVcsSettings.S
 
 	@Nullable
 	@Contract(pure = false)
-	private static PushTargetInfo find(@NotNull Iterator<PushTargetInfo> iterator, @NotNull GitRepository repository, @NotNull String sourceBranch)
+	private static PushTargetInfo find(@Nonnull Iterator<PushTargetInfo> iterator, @Nonnull GitRepository repository, @Nonnull String sourceBranch)
 	{
 		while(iterator.hasNext())
 		{
@@ -381,32 +382,32 @@ public class GitVcsSettings implements PersistentStateComponent<GitVcsSettings.S
 		return null;
 	}
 
-	public void addToFavorites(@NotNull GitBranchType type, @Nullable GitRepository repository, @NotNull String branchName)
+	public void addToFavorites(@Nonnull GitBranchType type, @Nullable GitRepository repository, @Nonnull String branchName)
 	{
 		myState.FAVORITE_BRANCHES.add(type.toString(), repository, branchName);
 	}
 
-	public void removeFromFavorites(@NotNull GitBranchType type, @Nullable GitRepository repository, @NotNull String branchName)
+	public void removeFromFavorites(@Nonnull GitBranchType type, @Nullable GitRepository repository, @Nonnull String branchName)
 	{
 		myState.FAVORITE_BRANCHES.remove(type.toString(), repository, branchName);
 	}
 
-	public boolean isFavorite(@NotNull GitBranchType type, @Nullable Repository repository, @NotNull String branchName)
+	public boolean isFavorite(@Nonnull GitBranchType type, @Nullable Repository repository, @Nonnull String branchName)
 	{
 		return myState.FAVORITE_BRANCHES.contains(type.toString(), repository, branchName);
 	}
 
-	public void excludedFromFavorites(@NotNull GitBranchType type, @Nullable GitRepository repository, @NotNull String branchName)
+	public void excludedFromFavorites(@Nonnull GitBranchType type, @Nullable GitRepository repository, @Nonnull String branchName)
 	{
 		myState.EXCLUDED_FAVORITES.add(type.toString(), repository, branchName);
 	}
 
-	public void removeFromExcluded(@NotNull GitBranchType type, @Nullable GitRepository repository, @NotNull String branchName)
+	public void removeFromExcluded(@Nonnull GitBranchType type, @Nullable GitRepository repository, @Nonnull String branchName)
 	{
 		myState.EXCLUDED_FAVORITES.remove(type.toString(), repository, branchName);
 	}
 
-	public boolean isExcludedFromFavorites(@NotNull GitBranchType type, @Nullable Repository repository, @NotNull String branchName)
+	public boolean isExcludedFromFavorites(@Nonnull GitBranchType type, @Nullable Repository repository, @Nonnull String branchName)
 	{
 		return myState.EXCLUDED_FAVORITES.contains(type.toString(), repository, branchName);
 	}
@@ -429,7 +430,7 @@ public class GitVcsSettings implements PersistentStateComponent<GitVcsSettings.S
 			this("", "", "", "");
 		}
 
-		PushTargetInfo(@NotNull String repositoryPath, @NotNull String source, @NotNull String targetRemote, @NotNull String targetBranch)
+		PushTargetInfo(@Nonnull String repositoryPath, @Nonnull String source, @Nonnull String targetRemote, @Nonnull String targetBranch)
 		{
 			repoPath = repositoryPath;
 			sourceName = source;

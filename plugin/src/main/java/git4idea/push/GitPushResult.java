@@ -17,8 +17,8 @@ package git4idea.push;
 
 import java.util.Map;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.intellij.history.Label;
 import com.intellij.openapi.vcs.update.UpdatedFiles;
 import git4idea.repo.GitRepository;
@@ -28,17 +28,17 @@ import git4idea.repo.GitRepository;
  */
 class GitPushResult
 {
-	@NotNull
+	@Nonnull
 	private final Map<GitRepository, GitPushRepoResult> myResults;
-	@NotNull
+	@Nonnull
 	private final UpdatedFiles myUpdatedFiles;
 	@Nullable
 	private final Label myBeforeUpdateLabel;
 	@Nullable
 	private final Label myAfterUpdateLabel;
 
-	GitPushResult(@NotNull Map<GitRepository, GitPushRepoResult> results,
-			@NotNull UpdatedFiles files,
+	GitPushResult(@Nonnull Map<GitRepository, GitPushRepoResult> results,
+			@Nonnull UpdatedFiles files,
 			@Nullable Label beforeUpdateLabel,
 			@Nullable Label afterUpdateLabel)
 	{
@@ -48,13 +48,13 @@ class GitPushResult
 		myAfterUpdateLabel = afterUpdateLabel;
 	}
 
-	@NotNull
+	@Nonnull
 	public Map<GitRepository, GitPushRepoResult> getResults()
 	{
 		return myResults;
 	}
 
-	@NotNull
+	@Nonnull
 	public UpdatedFiles getUpdatedFiles()
 	{
 		return myUpdatedFiles;

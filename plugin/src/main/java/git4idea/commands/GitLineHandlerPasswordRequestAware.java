@@ -18,7 +18,7 @@ package git4idea.commands;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 
 import java.io.File;
 
@@ -32,11 +32,11 @@ public class GitLineHandlerPasswordRequestAware extends GitLineHandler {
   
   private boolean myAuthRequest;
 
-  public GitLineHandlerPasswordRequestAware(@NotNull Project project, @NotNull VirtualFile vcsRoot, @NotNull GitCommand command) {
+  public GitLineHandlerPasswordRequestAware(@Nonnull Project project, @Nonnull VirtualFile vcsRoot, @Nonnull GitCommand command) {
     super(project, vcsRoot, command);
   }
 
-  public GitLineHandlerPasswordRequestAware(@NotNull Project project, @NotNull File directory, @NotNull GitCommand clone) {
+  public GitLineHandlerPasswordRequestAware(@Nonnull Project project, @Nonnull File directory, @Nonnull GitCommand clone) {
     super(project, directory, clone);
   }
 

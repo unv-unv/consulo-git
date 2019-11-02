@@ -22,8 +22,8 @@ import java.text.ParseException;
 import java.util.Collection;
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import org.jetbrains.annotations.TestOnly;
 import com.intellij.dvcs.push.PushTarget;
 import com.intellij.openapi.diagnostic.Logger;
@@ -38,29 +38,31 @@ import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import git4idea.validators.GitRefNameValidator;
 
+import javax.annotation.Nullable;
+
 public class GitPushTarget implements PushTarget
 {
 
 	private static final Logger LOG = Logger.getInstance(GitPushTarget.class);
 
-	@NotNull
+	@Nonnull
 	private final GitRemoteBranch myRemoteBranch;
 	private final boolean myIsNewBranchCreated;
 	private final boolean myPushingToSpecialRef;
 
-	public GitPushTarget(@NotNull GitRemoteBranch remoteBranch, boolean isNewBranchCreated)
+	public GitPushTarget(@Nonnull GitRemoteBranch remoteBranch, boolean isNewBranchCreated)
 	{
 		this(remoteBranch, isNewBranchCreated, false);
 	}
 
-	public GitPushTarget(@NotNull GitRemoteBranch remoteBranch, boolean isNewBranchCreated, boolean isPushingToSpecialRef)
+	public GitPushTarget(@Nonnull GitRemoteBranch remoteBranch, boolean isNewBranchCreated, boolean isPushingToSpecialRef)
 	{
 		myRemoteBranch = remoteBranch;
 		myIsNewBranchCreated = isNewBranchCreated;
 		myPushingToSpecialRef = isPushingToSpecialRef;
 	}
 
-	@NotNull
+	@Nonnull
 	public GitRemoteBranch getBranch()
 	{
 		return myRemoteBranch;
@@ -72,7 +74,7 @@ public class GitPushTarget implements PushTarget
 		return isNewBranchCreated();
 	}
 
-	@NotNull
+	@Nonnull
 	@Override
 	public String getPresentation()
 	{
@@ -90,8 +92,8 @@ public class GitPushTarget implements PushTarget
 		return myPushingToSpecialRef;
 	}
 
-	@NotNull
-	public static GitPushTarget parse(@NotNull GitRepository repository, @Nullable String remoteName, @NotNull String branchName) throws ParseException
+	@Nonnull
+	public static GitPushTarget parse(@Nonnull GitRepository repository, @Nullable String remoteName, @Nonnull String branchName) throws ParseException
 	{
 		if(remoteName == null)
 		{
@@ -120,13 +122,13 @@ public class GitPushTarget implements PushTarget
 	}
 
 	@Nullable
-	private static GitRemote findRemote(@NotNull Collection<GitRemote> remotes, @NotNull final String candidate)
+	private static GitRemote findRemote(@Nonnull Collection<GitRemote> remotes, @Nonnull final String candidate)
 	{
 		return ContainerUtil.find(remotes, remote -> remote.getName().equals(candidate));
 	}
 
 	@Nullable
-	public static GitPushTarget getFromPushSpec(@NotNull GitRepository repository, @NotNull GitLocalBranch sourceBranch)
+	public static GitPushTarget getFromPushSpec(@Nonnull GitRepository repository, @Nonnull GitLocalBranch sourceBranch)
 	{
 		final GitRemote remote = getRemoteToPush(repository, GitBranchUtil.getTrackInfoForBranch(repository, sourceBranch));
 		if(remote == null)
@@ -161,7 +163,7 @@ public class GitPushTarget implements PushTarget
 	}
 
 	@Nullable
-	private static GitRemote getRemoteToPush(@NotNull GitRepository repository, @Nullable GitBranchTrackInfo trackInfo)
+	private static GitRemote getRemoteToPush(@Nonnull GitRepository repository, @Nullable GitBranchTrackInfo trackInfo)
 	{
 		if(trackInfo != null)
 		{

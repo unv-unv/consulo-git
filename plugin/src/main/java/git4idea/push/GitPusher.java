@@ -17,8 +17,8 @@ package git4idea.push;
 
 import java.util.Map;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nonnull;
+
 import com.intellij.dvcs.push.PushSpec;
 import com.intellij.dvcs.push.Pusher;
 import com.intellij.dvcs.push.VcsPushOptionValue;
@@ -30,19 +30,21 @@ import git4idea.config.GitVcsSettings;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 
+import javax.annotation.Nullable;
+
 class GitPusher extends Pusher<GitRepository, GitPushSource, GitPushTarget>
 {
 
-	@NotNull
+	@Nonnull
 	private final Project myProject;
-	@NotNull
+	@Nonnull
 	private final GitVcsSettings mySettings;
-	@NotNull
+	@Nonnull
 	private final GitPushSupport myPushSupport;
-	@NotNull
+	@Nonnull
 	private final GitRepositoryManager myRepositoryManager;
 
-	GitPusher(@NotNull Project project, @NotNull GitVcsSettings settings, @NotNull GitPushSupport pushSupport)
+	GitPusher(@Nonnull Project project, @Nonnull GitVcsSettings settings, @Nonnull GitPushSupport pushSupport)
 	{
 		myProject = project;
 		mySettings = settings;
@@ -51,7 +53,7 @@ class GitPusher extends Pusher<GitRepository, GitPushSource, GitPushTarget>
 	}
 
 	@Override
-	public void push(@NotNull Map<GitRepository, PushSpec<GitPushSource, GitPushTarget>> pushSpecs, @Nullable VcsPushOptionValue optionValue, boolean force)
+	public void push(@Nonnull Map<GitRepository, PushSpec<GitPushSource, GitPushTarget>> pushSpecs, @Nullable VcsPushOptionValue optionValue, boolean force)
 	{
 		expireExistingErrorsAndWarnings();
 		GitPushTagMode pushTagMode;
@@ -86,7 +88,7 @@ class GitPusher extends Pusher<GitRepository, GitPushSource, GitPushTarget>
 		}
 	}
 
-	private void rememberTargets(@NotNull Map<GitRepository, PushSpec<GitPushSource, GitPushTarget>> pushSpecs)
+	private void rememberTargets(@Nonnull Map<GitRepository, PushSpec<GitPushSource, GitPushTarget>> pushSpecs)
 	{
 		for(Map.Entry<GitRepository, PushSpec<GitPushSource, GitPushTarget>> entry : pushSpecs.entrySet())
 		{

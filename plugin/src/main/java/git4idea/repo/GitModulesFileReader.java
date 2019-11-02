@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 
 import org.ini4j.Ini;
 import org.ini4j.Profile;
-import org.jetbrains.annotations.NotNull;
+import javax.annotation.Nonnull;
 import com.intellij.openapi.diagnostic.Logger;
 
 /**
@@ -30,7 +30,7 @@ public class GitModulesFileReader
 	private static final Logger LOGGER = Logger.getInstance(GitModulesFileReader.class);
 	private static final Pattern MODULE_SECTION = Pattern.compile("submodule \"(.*)\"", Pattern.CASE_INSENSITIVE);
 
-	@NotNull
+	@Nonnull
 	public static Collection<GitSubmoduleInfo> read(File file)
 	{
 		if(!file.exists())
