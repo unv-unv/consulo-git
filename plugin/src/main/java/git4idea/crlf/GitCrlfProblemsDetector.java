@@ -169,7 +169,7 @@ public class GitCrlfProblemsDetector {
   }
 
   private boolean isAutoCrlfSetRight(@Nonnull VirtualFile root) {
-    GitRepository repository = myPlatformFacade.getRepositoryManager(myProject).getRepositoryForRoot(root);
+    GitRepository repository = GitRepositoryManager.getInstance(myProject).getRepositoryForRoot(root);
     if (repository == null) {
       LOG.warn("Repository is null for " + root);
       return true;
