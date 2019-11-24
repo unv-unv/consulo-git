@@ -15,25 +15,20 @@
  */
 package git4idea.branch;
 
-import static com.intellij.openapi.util.text.StringUtil.capitalize;
-
-import java.awt.event.ActionEvent;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.annotation.Nonnull;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JComponent;
-
-import javax.annotation.Nullable;
 import com.intellij.openapi.application.ApplicationNamesInfo;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.util.ui.UIUtil;
-import git4idea.GitPlatformFacade;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.intellij.openapi.util.text.StringUtil.capitalize;
 
 /**
  * The dialog that is shown when the error
@@ -69,7 +64,7 @@ public class GitSmartOperationDialog extends DialogWrapper
 			public void run()
 			{
 				GitSmartOperationDialog dialog = new GitSmartOperationDialog(project, fileBrowser, operationTitle, forceButtonTitle);
-				ServiceManager.getService(project, GitPlatformFacade.class).showDialog(dialog);
+				dialog.show();
 				exitCode.set(dialog.getExitCode());
 			}
 		});

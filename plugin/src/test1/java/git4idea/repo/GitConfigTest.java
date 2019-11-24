@@ -23,7 +23,6 @@ import git4idea.GitBranch;
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
 import git4idea.GitStandardRemoteBranch;
-import git4idea.test.GitTestPlatformFacade;
 import git4idea.test.GitTestUtil;
 import javax.annotation.Nullable;
 import org.testng.annotations.DataProvider;

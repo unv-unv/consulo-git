@@ -15,10 +15,11 @@
  */
 package org.jetbrains.git4idea.http;
 
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.text.StringUtilRt;
-import javax.annotation.Nonnull;
+import consulo.util.nodep.Pair;
+import consulo.util.nodep.text.StringUtilRt;
 import org.jetbrains.git4idea.GitExternalApp;
+
+import javax.annotation.Nonnull;
 
 /**
  * <p>This is a program that would be called by Git when an HTTP connection is needed, that requires authorization,

@@ -36,7 +36,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.PairConsumer;
 import com.intellij.util.ui.UIUtil;
 import com.intellij.xml.util.XmlStringUtil;
-import git4idea.GitPlatformFacade;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
 import git4idea.commands.Git;
@@ -114,7 +113,6 @@ public class GitCheckinHandlerFactory extends VcsCheckinHandlerFactory {
         return ReturnResult.COMMIT;
       }
 
-      final GitPlatformFacade platformFacade = ServiceManager.getService(myProject, GitPlatformFacade.class);
       final Git git = ServiceManager.getService(Git.class);
 
       final Collection<VirtualFile> files = myPanel.getVirtualFiles(); // deleted files aren't included, but for them we don't care about CRLFs.
@@ -123,8 +121,7 @@ public class GitCheckinHandlerFactory extends VcsCheckinHandlerFactory {
         new Task.Modal(myProject, "Checking for line separator issues...", true) {
           @Override
           public void run(@Nonnull ProgressIndicator indicator) {
-            crlfHelper.set(GitCrlfProblemsDetector.detect(GitCheckinHandlerFactory.MyCheckinHandler.this.myProject,
-                                                          platformFacade, git, files));
+            crlfHelper.set(GitCrlfProblemsDetector.detect(GitCheckinHandlerFactory.MyCheckinHandler.this.myProject, git, files));
           }
         });
 

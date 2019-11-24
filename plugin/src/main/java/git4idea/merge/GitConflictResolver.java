@@ -15,20 +15,6 @@
  */
 package git4idea.merge;
 
-import static com.intellij.dvcs.DvcsUtil.findVirtualFilesWithRefresh;
-import static com.intellij.dvcs.DvcsUtil.sortVirtualFilesByPresentation;
-import static com.intellij.util.ObjectUtils.assertNotNull;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-
-import javax.annotation.Nonnull;
-import javax.swing.event.HyperlinkEvent;
-
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationListener;
 import com.intellij.openapi.application.ApplicationManager;
@@ -44,7 +30,6 @@ import com.intellij.openapi.vcs.merge.MergeProvider;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
-import git4idea.GitPlatformFacade;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
 import git4idea.commands.Git;
@@ -52,6 +37,15 @@ import git4idea.commands.GitCommandResult;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import git4idea.util.StringScanner;
+
+import javax.annotation.Nonnull;
+import javax.swing.event.HyperlinkEvent;
+import java.io.File;
+import java.util.*;
+
+import static com.intellij.dvcs.DvcsUtil.findVirtualFilesWithRefresh;
+import static com.intellij.dvcs.DvcsUtil.sortVirtualFilesByPresentation;
+import static com.intellij.util.ObjectUtils.assertNotNull;
 
 /**
  * The class is highly customizable, since the procedure of resolving conflicts is very common in Git operations.
@@ -128,16 +122,6 @@ public class GitConflictResolver
 			return this;
 		}
 
-	}
-
-	/**
-	 * @deprecated To remove in IDEA 2017. Use {@link #GitConflictResolver(Project, Git, Collection, Params)}.
-	 */
-	@SuppressWarnings("UnusedParameters")
-	@Deprecated
-	public GitConflictResolver(@Nonnull Project project, @Nonnull Git git, @Nonnull GitPlatformFacade facade, @Nonnull Collection<VirtualFile> roots, @Nonnull Params params)
-	{
-		this(project, git, roots, params);
 	}
 
 	public GitConflictResolver(@Nonnull Project project, @Nonnull Git git, @Nonnull Collection<VirtualFile> roots, @Nonnull Params params)

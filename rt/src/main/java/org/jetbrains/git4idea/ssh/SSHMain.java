@@ -15,10 +15,10 @@
  */
 package org.jetbrains.git4idea.ssh;
 
-import com.intellij.openapi.util.io.FileUtilRt;
-import com.intellij.util.ArrayUtilRt;
 import com.trilead.ssh2.*;
 import com.trilead.ssh2.crypto.PEMDecoder;
+import consulo.util.nodep.ArrayUtilRt;
+import consulo.util.nodep.io.FileUtilRt;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.git4idea.GitExternalApp;
 

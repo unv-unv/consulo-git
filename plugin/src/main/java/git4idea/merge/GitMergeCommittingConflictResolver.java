@@ -15,14 +15,12 @@
  */
 package git4idea.merge;
 
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vfs.VirtualFile;
-import git4idea.GitPlatformFacade;
 import git4idea.commands.Git;
-import javax.annotation.Nonnull;
 
+import javax.annotation.Nonnull;
 import java.util.Collection;
 
 /**
@@ -37,7 +35,7 @@ public class GitMergeCommittingConflictResolver extends GitConflictResolver {
 
   public GitMergeCommittingConflictResolver(Project project, @Nonnull Git git, GitMerger merger, Collection<VirtualFile> mergingRoots,
 											Params params, boolean refreshAfterCommit) {
-    super(project, git, ServiceManager.getService(GitPlatformFacade.class), mergingRoots, params);
+    super(project, git, mergingRoots, params);
     myMerger = merger;
     myMergingRoots = mergingRoots;
     myRefreshAfterCommit = refreshAfterCommit;

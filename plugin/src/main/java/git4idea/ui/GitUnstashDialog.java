@@ -15,29 +15,6 @@
  */
 package git4idea.ui;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.annotation.Nonnull;
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-
 import com.intellij.CommonBundle;
 import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.notification.Notification;
@@ -57,21 +34,15 @@ import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vcs.merge.MergeDialogCustomizer;
+import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.util.Consumer;
-import git4idea.GitPlatformFacade;
 import git4idea.GitRevisionNumber;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
 import git4idea.branch.GitBranchUtil;
-import git4idea.commands.Git;
-import git4idea.commands.GitCommand;
-import git4idea.commands.GitHandler;
-import git4idea.commands.GitHandlerUtil;
-import git4idea.commands.GitLineHandler;
-import git4idea.commands.GitLineHandlerAdapter;
-import git4idea.commands.GitSimpleHandler;
+import git4idea.commands.*;
 import git4idea.config.GitVersionSpecialty;
 import git4idea.i18n.GitBundle;
 import git4idea.merge.GitConflictResolver;
@@ -79,6 +50,20 @@ import git4idea.repo.GitRepository;
 import git4idea.stash.GitStashUtils;
 import git4idea.util.GitUIUtil;
 import git4idea.validators.GitBranchNameValidator;
+
+import javax.annotation.Nonnull;
+import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * The unstash dialog
@@ -490,7 +475,8 @@ public class GitUnstashDialog extends DialogWrapper
 			}
 		});
 		int rc = GitHandlerUtil.doSynchronously(h, GitBundle.message("unstash.unstashing"), h.printableCommandLine(), false);
-		ServiceManager.getService(myProject, GitPlatformFacade.class).hardRefresh(root);
+
+		VfsUtil.markDirtyAndRefresh(true, true, false, root);
 
 		if(conflict.get())
 		{
@@ -518,8 +504,7 @@ public class GitUnstashDialog extends DialogWrapper
 
 		public UnstashConflictResolver(Project project, VirtualFile root, StashInfo stashInfo)
 		{
-			super(project, ServiceManager.getService(Git.class), ServiceManager.getService(GitPlatformFacade.class), Collections.singleton(root),
-					makeParams(stashInfo));
+			super(project, ServiceManager.getService(Git.class), Collections.singleton(root), makeParams(stashInfo));
 			myRoot = root;
 			myStashInfo = stashInfo;
 		}
