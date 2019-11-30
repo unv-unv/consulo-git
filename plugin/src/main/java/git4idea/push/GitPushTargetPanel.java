@@ -15,32 +15,8 @@
  */
 package git4idea.push;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Point;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.awt.event.HierarchyEvent;
-import java.awt.event.HierarchyListener;
-import java.awt.event.InputEvent;
-import java.awt.event.MouseEvent;
-import java.text.ParseException;
-import java.util.Comparator;
-import java.util.List;
-
-import javax.annotation.Nonnull;
-import javax.swing.JPanel;
-import javax.swing.tree.DefaultMutableTreeNode;
-
-import javax.annotation.Nullable;
 import com.intellij.dvcs.push.PushTargetPanel;
-import com.intellij.dvcs.push.ui.PushLogTreeUtil;
-import com.intellij.dvcs.push.ui.PushTargetEditorListener;
-import com.intellij.dvcs.push.ui.PushTargetTextField;
-import com.intellij.dvcs.push.ui.VcsEditableTextComponent;
-import com.intellij.dvcs.push.ui.VcsLinkListener;
-import com.intellij.dvcs.push.ui.VcsLinkedTextComponent;
+import com.intellij.dvcs.push.ui.*;
 import com.intellij.openapi.command.undo.UndoConstants;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
@@ -64,12 +40,22 @@ import com.intellij.ui.popup.list.ListPopupImpl;
 import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.table.ComponentsListFocusTraversalPolicy;
-import consulo.annotations.RequiredDispatchThread;
+import consulo.ui.annotation.RequiredUIAccess;
 import git4idea.GitRemoteBranch;
 import git4idea.commands.Git;
 import git4idea.commands.GitCommandResult;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.swing.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import java.awt.*;
+import java.awt.event.*;
+import java.text.ParseException;
+import java.util.Comparator;
+import java.util.List;
 
 public class GitPushTargetPanel extends PushTargetPanel<GitPushTarget>
 {
@@ -222,7 +208,7 @@ public class GitPushTargetPanel extends PushTargetPanel<GitPushTarget>
 				myRepository.update();
 			}
 
-			@RequiredDispatchThread
+			@RequiredUIAccess
 			@Override
 			public void onSuccess()
 			{

@@ -15,16 +15,6 @@
  */
 package git4idea.stash;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-
-import javax.swing.event.ChangeEvent;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.command.impl.UndoManagerImpl;
@@ -44,7 +34,16 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.Processor;
 import com.intellij.util.containers.ContainerUtil;
-import consulo.annotations.RequiredDispatchThread;
+import consulo.ui.annotation.RequiredUIAccess;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.swing.event.ChangeEvent;
+import java.io.File;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 
 public class GitShelveUtils
 {
@@ -79,7 +78,7 @@ public class GitShelveUtils
 		}, ModalityState.defaultModalityState());
 	}
 
-	@RequiredDispatchThread
+	@RequiredUIAccess
 	private static void markUnshelvedFilesNonUndoable(@Nonnull final Project project, @Nonnull List<ShelvedChange> changes)
 	{
 		final UndoManagerImpl undoManager = (UndoManagerImpl) UndoManager.getInstance(project);
