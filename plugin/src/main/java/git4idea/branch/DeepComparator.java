@@ -15,11 +15,6 @@
  */
 package git4idea.branch;
 
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ServiceManager;
@@ -28,7 +23,6 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
-import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -39,12 +33,18 @@ import com.intellij.vcs.log.impl.HashImpl;
 import com.intellij.vcs.log.impl.VcsLogUtil;
 import com.intellij.vcs.log.ui.MergeCommitsHighlighter;
 import com.intellij.vcs.log.ui.VcsLogHighlighterFactory;
+import consulo.util.dataholder.Key;
 import git4idea.GitBranch;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitLineHandler;
 import git4idea.commands.GitLineHandlerAdapter;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Map;
+import java.util.Set;
 
 public class DeepComparator implements VcsLogHighlighter, Disposable
 {

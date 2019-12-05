@@ -16,7 +16,7 @@
 package git4idea.commands;
 
 import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.util.Key;
+import consulo.util.dataholder.Key;
 import gnu.trove.TObjectDoubleHashMap;
 import gnu.trove.TObjectDoubleProcedure;
 

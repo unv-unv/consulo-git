@@ -15,7 +15,7 @@
  */
 package git4idea.commands;
 
-import com.intellij.openapi.util.Key;
+import consulo.util.dataholder.Key;
 
 /**
  * An adapter for line handler

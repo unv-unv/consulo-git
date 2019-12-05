@@ -16,7 +16,7 @@
 package git4idea.rebase;
 
 import com.intellij.execution.process.ProcessOutputTypes;
-import com.intellij.openapi.util.Key;
+import consulo.util.dataholder.Key;
 import git4idea.commands.GitLineHandlerAdapter;
 
 import java.util.regex.Matcher;

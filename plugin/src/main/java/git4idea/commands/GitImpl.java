@@ -15,28 +15,10 @@
  */
 package git4idea.commands;
 
-import static java.util.Collections.singleton;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-
-import javax.annotation.Nonnull;
-import javax.inject.Singleton;
-
-import javax.annotation.Nullable;
 import com.google.common.annotations.VisibleForTesting;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
-import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vfs.VfsUtilCore;
@@ -45,6 +27,7 @@ import com.intellij.util.Function;
 import com.intellij.util.ObjectUtils;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.vcsUtil.VcsFileUtil;
+import consulo.util.dataholder.Key;
 import git4idea.GitVcs;
 import git4idea.branch.GitRebaseParams;
 import git4idea.config.GitVersionSpecialty;
@@ -54,6 +37,17 @@ import git4idea.rebase.GitRebaseResumeMode;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import git4idea.reset.GitResetMode;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.inject.Singleton;
+import java.io.File;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static java.util.Collections.singleton;
 
 /**
  * Easy-to-use wrapper of common native Git commands.

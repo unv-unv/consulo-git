@@ -15,7 +15,7 @@
  */
 package git4idea.rebase;
 
-import com.intellij.openapi.util.Key;
+import consulo.util.dataholder.Key;
 import com.intellij.openapi.util.text.StringUtil;
 import git4idea.commands.GitLineHandlerAdapter;
 
