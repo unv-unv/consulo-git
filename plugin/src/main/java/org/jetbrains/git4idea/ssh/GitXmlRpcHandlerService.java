@@ -17,19 +17,20 @@ package org.jetbrains.git4idea.ssh;
 
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.util.Disposer;
-import com.intellij.openapi.util.io.FileUtilRt;
+import com.trilead.ssh2.ProxyData;
 import consulo.builtInServer.BuiltInServerManager;
 import consulo.builtInServer.xml.XmlRpcServer;
+import consulo.util.nodep.io.FileUtilRt;
 import gnu.trove.THashMap;
 import org.apache.commons.codec.DecoderException;
 import org.apache.ws.commons.serialize.DOMSerializer;
 import org.apache.xmlrpc.XmlRpcConfig;
 import org.apache.xmlrpc.client.XmlRpcClient;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.jetbrains.git4idea.GitExternalApp;
 import org.jetbrains.git4idea.util.ScriptGenerator;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
@@ -101,7 +102,7 @@ public abstract class GitXmlRpcHandlerService<T>
 	public File getScriptPath() throws IOException
 	{
 		ScriptGenerator generator = new ScriptGenerator(myScriptTempFilePrefix, myScriptMainClass);
-		generator.addClasses(XmlRpcClient.class, XmlRpcConfig.class, DOMSerializer.class, DecoderException.class, FileUtilRt.class);
+		generator.addClasses(XmlRpcClient.class, XmlRpcConfig.class, DOMSerializer.class, DecoderException.class, ProxyData.class, FileUtilRt.class);
 		customizeScriptGenerator(generator);
 
 		synchronized(SCRIPT_FILE_LOCK)

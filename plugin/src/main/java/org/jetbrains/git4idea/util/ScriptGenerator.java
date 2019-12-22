@@ -16,16 +16,25 @@
 package org.jetbrains.git4idea.util;
 
 import com.intellij.openapi.application.PathManager;
+import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.util.PathUtil;
+import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.util.containers.ContainerUtil;
+import com.intellij.util.io.URLUtil;
 import org.jetbrains.annotations.NonNls;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.security.CodeSource;
 import java.util.ArrayList;
 
 /**
@@ -84,9 +93,33 @@ public class ScriptGenerator {
    */
   public ScriptGenerator addClasses(final Class... classes) {
     for (Class<?> c : classes) {
-      addPath(PathUtil.getJarPathForClass(c));
+      addPath(getJarPathForClass(c));
     }
     return this;
+  }
+
+  @Nullable
+  public static String getJarPathForClass(@Nonnull Class aClass) {
+    try {
+      CodeSource codeSource = aClass.getProtectionDomain().getCodeSource();
+      if (codeSource != null) {
+        URL location = codeSource.getLocation();
+        if (location != null) {
+          URI uri = location.toURI();
+          Pair<String, String> pair = URLUtil.splitJarUrl(uri.toURL().toString());
+          if(pair == null) {
+            // FIXME [VISTALL] our classloader return wrong uri
+            return uri.getPath();
+          }
+          return pair.getFirst();
+        }
+      }
+
+      throw new IllegalArgumentException(aClass.getName());
+    }
+    catch (URISyntaxException | MalformedURLException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /**

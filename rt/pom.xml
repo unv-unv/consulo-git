@@ -44,7 +44,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>consulo</groupId>
-			<artifactId>consulo-annotations</artifactId>
+			<artifactId>consulo-annotation</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

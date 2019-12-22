@@ -232,15 +232,16 @@ public class SSHMain implements GitExternalApp
 	private void authenticate(final Connection c) throws IOException
 	{
 		LinkedList<String> methods = new LinkedList<>(myHost.getPreferredMethods());
-		//log("authenticating... " + this);
+		log("authenticating... " + this);
 		String lastSuccessfulMethod = myXmlRpcClient.getLastSuccessful(myHandlerNo, getUserHostString());
-		//log("SSH: authentication methods: " + methods + " last successful method: " + lastSuccessfulMethod);
+		log("SSH: authentication methods: " + methods + " last successful method: " + lastSuccessfulMethod);
 		if(lastSuccessfulMethod != null && lastSuccessfulMethod.length() > 0 && methods.remove(lastSuccessfulMethod))
 		{
 			methods.addFirst(lastSuccessfulMethod);
 		}
 		for(String method : methods)
 		{
+			log("auth method " + method);
 			if(c.isAuthenticationComplete())
 			{
 				return;
@@ -319,14 +320,17 @@ public class SSHMain implements GitExternalApp
 			{
 				if(!myHost.supportsPasswordAuthentication())
 				{
+					log("host is not support password auth");
 					continue;
 				}
 				if(!c.isAuthMethodAvailable(myHost.getUser(), PASSWORD_METHOD))
 				{
+					log("host is not available password auth");
 					continue;
 				}
 				for(int i = 0; i < myHost.getNumberOfPasswordPrompts(); i++)
 				{
+					log("asking password " + getUserHostString() + " " + myHandlerNo);
 					String password = myXmlRpcClient.askPassword(myHandlerNo, getUserHostString(), i != 0, myLastError);
 					if(password == null)
 					{
@@ -723,6 +727,9 @@ public class SSHMain implements GitExternalApp
 
 	private static void log(String s)
 	{
-		System.err.println(s);
+		if(Boolean.FALSE)
+		{
+			System.err.println(s);
+		}
 	}
 }
