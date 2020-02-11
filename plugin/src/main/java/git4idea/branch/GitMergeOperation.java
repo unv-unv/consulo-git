@@ -92,8 +92,7 @@ class GitMergeOperation extends GitBranchOperation
 		saveAllDocuments();
 		boolean fatalErrorHappened = false;
 		int alreadyUpToDateRepositories = 0;
-		AccessToken token = DvcsUtil.workingTreeChangeStarted(myProject);
-		try
+		try(AccessToken token = DvcsUtil.workingTreeChangeStarted(myProject, getOperationName()))
 		{
 			while(hasMoreRepositories() && !fatalErrorHappened)
 			{
@@ -176,10 +175,6 @@ class GitMergeOperation extends GitBranchOperation
 			}
 
 			restoreLocalChanges();
-		}
-		finally
-		{
-			DvcsUtil.workingTreeChangeFinished(myProject, token);
 		}
 	}
 

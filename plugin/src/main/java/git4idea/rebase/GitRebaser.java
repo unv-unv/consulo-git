@@ -96,8 +96,7 @@ public class GitRebaser
 		rebaseHandler.addLineListener(localChangesDetector);
 		rebaseHandler.addLineListener(GitStandardProgressAnalyzer.createListener(myProgressIndicator));
 
-		AccessToken token = DvcsUtil.workingTreeChangeStarted(myProject);
-		try
+		try(AccessToken ignored = DvcsUtil.workingTreeChangeStarted(myProject, "Rebase"))
 		{
 			String oldText = myProgressIndicator.getText();
 			myProgressIndicator.setText("Rebasing...");
@@ -112,10 +111,6 @@ public class GitRebaser
 				onCancel.run();
 			}
 			return GitUpdateResult.CANCEL;
-		}
-		finally
-		{
-			DvcsUtil.workingTreeChangeFinished(myProject, token);
 		}
 	}
 
@@ -147,8 +142,7 @@ public class GitRebaser
 	 */
 	public boolean continueRebase(@Nonnull Collection<VirtualFile> rebasingRoots)
 	{
-		AccessToken token = DvcsUtil.workingTreeChangeStarted(myProject);
-		try
+		try(AccessToken ignored = DvcsUtil.workingTreeChangeStarted(myProject, "Rebase"))
 		{
 			boolean success = true;
 			for(VirtualFile root : rebasingRoots)
@@ -156,10 +150,6 @@ public class GitRebaser
 				success &= continueRebase(root);
 			}
 			return success;
-		}
-		finally
-		{
-			DvcsUtil.workingTreeChangeFinished(myProject, token);
 		}
 	}
 

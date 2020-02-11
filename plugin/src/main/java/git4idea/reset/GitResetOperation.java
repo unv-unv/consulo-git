@@ -84,9 +84,8 @@ public class GitResetOperation
 	public void execute()
 	{
 		saveAllDocuments();
-		AccessToken token = DvcsUtil.workingTreeChangeStarted(myProject);
 		Map<GitRepository, GitCommandResult> results = ContainerUtil.newHashMap();
-		try
+		try(AccessToken ignored = DvcsUtil.workingTreeChangeStarted(myProject, "Git Reset"))
 		{
 			for(Map.Entry<GitRepository, Hash> entry : myCommits.entrySet())
 			{
@@ -109,10 +108,6 @@ public class GitResetOperation
 				VfsUtil.markDirtyAndRefresh(false, true, false, root);
 				VcsDirtyScopeManager.getInstance(myProject).dirDirtyRecursively(root);
 			}
-		}
-		finally
-		{
-			DvcsUtil.workingTreeChangeFinished(myProject, token);
 		}
 		notifyResult(results);
 	}

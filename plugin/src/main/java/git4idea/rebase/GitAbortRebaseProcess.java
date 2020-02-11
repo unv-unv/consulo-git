@@ -176,7 +176,7 @@ class GitAbortRebaseProcess
 		{
 			public void run()
 			{
-				AccessToken token = DvcsUtil.workingTreeChangeStarted(myProject);
+				AccessToken token = DvcsUtil.workingTreeChangeStarted(myProject, "Rebase");
 				List<GitRepository> repositoriesToRefresh = ContainerUtil.newArrayList();
 				try
 				{
@@ -230,7 +230,7 @@ class GitAbortRebaseProcess
 				finally
 				{
 					refresh(repositoriesToRefresh);
-					DvcsUtil.workingTreeChangeFinished(myProject, token);
+					token.finish();
 				}
 			}
 		}).execute();

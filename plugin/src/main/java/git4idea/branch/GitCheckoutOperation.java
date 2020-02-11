@@ -90,8 +90,7 @@ class GitCheckoutOperation extends GitBranchOperation
 	{
 		saveAllDocuments();
 		boolean fatalErrorHappened = false;
-		AccessToken token = DvcsUtil.workingTreeChangeStarted(myProject);
-		try
+		try(AccessToken token = DvcsUtil.workingTreeChangeStarted(myProject, getOperationName()))
 		{
 			while(hasMoreRepositories() && !fatalErrorHappened)
 			{
@@ -138,10 +137,6 @@ class GitCheckoutOperation extends GitBranchOperation
 					fatalErrorHappened = true;
 				}
 			}
-		}
-		finally
-		{
-			DvcsUtil.workingTreeChangeFinished(myProject, token);
 		}
 
 		if(!fatalErrorHappened)

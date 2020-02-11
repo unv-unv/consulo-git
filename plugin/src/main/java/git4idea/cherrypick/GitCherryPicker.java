@@ -107,8 +107,7 @@ public class GitCherryPicker extends VcsCherryPicker
 		LOG.info("Cherry-picking commits: " + toString(commitsInRoots));
 		List<GitCommitWrapper> successfulCommits = ContainerUtil.newArrayList();
 		List<GitCommitWrapper> alreadyPicked = ContainerUtil.newArrayList();
-		AccessToken token = DvcsUtil.workingTreeChangeStarted(myProject);
-		try
+		try(AccessToken token = DvcsUtil.workingTreeChangeStarted(myProject, getActionTitle()))
 		{
 			for(Map.Entry<GitRepository, List<VcsFullCommitDetails>> entry : commitsInRoots.entrySet())
 			{
@@ -121,10 +120,6 @@ public class GitCherryPicker extends VcsCherryPicker
 				}
 			}
 			notifyResult(successfulCommits, alreadyPicked);
-		}
-		finally
-		{
-			DvcsUtil.workingTreeChangeFinished(myProject, token);
 		}
 	}
 

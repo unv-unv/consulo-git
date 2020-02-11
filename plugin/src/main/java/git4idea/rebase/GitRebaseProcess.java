@@ -19,13 +19,7 @@ import static com.intellij.dvcs.DvcsUtil.getShortRepositoryName;
 import static com.intellij.openapi.vfs.VfsUtilCore.toVirtualFileArray;
 import static com.intellij.util.ObjectUtils.assertNotNull;
 import static com.intellij.util.ObjectUtils.notNull;
-import static com.intellij.util.containers.ContainerUtil.exists;
-import static com.intellij.util.containers.ContainerUtil.filter;
-import static com.intellij.util.containers.ContainerUtil.find;
-import static com.intellij.util.containers.ContainerUtil.getFirstItem;
-import static com.intellij.util.containers.ContainerUtil.map;
-import static com.intellij.util.containers.ContainerUtil.newHashSet;
-import static com.intellij.util.containers.ContainerUtil.newLinkedHashMap;
+import static com.intellij.util.containers.ContainerUtil.*;
 import static com.intellij.util.containers.ContainerUtilRt.newArrayList;
 import static com.intellij.util.containers.ContainerUtilRt.newLinkedHashSet;
 import static git4idea.GitUtil.getRootsFromRepositories;
@@ -37,11 +31,10 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.swing.event.HyperlinkEvent;
 
 import org.jetbrains.annotations.Contract;
-
-import javax.annotation.Nullable;
 import com.google.common.annotations.VisibleForTesting;
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.notification.Notification;
@@ -147,8 +140,7 @@ public class GitRebaseProcess
 		Map<GitRepository, GitRebaseStatus> statuses = newLinkedHashMap(myRebaseSpec.getStatuses());
 		Collection<GitRepository> toRefresh = newLinkedHashSet();
 		List<GitRepository> repositoriesToRebase = myRebaseSpec.getIncompleteRepositories();
-		AccessToken token = DvcsUtil.workingTreeChangeStarted(myProject);
-		try
+		try(AccessToken ignored = DvcsUtil.workingTreeChangeStarted(myProject, "Rebase"))
 		{
 			if(!saveDirtyRootsInitially(repositoriesToRebase))
 			{
@@ -199,10 +191,6 @@ public class GitRebaseProcess
 		{
 			myRepositoryManager.setOngoingRebaseSpec(null);
 			ExceptionUtil.rethrowUnchecked(e);
-		}
-		finally
-		{
-			DvcsUtil.workingTreeChangeFinished(myProject, token);
 		}
 	}
 
