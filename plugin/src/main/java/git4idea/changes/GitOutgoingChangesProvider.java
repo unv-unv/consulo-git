@@ -15,7 +15,6 @@
  */
 package git4idea.changes;
 
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.vcs.*;
@@ -25,6 +24,7 @@ import com.intellij.openapi.vcs.versionBrowser.CommittedChangeList;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.Consumer;
 import com.intellij.util.containers.Convertor;
+import consulo.logging.Logger;
 import git4idea.GitBranch;
 import git4idea.GitBranchesSearcher;
 import git4idea.GitRevisionNumber;

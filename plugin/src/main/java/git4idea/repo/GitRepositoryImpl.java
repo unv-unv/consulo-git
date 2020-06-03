@@ -24,10 +24,10 @@ import java.util.Collection;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import com.intellij.dvcs.repo.RepositoryImpl;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Disposer;
+import consulo.disposer.Disposable;
+import consulo.disposer.Disposer;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.vcs.log.util.StopWatch;
@@ -94,7 +94,7 @@ public class GitRepositoryImpl extends RepositoryImpl implements GitRepository
 	private void setupUpdater()
 	{
 		GitRepositoryUpdater updater = new GitRepositoryUpdater(this, myRepositoryFiles);
-		Disposer.register(this, updater);
+		consulo.disposer.Disposer.register(this, updater);
 	}
 
 	@Deprecated

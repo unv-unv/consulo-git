@@ -21,7 +21,6 @@ import javax.annotation.Nonnull;
 import com.intellij.CommonBundle;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.Condition;
@@ -36,6 +35,7 @@ import com.intellij.util.containers.ContainerUtil;
 import com.intellij.vcs.log.TimedVcsCommit;
 import com.intellij.vcs.log.VcsRef;
 import com.intellij.vcs.log.VcsUser;
+import consulo.logging.Logger;
 import git4idea.DialogManager;
 import git4idea.history.GitHistoryUtils;
 

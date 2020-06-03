@@ -21,13 +21,13 @@ import java.util.StringTokenizer;
 import org.jetbrains.annotations.NonNls;
 import javax.annotation.Nonnull;
 import com.intellij.dvcs.DvcsUtil;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.history.ShortVcsRevisionNumber;
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vfs.VirtualFile;
+import consulo.logging.Logger;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitSimpleHandler;
 

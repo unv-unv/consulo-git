@@ -29,7 +29,7 @@ import com.intellij.dvcs.branch.DvcsSyncSettings;
 import com.intellij.dvcs.repo.AbstractRepositoryManager;
 import com.intellij.dvcs.repo.VcsRepositoryManager;
 import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.diagnostic.Logger;
+import consulo.logging.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.changes.ui.VirtualFileHierarchicalComparator;
 import com.intellij.openapi.vfs.VirtualFile;

@@ -15,11 +15,11 @@
  */
 package org.jetbrains.git4idea.ssh;
 
-import com.intellij.openapi.Disposable;
-import com.intellij.openapi.util.Disposer;
 import com.trilead.ssh2.ProxyData;
 import consulo.builtInServer.BuiltInServerManager;
 import consulo.builtInServer.xml.XmlRpcServer;
+import consulo.disposer.Disposable;
+import consulo.disposer.Disposer;
 import consulo.util.nodep.io.FileUtilRt;
 import gnu.trove.THashMap;
 import org.apache.commons.codec.DecoderException;
@@ -127,7 +127,7 @@ public abstract class GitXmlRpcHandlerService<T>
 	 * @param parentDisposable a disposable to unregister the handler if it doesn't get unregistered manually
 	 * @return an identifier to pass to the environment variable
 	 */
-	public UUID registerHandler(@Nonnull T handler, @Nonnull Disposable parentDisposable)
+	public UUID registerHandler(@Nonnull T handler, @Nonnull consulo.disposer.Disposable parentDisposable)
 	{
 		synchronized(HANDLERS_LOCK)
 		{

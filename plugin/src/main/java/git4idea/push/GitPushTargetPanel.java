@@ -19,7 +19,7 @@ import com.intellij.dvcs.push.PushTargetPanel;
 import com.intellij.dvcs.push.ui.*;
 import com.intellij.openapi.command.undo.UndoConstants;
 import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.diagnostic.Logger;
+import consulo.logging.Logger;
 import com.intellij.openapi.editor.event.DocumentAdapter;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.progress.ProgressIndicator;

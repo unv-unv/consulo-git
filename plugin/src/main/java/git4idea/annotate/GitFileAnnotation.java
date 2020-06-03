@@ -15,7 +15,6 @@
  */
 package git4idea.annotate;
 
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.VcsKey;
@@ -24,6 +23,7 @@ import com.intellij.openapi.vcs.history.VcsFileRevision;
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.text.DateFormatUtil;
+import consulo.logging.Logger;
 import git4idea.GitRevisionNumber;
 import git4idea.GitVcs;
 import git4idea.i18n.GitBundle;

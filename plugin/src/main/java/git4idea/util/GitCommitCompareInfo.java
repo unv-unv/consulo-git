@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
-import com.intellij.openapi.diagnostic.Logger;
+import consulo.logging.Logger;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.vcs.changes.Change;
 import git4idea.GitCommit;

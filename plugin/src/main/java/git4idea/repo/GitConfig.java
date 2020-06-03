@@ -30,13 +30,14 @@ import org.ini4j.Ini;
 import org.ini4j.Profile;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import com.intellij.openapi.diagnostic.Logger;
+
 import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
+import consulo.logging.Logger;
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
 import git4idea.branch.GitBranchUtil;

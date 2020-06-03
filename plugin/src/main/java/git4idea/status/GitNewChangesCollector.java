@@ -15,7 +15,6 @@
  */
 package git4idea.status;
 
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vcs.*;
@@ -25,6 +24,7 @@ import com.intellij.openapi.vcs.changes.ContentRevision;
 import com.intellij.openapi.vcs.changes.VcsDirtyScope;
 import com.intellij.openapi.vcs.history.VcsRevisionNumber;
 import com.intellij.openapi.vfs.VirtualFile;
+import consulo.logging.Logger;
 import git4idea.GitContentRevision;
 import git4idea.GitFormatException;
 import git4idea.GitRevisionNumber;

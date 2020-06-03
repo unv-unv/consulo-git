@@ -15,12 +15,12 @@
  */
 package git4idea.crlf;
 
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileEditor.impl.LoadTextUtil;
 import com.intellij.openapi.progress.ProgressIndicatorProvider;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import consulo.logging.Logger;
 import git4idea.GitUtil;
 import git4idea.attributes.GitAttribute;
 import git4idea.attributes.GitCheckAttrParser;

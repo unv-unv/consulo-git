@@ -32,7 +32,7 @@ import javax.swing.JPanel;
 
 import javax.annotation.Nullable;
 import com.intellij.ide.util.ElementsChooser;
-import com.intellij.openapi.diagnostic.Logger;
+import consulo.logging.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.util.text.StringUtil;

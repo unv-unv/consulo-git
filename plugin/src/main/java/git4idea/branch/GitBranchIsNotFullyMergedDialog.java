@@ -29,12 +29,12 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.util.ArrayUtil;
 import com.intellij.xml.util.XmlStringUtil;
+import consulo.logging.Logger;
 import git4idea.DialogManager;
 import git4idea.GitCommit;
 import git4idea.repo.GitRepository;

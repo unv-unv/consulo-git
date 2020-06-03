@@ -22,7 +22,6 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import com.intellij.dvcs.DvcsUtil;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -34,6 +33,7 @@ import com.intellij.util.concurrency.QueueProcessor;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.vcsUtil.VcsUtil;
+import consulo.disposer.Disposable;
 import git4idea.util.GitFileUtils;
 
 /**

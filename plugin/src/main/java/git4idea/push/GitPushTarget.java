@@ -26,8 +26,8 @@ import javax.annotation.Nonnull;
 
 import org.jetbrains.annotations.TestOnly;
 import com.intellij.dvcs.push.PushTarget;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.util.containers.ContainerUtil;
+import consulo.logging.Logger;
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
 import git4idea.GitStandardRemoteBranch;

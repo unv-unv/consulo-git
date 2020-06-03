@@ -13,7 +13,8 @@ import java.util.regex.Pattern;
 import org.ini4j.Ini;
 import org.ini4j.Profile;
 import javax.annotation.Nonnull;
-import com.intellij.openapi.diagnostic.Logger;
+
+import consulo.logging.Logger;
 
 /**
  * from kotlin

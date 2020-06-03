@@ -17,7 +17,7 @@ package git4idea.rebase;
 
 import org.jetbrains.annotations.NonNls;
 import javax.annotation.Nonnull;
-import com.intellij.openapi.diagnostic.Logger;
+import consulo.logging.Logger;
 
 /**
  * The entry for rebase editor

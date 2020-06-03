@@ -26,7 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import javax.annotation.Nonnull;
-import com.intellij.openapi.diagnostic.Logger;
+import consulo.logging.Logger;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;

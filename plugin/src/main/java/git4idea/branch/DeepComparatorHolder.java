@@ -20,11 +20,11 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.inject.Singleton;
 
-import com.intellij.openapi.Disposable;
+import consulo.disposer.Disposable;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Disposer;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.vcs.log.VcsLogUi;
+import consulo.disposer.Disposer;
 import git4idea.repo.GitRepositoryManager;
 
 @Singleton

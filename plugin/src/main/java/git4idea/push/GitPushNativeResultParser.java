@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 
 import javax.annotation.Nonnull;
 
-import com.intellij.openapi.diagnostic.Logger;
+import consulo.logging.Logger;
 import com.intellij.util.containers.ContainerUtil;
 
 import javax.annotation.Nullable;

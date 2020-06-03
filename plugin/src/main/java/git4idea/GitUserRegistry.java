@@ -23,10 +23,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import javax.annotation.Nullable;
-import com.intellij.openapi.Disposable;
+
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.text.StringUtil;
@@ -37,6 +36,8 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.vcs.log.VcsLogObjectsFactory;
 import com.intellij.vcs.log.VcsUser;
+import consulo.disposer.Disposable;
+import consulo.logging.Logger;
 import git4idea.config.GitConfigUtil;
 
 @Singleton

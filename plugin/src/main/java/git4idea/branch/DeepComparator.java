@@ -15,14 +15,14 @@
  */
 package git4idea.branch;
 
-import com.intellij.openapi.Disposable;
+import consulo.disposer.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.diagnostic.Logger;
+import consulo.logging.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Disposer;
+import consulo.disposer.Disposer;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -46,7 +46,7 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Set;
 
-public class DeepComparator implements VcsLogHighlighter, Disposable
+public class DeepComparator implements VcsLogHighlighter, consulo.disposer.Disposable
 {
 	private static final Logger LOG = Logger.getInstance(DeepComparator.class);
 

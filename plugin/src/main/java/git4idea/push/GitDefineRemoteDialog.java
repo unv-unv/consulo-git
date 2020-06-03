@@ -24,7 +24,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import javax.annotation.Nullable;
-import com.intellij.openapi.diagnostic.Logger;
+import consulo.logging.Logger;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.ui.DialogWrapper;

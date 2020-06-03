@@ -21,7 +21,7 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.Nonnull;
-import com.intellij.openapi.diagnostic.Logger;
+
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
@@ -32,6 +32,7 @@ import com.intellij.openapi.vcs.changes.ChangeListManager;
 import com.intellij.openapi.vcs.impl.LocalChangesUnderRoots;
 import com.intellij.openapi.vcs.update.UpdatedFiles;
 import com.intellij.util.containers.ContainerUtil;
+import consulo.logging.Logger;
 import git4idea.GitBranch;
 import git4idea.GitUtil;
 import git4idea.branch.GitBranchPair;

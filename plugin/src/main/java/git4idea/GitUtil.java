@@ -30,7 +30,7 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.diagnostic.Logger;
+import consulo.logging.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;

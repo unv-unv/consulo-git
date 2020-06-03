@@ -16,7 +16,7 @@
 package git4idea.roots;
 
 import javax.annotation.Nonnull;
-import com.intellij.openapi.diagnostic.Logger;
+import consulo.logging.Logger;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vcs.roots.VcsIntegrationEnabler;
 import com.intellij.openapi.vfs.VirtualFile;

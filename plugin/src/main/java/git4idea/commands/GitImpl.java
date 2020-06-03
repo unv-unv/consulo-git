@@ -16,7 +16,6 @@
 package git4idea.commands;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.text.StringUtil;
@@ -27,6 +26,7 @@ import com.intellij.util.Function;
 import com.intellij.util.ObjectUtils;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.vcsUtil.VcsFileUtil;
+import consulo.logging.Logger;
 import consulo.util.dataholder.Key;
 import git4idea.GitVcs;
 import git4idea.branch.GitRebaseParams;
