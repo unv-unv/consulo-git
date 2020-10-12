@@ -15,25 +15,6 @@
  */
 package git4idea.push;
 
-import static com.intellij.xml.util.XmlStringUtil.wrapInHtml;
-import static git4idea.util.GitUIUtil.code;
-
-import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
-import org.jetbrains.annotations.TestOnly;
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -43,6 +24,19 @@ import git4idea.GitBranch;
 import git4idea.GitUtil;
 import git4idea.config.UpdateMethod;
 import git4idea.repo.GitRepository;
+import org.jetbrains.annotations.TestOnly;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.intellij.xml.util.XmlStringUtil.wrapInHtml;
+import static git4idea.util.GitUIUtil.code;
 
 /**
  * @author Kirill Likhodedov
@@ -130,7 +124,7 @@ class GitRejectedPushUpdateDialog extends DialogWrapper
 		JPanel rootPanel = new JPanel(new BorderLayout(GAP, GAP));
 		rootPanel.add(desc);
 		rootPanel.add(options, BorderLayout.SOUTH);
-		JLabel iconLabel = new JLabel(myRebaseOverMergeProblemDetected ? UIUtil.getWarningIcon() : UIUtil.getQuestionIcon());
+		JLabel iconLabel = new JBLabel(myRebaseOverMergeProblemDetected ? UIUtil.getWarningIcon() : UIUtil.getQuestionIcon());
 		rootPanel.add(iconLabel, BorderLayout.WEST);
 
 		return rootPanel;

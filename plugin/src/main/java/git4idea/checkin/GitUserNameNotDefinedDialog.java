@@ -108,7 +108,7 @@ class GitUserNameNotDefinedDialog extends DialogWrapper {
   @Override
   protected JComponent createCenterPanel() {
 
-    JLabel icon = new JLabel(UIUtil.getWarningIcon(), SwingConstants.LEFT);
+    JLabel icon = new JBLabel(UIUtil.getWarningIcon(), SwingConstants.LEFT);
     JLabel description = new JLabel(getMessageText());
 
     myNameTextField = new JTextField(20);

@@ -20,6 +20,7 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.TabbedPaneImpl;
+import consulo.awt.TargetAWT;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 import git4idea.util.GitCommitCompareInfo;
@@ -68,8 +69,8 @@ public class GitCompareBranchesDialog extends DialogWrapper {
     JPanel diffPanel = new GitCompareBranchesDiffPanel(myProject, myBranchName, myCurrentBranchName, myCompareInfo);
 
     TabbedPaneImpl tabbedPane = new TabbedPaneImpl(SwingConstants.TOP);
-    tabbedPane.addTab("Log", Git4ideaIcons.Branch, myLogPanel);
-    tabbedPane.addTab("Diff", AllIcons.Actions.Diff, diffPanel);
+    tabbedPane.addTab("Log", TargetAWT.to(Git4ideaIcons.Branch), myLogPanel);
+    tabbedPane.addTab("Diff", TargetAWT.to(AllIcons.Actions.Diff), diffPanel);
     tabbedPane.setKeyboardNavigation(TabbedPaneImpl.DEFAULT_PREV_NEXT_SHORTCUTS);
     return tabbedPane;
   }

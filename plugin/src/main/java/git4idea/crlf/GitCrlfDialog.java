@@ -79,11 +79,11 @@ public class GitCrlfDialog extends DialogWrapper {
     JLabel readMore = new LinkLabel("Read more", null, new LinkListener() {
       @Override
       public void linkSelected(LinkLabel aSource, Object aLinkData) {
-        BrowserUtil.launchBrowser("https://help.github.com/articles/dealing-with-line-endings");
+        BrowserUtil.browse("https://help.github.com/articles/dealing-with-line-endings");
       }
     });
 
-    JLabel icon = new JLabel(UIUtil.getWarningIcon(), SwingConstants.LEFT);
+    JLabel icon = new JBLabel(UIUtil.getWarningIcon(), SwingConstants.LEFT);
     myDontWarn = new JBCheckBox("Don't warn again");
     myDontWarn.setMnemonic('w');
 

@@ -1,14 +1,14 @@
 package git4idea;
 
-import javax.annotation.Nonnull;
-import javax.inject.Singleton;
-import javax.swing.Icon;
-
-import javax.annotation.Nullable;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
+import consulo.ui.image.Image;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.inject.Singleton;
 
 /**
  * Use {@link DialogManager#show(DialogWrapper) DialogManager.show(DialogWrapper)} instead of {@link DialogWrapper#show()}
@@ -31,13 +31,13 @@ public class DialogManager
 			@Nonnull final String[] options,
 			final int defaultButtonIndex,
 			final int focusedButtonIndex,
-			@Nullable final Icon icon,
+			@Nullable final Image icon,
 			@Nullable final DialogWrapper.DoNotAskOption dontAskOption)
 	{
 		return dialogManager().showMessageDialog(description, title, options, defaultButtonIndex, focusedButtonIndex, icon, dontAskOption);
 	}
 
-	public static int showOkCancelDialog(@Nonnull Project project, @Nonnull String message, @Nonnull String title, @Nonnull String okButtonText, @Nonnull String cancelButtonText, @Nullable Icon icon)
+	public static int showOkCancelDialog(@Nonnull Project project, @Nonnull String message, @Nonnull String title, @Nonnull String okButtonText, @Nonnull String cancelButtonText, @Nullable Image icon)
 	{
 		return dialogManager().showMessageDialog(project, message, title, new String[]{
 				okButtonText,
@@ -51,7 +51,7 @@ public class DialogManager
 			@Nonnull String yesButtonText,
 			@Nonnull String noButtonText,
 			@Nonnull String cancelButtonText,
-			@Nullable Icon icon)
+			@Nullable Image icon)
 	{
 		return dialogManager().showMessageDialog(project, message, title, new String[]{
 				yesButtonText,
@@ -65,7 +65,7 @@ public class DialogManager
 		dialog.show();
 	}
 
-	protected int showMessageDialog(@Nonnull Project project, @Nonnull String message, @Nonnull String title, @Nonnull String[] options, int defaultButtonIndex, @Nullable Icon icon)
+	protected int showMessageDialog(@Nonnull Project project, @Nonnull String message, @Nonnull String title, @Nonnull String[] options, int defaultButtonIndex, @Nullable Image icon)
 	{
 		return Messages.showDialog(project, message, title, options, defaultButtonIndex, icon);
 	}
@@ -75,7 +75,7 @@ public class DialogManager
 			@Nonnull String[] options,
 			int defaultButtonIndex,
 			int focusedButtonIndex,
-			@Nullable Icon icon,
+			@Nullable Image icon,
 			@Nullable DialogWrapper.DoNotAskOption dontAskOption)
 	{
 		return Messages.showDialog(description, title, options, defaultButtonIndex, focusedButtonIndex, icon, dontAskOption);

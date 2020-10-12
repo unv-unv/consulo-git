@@ -15,14 +15,14 @@
  */
 package git4idea;
 
-import javax.inject.Singleton;
-import javax.swing.Icon;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import consulo.ui.image.Image;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.inject.Singleton;
 
 /**
  * @author Kirill Likhodedov
@@ -34,12 +34,12 @@ public class MessageManager {
     return ServiceManager.getService(project, MessageManager.class);
   }
 
-  public static int showYesNoDialog(Project project, String description, String title, String yesText, String noText, @Nullable Icon icon) {
+  public static int showYesNoDialog(Project project, String description, String title, String yesText, String noText, @Nullable Image icon) {
     return getInstance(project).doShowYesNoDialog(project, description, title, yesText, noText, icon);
   }
 
   @SuppressWarnings("MethodMayBeStatic")
-  protected int doShowYesNoDialog(Project project, String description, String title, String yesText, String noText, @Nullable Icon icon) {
+  protected int doShowYesNoDialog(Project project, String description, String title, String yesText, String noText, @Nullable Image icon) {
     return Messages.showYesNoDialog(project, description, title, yesText, noText, icon);
   }
 }
