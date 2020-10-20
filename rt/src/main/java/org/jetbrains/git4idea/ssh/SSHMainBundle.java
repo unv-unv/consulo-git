@@ -16,8 +16,6 @@
 package org.jetbrains.git4idea.ssh;
 
 import consulo.util.nodep.BundleBase;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.PropertyKey;
 
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
@@ -29,12 +27,11 @@ import java.util.ResourceBundle;
 public class SSHMainBundle {
   private static Reference<ResourceBundle> ourBundle;
 
-  @NonNls
   private static final String BUNDLE = "org.jetbrains.git4idea.ssh.SSHMainBundle";
 
   private SSHMainBundle() { }
 
-  public static String message(@PropertyKey(resourceBundle = BUNDLE) String key, Object... params) {
+  public static String message(String key, Object... params) {
     return BundleBase.message(getBundle(), key, params);
   }
 
@@ -48,7 +45,7 @@ public class SSHMainBundle {
     return bundle;
   }
 
-  public static String getString(@PropertyKey(resourceBundle = BUNDLE) final String key) {
+  public static String getString(final String key) {
     return getBundle().getString(key);
   }
 }

@@ -19,7 +19,6 @@ import com.trilead.ssh2.*;
 import com.trilead.ssh2.crypto.PEMDecoder;
 import consulo.util.nodep.ArrayUtilRt;
 import consulo.util.nodep.io.FileUtilRt;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.git4idea.GitExternalApp;
 
 import javax.annotation.Nullable;
@@ -72,17 +71,14 @@ public class SSHMain implements GitExternalApp
 	/**
 	 * Path to known hosts file
 	 */
-	@NonNls
 	private static final String knownHostPath = SSHConfig.USER_HOME + "/.ssh/known_hosts";
 	/**
 	 * Path to DSA key
 	 */
-	@NonNls
 	private static final String idDSAPath = SSHConfig.USER_HOME + "/.ssh/id_dsa";
 	/**
 	 * Path to RSA key
 	 */
-	@NonNls
 	private static final String idRSAPath = SSHConfig.USER_HOME + "/.ssh/id_rsa";
 
 	/**
@@ -96,27 +92,22 @@ public class SSHMain implements GitExternalApp
 	/**
 	 * public key authentication method
 	 */
-	@NonNls
 	public static final String PUBLIC_KEY_METHOD = "publickey";
 	/**
 	 * keyboard interactive method
 	 */
-	@NonNls
 	public static final String KEYBOARD_INTERACTIVE_METHOD = "keyboard-interactive";
 	/**
 	 * password method
 	 */
-	@NonNls
 	public static final String PASSWORD_METHOD = "password";
 	/**
 	 * RSA algorithm
 	 */
-	@NonNls
 	public static final String SSH_RSA_ALGORITHM = "ssh-rsa";
 	/**
 	 * DSS algorithm
 	 */
-	@NonNls
 	public static final String SSH_DSS_ALGORITHM = "ssh-dss";
 
 
@@ -488,7 +479,7 @@ public class SSHMain implements GitExternalApp
 	 * @param in               the input stream
 	 * @param releaseSemaphore if true the semaphore will be released
 	 */
-	private void forward(@NonNls final String name, final OutputStream out, final InputStream in, final boolean releaseSemaphore)
+	private void forward(final String name, final OutputStream out, final InputStream in, final boolean releaseSemaphore)
 	{
 		final Runnable action = new Runnable()
 		{

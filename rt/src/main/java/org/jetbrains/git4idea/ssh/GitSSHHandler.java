@@ -15,9 +15,7 @@
  */
 package org.jetbrains.git4idea.ssh;
 
-import org.jetbrains.annotations.NonNls;
 import javax.annotation.Nullable;
-
 import java.util.List;
 import java.util.Vector;
 
@@ -29,41 +27,29 @@ public interface GitSSHHandler
 	/**
 	 * The prefix of the ssh script name
 	 */
-	@NonNls
 	String GIT_SSH_PREFIX = "intellij-git-ssh";
 	/**
 	 * Name of environment variable for SSH handler access token
 	 */
-	@NonNls
 	String SSH_HANDLER_ENV = "GIT4IDEA_SSH_HANDLER";
-	@NonNls
 	String SSH_IGNORE_KNOWN_HOSTS_ENV = "GIT4IDEA_SSH_IGNORE_KNOWN_HOSTS";
-	@NonNls
 	String SSH_PORT_ENV = "GIT4IDEA_SSH_PORT";
 	/**
 	 * Name of environment variable for SSH executable
 	 */
-	@NonNls
 	String GIT_SSH_ENV = "GIT_SSH";
 	/**
 	 * Name of the handler
 	 */
-	@NonNls
 	String HANDLER_NAME = "Git4ideaSSHHandler";
 	/**
 	 * Proxy settings
 	 */
-	@NonNls
 	String SSH_USE_PROXY_ENV = "GIT4IDEA_SSH_USE_PROXY";
-	@NonNls
 	String SSH_PROXY_HOST_ENV = "GIT4IDEA_SSH_PROXY_HOST";
-	@NonNls
 	String SSH_PROXY_PORT_ENV = "GIT4IDEA_SSH_PROXY_PORT";
-	@NonNls
 	String SSH_PROXY_AUTHENTICATION_ENV = "GIT4IDEA_SSH_PROXY_AUTHENTICATION";
-	@NonNls
 	String SSH_PROXY_USER_ENV = "GIT4IDEA_SSH_PROXY_USER";
-	@NonNls
 	String SSH_PROXY_PASSWORD_ENV = "GIT4IDEA_SSH_PROXY_PASSWORD";
 
 	/**

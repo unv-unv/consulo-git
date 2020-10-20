@@ -19,9 +19,8 @@ import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 import org.apache.xmlrpc.client.XmlRpcHttpClientConfig;
-import org.jetbrains.annotations.NonNls;
-import javax.annotation.Nullable;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -98,7 +97,7 @@ public class GitSSHXmlRpcClient implements GitSSHHandler
 	 * @param method short name of the method
 	 * @return full method name
 	 */
-	private static String methodName(@NonNls final String method)
+	private static String methodName(final String method)
 	{
 		return GitSSHHandler.HANDLER_NAME + "." + method;
 	}

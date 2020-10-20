@@ -15,10 +15,8 @@
  */
 package org.jetbrains.git4idea.ssh;
 
-import org.jetbrains.annotations.NonNls;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import java.io.*;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -36,7 +34,7 @@ public class SSHConfig {
   /**
    * User home directory
    */
-  @NonNls public final static String USER_HOME;
+  public final static String USER_HOME;
 
   static {
     String e = System.getenv("HOME");
@@ -46,7 +44,7 @@ public class SSHConfig {
   /**
    * Allowed authentication methods
    */
-  @NonNls private final static HashSet<String> ALLOWED_METHODS = new HashSet<String>();
+  private final static HashSet<String> ALLOWED_METHODS = new HashSet<String>();
 
   static {
     ALLOWED_METHODS.add(SSHMain.PUBLIC_KEY_METHOD);
