@@ -16,7 +16,7 @@
 package git4idea.remote;
 
 import javax.annotation.Nonnull;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.project.Project;

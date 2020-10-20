@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;

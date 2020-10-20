@@ -18,7 +18,7 @@ package git4idea.branch;
 import java.util.List;
 
 import javax.annotation.Nonnull;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import javax.annotation.Nullable;
 import com.intellij.openapi.application.Application;

@@ -19,11 +19,10 @@ import com.intellij.openapi.components.*;
 import com.intellij.util.xmlb.annotations.MapAnnotation;
 import com.intellij.util.xmlb.annotations.Property;
 import gnu.trove.THashMap;
+import jakarta.inject.Singleton;
 
 import java.util.Map;
 import java.util.TreeMap;
-
-import javax.inject.Singleton;
 
 /**
  * This class stores information related to SSH connections

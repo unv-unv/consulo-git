@@ -16,7 +16,7 @@
 package git4idea.test;
 
 import javax.annotation.Nonnull;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationGroup;

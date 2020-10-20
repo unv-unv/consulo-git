@@ -40,10 +40,11 @@ import git4idea.config.GitExecutableValidator;
 import git4idea.history.browser.SHAHash;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
+import jakarta.inject.Singleton;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import javax.inject.Singleton;
 import javax.swing.*;
 import java.util.Collections;
 import java.util.List;

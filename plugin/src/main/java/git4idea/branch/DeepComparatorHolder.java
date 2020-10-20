@@ -18,7 +18,7 @@ package git4idea.branch;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import consulo.disposer.Disposable;
 import com.intellij.openapi.project.Project;

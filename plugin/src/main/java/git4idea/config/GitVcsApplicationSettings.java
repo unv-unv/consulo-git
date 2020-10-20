@@ -16,7 +16,7 @@
 package git4idea.config;
 
 import javax.annotation.Nonnull;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import javax.annotation.Nullable;
 import com.intellij.openapi.components.PersistentStateComponent;

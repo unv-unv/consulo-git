@@ -29,7 +29,7 @@ import org.jetbrains.annotations.NonNls;
 import javax.annotation.Nonnull;
 import org.jetbrains.git4idea.util.ScriptGenerator;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import java.security.SecureRandom;
 import java.util.Map;
 import java.util.Random;

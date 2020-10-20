@@ -38,7 +38,7 @@ import javax.annotation.Nonnull;
 
 import java.util.*;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 /**
  * Git repository change provider

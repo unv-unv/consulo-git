@@ -19,7 +19,7 @@ import java.util.UUID;
 import java.util.Vector;
 
 import javax.annotation.Nonnull;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.jetbrains.git4idea.util.ScriptGenerator;
 import com.trilead.ssh2.KnownHosts;

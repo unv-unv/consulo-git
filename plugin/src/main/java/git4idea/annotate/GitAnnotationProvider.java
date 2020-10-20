@@ -38,6 +38,7 @@ import git4idea.commands.GitSimpleHandler;
 import git4idea.util.StringScanner;
 import git4idea.history.GitHistoryUtils;
 import git4idea.i18n.GitBundle;
+import jakarta.inject.Singleton;
 import org.jetbrains.annotations.NonNls;
 import javax.annotation.Nonnull;
 
@@ -45,8 +46,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.inject.Singleton;
 
 /**
  * Git annotation provider implementation.

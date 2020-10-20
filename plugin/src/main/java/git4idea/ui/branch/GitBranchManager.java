@@ -22,7 +22,7 @@ import static git4idea.log.GitRefManager.ORIGIN_MASTER;
 import java.util.List;
 
 import javax.annotation.Nonnull;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import javax.annotation.Nullable;
 import com.intellij.dvcs.branch.BranchStorage;

@@ -21,7 +21,7 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.components.StoragePathMacros;
 
 import javax.annotation.Nullable;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 @State(name = "Git.Rebase.Settings", storages = {@Storage(file = StoragePathMacros.WORKSPACE_FILE)})
 @Singleton

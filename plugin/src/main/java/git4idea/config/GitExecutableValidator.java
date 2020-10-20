@@ -17,7 +17,7 @@ package git4idea.config;
 
 import java.util.Collections;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import javax.annotation.Nonnull;
 import com.intellij.execution.ExecutableValidator;
