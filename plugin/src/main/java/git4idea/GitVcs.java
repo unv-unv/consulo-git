@@ -15,21 +15,6 @@
  */
 package git4idea;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.function.Function;
-
-import javax.annotation.Nonnull;
-import javax.swing.event.HyperlinkEvent;
-
-import javax.annotation.Nullable;
 import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.notification.Notification;
@@ -62,7 +47,9 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ui.UIUtil;
 import com.intellij.vcs.log.VcsUserRegistry;
 import consulo.disposer.Disposer;
+import consulo.git.icon.GitIconGroup;
 import consulo.logging.Logger;
+import consulo.ui.image.Image;
 import git4idea.annotate.GitAnnotationProvider;
 import git4idea.annotate.GitRepositoryForAnnotationsListener;
 import git4idea.changes.GitCommittedChangeListProvider;
@@ -71,14 +58,7 @@ import git4idea.checkin.GitCheckinEnvironment;
 import git4idea.checkin.GitCommitAndPushExecutor;
 import git4idea.checkout.GitCheckoutProvider;
 import git4idea.commands.Git;
-import git4idea.config.GitExecutableDetector;
-import git4idea.config.GitExecutableManager;
-import git4idea.config.GitExecutableValidator;
-import git4idea.config.GitSharedSettings;
-import git4idea.config.GitVcsApplicationSettings;
-import git4idea.config.GitVcsConfigurable;
-import git4idea.config.GitVcsSettings;
-import git4idea.config.GitVersion;
+import git4idea.config.*;
 import git4idea.diff.GitDiffProvider;
 import git4idea.diff.GitTreeDiffProvider;
 import git4idea.history.GitHistoryProvider;
@@ -90,6 +70,16 @@ import git4idea.status.GitChangeProvider;
 import git4idea.ui.branch.GitBranchWidget;
 import git4idea.update.GitUpdateEnvironment;
 import git4idea.vfs.GitVFSListener;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.swing.event.HyperlinkEvent;
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Function;
 
 /**
  * Git VCS implementation
@@ -510,6 +500,13 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 				VcsBalloonProblemNotifier.showOverVersionControlView(myProject, message, MessageType.ERROR);
 			}
 		}
+	}
+
+	@Nonnull
+	@Override
+	public Image getIcon()
+	{
+		return GitIconGroup.git();
 	}
 
 	/**
