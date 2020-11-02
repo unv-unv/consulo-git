@@ -67,7 +67,6 @@ import git4idea.merge.GitMergeProvider;
 import git4idea.rollback.GitRollbackEnvironment;
 import git4idea.roots.GitIntegrationEnabler;
 import git4idea.status.GitChangeProvider;
-import git4idea.ui.branch.GitBranchWidget;
 import git4idea.update.GitUpdateEnvironment;
 import git4idea.vfs.GitVFSListener;
 
@@ -117,7 +116,6 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 	@Nullable
 	private final GitCommitAndPushExecutor myCommitAndPushExecutor;
 	private final GitExecutableValidator myExecutableValidator;
-	private GitBranchWidget myBranchWidget;
 
 	private GitVersion myVersion = GitVersion.NULL; // version of Git which this plugin uses.
 	private static final int MAX_CONSOLE_OUTPUT_SIZE = 10000;
@@ -331,11 +329,6 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 		}
 		ServiceManager.getService(myProject, VcsUserRegistry.class); // make sure to read the registry before opening commit dialog
 
-		if(!ApplicationManager.getApplication().isHeadlessEnvironment())
-		{
-			myBranchWidget = new GitBranchWidget(myProject);
-			myBranchWidget.activate();
-		}
 		if(myRepositoryForAnnotationsListener == null)
 		{
 			myRepositoryForAnnotationsListener = new GitRepositoryForAnnotationsListener(myProject);
@@ -373,12 +366,6 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 		{
 			Disposer.dispose(myVFSListener);
 			myVFSListener = null;
-		}
-
-		if(myBranchWidget != null)
-		{
-			myBranchWidget.deactivate();
-			myBranchWidget = null;
 		}
 	}
 

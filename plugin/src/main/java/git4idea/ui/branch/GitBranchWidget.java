@@ -15,30 +15,86 @@
  */
 package git4idea.ui.branch;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import com.intellij.dvcs.ui.DvcsStatusWidget;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.ListPopup;
+import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.StatusBarWidget;
+import com.intellij.openapi.wm.StatusBarWidgetFactory;
 import com.intellij.util.ObjectUtil;
+import consulo.disposer.Disposer;
 import git4idea.GitUtil;
 import git4idea.branch.GitBranchUtil;
 import git4idea.config.GitVcsSettings;
+import git4idea.i18n.GitBundle;
 import git4idea.repo.GitRepository;
-import git4idea.repo.GitRepositoryChangeListener;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Status bar widget which displays the current branch for the file currently open in the editor.
  */
 public class GitBranchWidget extends DvcsStatusWidget<GitRepository>
 {
+	private static final String ID = "git";
+
+	public static class Factory implements StatusBarWidgetFactory
+	{
+		@Override
+		@Nonnull
+		public String getId()
+		{
+			return ID;
+		}
+
+		@Override
+		@Nonnull
+		public String getDisplayName()
+		{
+			return GitBundle.message("git.status.bar.widget.name");
+		}
+
+		@Override
+		public boolean isAvailable(@Nonnull Project project)
+		{
+			//return !GitRepositoryManager.getInstance(project).getRepositories().isEmpty();
+			return true;
+		}
+
+		@Override
+		@Nonnull
+		public StatusBarWidget createWidget(@Nonnull Project project)
+		{
+			return new GitBranchWidget(project);
+		}
+
+		@Override
+		public boolean isEnabledByDefault()
+		{
+			return true;
+		}
+
+		@Override
+		public void disposeWidget(@Nonnull StatusBarWidget widget)
+		{
+			Disposer.dispose(widget);
+		}
+
+		@Override
+		public boolean canBeEnabledOn(@Nonnull StatusBar statusBar)
+		{
+			return true;
+		}
+	}
+
 	private final GitVcsSettings mySettings;
 
 	public GitBranchWidget(@Nonnull Project project)
 	{
 		super(project, "Git");
 		mySettings = GitVcsSettings.getInstance(project);
+		project.getMessageBus().connect().subscribe(GitRepository.GIT_REPO_CHANGE, repository -> updateLater());
 	}
 
 	@Override
@@ -75,22 +131,15 @@ public class GitBranchWidget extends DvcsStatusWidget<GitRepository>
 	}
 
 	@Override
-	protected void subscribeToRepoChangeEvents(@Nonnull Project project)
-	{
-		project.getMessageBus().connect().subscribe(GitRepository.GIT_REPO_CHANGE, new GitRepositoryChangeListener()
-		{
-			@Override
-			public void repositoryChanged(@Nonnull GitRepository repository)
-			{
-				LOG.debug("repository changed");
-				updateLater();
-			}
-		});
-	}
-
-	@Override
 	protected void rememberRecentRoot(@Nonnull String path)
 	{
 		mySettings.setRecentRoot(path);
+	}
+
+	@Nonnull
+	@Override
+	public String ID()
+	{
+		return ID;
 	}
 }
