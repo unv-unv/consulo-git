@@ -15,31 +15,11 @@
  */
 package git4idea.checkout;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.regex.Pattern;
-
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-
-import org.jetbrains.annotations.NonNls;
 import com.intellij.ide.impl.ProjectUtil;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.ComponentWithBrowseButton;
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.ui.TextComponentAccessor;
-import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.openapi.ui.*;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.DocumentAdapter;
@@ -53,6 +33,15 @@ import git4idea.commands.GitTaskResult;
 import git4idea.config.GitVcsApplicationSettings;
 import git4idea.i18n.GitBundle;
 import git4idea.remote.GitRememberedInputs;
+import org.jetbrains.annotations.NonNls;
+
+import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.regex.Pattern;
 
 /**
  * A dialog for the git clone options
@@ -170,19 +159,13 @@ public class GitCloneDialog extends DialogWrapper
 		String parentDir = GitRememberedInputs.getInstance().getCloneParentDir();
 		if(StringUtil.isEmptyOrSpaces(parentDir))
 		{
-			parentDir = ProjectUtil.getBaseDir();
+			parentDir = ProjectUtil.getProjectsDirectory().toString();
 		}
 		myParentDirectory.setText(parentDir);
 
 		myDirectoryName.getDocument().addDocumentListener(updateOkButtonListener);
 
-		myTestButton.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(final ActionEvent e)
-			{
-				test();
-			}
-		});
+		myTestButton.addActionListener(e -> test());
 
 		setOKActionEnabled(false);
 		myTestButton.setEnabled(false);
