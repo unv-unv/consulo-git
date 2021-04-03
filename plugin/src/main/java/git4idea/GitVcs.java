@@ -646,6 +646,6 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 
 	public boolean isWithCustomMenu()
 	{
-		return true;
+		return false;
 	}
 }
