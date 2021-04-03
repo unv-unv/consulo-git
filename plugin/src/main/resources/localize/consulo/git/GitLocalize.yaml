@@ -1,0 +1,1047 @@
+action.text.show.all.submitted:
+  text: Show all files changed by this commit
+add.action.name:
+  text: Add
+add.adding:
+  text: Adding files...
+addrefspec.button:
+  text: Add
+addrefspec.get.references.tooltip:
+  text: Get remote tag and branch references (depending on checkbox state).
+addrefspec.get.references:
+  text: '&Get References'
+addrefspec.getting.references.title:
+  text: Getting remote references for {0}
+addrefspec.include.branches.tooltip:
+  text: The next update references wil retrieve remote branches.
+addrefspec.include.branches:
+  text: Include &branches
+addrefspec.include.tags.tooltip:
+  text: The next update references wil retrieve remote tags.
+addrefspec.include.tags:
+  text: Include &tags
+addrefspec.node.branches:
+  text: Branches
+addrefspec.node.tags:
+  text: Tags
+addrefspec.reference.chooser.tooltip:
+  text: Select remote branch and tag references
+addrefspec.title:
+  text: Add Reference(s)
+annotate.action.name:
+  text: Annotate
+annotation.tool.tip:
+  text: |-
+    commit {0}
+    Author: {1}
+    Date: {2}
+
+    {3}
+changes.retrieving:
+  text: Retrieving changes for revision {0}
+checking.out:
+  text: Checkout {0}
+checkout.action.name:
+  text: Checkout
+checkout.branch.label:
+  text: '&Checkout'
+checkout.branch.name.exists:
+  text: Branch with the same name exists. Use override option to force branch creation.
+checkout.branch:
+  text: Checkout
+checkout.create.ref.log.tooltip:
+  text: If checked the reference log is created for the branch. It allows time based searches. (the option "-l")
+checkout.create.ref.log:
+  text: Create ref &log
+checkout.include.tags.tooltip:
+  text: If checked, the combobox will include tags names as well as branches.
+checkout.include.tags:
+  text: '&Include tags'
+checkout.invalid.new.branch.name:
+  text: Invalid new branch name
+checkout.new.branch.tooltip:
+  text: Enter name of new branch here. Leave blank if you do not want to create a new branch.
+checkout.new.branch:
+  text: As &new branch
+checkout.override.branch:
+  text: '&Override'
+checkout.override.tooltip:
+  text: If checked a branch will be created even if a branch with the same name already exists. The previous branch will be deleted.
+checkout.ref.tooltip:
+  text: Select branch, tag, or enter commit reference
+checkout.retrieving.branches.and.tags:
+  text: Retrieving branches and tags
+checkout.track.branch:
+  text: '&Track branch'
+checkout.track.tooltip:
+  text: If checked, the newly created branch will track original branch during pull.
+checkout.validate.tooltip:
+  text: Use this button to validate reference expression if entered manually.
+checkout.validate:
+  text: '&Validate'
+checkout.validation.failed:
+  text: Source revision validation failed
+clone.button:
+  text: Clone
+clone.destination.directory.description:
+  text: Select a parent directory destination directory for clone
+clone.destination.directory.title:
+  text: Parent Directory
+clone.destination.exists.error:
+  text: The path {0} exists. Git cannot clone to an existing directory.
+clone.dir.name:
+  text: 'Directory &Name:'
+clone.invalid.origin:
+  text: The origin name is in invalid format.
+clone.invalid.url:
+  text: Repository URL is a malformed URL or non-existent directory.
+clone.origin:
+  text: '&Origin Name'
+clone.parent.dir:
+  text: '&Parent Directory:'
+clone.parent.missing.error:
+  text: The parent path {0} must exist.
+clone.repository.url:
+  text: 'Git &Repository URL:'
+clone.repository.putty.key:
+  text: 'Putty Key:'
+clone.test.failed.error:
+  text: Repository test has failed.
+clone.test.success.message:
+  text: <html>Connection to repository {0} has been successful.</html>
+clone.test.connection.title:
+  text: Test Connection
+clone.test:
+  text: '&Test'
+clone.testing:
+  text: Testing repository {0}
+clone.title:
+  text: Clone Repository
+clone.url.is.not.directory.error:
+  text: Repository URL is not a directory.
+cloning.repository:
+  text: Cloning source repository {0}
+command.cancelled:
+  text: The command was cancelled.
+commit.action.name:
+  text: Comm&it
+commit.author.tooltip:
+  text: '<html>Specify a commit author here if it is different from committer. The author should be in the format: Author Name &lt;author@ema.il&gt;</html>'
+commit.author:
+  text: '&Author:'
+commit.amend.tooltip:
+  text: <html>Merge this commit with the previous one</html>
+commit.amend:
+  text: Amend commit
+commit.partial.merge.message:
+  text: |-
+    Partial commit during a {0} is not allowed.
+    The following files are not included in commit.
+    Perform commit with all files included?
+commit.partial.merge.title:
+  text: Partial Merge Commit
+commit.push.changes.tooltip:
+  text: When this option is enabled, changes are pushed to the server after commit.
+commit.push.changes:
+  text: '&Push Changes'
+common.current.branch.tooltip:
+  text: The currently checked out branch.
+common.current.branch:
+  text: 'Current Branch:'
+common.do.not.show.tooltip:
+  text: If this option is selected, the choice will be remembered, and the dialog will not be shown again.
+common.do.not.show:
+  text: '&Do not show this dialog again'
+common.git.root.tooltip:
+  text: Select Git VCS root
+common.git.root:
+  text: 'Git &Root:'
+common.no.active.branch:
+  text: <no active branch>
+common.refreshing:
+  text: Refreshing files
+computing.annotation:
+  text: Computing annotation for {0}
+crlf.convert.convert:
+  text: Convert Selected
+crlf.convert.label:
+  text: <html>&The following text files have line separator that do not match the project line separator.<br/>Select files you wish to convert to project default line separators before commit.</html>
+crlf.convert.leave:
+  text: Leave Unchanged
+crlf.convert.none.tooltip:
+  text: If this option is selected, the file are not attempted to be converted before commit.
+crlf.convert.none:
+  text: Do &not convert files
+crlf.convert.title:
+  text: Invalid Line Separators
+current.branch.action.name:
+  text: CurrentBranch
+current.branch.change.tracked:
+  text: Change Tracked Branch
+current.branch.message:
+  text: 'Checked out branch: {0}'
+current.branch.title:
+  text: Configure Tracked Branch
+current.branch.tracked.branch.none:
+  text: <none>
+current.branch.tracked.branch.tooltip:
+  text: Select the branch to track
+current.branch.tracked.branch:
+  text: '&Branch:'
+current.branch.tracked.remote.none:
+  text: <none>
+current.branch.tracked.remote.this:
+  text: <this repository>
+current.branch.tracked.repository.tooltip:
+  text: Select repository to track
+current.branch.tracked.repository:
+  text: 'Re&pository:'
+current.branch.tracked.title:
+  text: Tracked Branch
+debug.git.exec:
+  text: 'DEBUG: work-dir: [{0}] exec: [{1}]'
+delete.action.name:
+  text: Delete
+diff.find.error:
+  text: 'Finding revision for diff: {0}'
+error.dialog.title:
+  text: Error
+error.list.title:
+  text: '{0} Error:'
+error.occurred.during:
+  text: Error occurred during ''{0}''
+errors.message.item:
+  text: |2-
+
+       {0}
+errors.message:
+  text: The Git operation ended with multiple errors:{0}
+fetch.action.name:
+  text: Fetch
+fetch.button:
+  text: Fetch
+fetch.force.references.update.tooltip:
+  text: Forces update of branch references for which update is not forced in reference mapping.
+fetch.force.references.update:
+  text: Force references &update
+fetch.remote.label:
+  text: 'Re&mote:'
+fetch.remote.tooltip:
+  text: Remote name or url for fetch
+fetch.tags.label:
+  text: 'Fetch &tags:'
+fetch.tags.policy.all:
+  text: All
+fetch.tags.policy.for.fetched.commits:
+  text: For fetched commits
+fetch.tags.policy.none:
+  text: None
+fetch.tags.tooltip:
+  text: <html>Select fetched commits policy<ul><li><i>For fetched commits</i> means tags associated with commits on fetched branches are fetched.</li><li><i>All</i> means that all tags and reference commits are fetched</li><li><i>None</i> means that no tags are fetched.</li></ul></html>
+fetch.title:
+  text: Git Fetch
+fetching.tags.title:
+  text: Updating tags from {0}
+fetching.title:
+  text: Fetching from {0}
+find.git.description:
+  text: Select path to Git executable
+find.git.error.title:
+  text: Error Running Git
+find.git.success.title:
+  text: Git executed successfully
+find.git.title:
+  text: Git Configuration
+find.git.unsupported.message:
+  text: <html><tt>{0}</tt><br>This version is unsupported, and some plugin functionality could fail to work.<br>The minimal supported version is <em>{1}</em>.</html>
+fix.roots.button:
+  text: Accept
+fix.roots.list.tooltip:
+  text: The suggested list of Git VCS roots, new roots are marked as bold, removed roots are marked as overstriked.
+fix.roots.message:
+  text: The following Git VCS roots will be used instead of the current Git VCS roots.
+fix.roots.title:
+  text: Fix Git VCS Roots
+fix.roots.valid.message:
+  text: The invalid Git roots have been fixed already.
+fix.roots.valid.title:
+  text: All Git Roots Are Valid
+getting.history:
+  text: Getting history for {0}
+git.default.commit.message:
+  text: |2+
+
+    # Brief commit description here
+
+    # Full commit description here (comment lines starting with '#' will not be included)
+
+git.error.exit:
+  text: The Git process exited with the code {0}
+git.running:
+  text: 'Running: {0}'
+git.vcs.config.convert.crlf:
+  text: '&Line Separators Conversion:'
+git.vcs.config.convert.do.not.convert:
+  text: Do not convert
+git.vcs.config.convert.project:
+  text: Convert to project line separators
+git.vcs.config.convert.ask:
+  text: Ask before conversion
+git.vcs.config.convert.tooltip:
+  text: <html>Specify what to do if line separators in a file and in the project code style are different:<ul><li><b>Do not convert</b> - do nothing, commit as is.</li><li><b>Convert to project line separators</b> - before commit convert line separators to match project code style settings.</li><li><b>Ask before conversion</b> - show dialog and ask what to do.</li></ul>Note that this setting has nothing common with Git autocrlf and other Git settings.</html>
+git.vcs.config.path.label:
+  text: 'Path to &Git executable:'
+git.vcs.config.ssh.mode.idea:
+  text: Built-in
+git.vcs.config.ssh.mode.native:
+  text: Native
+git.vcs.config.ssh.mode.putty:
+  text: Putty
+git.vcs.config.ssh.mode.tooltip:
+  text: <html>Specify the version of SSH to be used with Git.<ul><li><b>Native</b> means that the native SSH will be used.</li><li><b>Built-in</b> means that the implementation provided by {0} will be used.</li></ul>The native implementation might cause hangups on some platforms. In native case, you also might need to configure <em>ssh-askpass</em> for your platform to receive GUI prompts for passwords.</html>
+git.vcs.config.ssh.mode:
+  text: '&SSH executable:'
+git.vcs.config.test.label:
+  text: 'Test '
+git.vcs.config.test:
+  text: '&Test'
+index.file.error:
+  text: Updating file in the index failed
+init.add.root.message:
+  text: Do you want to add this directory as a VCS root?
+init.add.root.title:
+  text: Git Init
+init.destination.directory.description:
+  text: Select directory where the new Git repository will be created.
+init.destination.directory.title:
+  text: Select directory for git init
+init.warning.already.under.git:
+  text: <html>The selected directory <tt>{0}</tt> is already under Git.<br/>Are you sure that you want to create a new VCS root?</html>
+init.warning.title:
+  text: Git Init
+initializing.title:
+  text: Initializing repository...
+merge.action.name:
+  text: Merge
+merge.add.log.information.tooltip:
+  text: Add log information to the commit message ("--log" option)
+merge.add.log.information:
+  text: Add &log information
+merge.branch.button:
+  text: Merge
+merge.branch.message:
+  text: Select branch to merge into this one ({0})
+merge.branch.title:
+  text: Merge Branches
+merge.branches.tooltip:
+  text: <html>The chooser for branches. Select one or more branches to merge (already merged branches are not shown)</html>.
+merge.branches:
+  text: '&Branches to merge:'
+merge.commit.message.tooltip:
+  text: The commit message to use in case if merge results in commit ("-m" option)
+merge.commit.message:
+  text: Commit &Message
+merge.default.strategy:
+  text: <default>
+merge.is.not.needed:
+  text: Merge is not needed for the file {0}
+merge.load.files:
+  text: Loading files for merge
+merge.no.commit.tooltip:
+  text: Force no commit for merge (the "--no-commit" option)
+merge.no.commit:
+  text: No &commit
+merge.no.fast.forward.tooltip:
+  text: Disable fast forward ("--no-ff" option)
+merge.no.fast.forward:
+  text: No &fast forward
+merge.retrieving.branches:
+  text: Retrieving unmerged branches
+merge.squash.commit:
+  text: S&quash commit
+merge.squash.tooltip:
+  text: Squash all changes into the single commit ("--squash" option)
+merge.strategy.tooltip:
+  text: The merge strategy to use ("-s" option)
+merge.strategy:
+  text: '&Strategy:'
+merge.tool.action.name:
+  text: MergeTool
+merge.tool.column.status.deleted:
+  text: Deleted
+merge.tool.column.status.modified:
+  text: Modified
+merge.tool.column.theirs.status:
+  text: Theirs
+merge.tool.column.yours.status:
+  text: Yours
+merging.branch:
+  text: Merging branch {0}
+merging.title:
+  text: Merging changes to {0}
+paths.affected.title:
+  text: Paths affected in commit {0}
+pull.action.name:
+  text: Pull
+pull.button:
+  text: Pull
+pull.force.reference.update:
+  text: Force reference &update
+pull.get.branches.tooltip:
+  text: Get branch names from remote repository. Otherwise a locally cached information is used.
+pull.get.branches:
+  text: '&Get Branches'
+pull.getting.remote.branches:
+  text: Getting remote branches
+pull.remote.tooltip:
+  text: Registered remote name or URL.
+pull.remote:
+  text: 'Re&mote:'
+pull.retrieving.remotes:
+  text: Retrieving remotes
+pull.title:
+  text: Pull Changes
+pull.url.message:
+  text: 'Enter remote repository URL to pull/merge (empty for default):'
+pull.url.title:
+  text: Pull URL
+pulling.title:
+  text: Pulling changes from {0}
+push.action.name:
+  text: Push
+push.active.action.name:
+  text: Push Active Branches
+push.active.autostash.tooltip:
+  text: Auto-stash changes before rebase
+push.active.autostash:
+  text: '&Auto-stash'
+push.active.rebase.and.push:
+  text: Rebase and Push
+push.active.commit.node.merge:
+  text: (merge commit)
+push.active.commits:
+  text: '&Commits:'
+push.active.error.behind:
+  text: Some local branches are behind remote branches
+push.active.error.merges.unchecked:
+  text: Roots with merge commits cannot be selectively pushed
+push.active.error.no.branch:
+  text: Some roots are not on the branch
+push.active.error.reorder.merges:
+  text: It is not possible to reorder commits if merges present
+push.active.error.reorder.needed:
+  text: The nodes should be reordered using rebase operation.
+push.active.fetch.failed.title:
+  text: Fetch Failed
+push.active.fetch.failed:
+  text: The fetch operation failed for some branches
+push.active.fetch.tooltip:
+  text: Fetch state of tracked branches from remote repository
+push.active.fetch:
+  text: '&Fetch'
+push.active.fetching:
+  text: Fetching changes for active branches
+push.active.pushing:
+  text: Pushing branches...
+push.active.rebase.tooltip:
+  text: Rebase branches in order to make push possible (might reorder commits)
+push.active.rebase:
+  text: '&Rebase'
+push.active.rebasing:
+  text: Rebasing ...
+push.active.save.before.rebase:
+  text: 'Clean working tree before rebase:'
+push.active.status.behind:
+  text: Unable to push. The current branch is behind tracked branch by {0,choice, 1#1 commit|2#{0,number} commits}.
+push.active.status.no.branch:
+  text: The head is not on the branch.
+push.active.status.no.commits.behind:
+  text: Nothing to push. The current branch is behind tracked branch by {0,choice, 1#1 commit|2#{0,number} commits}.
+push.active.status.no.commits:
+  text: Nothing to push.
+push.active.status.no.tracked:
+  text: No tracked branch is configured.
+push.active.status.push:
+  text: '{0,choice, 1#1 commit|2#{0,number} commits} will be pushed.'
+push.active.status.status:
+  text: 'Status: '
+push.active.title:
+  text: Push Active Branches
+push.active.view:
+  text: '&View'
+push.branches.tooltip:
+  text: Select branches to push
+push.branches:
+  text: '&Branches:'
+push.button:
+  text: Push
+push.force.update.tooltip:
+  text: If selected remote ref is updated even if they are is not an ancestor of the local ref.
+push.force.update:
+  text: '&Force update'
+push.policy.all:
+  text: All
+push.policy.default:
+  text: Default
+push.policy.mirror:
+  text: Mirror
+push.policy.selected:
+  text: Selected branches
+push.policy.tooltip:
+  text: <html>Select push policy:<ul><li><em>Default</em> - the push is done according to the configuration of the remote.</li><li><em>Selected branches</em> - selected branches are pushed.</li><li><em>All</em> - all references under refs/heads are pushed.</li><li><em>Mirror</em> - all references under refs/ are pushed including tags and remotes.</li></ul></html>
+push.policy:
+  text: '&Push:'
+push.remote.tooltip:
+  text: Specify remote repository URL or remote name where to push changes.
+push.remote:
+  text: 'Re&mote:'
+push.show.tags.tooltip:
+  text: If selected, the tags are shown in branch chooser as well.
+push.show.tags:
+  text: Show ta&gs
+push.tags.tooltip:
+  text: All tag references are pushed in addition to references specified in references section.
+push.tags:
+  text: Push &tags
+push.title:
+  text: Push Changes
+push.use.thin.pack.tooltip:
+  text: If this option is selected, the push will spend extra CPU cycles to minimize amount of data transferred (use it for slow connections)
+push.use.thin.pack:
+  text: '&Use thin pack'
+pushing.all.changes:
+  text: Pushing all committed changes, refs & tags to remote repositories
+gc.action.name:
+  text: Run Garbage Collector
+rebase.abort.action.name:
+  text: Abort Rebasing
+rebase.action.error:
+  text: Git Rebase Error
+rebase.action.message:
+  text: Multiple Git roots have unfinished rebase process, please select root to perform action on.
+rebase.action.name:
+  text: Rebase
+rebase.action.no.root:
+  text: There is no rebase operation in progress in the project
+rebase.branch.tooltip:
+  text: Select branch to rebase (if branch is different from the current branch, it will be checked out first)
+rebase.branch:
+  text: '&Branch:'
+rebase.button:
+  text: Rebase
+rebase.continue.action.name:
+  text: Continue Rebasing
+rebase.editor.action.column:
+  text: Action
+rebase.editor.button:
+  text: Start Rebasing
+rebase.editor.comment.column:
+  text: Comment
+rebase.editor.commit.column:
+  text: Commit
+rebase.editor.invalid.entryset:
+  text: No commits found to rebase
+rebase.editor.invalid.squash:
+  text: The first non-skip commit could not be marked as squashed since squash merges commit with the previous commit.
+rebase.editor.message:
+  text: Reorder and edit &rebased commits
+rebase.editor.move.down.tooltip:
+  text: Move commit down (commit will be applied later)
+rebase.editor.move.down:
+  text: Move &Down
+rebase.editor.move.up.tooltip:
+  text: Move commit up in the list (commit will be applied earlier)
+rebase.editor.move.up:
+  text: Move &Up
+rebase.editor.title:
+  text: Rebasing Commits
+rebase.editor.view.tooltip:
+  text: View commit contents
+rebase.editor.view:
+  text: '&View'
+rebase.from.tooltip:
+  text: Specify actual base for the branch. Leave blank to onto.
+rebase.from:
+  text: '&From:'
+rebase.in.progress:
+  text: Interactive rebase has been already started for this Git root.
+rebase.interactive.tooltip:
+  text: If selected, the interactive rebase will be preformed.
+rebase.interactive:
+  text: '&Interactive'
+rebase.invalid.from:
+  text: '"From" reference expression is invalid.'
+rebase.invalid.onto:
+  text: '"Onto" reference expression is invalid.'
+rebase.merge.strategy.tooltip:
+  text: Select merge strategy to use
+rebase.merge.strategy:
+  text: 'Merge &Strategy:'
+rebase.no.merge.tooltip:
+  text: If selected, no merge strategies will be applied during the rebase.
+rebase.no.merge:
+  text: '&Do not use merge strategies'
+rebase.onto.tooltip:
+  text: The reference that will become a new base for selected branch.
+rebase.onto.validate:
+  text: '&Validate'
+rebase.onto:
+  text: '&Onto:'
+rebase.preserve.merges.tooltip:
+  text: Preserve merges during rebase instead of squashing them.
+rebase.preserve.merges:
+  text: '&Preserve Merges'
+rebase.result.amend.title:
+  text: Rebase Suspended
+rebase.result.amend:
+  text: |-
+    Stopped for amending commit while rebasing ({0}/{1}).
+    Amend commit and continue the rebase process.
+rebase.result.cancelled.title:
+  text: Rebase Cancelled
+rebase.result.cancelled:
+  text: The rebase process was cancelled.
+rebase.result.conflict.title:
+  text: Rebase Suspended
+rebase.result.conflict:
+  text: |-
+    Stopped rebasing because of conflict ({0}/{1}).
+    Resolve conflicts and continue the rebase process.
+rebase.result.error.title:
+  text: Rebase Error
+rebase.result.error:
+  text: |-
+    Stopped rebasing because of error while rebasing ({0}/{1}).
+    Check vcs console for details.
+rebase.show.remote.branches.tooltip:
+  text: If selected, remote branches are shown in drop down as well.
+rebase.show.remote.branches:
+  text: Show Re&mote Branches
+rebase.show.tags.tooltip:
+  text: Show tags in "from" and "onto" comboboxes.
+rebase.skip.action.name:
+  text: Skip Commit in Rebasing
+rebase.title:
+  text: Rebase branch
+rebase.unstructured.editor.button:
+  text: Resume Rebasing
+rebase.unstructured.editor.git.root:
+  text: 'Git Root:'
+rebase.unstructured.editor.message:
+  text: 'Git rebase operation requested additional &information through the editor:'
+rebase.unstructured.editor.title:
+  text: Additional Rebase Input
+rebase.unstructured.editor.tooltip:
+  text: Edit this text according to instructions provided inline
+rebase.valdate.onto.tooltip:
+  text: Validate "onto" reference.
+rebase.validate.from.tooltip:
+  text: Validate "from" reference
+rebase.validate.from:
+  text: Va&lidate
+rebasing.title:
+  text: Rebasing...
+refspec.add.all.branches.tooltip:
+  text: Add refspec that maps all remote branches by glob spec.
+refspec.add.all.branches:
+  text: Add A&ll Branches
+refspec.add.all.tags.tooltip:
+  text: Adds mapping entry for all tags
+refspec.add.all.tags:
+  text: Add All Ta&gs
+refspec.add.ref.tooltip:
+  text: Add branch or tag by name
+refspec.add.ref:
+  text: '&Add...'
+refspec.branch.prefix.tooltip:
+  text: Specify default branch prefix for the mapping.
+refspec.branch.prefix:
+  text: 'Remote &Name:'
+refspec.column.force:
+  text: Force
+refspec.column.local:
+  text: Local
+refspec.column.remote:
+  text: Remote
+refspec.default.tooltip:
+  text: Restore default reference mapping
+refspec.default:
+  text: '&Default'
+refspec.remove.tooltip:
+  text: Delete refspec entry
+refspec.remove:
+  text: Remo&ve
+refspec.title:
+  text: Reference mapping
+refspec.validation.remote.invalid:
+  text: The invalid local name for remote
+refspec.validation.remote.is.blank:
+  text: The local name for remote is blank
+regase.show.tags:
+  text: Show &tags
+remove.removing:
+  text: Removing files...
+repository.action.missing.roots.misconfigured:
+  text: None of configured Git roots are under Git. The configured directory or some of its ancestors must have ".git" directory in it.
+repository.action.missing.roots.title:
+  text: No Git roots
+repository.action.missing.roots.unconfigured.message:
+  text: No Git roots are configured for the project.
+reset.action.name:
+  text: Reset Head ...
+reset.button:
+  text: Reset
+reset.commit.invalid:
+  text: The specified commit expression did not pass validation.
+reset.commit.label:
+  text: 'To &Commit:'
+reset.commit.tooltip:
+  text: |-
+    The commit that will become the current HEAD
+     as result of reset operation.
+reset.title:
+  text: Reset Head
+reset.type.hard:
+  text: Hard
+reset.type.mixed:
+  text: Mixed
+reset.type.soft:
+  text: Soft
+reset.type.tooltip:
+  text: <html>The reset type (see also <code>git reset</code> man page):<ul><li><b>Mixed</b> resets index but not working tree</li><li><b>Soft</b> leaves index and working tree, just moves head pointer</li><li><b>Hard</b> resets index and working tree.<em>Changes in the working tree will be lost</em></li></ul></html>
+reset.type:
+  text: 'Reset &Type:'
+reset.validate.tooltip:
+  text: Validate the commit pointer and check the content of referenced commit.
+reset.validate:
+  text: '&Validate'
+resetting.title:
+  text: Resetting HEAD...
+revert.action.name:
+  text: '&Revert'
+revert.reverting.mulitple:
+  text: Reverting {0} files
+revert.reverting:
+  text: Reverting files...
+revision.graph:
+  text: RevisionGraph
+root.tracker.message.title:
+  text: Invalid Git Roots
+root.tracker.message:
+  text: <p>Some configured Git VCS roots are not under Git or have Git repositories in subdirectories without a configured VCS root. <a href="">Configure.</a></p>
+select.branch.to.checkout:
+  text: Select branch to checkout
+show.all.paths.affected.action.name:
+  text: Show All Affected Paths
+ssh.ask.passphrase.title:
+  text: SSH Key Passphrase
+ssh.askPassphrase.message:
+  text: Please enter passphrase for the private key {0} (the user name is {1})
+ssh.changed.host.key:
+  text: |-
+    <html>The server host key for the host {0}:{1} has changed to {2} (type {3}).
+    Do you want to accept the changed key?</html>
+ssh.confirm.key.titile:
+  text: Confirm SSH Server Key
+ssh.error.title:
+  text: Authentication error
+ssh.keyboard.interactive.title:
+  text: 'SSH Keyboard Interactive: {0}'
+ssh.keyboard.interactive.username:
+  text: 'Username:'
+ssh.new.host.key:
+  text: |-
+    <html>Connecting to a new host {0}:{1} that has the key {2} (type {3}).
+    Do you want to add this host to known hosts database?</html>
+ssh.password.message:
+  text: Please enter password for user {0}
+ssh.password.title:
+  text: SSH Password Login
+stash.action.name:
+  text: Stash
+stash.button:
+  text: Create Stash
+stash.keep.index.tooltip:
+  text: If this checkbox is selected, indexed changes are kept in the index.
+stash.keep.index:
+  text: Keep &index
+stash.message.tooltip:
+  text: Enter stash message here.
+stash.message:
+  text: '&Message:'
+stash.title:
+  text: Stash
+stashing.title:
+  text: Stashing changes...
+tag.action.name:
+  text: Tag
+tag.button:
+  text: Create Tag
+tag.commit.label:
+  text: '&Commit:'
+tag.commit.tooltip:
+  text: Enter name of commit or object to tag or leave blank to use HEAD.
+tag.error.creating.message.file.message:
+  text: 'Unable to create message file: {0}'
+tag.error.creating.message.file.title:
+  text: Error creating message file
+tag.error.invalid.commit:
+  text: The commit or object name is invalid.
+tag.error.tag.exists:
+  text: The tag with the same name exists.
+tag.force.tooltip:
+  text: Force creation of the text even if tag with such name already exists.
+tag.force:
+  text: '&Force'
+tag.getting.existing.tags:
+  text: Getting existing tags...
+tag.message.label:
+  text: '&Message:'
+tag.message.tooltip:
+  text: If the message is not empty, an annotated tag is created.
+tag.message:
+  text: 'Specify tag name:'
+tag.name.label:
+  text: 'Tag &Name:'
+tag.name.tooltip:
+  text: Enter the new tag name here.
+tag.nonvcs.error.message:
+  text: 'ERROR: Files not tagged, not all are under VCS root!'
+tag.nonvcs.error.title:
+  text: Tag Result
+tag.title:
+  text: Tag
+tag.validate.tooltip:
+  text: Click this button to the validate commit to be tagged.
+tag.validate:
+  text: '&Validate'
+tagging.title:
+  text: Tagging files...
+task.queue.title:
+  text: Git Operations
+unindexed.files.changlelist.name:
+  text: Unindexed Files
+unstash.action.name:
+  text: UnStash
+unstash.branch.label:
+  text: 'As new &branch:'
+unstash.branch.tooltip:
+  text: If non-empty name is entered, the stash is checked out as a new branch.
+unstash.button.apply:
+  text: Apply Stash
+unstash.button.branch:
+  text: Branch
+unstash.button.pop:
+  text: Pop Stash
+unstash.clear.tooltip:
+  text: Delete all stashes in the repository.
+unstash.clear:
+  text: '&Clear'
+unstash.clearing.stashes:
+  text: Clearing stashes...
+unstash.drop.tooltip:
+  text: Delete selected stash
+unstash.drop:
+  text: '&Drop'
+unstash.dropping.stash:
+  text: Dropping stash {0}...
+unstash.error.branch.exists:
+  text: The specified branch already exists
+unstash.error.invalid.branch.name:
+  text: Invalid branch name
+unstash.pop.stash.tooltip:
+  text: If selected the stash is dropped after it is applied.
+unstash.pop.stash:
+  text: '&Pop stash'
+unstash.reinstate.index.tooltip:
+  text: Attempt to reinstate index as well as working tree changes.
+unstash.reinstate.index:
+  text: Reinstate &index
+unstash.stashes.item:
+  text: '<html><b><tt>{0}</tt></b>:<i>{1}</i>: {2}</html>'
+unstash.stashes.tooltip:
+  text: Select a stash to operate for.
+unstash.stashes:
+  text: '&Stashes:'
+unstash.title:
+  text: UnStash Changes
+unstash.unstashing:
+  text: Unstashing...
+unstash.view.tooltip:
+  text: View selected stash
+unstash.view:
+  text: '&View'
+unstashing.title:
+  text: UnStashing changes...
+update.locally.modified.files.tooltip:
+  text: Locally modified files.
+update.locally.modified.files:
+  text: '&Files:'
+update.locally.modified.git.root:
+  text: 'Git Root:'
+update.locally.modified.message:
+  text: '<html><p>The following files under this root are locally modified. <br/>Possible reasons: uncommitted changes; a problem with crlf conversion; {0} configuration file auto-save.</p><p><ul><li>Press <b>Revert Files</b> to discard these local changes and continue the update process.</li><li>Press <b>Cancel</b> to cancel the update process. <br/> Use Auto-Stash option to stash local changes before update and restore them after it.</li></ul></p> </html>'
+update.locally.modified.rescan.tooltip:
+  text: <html>Rescan the repository to check for locally modified files again.<br/>Use this button if you have resolved the problem manually.</html>
+update.locally.modified.rescan:
+  text: Re&scan
+update.locally.modified.revert:
+  text: Revert Files
+update.locally.modified.title:
+  text: Locally modified files are detected
+update.options.display.name:
+  text: Git Update Settings
+update.options.no.commit:
+  text: No &Commit
+update.options.save.before.update:
+  text: Clean working tree before update
+update.options.save.keep.tooltip:
+  text: Leave changes on working tree
+update.options.save.keep:
+  text: Do &Not Clean
+update.options.save.shelve.tooltip:
+  text: Use {0}''s Shelve to save changes (the files will be restored after update)
+update.options.save.shelve:
+  text: Using She&lve
+update.options.save.stash.tooltip:
+  text: Use Git Stash to save changes (the files will be restored after update)
+update.options.save.stash:
+  text: Using S&tash
+update.options.type.default.tooltip:
+  text: Use branch default update strategy for all updated Git VCS roots
+update.options.type.default:
+  text: Branch &Default
+update.options.type.merge.tooltip:
+  text: Use merge update strategy for all Git VCS roots
+update.options.type.merge:
+  text: '&Merge'
+update.options.type.rebase.tooltip:
+  text: Use rebase update strategy for all Git VCS roots
+update.options.type.rebase:
+  text: '&Rebase'
+update.options.type:
+  text: Update Type
+update.rebase.no.change.cancel:
+  text: Cancel Update
+update.rebase.no.change.retry:
+  text: Retry Continue
+update.rebase.no.change.skip:
+  text: Skip Commit
+update.rebase.no.change.title:
+  text: No Changes Staged
+update.rebase.no.change:
+  text: <html>No changes detected <tt>{0}</tt>. <ul><li>Skip Commit - skips current commit in the rebase process</li><li>Retry Continue - do it after you add changes to commit manually</li><li>Or cancel cancels update process for this root.</li></ul></html>
+update.rebase.unmerged.title:
+  text: Unresolved Rebase Conflicts
+update.rebase.unmerged:
+  text: '<html>Root: <tt>{0}</tt><br/>There still remain files to be merged. Do you want to merge them?<ul><li>Yes - Merge.</li><li>No - Cancel update for this root.</li></ul></html>'
+update.restoring.change.lists:
+  text: Restoring change lists...
+update.root.rebasing.item:
+  text: <li>{0}</li>
+update.root.rebasing.message:
+  text: <html>The following roots have unfinished rebase process. Update is not possible.<ul>{0}</u></html>
+update.root.rebasing.title:
+  text: Unfinished Rebase Process
+update.root.rebasing:
+  text: The root {0} has unfinished rebase process.
+update.shelving.changes:
+  text: Shelving changes...
+update.unshelving.changes:
+  text: Unshelving Changes...
+util.remote.renderer.default:
+  text: <html><b>{0}</b>(<i>{1}</i>)</html>
+util.remote.renderer.none:
+  text: <html><i>None</i></html>
+util.remote.renderer.normal:
+  text: <html><b>{0}</b>(<i>{1}</i>)</html>
+util.remote.renderer.self:
+  text: <html><i>Current repository</i></html>
+vcs.unable.to.run.git:
+  text: 'Unable to run git: {0} ({1})'
+vfs.listener.add.single.prompt:
+  text: |-
+    Do you want to add the following file to Git?
+    {0}
+
+    If you say No, you can still add it later manually.
+vfs.listener.add.single.title:
+  text: Add File to Git
+vfs.listener.add.title:
+  text: Add Files to Git
+vfs.listener.checking.ignored:
+  text: Checking for ignored files
+vfs.listener.delete.single.prompt:
+  text: |-
+    Do you want to delete the following file from Git?
+    {0}
+
+    If you say No, you can still delete it later manually.
+vfs.listener.delete.single.title:
+  text: Delete File from Git
+vfs.listener.delete.title:
+  text: Delete Files from Git
+general.error:
+  text: Git error
+executable.error.title:
+  text: Git executable problem
+executable.error.description:
+  text: Git couldn't be started. Probably the path to Git executable is not valid. <a href="">Fix it.</a>
+git.commit.message.empty:
+  text: Please specify commit message
+git.commit.message.empty.title:
+  text: Commit Message Is Empty
+git.executable.notification.title:
+  text: Can't start Git
+git.executable.notification.description:
+  text: Probably the path to Git executable is not valid.
+git.executable.dialog.title:
+  text: Git executable
+git.executable.dialog.description:
+  text: Specify the full path to Git executable
+git.executable.dialog.error:
+  text: It doesn't appear to be a valid Git executable
+git.executable.filechooser.title:
+  text: Git executable
+git.executable.filechooser.description:
+  text: Specify the full path to Git executable
+git.push.active.close:
+  text: Close
+git.unstash.clear.confirmation.message:
+  text: Remove all stashes? This cannot be undone.
+git.unstash.clear.confirmation.title:
+  text: Remove all stashes?
+git.unstash.drop.confirmation.message:
+  text: <html>Do you want to remove {0}?<br/>"{1}"</html>
+git.unstash.drop.confirmation.title:
+  text: Remove stash {0}?
+branch.delete.not_fully_merged.description:
+  text: The branch <code><b>{0}</b></code> is not fully merged to the branch <code><b>{1}</b></code>.<br/>Below is the list of unmerged commits.
+branch.delete.not_fully_merged.description.not_on_branch:
+  text: You are currently not on the branch (<code>{1}</code>). <br>The branch <code><b>{0}</b></code> is not fully merged to <code>{2}</code>.<br/>Below is the list of unmerged commits.
+branch.delete.merged_to.many:
+  text: 'The branch <code><b>{0}</b></code> is however fully merged to the following branches: <code>{1}</code>.'
+branch.delete.merged_to.one:
+  text: The branch <code><b>{0}</b></code> is however fully merged to the branch <code>{1}</code>.
+branch.delete.warning:
+  text: You may still delete the branch <code><b>{0}</b></code>, but beware that it cannot be undone.
+vcs.popup.git.github.section:
+  text: GitHub
+git.status.bar.widget.name:
+  text: Git Branch
+git.status.bar.widget.text.cherry.pick:
+  text: Cherry-picking in {0}
+git.status.bar.widget.text.revert:
+  text: Reverting in {0}
+git.status.bar.widget.text.merge:
+  text: Merging {0}
+git.status.bar.widget.text.rebase:
+  text: Rebasing {0}
+git.light.status.bar.display.name:
+  text: Git
+git.light.status.bar.tooltip:
+  text: 'Current Git Branch: {0}'
+git.light.status.bar.text:
+  text: 'Git: {0}'
+vcs.name.with.mnemonic:
+  text: _Git

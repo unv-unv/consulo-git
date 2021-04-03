@@ -99,7 +99,7 @@
         </constraints>
         <properties>
           <labelFor value="f8352"/>
-          <text resource-bundle="git4idea/i18n/GitBundle" key="unstash.branch.label:"/>
+          <text resource-bundle="git4idea/i18n/GitBundle" key="unstash.branch.label"/>
         </properties>
       </component>
       <component id="f8352" class="javax.swing.JTextField" binding="myBranchTextField">

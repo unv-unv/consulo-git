@@ -4,7 +4,7 @@ import consulo.annotation.DeprecationInfo;
 import consulo.git.icon.GitIconGroup;
 import consulo.ui.image.Image;
 
-@Deprecated
+@Deprecated(forRemoval = true)
 @DeprecationInfo("Use GitIconGroup")
 public class Git4ideaIcons
 {

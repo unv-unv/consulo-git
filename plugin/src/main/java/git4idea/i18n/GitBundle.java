@@ -27,12 +27,15 @@ package git4idea.i18n;
  * Author: Anatol Pomazu
  */
 
+import consulo.annotation.DeprecationInfo;
 import org.jetbrains.annotations.PropertyKey;
 import com.intellij.AbstractBundle;
 
 /**
  * Git4Idea package I18N localization bundle helper
  */
+@Deprecated(forRemoval = true)
+@DeprecationInfo("Use GitLocalize")
 public class GitBundle extends AbstractBundle
 {
 	private static final String BUNDLE = "git4idea.i18n.GitBundle";

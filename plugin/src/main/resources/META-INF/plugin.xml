@@ -5,6 +5,7 @@
 	<version>SNAPSHOT</version>
 	<category>VCS Integration</category>
 	<vendor>JetBrains</vendor>
+	<localize>consulo.git.GitLocalize</localize>
 
 	<actions>
 
@@ -147,8 +148,8 @@
 
 		<projectService serviceImplementation="git4idea.branch.DeepComparatorHolder"/>
 
-		<projectService serviceImplementation="git4idea.repo.GitRepositoryManager" />
-		<projectService serviceImplementation="git4idea.config.GitRebaseSettings" />
+		<projectService serviceImplementation="git4idea.repo.GitRepositoryManager"/>
+		<projectService serviceImplementation="git4idea.config.GitRebaseSettings"/>
 
 		<applicationService serviceImplementation="git4idea.config.GitExecutableManager"/>
 

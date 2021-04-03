@@ -48,7 +48,10 @@ import com.intellij.util.ui.UIUtil;
 import com.intellij.vcs.log.VcsUserRegistry;
 import consulo.disposer.Disposer;
 import consulo.git.icon.GitIconGroup;
+import consulo.git.localize.GitLocalize;
+import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.image.Image;
 import git4idea.annotate.GitAnnotationProvider;
 import git4idea.annotate.GitRepositoryForAnnotationsListener;
@@ -89,7 +92,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 	public static final String NAME = "Git";
 	public static final String ID = "git";
 
-	private static final Logger log = Logger.getInstance(GitVcs.class.getName());
+	private static final Logger log = Logger.getInstance(GitVcs.class);
 	private static final VcsKey ourKey = createKey(NAME);
 
 	@Nullable
@@ -617,7 +620,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 	}
 
 	@Override
-	@CalledInAwt
+	@RequiredUIAccess
 	public void enableIntegration()
 	{
 		ApplicationManager.getApplication().executeOnPooledThread(new Runnable()
@@ -634,5 +637,15 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 	public CheckoutProvider getCheckoutProvider()
 	{
 		return new GitCheckoutProvider(Git.getInstance());
+	}
+
+	public LocalizeValue getShortNameWithMnemonic()
+	{
+		return GitLocalize.vcsNameWithMnemonic();
+	}
+
+	public boolean isWithCustomMenu()
+	{
+		return true;
 	}
 }
