@@ -48,6 +48,8 @@ import com.intellij.util.ui.UIUtil;
 import com.intellij.vcs.log.VcsUserRegistry;
 import consulo.disposer.Disposer;
 import consulo.git.icon.GitIconGroup;
+import consulo.git.localize.GitLocalize;
+import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.image.Image;
@@ -637,13 +639,16 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 		return new GitCheckoutProvider(Git.getInstance());
 	}
 
-//	public LocalizeValue getShortNameWithMnemonic()
-//	{
-//		return GitLocalize.vcsNameWithMnemonic();
-//	}
-//
-//	public boolean isWithCustomMenu()
-//	{
-//		return false;
-//	}
+	@Nonnull
+	@Override
+	public LocalizeValue getShortNameWithMnemonic()
+	{
+		return GitLocalize.vcsNameWithMnemonic();
+	}
+
+	@Override
+	public boolean isWithCustomMenu()
+	{
+		return true;
+	}
 }

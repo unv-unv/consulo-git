@@ -15,22 +15,11 @@
  */
 package git4idea;
 
-import static com.intellij.dvcs.DvcsUtil.getShortRepositoryName;
-import static com.intellij.dvcs.DvcsUtil.joinShortNames;
-import static com.intellij.util.ObjectUtils.assertNotNull;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.*;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
 import com.intellij.dvcs.DvcsUtil;
+import com.intellij.dvcs.repo.Repository;
 import com.intellij.openapi.components.ServiceManager;
-import consulo.logging.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -60,14 +49,11 @@ import com.intellij.util.containers.OpenTHashSet;
 import com.intellij.util.ui.UIUtil;
 import com.intellij.vcsUtil.VcsFileUtil;
 import com.intellij.vcsUtil.VcsUtil;
+import consulo.logging.Logger;
 import git4idea.branch.GitBranchUtil;
 import git4idea.changes.GitChangeUtils;
 import git4idea.changes.GitCommittedChangeList;
-import git4idea.commands.Git;
-import git4idea.commands.GitCommand;
-import git4idea.commands.GitCommandResult;
-import git4idea.commands.GitHandler;
-import git4idea.commands.GitSimpleHandler;
+import git4idea.commands.*;
 import git4idea.config.GitConfigUtil;
 import git4idea.i18n.GitBundle;
 import git4idea.repo.GitBranchTrackInfo;
@@ -77,6 +63,17 @@ import git4idea.repo.GitRepositoryManager;
 import git4idea.util.GitSimplePathsBrowser;
 import git4idea.util.GitUIUtil;
 import git4idea.util.StringScanner;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.*;
+
+import static com.intellij.dvcs.DvcsUtil.getShortRepositoryName;
+import static com.intellij.dvcs.DvcsUtil.joinShortNames;
+import static com.intellij.util.ObjectUtils.assertNotNull;
 
 /**
  * Git utility/helper methods
@@ -1235,6 +1232,12 @@ public class GitUtil
 	public static Collection<GitRepository> getRepositories(@Nonnull Project project)
 	{
 		return getRepositoryManager(project).getRepositories();
+	}
+
+	@Nonnull
+	public static Collection<GitRepository> getRepositoriesInState(@Nonnull Project project, @Nonnull Repository.State state)
+	{
+		return ContainerUtil.filter(getRepositories(project), repository -> repository.getState() == state);
 	}
 
 	/**

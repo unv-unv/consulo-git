@@ -1045,3 +1045,44 @@ git.light.status.bar.text:
   text: 'Git: {0}'
 vcs.name.with.mnemonic:
   text: _Git
+group.mainmenu.vcs.current.file.text:
+  text: Current File
+action.selected.file.text:
+  text: Selected {0,choice,1#File|2#Files}
+action.selected.directory.text:
+  text: Selected {0,choice,1#Directory|2#Directories}
+action.Git.Pull.text:
+  text: Pull...
+action.Git.Fetch.text:
+  text: Fetch
+action.Git.Rebase.text:
+  text: Rebase...
+action.Git.Merge.text:
+  text: Merge...
+action.Git.Branches.text:
+  text: _Branches...
+action.Git.Tag.text:
+  text: New Tag...
+action.Git.ResolveConflicts.text:
+  text: Resolve Conflicts...
+action.Git.Reset.text:
+  text: Reset HEAD...
+group.Git.MainMenu.RebaseActions.text:
+  text: _Rebase
+group.Git.MainMenu.MergeActions.text:
+  text: _Merge
+group.Git.MainMenu.LocalChanges.text:
+  text: _Uncommitted Changes
+action.Git.Stash.text:
+  text: Stash Changes...
+action.Git.Stash.Silently.text:
+  text: Stash Silently
+group.Patch.MainMenu.text:
+  text: Patch
+action.Git.Stash.UnstashAs.text:
+  text: Unstash...
+action.Git.Stash.UnstashAs.description:
+  text: Pop or apply selected stash as new branch with or without index
+action.Git.Unstash.text:
+  text: Unstash Changes...
+
