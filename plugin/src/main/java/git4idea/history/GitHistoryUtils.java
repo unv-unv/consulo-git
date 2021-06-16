@@ -40,6 +40,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.Couple;
+import consulo.util.collection.Sets;
 import consulo.util.dataholder.Key;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.Ref;
@@ -847,7 +848,7 @@ public class GitHistoryUtils
 		{
 			return LogDataImpl.empty();
 		}
-		final Set<VcsRef> refs = new OpenTHashSet<>(GitLogProvider.DONT_CONSIDER_SHA);
+		final Set<VcsRef> refs = Sets.newHashSet(GitLogProvider.DONT_CONSIDER_SHA);
 		final List<VcsCommitMetadata> commits = collectDetails(project, root, true, false, record ->
 		{
 			GitCommit commit = createCommit(project, root, record, factory);

@@ -18,9 +18,9 @@ package git4idea.config;
 import com.intellij.openapi.components.*;
 import com.intellij.util.xmlb.annotations.MapAnnotation;
 import com.intellij.util.xmlb.annotations.Property;
-import gnu.trove.THashMap;
 import jakarta.inject.Singleton;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -36,7 +36,7 @@ public class SSHConnectionSettings implements PersistentStateComponent<SSHConnec
   /**
    * The last successful hosts, the entries are sorted to save on efforts on sorting during saving and loading
    */
-  THashMap<String, String> myLastSuccessful = new THashMap<String, String>();
+  Map<String, String> myLastSuccessful = new HashMap<String, String>();
 
   /**
    * {@inheritDoc}

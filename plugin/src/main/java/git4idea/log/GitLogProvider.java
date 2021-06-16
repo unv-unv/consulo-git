@@ -15,21 +15,7 @@
  */
 package git4idea.log;
 
-import gnu.trove.THashSet;
-import gnu.trove.TObjectHashingStrategy;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import consulo.disposer.Disposable;
 import com.intellij.openapi.diagnostic.Attachment;
-import consulo.logging.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.ThrowableNotNullFunction;
 import com.intellij.openapi.util.registry.Registry;
@@ -38,14 +24,9 @@ import com.intellij.openapi.vcs.FilePath;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.VcsKey;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.ArrayUtil;
-import com.intellij.util.CollectConsumer;
-import com.intellij.util.Consumer;
-import com.intellij.util.EmptyConsumer;
-import com.intellij.util.Function;
-import com.intellij.util.ObjectUtils;
+import com.intellij.util.*;
 import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.containers.OpenTHashSet;
+import com.intellij.util.containers.Interner;
 import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.vcs.log.*;
 import com.intellij.vcs.log.data.VcsLogSorter;
@@ -58,12 +39,10 @@ import com.intellij.vcs.log.util.StopWatch;
 import com.intellij.vcs.log.util.UserNameRegex;
 import com.intellij.vcs.log.util.VcsUserUtil;
 import com.intellij.vcsUtil.VcsFileUtil;
-import git4idea.GitBranch;
-import git4idea.GitLocalBranch;
-import git4idea.GitRemoteBranch;
-import git4idea.GitTag;
-import git4idea.GitUserRegistry;
-import git4idea.GitVcs;
+import consulo.disposer.Disposable;
+import consulo.logging.Logger;
+import consulo.util.collection.HashingStrategy;
+import git4idea.*;
 import git4idea.branch.GitBranchUtil;
 import git4idea.branch.GitBranchesCollection;
 import git4idea.config.GitVersionSpecialty;
@@ -71,15 +50,20 @@ import git4idea.history.GitHistoryUtils;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.*;
+import java.util.stream.Collectors;
+
 public class GitLogProvider implements VcsLogProvider
 {
 
 	private static final Logger LOG = Logger.getInstance(GitLogProvider.class);
 	public static final Function<VcsRef, String> GET_TAG_NAME = ref -> ref.getType() == GitRefManager.TAG ? ref.getName() : null;
-	public static final TObjectHashingStrategy<VcsRef> DONT_CONSIDER_SHA = new TObjectHashingStrategy<VcsRef>()
+	public static final HashingStrategy<VcsRef> DONT_CONSIDER_SHA = new HashingStrategy<VcsRef>()
 	{
 		@Override
-		public int computeHashCode(@Nonnull VcsRef ref)
+		public int hashCode(@Nonnull VcsRef ref)
 		{
 			return 31 * ref.getName().hashCode() + ref.getType().hashCode();
 		}
@@ -141,7 +125,9 @@ public class GitLogProvider implements VcsLogProvider
 		DetailedLogData data = GitHistoryUtils.loadMetadata(myProject, root, params);
 
 		Set<VcsRef> safeRefs = data.getRefs();
-		Set<VcsRef> allRefs = new OpenTHashSet<>(safeRefs, DONT_CONSIDER_SHA);
+		Interner<VcsRef> allRefs = Interner.createHashInterner(DONT_CONSIDER_SHA);
+		allRefs.internAll(safeRefs);
+
 		Set<VcsRef> branches = readBranches(repository);
 		addNewElements(allRefs, branches);
 
@@ -185,19 +171,19 @@ public class GitLogProvider implements VcsLogProvider
 			validateDataAndReportError(root, allRefs, sortedCommits, data, branches, currentTagNames, commitsFromTags);
 		}
 
-		return new LogDataImpl(allRefs, sortedCommits);
+		return new LogDataImpl(allRefs.getValues(), sortedCommits);
 	}
 
 	private static void validateDataAndReportError(@Nonnull final VirtualFile root,
-			@Nonnull final Set<VcsRef> allRefs,
-			@Nonnull final List<VcsCommitMetadata> sortedCommits,
-			@Nonnull final DetailedLogData firstBlockSyncData,
-			@Nonnull final Set<VcsRef> manuallyReadBranches,
-			@Nullable final Set<String> currentTagNames,
-			@Nullable final DetailedLogData commitsFromTags)
+												   @Nonnull final Interner<VcsRef> allRefs,
+												   @Nonnull final List<VcsCommitMetadata> sortedCommits,
+												   @Nonnull final DetailedLogData firstBlockSyncData,
+												   @Nonnull final Set<VcsRef> manuallyReadBranches,
+												   @Nullable final Set<String> currentTagNames,
+												   @Nullable final DetailedLogData commitsFromTags)
 	{
 		StopWatch sw = StopWatch.start("validating data in " + root.getName());
-		final Set<Hash> refs = ContainerUtil.map2Set(allRefs, VcsRef::getCommitHash);
+		final Set<Hash> refs = ContainerUtil.map2Set(allRefs.getValues(), VcsRef::getCommitHash);
 
 		PermanentGraphImpl.newInstance(sortedCommits, new GraphColorManager<Hash>()
 		{
@@ -229,12 +215,12 @@ public class GitLogProvider implements VcsLogProvider
 
 	@SuppressWarnings("StringConcatenationInsideStringBufferAppend")
 	private static String printErrorDetails(@Nonnull VirtualFile root,
-			@Nonnull Set<VcsRef> allRefs,
-			@Nonnull List<VcsCommitMetadata> sortedCommits,
-			@Nonnull DetailedLogData firstBlockSyncData,
-			@Nonnull Set<VcsRef> manuallyReadBranches,
-			@Nullable Set<String> currentTagNames,
-			@Nullable DetailedLogData commitsFromTags)
+											@Nonnull Interner<VcsRef> allRefs,
+											@Nonnull List<VcsCommitMetadata> sortedCommits,
+											@Nonnull DetailedLogData firstBlockSyncData,
+											@Nonnull Set<VcsRef> manuallyReadBranches,
+											@Nullable Set<String> currentTagNames,
+											@Nullable DetailedLogData commitsFromTags)
 	{
 
 		StringBuilder sb = new StringBuilder();
@@ -265,7 +251,7 @@ public class GitLogProvider implements VcsLogProvider
 		sb.append("\nCommits (last 100): \n");
 		sb.append(printCommits(sortedCommits));
 		sb.append("\nAll refs:\n");
-		sb.append(printRefs(allRefs));
+		sb.append(printRefs(allRefs.getValues()));
 		return sb.toString();
 	}
 
@@ -293,13 +279,14 @@ public class GitLogProvider implements VcsLogProvider
 		return StringUtil.join(refs, ref -> ref.getCommitHash().toShortString() + " : " + ref.getName(), "\n");
 	}
 
-	private static void addOldStillExistingTags(@Nonnull Set<VcsRef> allRefs, @Nonnull Set<String> currentTags, @Nonnull Collection<VcsRef> previousRefs)
+	private static void addOldStillExistingTags(@Nonnull Interner<VcsRef> allRefs, @Nonnull Set<String> currentTags, @Nonnull Collection<VcsRef> previousRefs)
 	{
 		for(VcsRef ref : previousRefs)
 		{
-			if(!allRefs.contains(ref) && currentTags.contains(ref.getName()))
+			VcsRef t = allRefs.get(ref);
+			if(t == null && currentTags.contains(ref.getName()))
 			{
-				allRefs.add(ref);
+				allRefs.intern(ref);
 			}
 		}
 	}
@@ -323,6 +310,18 @@ public class GitLogProvider implements VcsLogProvider
 			result.removeAll(set);
 		}
 		return result;
+	}
+
+	private static <T> void addNewElements(@Nonnull Interner<T> original, @Nonnull Collection<T> toAdd)
+	{
+		for(T item : toAdd)
+		{
+			T t = original.get(item);
+			if(t == null)
+			{
+				original.intern(item);
+			}
+		}
 	}
 
 	private static <T> void addNewElements(@Nonnull Collection<T> original, @Nonnull Collection<T> toAdd)
@@ -420,7 +419,7 @@ public class GitLogProvider implements VcsLogProvider
 		GitBranchesCollection branches = repository.getBranches();
 		Collection<GitLocalBranch> localBranches = branches.getLocalBranches();
 		Collection<GitRemoteBranch> remoteBranches = branches.getRemoteBranches();
-		Set<VcsRef> refs = new THashSet<>(localBranches.size() + remoteBranches.size());
+		Set<VcsRef> refs = new HashSet<>(localBranches.size() + remoteBranches.size());
 		for(GitLocalBranch localBranch : localBranches)
 		{
 			Hash hash = branches.getHash(localBranch);
@@ -666,12 +665,12 @@ public class GitLogProvider implements VcsLogProvider
 	@Nonnull
 	private static <T> Set<T> newHashSet()
 	{
-		return new THashSet<>();
+		return new HashSet<>();
 	}
 
 	@Nonnull
 	private static <T> Set<T> newHashSet(@Nonnull Collection<T> initialCollection)
 	{
-		return new THashSet<>(initialCollection);
+		return new HashSet<>(initialCollection);
 	}
 }

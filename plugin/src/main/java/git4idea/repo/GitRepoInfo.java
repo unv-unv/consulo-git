@@ -15,24 +15,17 @@
  */
 package git4idea.repo;
 
-import gnu.trove.THashSet;
-import gnu.trove.TObjectHashingStrategy;
-
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-
 import com.intellij.dvcs.repo.Repository;
 import com.intellij.vcs.log.Hash;
+import consulo.util.collection.HashingStrategy;
+import consulo.util.collection.Sets;
 import git4idea.GitBranch;
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.*;
 
 public class GitRepoInfo
 {
@@ -218,16 +211,16 @@ public class GitRepoInfo
 	{
 		// GitBranch has perverted equals contract (see the comment there)
 		// until GitBranch is created only from a single place with correctly defined Hash, we can't change its equals
-		THashSet<Map.Entry<? extends GitBranch, Hash>> set1 = new THashSet<>(c1.entrySet(), new BranchesComparingStrategy());
-		THashSet<Map.Entry<? extends GitBranch, Hash>> set2 = new THashSet<>(c2.entrySet(), new BranchesComparingStrategy());
+		Set<Map.Entry<? extends GitBranch, Hash>> set1 = Sets.newHashSet(c1.entrySet(), new BranchesComparingStrategy());
+		Set<Map.Entry<? extends GitBranch, Hash>> set2 = Sets.newHashSet(c2.entrySet(), new BranchesComparingStrategy());
 		return set1.equals(set2);
 	}
 
-	private static class BranchesComparingStrategy implements TObjectHashingStrategy<Map.Entry<? extends GitBranch, Hash>>
+	private static class BranchesComparingStrategy implements HashingStrategy<Map.Entry<? extends GitBranch, Hash>>
 	{
 
 		@Override
-		public int computeHashCode(@Nonnull Map.Entry<? extends GitBranch, Hash> branchEntry)
+		public int hashCode(@Nonnull Map.Entry<? extends GitBranch, Hash> branchEntry)
 		{
 			return 31 * branchEntry.getKey().getName().hashCode() + branchEntry.getValue().hashCode();
 		}

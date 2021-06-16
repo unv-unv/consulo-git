@@ -45,11 +45,12 @@ import com.intellij.util.Consumer;
 import com.intellij.util.Function;
 import com.intellij.util.ObjectUtils;
 import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.containers.OpenTHashSet;
+import com.intellij.util.containers.Interner;
 import com.intellij.util.ui.UIUtil;
 import com.intellij.vcsUtil.VcsFileUtil;
 import com.intellij.vcsUtil.VcsUtil;
 import consulo.logging.Logger;
+import consulo.util.collection.HashingStrategy;
 import git4idea.branch.GitBranchUtil;
 import git4idea.changes.GitChangeUtils;
 import git4idea.changes.GitCommittedChangeList;
@@ -1295,7 +1296,9 @@ public class GitUtil
 	@Nonnull
 	public static Collection<Change> findCorrespondentLocalChanges(@Nonnull ChangeListManager changeListManager, @Nonnull Collection<Change> originalChanges)
 	{
-		OpenTHashSet<Change> allChanges = new OpenTHashSet<>(changeListManager.getAllChanges());
+		Interner<Change> allChanges = Interner.createHashInterner(HashingStrategy.canonical());
+		allChanges.internAll(changeListManager.getAllChanges());
+
 		return ContainerUtil.mapNotNull(originalChanges, allChanges::get);
 	}
 }

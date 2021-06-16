@@ -17,9 +17,9 @@ package git4idea.commands;
 
 import com.intellij.openapi.progress.ProgressIndicator;
 import consulo.util.dataholder.Key;
-import gnu.trove.TObjectDoubleHashMap;
-import gnu.trove.TObjectDoubleProcedure;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,7 +32,7 @@ public class GitStandardProgressAnalyzer implements GitProgressAnalyzer {
 
   // progress of each operation is stored here. this is an overhead since operations go one by one,
   // but it looks simpler than storing current operation, checking that ther was no skipped, etc.
-  private TObjectDoubleHashMap<Operation> myOperationsProgress = new TObjectDoubleHashMap<Operation>(4);
+  private Map<Operation, Double> myOperationsProgress = new HashMap<>();
 
   public static GitLineHandlerListener createListener(final ProgressIndicator indicator) {
     final GitStandardProgressAnalyzer progressAnalyzer = new GitStandardProgressAnalyzer();
@@ -113,13 +113,9 @@ public class GitStandardProgressAnalyzer implements GitProgressAnalyzer {
     }
     // counting progress
     final double[] totalProgress = new double[1];
-    myOperationsProgress.forEachEntry(new TObjectDoubleProcedure<Operation>() {
-      @Override
-      public boolean execute(Operation operation, double progress) {
-        totalProgress[0] += operation.myFractionInTotal * progress;
-        return true;
-      }
-    });
+    for(Map.Entry<Operation, Double> entry : myOperationsProgress.entrySet()) {
+        totalProgress[0] += entry.getKey().myFractionInTotal * entry.getValue();
+    }
     return totalProgress[0];
   }
 

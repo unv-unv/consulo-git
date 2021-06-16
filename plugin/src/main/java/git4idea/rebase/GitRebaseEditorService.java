@@ -20,17 +20,17 @@ import consulo.builtInServer.BuiltInServerManager;
 import consulo.builtInServer.xml.XmlRpcServer;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitLineHandler;
-import gnu.trove.THashMap;
+import jakarta.inject.Singleton;
 import org.apache.commons.codec.DecoderException;
 import org.apache.ws.commons.serialize.DOMSerializer;
 import org.apache.xmlrpc.XmlRpcConfig;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.jetbrains.annotations.NonNls;
-import javax.annotation.Nonnull;
 import org.jetbrains.git4idea.util.ScriptGenerator;
 
-import jakarta.inject.Singleton;
+import javax.annotation.Nonnull;
 import java.security.SecureRandom;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
@@ -51,7 +51,7 @@ public class GitRebaseEditorService
 	/**
 	 * The handlers to use
 	 */
-	private final Map<Integer, GitRebaseEditorHandler> myHandlers = new THashMap<>();
+	private final Map<Integer, GitRebaseEditorHandler> myHandlers = new HashMap<>();
 	/**
 	 * The lock for the handlers
 	 */

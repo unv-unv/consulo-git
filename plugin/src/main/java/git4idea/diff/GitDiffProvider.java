@@ -15,24 +15,9 @@
  */
 package git4idea.diff;
 
-import gnu.trove.THashSet;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Set;
-
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.vcs.CommittedChangesProvider;
-import com.intellij.openapi.vcs.FilePath;
-import com.intellij.openapi.vcs.FileStatus;
-import com.intellij.openapi.vcs.FileStatusManager;
-import com.intellij.openapi.vcs.VcsException;
+import com.intellij.openapi.vcs.*;
 import com.intellij.openapi.vcs.changes.ContentRevision;
 import com.intellij.openapi.vcs.diff.DiffMixin;
 import com.intellij.openapi.vcs.diff.DiffProvider;
@@ -49,6 +34,15 @@ import git4idea.GitUtil;
 import git4idea.GitVcs;
 import git4idea.history.GitHistoryUtils;
 import git4idea.i18n.GitBundle;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Git diff provider
@@ -71,7 +65,7 @@ public class GitDiffProvider implements DiffProvider, DiffMixin
 
 	static
 	{
-		ourGoodStatuses = new THashSet<FileStatus>();
+		ourGoodStatuses = new HashSet<FileStatus>();
 		ourGoodStatuses.addAll(Arrays.asList(FileStatus.NOT_CHANGED, FileStatus.DELETED, FileStatus.MODIFIED, FileStatus.MERGE, FileStatus.MERGED_WITH_CONFLICTS));
 	}
 

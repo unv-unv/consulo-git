@@ -21,7 +21,6 @@ import consulo.builtInServer.xml.XmlRpcServer;
 import consulo.disposer.Disposable;
 import consulo.disposer.Disposer;
 import consulo.util.nodep.io.FileUtilRt;
-import gnu.trove.THashMap;
 import org.apache.commons.codec.DecoderException;
 import org.apache.ws.commons.serialize.DOMSerializer;
 import org.apache.xmlrpc.XmlRpcConfig;
@@ -33,6 +32,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -68,7 +69,7 @@ public abstract class GitXmlRpcHandlerService<T>
 	private final Object SCRIPT_FILE_LOCK = new Object();
 
 	@Nonnull
-	private final THashMap<UUID, T> handlers = new THashMap<>();
+	private final Map<UUID, T> handlers = new HashMap<>();
 	@Nonnull
 	private final Object HANDLERS_LOCK = new Object();
 
