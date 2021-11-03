@@ -6,6 +6,9 @@
 	<category>VCS Integration</category>
 	<vendor>JetBrains</vendor>
 	<localize>consulo.git.GitLocalize</localize>
+	<tags>
+		<tag>vcs</tag>
+	</tags>
 
 	<actions>
 		<action id="Git.Init" class="git4idea.actions.GitInit" text="Create Git Repository...">
