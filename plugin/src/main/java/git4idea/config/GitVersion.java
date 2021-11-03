@@ -15,13 +15,6 @@
  */
 package git4idea.config;
 
-import java.text.ParseException;
-import java.util.Objects;
-import java.util.concurrent.TimeoutException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.annotation.Nonnull;
 import com.intellij.execution.ExecutableValidator;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.configurations.GeneralCommandLine;
@@ -34,6 +27,14 @@ import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.CharsetToolkit;
 import consulo.logging.Logger;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.text.ParseException;
+import java.util.Objects;
+import java.util.concurrent.TimeoutException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * The version of Git. Note that the version number ignores build and commit hash.
@@ -158,12 +159,18 @@ public final class GitVersion implements Comparable<GitVersion>
 	@Nonnull
 	public static GitVersion identifyVersion(@Nonnull String gitExecutable) throws TimeoutException, ExecutionException, ParseException
 	{
+		ProgressIndicator indicator = ProgressManager.getInstance().getProgressIndicator();
+		return identifyVersion(gitExecutable, indicator);
+	}
+
+	@Nonnull
+	public static GitVersion identifyVersion(@Nonnull String gitExecutable, @Nullable ProgressIndicator indicator) throws TimeoutException, ExecutionException, ParseException
+	{
 		GeneralCommandLine commandLine = new GeneralCommandLine();
 		commandLine.setExePath(gitExecutable);
 		commandLine.addParameter("--version");
 		commandLine.setCharset(CharsetToolkit.getDefaultSystemCharset());
 		CapturingProcessHandler handler = new CapturingProcessHandler(commandLine);
-		ProgressIndicator indicator = ProgressManager.getInstance().getProgressIndicator();
 		ProcessOutput result = indicator == null ? handler.runProcess(ExecutableValidator.TIMEOUT_MS) : handler.runProcessWithProgressIndicator(indicator);
 		if(result.isTimeout())
 		{

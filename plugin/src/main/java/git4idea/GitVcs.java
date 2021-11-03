@@ -108,7 +108,6 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 	private final Git myGit;
 	private final ProjectLevelVcsManager myVcsManager;
 	private final GitVcsApplicationSettings myAppSettings;
-	private final Configurable myConfigurable;
 	private final RevisionSelector myRevSelector;
 	private final GitCommittedChangeListProvider myCommittedChangeListProvider;
 
@@ -159,7 +158,6 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 		myRollbackEnvironment = gitRollbackEnvironment;
 		myGitExecutableManager = gitExecutableManager;
 		myRevSelector = new GitRevisionSelector();
-		myConfigurable = new GitVcsConfigurable(myProject, gitProjectSettings, sharedSettings);
 		myUpdateEnvironment = new GitUpdateEnvironment(myProject, gitProjectSettings);
 		myCommittedChangeListProvider = new GitCommittedChangeListProvider(myProject);
 		myOutgoingChangesProvider = new GitOutgoingChangesProvider(myProject);
@@ -372,11 +370,11 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 		}
 	}
 
-	@Nonnull
+	@Nullable
 	@Override
-	public synchronized Configurable getConfigurable()
+	public Configurable getConfigurable()
 	{
-		return myConfigurable;
+		return null;
 	}
 
 	@Nullable

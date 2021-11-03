@@ -177,6 +177,8 @@
 		<pushSupport implementation="git4idea.push.GitPushSupport"/>
 		<cherryPicker implementation="git4idea.cherrypick.GitCherryPicker"/>
 
+		<projectConfigurable id="vcs.git" parentId="vcs" displayName="Git" instance="git4idea.config.GitVcsConfigurable" />
+
 		<projectService serviceImplementation="git4idea.ui.branch.GitBranchManager"/>
 		<projectService
 				serviceInterface="git4idea.annotate.GitAnnotationProvider"

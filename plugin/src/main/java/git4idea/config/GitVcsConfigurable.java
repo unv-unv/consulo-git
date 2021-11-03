@@ -15,18 +15,20 @@
  */
 package git4idea.config;
 
-import javax.annotation.Nonnull;
-import javax.swing.JComponent;
-
-import javax.annotation.Nullable;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
+import consulo.disposer.Disposable;
+import consulo.git.config.GitVcsPanel;
+import consulo.ui.Component;
+import consulo.ui.annotation.RequiredUIAccess;
 import git4idea.GitVcs;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class GitVcsConfigurable implements Configurable
 {
-
 	public static final String DISPLAY_NAME = GitVcs.NAME;
 
 	private final Project myProject;
@@ -56,35 +58,37 @@ public class GitVcsConfigurable implements Configurable
 		return "project.propVCSSupport.VCSs.Git";
 	}
 
+	@RequiredUIAccess
 	@Nonnull
 	@Override
-	public JComponent createComponent()
+	public Component createUIComponent(@Nonnull Disposable uiDisposable)
 	{
-		panel = new GitVcsPanel(myProject);
-		panel.load(mySettings, mySharedSettings);
+		if(panel == null)
+		{
+			panel = new GitVcsPanel(myProject, uiDisposable);
+			panel.load(mySettings, mySharedSettings);
+		}
 		return panel.getPanel();
 	}
 
+	@RequiredUIAccess
 	@Override
 	public boolean isModified()
 	{
 		return panel.isModified(mySettings, mySharedSettings);
 	}
 
+	@RequiredUIAccess
 	@Override
 	public void apply() throws ConfigurationException
 	{
 		panel.save(mySettings, mySharedSettings);
 	}
 
+	@RequiredUIAccess
 	@Override
 	public void reset()
 	{
 		panel.load(mySettings, mySharedSettings);
-	}
-
-	@Override
-	public void disposeUIResources()
-	{
 	}
 }

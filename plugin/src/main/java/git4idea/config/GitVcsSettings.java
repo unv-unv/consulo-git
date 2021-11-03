@@ -57,7 +57,6 @@ import git4idea.reset.GitResetMode;
 @State(name = "Git.Settings", storages = {@Storage(file = StoragePathMacros.WORKSPACE_FILE)})
 public class GitVcsSettings implements PersistentStateComponent<GitVcsSettings.State>, DvcsSyncSettings
 {
-
 	private static final int PREVIOUS_COMMIT_AUTHORS_LIMIT = 16; // Limit for previous commit authors
 
 	private final GitVcsApplicationSettings myAppSettings;
