@@ -15,21 +15,6 @@
  */
 package git4idea.vfs;
 
-import static com.intellij.util.containers.ContainerUtil.map2Map;
-import static com.intellij.util.containers.ContainerUtil.newHashSet;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.annotation.Nonnull;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
@@ -56,6 +41,15 @@ import git4idea.commands.GitHandler;
 import git4idea.commands.GitSimpleHandler;
 import git4idea.i18n.GitBundle;
 import git4idea.util.GitFileUtils;
+import git4idea.util.GitVcsConsoleWriter;
+
+import javax.annotation.Nonnull;
+import java.io.File;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.intellij.util.containers.ContainerUtil.map2Map;
+import static com.intellij.util.containers.ContainerUtil.newHashSet;
 
 public class GitVFSListener extends VcsVFSListener
 {
@@ -141,7 +135,7 @@ public class GitVFSListener extends VcsVFSListener
 					}
 					catch(VcsException ex)
 					{
-						ApplicationManager.getApplication().invokeLater(() -> gitVcs().showMessages(ex.getMessage()));
+						GitVcsConsoleWriter.getInstance(myProject).showMessage(ex.getMessage());
 					}
 				}
 				addedFiles.retainAll(retainedFiles);
@@ -311,7 +305,7 @@ public class GitVFSListener extends VcsVFSListener
 		}
 		catch(VcsException e)
 		{
-			gitVcs().showMessages(e.getMessage());
+			GitVcsConsoleWriter.getInstance(myProject).showMessage(e.getMessage());
 			return;
 		}
 
@@ -327,7 +321,7 @@ public class GitVFSListener extends VcsVFSListener
 					}
 					catch(final VcsException ex)
 					{
-						ApplicationManager.getApplication().invokeLater(() -> gitVcs().showMessages(ex.getMessage()));
+						GitVcsConsoleWriter.getInstance(myProject).showMessage(ex.getMessage());
 					}
 				}
 				RefreshVFsSynchronously.refreshFiles(executor.getFilesToRefresh());

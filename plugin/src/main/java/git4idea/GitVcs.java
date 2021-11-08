@@ -71,6 +71,7 @@ import git4idea.rollback.GitRollbackEnvironment;
 import git4idea.roots.GitIntegrationEnabler;
 import git4idea.status.GitChangeProvider;
 import git4idea.update.GitUpdateEnvironment;
+import git4idea.util.GitVcsConsoleWriter;
 import git4idea.vfs.GitVFSListener;
 
 import javax.annotation.Nonnull;
@@ -106,7 +107,6 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 	private final VcsHistoryProvider myHistoryProvider;
 	@Nonnull
 	private final Git myGit;
-	private final ProjectLevelVcsManager myVcsManager;
 	private final GitVcsApplicationSettings myAppSettings;
 	private final RevisionSelector myRevSelector;
 	private final GitCommittedChangeListProvider myCommittedChangeListProvider;
@@ -120,7 +120,6 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 	private final GitExecutableValidator myExecutableValidator;
 
 	private GitVersion myVersion = GitVersion.NULL; // version of Git which this plugin uses.
-	private static final int MAX_CONSOLE_OUTPUT_SIZE = 10000;
 	private GitRepositoryForAnnotationsListener myRepositoryForAnnotationsListener;
 	private final GitExecutableManager myGitExecutableManager;
 
@@ -136,7 +135,6 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 
 	public GitVcs(@Nonnull Project project,
 			@Nonnull Git git,
-			@Nonnull final ProjectLevelVcsManager gitVcsManager,
 			@Nonnull final GitAnnotationProvider gitAnnotationProvider,
 			@Nonnull final GitDiffProvider gitDiffProvider,
 			@Nonnull final GitHistoryProvider gitHistoryProvider,
@@ -148,7 +146,6 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 	{
 		super(project, NAME);
 		myGit = git;
-		myVcsManager = gitVcsManager;
 		myAppSettings = gitSettings;
 		myChangeProvider = project.isDefault() ? null : ServiceManager.getService(project, GitChangeProvider.class);
 		myCheckinEnvironment = project.isDefault() ? null : ServiceManager.getService(project, GitCheckinEnvironment.class);
@@ -433,11 +430,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList>
 	 */
 	private void showMessage(@Nonnull String message, @Nonnull ConsoleViewContentType contentType)
 	{
-		if(message.length() > MAX_CONSOLE_OUTPUT_SIZE)
-		{
-			message = message.substring(0, MAX_CONSOLE_OUTPUT_SIZE);
-		}
-		myVcsManager.addMessageToConsoleWindow(message, contentType);
+		GitVcsConsoleWriter.getInstance(myProject).showMessage(message, contentType);
 	}
 
 	/**

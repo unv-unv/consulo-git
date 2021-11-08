@@ -180,7 +180,7 @@
 		<pushSupport implementation="git4idea.push.GitPushSupport"/>
 		<cherryPicker implementation="git4idea.cherrypick.GitCherryPicker"/>
 
-		<projectConfigurable id="vcs.git" parentId="vcs" displayName="Git" instance="git4idea.config.GitVcsConfigurable" />
+		<projectConfigurable id="vcs.git" parentId="vcs" displayName="Git" instance="git4idea.config.GitVcsConfigurable"/>
 
 		<projectService serviceImplementation="git4idea.ui.branch.GitBranchManager"/>
 		<projectService
@@ -219,6 +219,7 @@
 
 		<projectService serviceImplementation="git4idea.repo.GitRepositoryManager"/>
 		<projectService serviceImplementation="git4idea.config.GitRebaseSettings"/>
+		<projectService serviceImplementation="git4idea.util.GitVcsConsoleWriter"/>
 
 		<applicationService serviceImplementation="git4idea.config.GitExecutableManager"/>
 
