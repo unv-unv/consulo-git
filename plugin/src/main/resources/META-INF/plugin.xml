@@ -1,4 +1,4 @@
-<consulo-plugin>
+<consulo-plugin url="https://github.com/consulo/consulo-git">
 	<id>com.intellij.git</id>
 	<name>Git Integration</name>
 	<description>Provides integration with Git version control system</description>
