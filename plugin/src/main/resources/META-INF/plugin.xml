@@ -42,7 +42,7 @@
 			<action id="Git.Merge" class="git4idea.actions.GitMerge" text="Merge Changes..." icon="consulo.platform.base.PlatformIconGroup@vcs.mergesourcestree"/>
 			<action id="Git.Stash" class="git4idea.actions.GitStash" text="Stash Changes..."/>
 			<action id="Git.Unstash" class="git4idea.actions.GitUnstash" text="UnStash Changes..."/>
-			<action id="Git.Reset" class="git4idea.actions.GitResetHead" text="Reset HEAD..." icon="consulo.platform.base.PlatformIconGroup@actions.reset"/>
+			<action id="Git.Reset" class="git4idea.actions.GitResetHead" text="Reset HEAD..." icon="consulo.platform.base.PlatformIconGroup@general.reset"/>
 			<separator/>
 			<action id="Git.Fetch" class="git4idea.actions.GitFetch" text="Fetch"/>
 			<action id="Git.Pull" class="git4idea.actions.GitPull" text="Pull..." icon="consulo.platform.base.PlatformIconGroup@actions.checkout"/>
