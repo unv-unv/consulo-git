@@ -1085,4 +1085,10 @@ action.Git.Stash.UnstashAs.description:
   text: Pop or apply selected stash as new branch with or without index
 action.Git.Unstash.text:
   text: Unstash Changes...
+action.Git.Rebase.Abort.text:
+  text: Abort Rebase
+action.Git.Rebase.Continue.text:
+  text: Continue Rebase
+action.Git.Rebase.Skip.text:
+  text: Skip Commit
 
