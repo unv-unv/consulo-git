@@ -16,21 +16,20 @@
 package git4idea.merge;
 
 import consulo.logging.Logger;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.FilePath;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.history.VcsRevisionNumber;
-import com.intellij.openapi.vcs.merge.MergeData;
-import com.intellij.openapi.vcs.merge.MergeProvider;
-import com.intellij.openapi.vcs.merge.MergeProvider2;
-import com.intellij.openapi.vcs.merge.MergeSession;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.ArrayUtil;
-import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.ui.ColumnInfo;
-import com.intellij.vcsUtil.VcsFileUtil;
-import com.intellij.vcsUtil.VcsRunnable;
-import com.intellij.vcsUtil.VcsUtil;
+import consulo.project.Project;
+import consulo.ui.ex.awt.ColumnInfo;
+import consulo.util.collection.ArrayUtil;
+import consulo.versionControlSystem.FilePath;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.history.VcsRevisionNumber;
+import consulo.versionControlSystem.merge.MergeData;
+import consulo.versionControlSystem.merge.MergeProvider;
+import consulo.versionControlSystem.merge.MergeProvider2;
+import consulo.versionControlSystem.merge.MergeSession;
+import consulo.versionControlSystem.util.VcsFileUtil;
+import consulo.versionControlSystem.util.VcsRunnable;
+import consulo.versionControlSystem.util.VcsUtil;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitFileRevision;
 import git4idea.GitRevisionNumber;
 import git4idea.GitUtil;
@@ -40,14 +39,11 @@ import git4idea.i18n.GitBundle;
 import git4idea.repo.GitRepository;
 import git4idea.util.GitFileUtils;
 import git4idea.util.StringScanner;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Merge-changes provider for Git, used by IDEA internal 3-way merge tool
@@ -90,7 +86,7 @@ public class GitMergeProvider implements MergeProvider2 {
 
   @Nonnull
   private static Set<VirtualFile> findReverseRoots(@Nonnull Project project, @Nonnull ReverseRequest reverseOrDetect) {
-    Set<VirtualFile> reverseMap = ContainerUtil.newHashSet();
+    Set<VirtualFile> reverseMap = new HashSet<>();
     for (GitRepository repository : GitUtil.getRepositoryManager(project).getRepositories()) {
       boolean reverse;
       if (reverseOrDetect == ReverseRequest.DETECT) {

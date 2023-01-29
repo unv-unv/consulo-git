@@ -15,17 +15,24 @@
  */
 package git4idea.status;
 
-import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vcs.*;
-import com.intellij.openapi.vcs.changes.*;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.PairProcessor;
-import com.intellij.util.containers.Convertor;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.application.progress.ProgressIndicator;
+import consulo.document.FileDocumentManager;
+import consulo.ide.impl.idea.openapi.util.io.FileUtil;
+import consulo.ide.impl.idea.openapi.vcs.changes.VcsModifiableDirtyScope;
 import consulo.logging.Logger;
+import consulo.project.Project;
+import consulo.versionControlSystem.FilePath;
+import consulo.versionControlSystem.ProjectLevelVcsManager;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.VcsKey;
+import consulo.versionControlSystem.base.FilePathImpl;
+import consulo.versionControlSystem.change.*;
+import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.status.FileStatus;
 import git4idea.GitContentRevision;
 import git4idea.GitRevisionNumber;
 import git4idea.GitUtil;
@@ -34,16 +41,18 @@ import git4idea.changes.GitChangeUtils;
 import git4idea.commands.Git;
 import git4idea.config.GitVersion;
 import git4idea.config.GitVersionSpecialty;
-import javax.annotation.Nonnull;
-
-import java.util.*;
-
+import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+
+import javax.annotation.Nonnull;
+import java.util.*;
 
 /**
  * Git repository change provider
  */
 @Singleton
+@ServiceAPI(ComponentScope.PROJECT)
+@ServiceImpl
 public class GitChangeProvider implements ChangeProvider {
 
   private static final Logger PROFILE_LOG = Logger.getInstance("#GitStatus");
@@ -59,8 +68,9 @@ public class GitChangeProvider implements ChangeProvider {
   @Nonnull
   private final ProjectLevelVcsManager myVcsManager;
 
-  public GitChangeProvider(@Nonnull Project project, @Nonnull Git git, ChangeListManager changeListManager,
-						   @Nonnull FileDocumentManager fileDocumentManager, @Nonnull ProjectLevelVcsManager vcsManager) {
+  @Inject
+  public GitChangeProvider(@Nonnull Project project, @Nonnull Git git, @Nonnull ChangeListManager changeListManager,
+                           @Nonnull FileDocumentManager fileDocumentManager, @Nonnull ProjectLevelVcsManager vcsManager) {
     myProject = project;
     myGit = git;
     myChangeListManager = changeListManager;
@@ -90,10 +100,10 @@ public class GitChangeProvider implements ChangeProvider {
       for (VirtualFile root : roots) {
         debug("checking root: " + root.getPath());
         GitChangesCollector collector = isNewGitChangeProviderAvailable()
-                                        ? GitNewChangesCollector.collect(myProject, myGit, myChangeListManager, myVcsManager,
-                                                                         vcs, dirtyScope, root)
-                                        : GitOldChangesCollector.collect(myProject, myChangeListManager, myVcsManager,
-                                                                         vcs, dirtyScope, root);
+          ? GitNewChangesCollector.collect(myProject, myGit, myChangeListManager, myVcsManager,
+                                           vcs, dirtyScope, root)
+          : GitOldChangesCollector.collect(myProject, myChangeListManager, myVcsManager,
+                                           vcs, dirtyScope, root);
         final Collection<Change> changes = collector.getChanges();
         holder.changed(changes);
         for (Change file : changes) {
@@ -137,20 +147,12 @@ public class GitChangeProvider implements ChangeProvider {
       }
     }
     inputColl.addAll(existingInScope);
-    FileUtil.removeAncestors(inputColl, new Convertor<VirtualFile, String>() {
-                               @Override
-                               public String convert(VirtualFile o) {
-                                 return o.getPath();
+    FileUtil.removeAncestors(inputColl, o -> o.getPath(), (parent, child) -> {
+                               if (!existingInScope.contains(child) && existingInScope.contains(parent)) {
+                                 debug("adding git root for check: " + child.getPath());
+                                 ((VcsModifiableDirtyScope)dirtyScope).addDirtyDirRecursively(new FilePathImpl(child));
                                }
-                             }, new PairProcessor<VirtualFile, VirtualFile>() {
-                               @Override
-                               public boolean process(VirtualFile parent, VirtualFile child) {
-                                 if (! existingInScope.contains(child) && existingInScope.contains(parent)) {
-                                   debug("adding git root for check: " + child.getPath());
-                                   ((VcsModifiableDirtyScope)dirtyScope).addDirtyDirRecursively(new FilePathImpl(child));
-                                 }
-                                 return true;
-                               }
+                               return true;
                              }
     );
   }

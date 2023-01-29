@@ -19,8 +19,8 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 
-import com.intellij.dvcs.repo.Repository;
-import com.intellij.vcs.log.Hash;
+import consulo.versionControlSystem.distributed.repository.Repository;
+import consulo.versionControlSystem.log.Hash;
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
 

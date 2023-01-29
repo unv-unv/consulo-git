@@ -15,7 +15,7 @@
  */
 package git4idea.validators;
 
-import com.intellij.openapi.ui.InputValidatorEx;
+import consulo.ui.ex.InputValidatorEx;
 import git4idea.GitBranch;
 import git4idea.branch.GitBranchUtil;
 import git4idea.branch.GitBranchesCollection;
@@ -26,7 +26,7 @@ import java.util.Collection;
 
 /**
  * <p>
- *   In addition to {@link git4idea.validators.GitRefNameValidator} checks that the entered branch name doesn't conflict
+ *   In addition to {@link GitRefNameValidator} checks that the entered branch name doesn't conflict
  *   with any existing local or remote branch.
  * </p>
  * <p>Use it when creating new branch.</p>

@@ -15,116 +15,108 @@
  */
 package git4idea.repo;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-
-import javax.annotation.Nonnull;
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
-
-import javax.annotation.Nullable;
-import com.intellij.dvcs.DvcsUtil;
-import com.intellij.dvcs.branch.DvcsSyncSettings;
-import com.intellij.dvcs.repo.AbstractRepositoryManager;
-import com.intellij.dvcs.repo.VcsRepositoryManager;
-import com.intellij.openapi.components.ServiceManager;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.ide.ServiceManager;
+import consulo.ide.impl.idea.openapi.vcs.changes.ui.VirtualFileHierarchicalComparator;
 import consulo.logging.Logger;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.changes.ui.VirtualFileHierarchicalComparator;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.containers.ContainerUtil;
+import consulo.project.Project;
+import consulo.util.collection.ContainerUtil;
+import consulo.versionControlSystem.distributed.branch.DvcsSyncSettings;
+import consulo.versionControlSystem.distributed.repository.AbstractRepositoryManager;
+import consulo.versionControlSystem.distributed.repository.VcsRepositoryManager;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
 import git4idea.config.GitVcsSettings;
 import git4idea.rebase.GitRebaseSpec;
 import git4idea.ui.branch.GitMultiRootBranchConfig;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
 
 @Singleton
-public class GitRepositoryManager extends AbstractRepositoryManager<GitRepository>
-{
-	@Nonnull
-	public static GitRepositoryManager getInstance(@Nonnull Project project)
-	{
-		return ServiceManager.getService(project, GitRepositoryManager.class);
-	}
+@ServiceAPI(ComponentScope.PROJECT)
+@ServiceImpl
+public class GitRepositoryManager extends AbstractRepositoryManager<GitRepository> {
+  @Nonnull
+  public static GitRepositoryManager getInstance(@Nonnull Project project) {
+    return ServiceManager.getService(project, GitRepositoryManager.class);
+  }
 
-	private static final Logger LOG = Logger.getInstance(GitRepositoryManager.class);
+  private static final Logger LOG = Logger.getInstance(GitRepositoryManager.class);
 
-	public static final Comparator<GitRepository> DEPENDENCY_COMPARATOR = (repo1, repo2) -> -VirtualFileHierarchicalComparator.getInstance().compare(repo1.getRoot(), repo2.getRoot());
+  public static final Comparator<GitRepository> DEPENDENCY_COMPARATOR =
+    (repo1, repo2) -> -VirtualFileHierarchicalComparator.getInstance().compare(repo1.getRoot(), repo2.getRoot());
 
-	@Nonnull
-	private final GitVcsSettings mySettings;
-	@Nullable
-	private volatile GitRebaseSpec myOngoingRebaseSpec;
+  @Nonnull
+  private final GitVcsSettings mySettings;
+  @Nullable
+  private volatile GitRebaseSpec myOngoingRebaseSpec;
 
-	@Inject
-	public GitRepositoryManager(@Nonnull Project project, @Nonnull VcsRepositoryManager vcsRepositoryManager)
-	{
-		super(vcsRepositoryManager, GitVcs.getInstance(project), GitUtil.DOT_GIT);
-		mySettings = GitVcsSettings.getInstance(project);
-	}
+  @Inject
+  public GitRepositoryManager(@Nonnull Project project, @Nonnull VcsRepositoryManager vcsRepositoryManager) {
+    super(vcsRepositoryManager, GitVcs.getInstance(project), GitUtil.DOT_GIT);
+    mySettings = GitVcsSettings.getInstance(project);
+  }
 
-	@Override
-	public boolean isSyncEnabled()
-	{
-		return mySettings.getSyncSetting() == DvcsSyncSettings.Value.SYNC && !new GitMultiRootBranchConfig(getRepositories()).diverged();
-	}
+  @Override
+  public boolean isSyncEnabled() {
+    return mySettings.getSyncSetting() == DvcsSyncSettings.Value.SYNC && !new GitMultiRootBranchConfig(getRepositories()).diverged();
+  }
 
-	@Nonnull
-	@Override
-	public List<GitRepository> getRepositories()
-	{
-		return getRepositories(GitRepository.class);
-	}
+  @Nonnull
+  @Override
+  public List<GitRepository> getRepositories() {
+    return getRepositories(GitRepository.class);
+  }
 
-	@Nullable
-	public GitRebaseSpec getOngoingRebaseSpec()
-	{
-		GitRebaseSpec rebaseSpec = myOngoingRebaseSpec;
-		return rebaseSpec != null && rebaseSpec.isValid() ? rebaseSpec : null;
-	}
+  @Nullable
+  public GitRebaseSpec getOngoingRebaseSpec() {
+    GitRebaseSpec rebaseSpec = myOngoingRebaseSpec;
+    return rebaseSpec != null && rebaseSpec.isValid() ? rebaseSpec : null;
+  }
 
-	public boolean hasOngoingRebase()
-	{
-		return getOngoingRebaseSpec() != null;
-	}
+  public boolean hasOngoingRebase() {
+    return getOngoingRebaseSpec() != null;
+  }
 
-	public void setOngoingRebaseSpec(@Nullable GitRebaseSpec ongoingRebaseSpec)
-	{
-		myOngoingRebaseSpec = ongoingRebaseSpec != null && ongoingRebaseSpec.isValid() ? ongoingRebaseSpec : null;
-	}
+  public void setOngoingRebaseSpec(@Nullable GitRebaseSpec ongoingRebaseSpec) {
+    myOngoingRebaseSpec = ongoingRebaseSpec != null && ongoingRebaseSpec.isValid() ? ongoingRebaseSpec : null;
+  }
 
-	@Nonnull
-	public Collection<GitRepository> getDirectSubmodules(@Nonnull GitRepository superProject)
-	{
-		Collection<GitSubmoduleInfo> modules = superProject.getSubmodules();
-		return ContainerUtil.mapNotNull(modules, module ->
-		{
-			VirtualFile submoduleDir = superProject.getRoot().findFileByRelativePath(module.getPath());
-			if(submoduleDir == null)
-			{
-				LOG.debug("submodule dir not found at declared path [" + module.getPath() + "] of root [" + superProject.getRoot() + "]");
-				return null;
-			}
-			GitRepository repository = getRepositoryForRoot(submoduleDir);
-			if(repository == null)
-			{
-				LOG.warn("Submodule not registered as a repository: " + submoduleDir);
-			}
-			return repository;
-		});
-	}
+  @Nonnull
+  public Collection<GitRepository> getDirectSubmodules(@Nonnull GitRepository superProject) {
+    Collection<GitSubmoduleInfo> modules = superProject.getSubmodules();
+    return ContainerUtil.mapNotNull(modules, module ->
+    {
+      VirtualFile submoduleDir = superProject.getRoot().findFileByRelativePath(module.getPath());
+      if (submoduleDir == null) {
+        LOG.debug("submodule dir not found at declared path [" + module.getPath() + "] of root [" + superProject.getRoot() + "]");
+        return null;
+      }
+      GitRepository repository = getRepositoryForRoot(submoduleDir);
+      if (repository == null) {
+        LOG.warn("Submodule not registered as a repository: " + submoduleDir);
+      }
+      return repository;
+    });
+  }
 
-	/**
-	 * <p>Sorts repositories "by dependency",
-	 * which means that if one repository "depends" on the other, it should be updated or pushed first.</p>
-	 * <p>Currently submodule-dependency is the only one which is taken into account.</p>
-	 * <p>If repositories are independent of each other, they are sorted {@link DvcsUtil#REPOSITORY_COMPARATOR by path}.</p>
-	 */
-	@Nonnull
-	public List<GitRepository> sortByDependency(@Nonnull Collection<GitRepository> repositories)
-	{
-		return ContainerUtil.sorted(repositories, DEPENDENCY_COMPARATOR);
-	}
+  /**
+   * <p>Sorts repositories "by dependency",
+   * which means that if one repository "depends" on the other, it should be updated or pushed first.</p>
+   * <p>Currently submodule-dependency is the only one which is taken into account.</p>
+   * <p>If repositories are independent of each other, they are sorted {@link consulo.versionControlSystem.distributed.DvcsUtil#REPOSITORY_COMPARATOR by path}.</p>
+   */
+  @Nonnull
+  public List<GitRepository> sortByDependency(@Nonnull Collection<GitRepository> repositories) {
+    return ContainerUtil.sorted(repositories, DEPENDENCY_COMPARATOR);
+  }
 }

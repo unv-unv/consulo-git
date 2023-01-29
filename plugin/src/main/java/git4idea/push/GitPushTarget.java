@@ -24,9 +24,9 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
+import consulo.versionControlSystem.distributed.push.PushTarget;
 import org.jetbrains.annotations.TestOnly;
-import com.intellij.dvcs.push.PushTarget;
-import com.intellij.util.containers.ContainerUtil;
+import consulo.util.collection.ContainerUtil;
 import consulo.logging.Logger;
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;

@@ -15,19 +15,26 @@
  */
 package git4idea.diff;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.vcs.*;
-import com.intellij.openapi.vcs.changes.ContentRevision;
-import com.intellij.openapi.vcs.diff.DiffMixin;
-import com.intellij.openapi.vcs.diff.DiffProvider;
-import com.intellij.openapi.vcs.diff.ItemLatestState;
-import com.intellij.openapi.vcs.history.VcsFileRevision;
-import com.intellij.openapi.vcs.history.VcsRevisionDescription;
-import com.intellij.openapi.vcs.history.VcsRevisionNumber;
-import com.intellij.openapi.vcs.versionBrowser.CommittedChangeList;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.vcsUtil.VcsUtil;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.ide.impl.idea.openapi.vcs.diff.DiffMixin;
+import consulo.project.Project;
+import consulo.util.lang.Pair;
+import consulo.versionControlSystem.CommittedChangesProvider;
+import consulo.versionControlSystem.FilePath;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.change.ContentRevision;
+import consulo.versionControlSystem.diff.DiffProvider;
+import consulo.versionControlSystem.diff.ItemLatestState;
+import consulo.versionControlSystem.history.VcsFileRevision;
+import consulo.versionControlSystem.history.VcsRevisionDescription;
+import consulo.versionControlSystem.history.VcsRevisionNumber;
+import consulo.versionControlSystem.util.VcsUtil;
+import consulo.versionControlSystem.versionBrowser.CommittedChangeList;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.status.FileStatus;
+import consulo.virtualFileSystem.status.FileStatusManager;
 import git4idea.GitContentRevision;
 import git4idea.GitFileRevision;
 import git4idea.GitUtil;
@@ -48,189 +55,161 @@ import java.util.Set;
  * Git diff provider
  */
 @Singleton
-public class GitDiffProvider implements DiffProvider, DiffMixin
-{
-	/**
-	 * The context project
-	 */
-	private final Project myProject;
-	/**
-	 * The status manager for the project
-	 */
-	private final FileStatusManager myStatusManager;
-	/**
-	 *
-	 */
-	private static final Set<FileStatus> ourGoodStatuses;
+@ServiceAPI(ComponentScope.PROJECT)
+@ServiceImpl
+public class GitDiffProvider implements DiffProvider, DiffMixin {
+  /**
+   * The context project
+   */
+  private final Project myProject;
+  /**
+   * The status manager for the project
+   */
+  private final FileStatusManager myStatusManager;
+  /**
+   *
+   */
+  private static final Set<FileStatus> ourGoodStatuses;
 
-	static
-	{
-		ourGoodStatuses = new HashSet<FileStatus>();
-		ourGoodStatuses.addAll(Arrays.asList(FileStatus.NOT_CHANGED, FileStatus.DELETED, FileStatus.MODIFIED, FileStatus.MERGE, FileStatus.MERGED_WITH_CONFLICTS));
-	}
+  static {
+    ourGoodStatuses = new HashSet<FileStatus>();
+    ourGoodStatuses.addAll(Arrays.asList(FileStatus.NOT_CHANGED,
+                                         FileStatus.DELETED,
+                                         FileStatus.MODIFIED,
+                                         FileStatus.MERGE,
+                                         FileStatus.MERGED_WITH_CONFLICTS));
+  }
 
-	/**
-	 * A constructor
-	 *
-	 * @param project the context project
-	 */
-	@Inject
-	public GitDiffProvider(@Nonnull Project project)
-	{
-		myProject = project;
-		myStatusManager = FileStatusManager.getInstance(myProject);
-	}
+  /**
+   * A constructor
+   *
+   * @param project the context project
+   */
+  @Inject
+  public GitDiffProvider(@Nonnull Project project) {
+    myProject = project;
+    myStatusManager = FileStatusManager.getInstance(myProject);
+  }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Nullable
-	public VcsRevisionNumber getCurrentRevision(VirtualFile file)
-	{
-		if(file.isDirectory())
-		{
-			return null;
-		}
-		try
-		{
-			return GitHistoryUtils.getCurrentRevision(myProject, VcsUtil.getFilePath(file.getPath()), "HEAD");
-		}
-		catch(VcsException e)
-		{
-			return null;
-		}
-	}
+  /**
+   * {@inheritDoc}
+   */
+  @Nullable
+  public VcsRevisionNumber getCurrentRevision(VirtualFile file) {
+    if (file.isDirectory()) {
+      return null;
+    }
+    try {
+      return GitHistoryUtils.getCurrentRevision(myProject, VcsUtil.getFilePath(file.getPath()), "HEAD");
+    }
+    catch (VcsException e) {
+      return null;
+    }
+  }
 
-	@Nullable
-	@Override
-	public VcsRevisionDescription getCurrentRevisionDescription(final VirtualFile file)
-	{
-		if(file.isDirectory())
-		{
-			return null;
-		}
-		try
-		{
-			return GitHistoryUtils.getCurrentRevisionDescription(myProject, VcsUtil.getFilePath(file.getPath()));
-		}
-		catch(VcsException e)
-		{
-			return null;
-		}
-	}
+  @Nullable
+  @Override
+  public VcsRevisionDescription getCurrentRevisionDescription(final VirtualFile file) {
+    if (file.isDirectory()) {
+      return null;
+    }
+    try {
+      return GitHistoryUtils.getCurrentRevisionDescription(myProject, VcsUtil.getFilePath(file.getPath()));
+    }
+    catch (VcsException e) {
+      return null;
+    }
+  }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Nullable
-	public ItemLatestState getLastRevision(VirtualFile file)
-	{
-		if(file.isDirectory())
-		{
-			return null;
-		}
-		if(!ourGoodStatuses.contains(myStatusManager.getStatus(file)))
-		{
-			return null;
-		}
-		try
-		{
-			return GitHistoryUtils.getLastRevision(myProject, VcsUtil.getFilePath(file.getPath()));
-		}
-		catch(VcsException e)
-		{
-			return null;
-		}
-	}
+  /**
+   * {@inheritDoc}
+   */
+  @Nullable
+  public ItemLatestState getLastRevision(VirtualFile file) {
+    if (file.isDirectory()) {
+      return null;
+    }
+    if (!ourGoodStatuses.contains(myStatusManager.getStatus(file))) {
+      return null;
+    }
+    try {
+      return GitHistoryUtils.getLastRevision(myProject, VcsUtil.getFilePath(file.getPath()));
+    }
+    catch (VcsException e) {
+      return null;
+    }
+  }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Nullable
-	public ContentRevision createFileContent(VcsRevisionNumber revisionNumber, VirtualFile selectedFile)
-	{
-		if(selectedFile.isDirectory())
-		{
-			return null;
-		}
-		final String path = selectedFile.getPath();
-		if(GitUtil.gitRootOrNull(selectedFile) == null)
-		{
-			return null;
-		}
+  /**
+   * {@inheritDoc}
+   */
+  @Nullable
+  public ContentRevision createFileContent(VcsRevisionNumber revisionNumber, VirtualFile selectedFile) {
+    if (selectedFile.isDirectory()) {
+      return null;
+    }
+    final String path = selectedFile.getPath();
+    if (GitUtil.gitRootOrNull(selectedFile) == null) {
+      return null;
+    }
 
-		// faster, if there were no renames
-		FilePath filePath = VcsUtil.getFilePath(path);
-		try
-		{
-			final CommittedChangesProvider committedChangesProvider = GitVcs.getInstance(myProject).getCommittedChangesProvider();
-			final Pair<CommittedChangeList, FilePath> pair = committedChangesProvider.getOneList(selectedFile, revisionNumber);
-			if(pair != null)
-			{
-				return GitContentRevision.createRevision(pair.getSecond(), revisionNumber, myProject, selectedFile.getCharset());
-			}
-		}
-		catch(VcsException e)
-		{
-			GitVcs.getInstance(myProject).showErrors(Collections.singletonList(e), GitBundle.message("diff.find.error", path));
-		}
+    // faster, if there were no renames
+    FilePath filePath = VcsUtil.getFilePath(path);
+    try {
+      final CommittedChangesProvider committedChangesProvider = GitVcs.getInstance(myProject).getCommittedChangesProvider();
+      final Pair<CommittedChangeList, FilePath> pair = committedChangesProvider.getOneList(selectedFile, revisionNumber);
+      if (pair != null) {
+        return GitContentRevision.createRevision(pair.getSecond(), revisionNumber, myProject, selectedFile.getCharset());
+      }
+    }
+    catch (VcsException e) {
+      GitVcs.getInstance(myProject).showErrors(Collections.singletonList(e), GitBundle.message("diff.find.error", path));
+    }
 
-		try
-		{
+    try {
 
-			for(VcsFileRevision f : GitHistoryUtils.history(myProject, filePath))
-			{
-				GitFileRevision gitRevision = (GitFileRevision) f;
-				if(f.getRevisionNumber().equals(revisionNumber))
-				{
-					return GitContentRevision.createRevision(gitRevision.getPath(), revisionNumber, myProject, selectedFile.getCharset());
-				}
-			}
-			GitContentRevision candidate = (GitContentRevision) GitContentRevision.createRevision(filePath, revisionNumber, myProject, selectedFile.getCharset());
-			try
-			{
-				candidate.getContent();
-				return candidate;
-			}
-			catch(VcsException e)
-			{
-				// file does not exists
-			}
-		}
-		catch(VcsException e)
-		{
-			GitVcs.getInstance(myProject).showErrors(Collections.singletonList(e), GitBundle.message("diff.find.error", path));
-		}
-		return null;
-	}
+      for (VcsFileRevision f : GitHistoryUtils.history(myProject, filePath)) {
+        GitFileRevision gitRevision = (GitFileRevision)f;
+        if (f.getRevisionNumber().equals(revisionNumber)) {
+          return GitContentRevision.createRevision(gitRevision.getPath(), revisionNumber, myProject, selectedFile.getCharset());
+        }
+      }
+      GitContentRevision candidate =
+        (GitContentRevision)GitContentRevision.createRevision(filePath, revisionNumber, myProject, selectedFile.getCharset());
+      try {
+        candidate.getContent();
+        return candidate;
+      }
+      catch (VcsException e) {
+        // file does not exists
+      }
+    }
+    catch (VcsException e) {
+      GitVcs.getInstance(myProject).showErrors(Collections.singletonList(e), GitBundle.message("diff.find.error", path));
+    }
+    return null;
+  }
 
-	public ItemLatestState getLastRevision(FilePath filePath)
-	{
-		if(filePath.isDirectory())
-		{
-			return null;
-		}
-		final VirtualFile vf = filePath.getVirtualFile();
-		if(vf != null)
-		{
-			if(!ourGoodStatuses.contains(myStatusManager.getStatus(vf)))
-			{
-				return null;
-			}
-		}
-		try
-		{
-			return GitHistoryUtils.getLastRevision(myProject, filePath);
-		}
-		catch(VcsException e)
-		{
-			return null;
-		}
-	}
+  public ItemLatestState getLastRevision(FilePath filePath) {
+    if (filePath.isDirectory()) {
+      return null;
+    }
+    final VirtualFile vf = filePath.getVirtualFile();
+    if (vf != null) {
+      if (!ourGoodStatuses.contains(myStatusManager.getStatus(vf))) {
+        return null;
+      }
+    }
+    try {
+      return GitHistoryUtils.getLastRevision(myProject, filePath);
+    }
+    catch (VcsException e) {
+      return null;
+    }
+  }
 
-	public VcsRevisionNumber getLatestCommittedRevision(VirtualFile vcsRoot)
-	{
-		// todo
-		return null;
-	}
+  public VcsRevisionNumber getLatestCommittedRevision(VirtualFile vcsRoot) {
+    // todo
+    return null;
+  }
 }

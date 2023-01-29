@@ -15,38 +15,34 @@
  */
 package git4idea.ui.branch;
 
-import static com.intellij.dvcs.branch.DvcsBranchPopup.MyMoreIndex.DEFAULT_REPO_NUM;
-import static com.intellij.dvcs.branch.DvcsBranchPopup.MyMoreIndex.MAX_REPO_NUM;
-import static com.intellij.dvcs.ui.BranchActionGroupPopup.wrapWithMoreActionIfNeeded;
-import static com.intellij.dvcs.ui.BranchActionUtil.FAVORITE_BRANCH_COMPARATOR;
-import static com.intellij.dvcs.ui.BranchActionUtil.getNumOfFavorites;
-import static com.intellij.dvcs.ui.BranchActionUtil.getNumOfTopShownBranches;
-import static com.intellij.util.containers.ContainerUtil.map;
-import static java.util.stream.Collectors.toList;
-
-import java.util.List;
-import java.util.Objects;
-
-import javax.annotation.Nonnull;
-
-import com.intellij.dvcs.ui.LightActionGroup;
-
-import javax.annotation.Nullable;
-import com.intellij.dvcs.DvcsUtil;
-import com.intellij.dvcs.branch.DvcsBranchPopup;
-import com.intellij.dvcs.repo.AbstractRepositoryManager;
-import com.intellij.dvcs.ui.BranchActionGroup;
-import com.intellij.dvcs.ui.RootAction;
-import com.intellij.openapi.actionSystem.ActionGroup;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Condition;
-import com.intellij.util.containers.ContainerUtil;
+import consulo.ide.impl.idea.dvcs.branch.DvcsBranchPopup;
+import consulo.ide.impl.idea.dvcs.ui.BranchActionGroup;
+import consulo.ide.impl.idea.dvcs.ui.LightActionGroup;
+import consulo.ide.impl.idea.dvcs.ui.RootAction;
+import consulo.project.Project;
+import consulo.ui.ex.action.ActionGroup;
+import consulo.ui.ex.action.AnAction;
+import consulo.util.collection.ContainerUtil;
+import consulo.util.lang.function.Condition;
+import consulo.versionControlSystem.distributed.DvcsUtil;
+import consulo.versionControlSystem.distributed.repository.AbstractRepositoryManager;
 import git4idea.GitUtil;
 import git4idea.branch.GitBranchUtil;
 import git4idea.config.GitVcsSettings;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Objects;
+
+import static consulo.ide.impl.idea.dvcs.branch.DvcsBranchPopup.MyMoreIndex.DEFAULT_REPO_NUM;
+import static consulo.ide.impl.idea.dvcs.branch.DvcsBranchPopup.MyMoreIndex.MAX_REPO_NUM;
+import static consulo.ide.impl.idea.dvcs.ui.BranchActionGroupPopup.wrapWithMoreActionIfNeeded;
+import static consulo.ide.impl.idea.dvcs.ui.BranchActionUtil.*;
+import static consulo.util.collection.ContainerUtil.map;
+import static java.util.stream.Collectors.toList;
 
 /**
  * The popup which allows to quickly switch and control Git branches.

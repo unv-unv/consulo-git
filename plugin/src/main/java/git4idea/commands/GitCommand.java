@@ -15,16 +15,17 @@
  */
 package git4idea.commands;
 
+import consulo.application.util.registry.Registry;
 import org.jetbrains.annotations.NonNls;
 import javax.annotation.Nonnull;
-import com.intellij.openapi.util.registry.Registry;
+import java.lang.Runnable;
 
 /**
  * <p>
  * The descriptor of git command.
  * </p>
  * <p>
- * It contains policy information about locking which is handled in {@link GitHandler#runInCurrentThread(java.lang.Runnable)} to prevent
+ * It contains policy information about locking which is handled in {@link GitHandler#runInCurrentThread(Runnable)} to prevent
  * simultaneous Git commands conflict on the index.lock file.
  * write-commands can't be executed simultaneously, but a write-command doesn't prevent read-commands to execute.
  * </p>

@@ -23,12 +23,12 @@ import java.util.ArrayList;
 
 import javax.annotation.Nonnull;
 import consulo.logging.Logger;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.AbstractVcsHelper;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.update.UpdatedFiles;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.application.progress.ProgressIndicator;
+import consulo.project.Project;
+import consulo.versionControlSystem.VcsException;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.versionControlSystem.AbstractVcsHelper;
+import consulo.versionControlSystem.update.UpdatedFiles;
 import git4idea.GitBranch;
 import git4idea.GitLocalBranch;
 import git4idea.GitRevisionNumber;

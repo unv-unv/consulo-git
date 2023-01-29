@@ -15,8 +15,8 @@
  */
 package git4idea.commands;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.VcsNotifier;
+import consulo.project.Project;
+import consulo.versionControlSystem.VcsNotifier;
 
 public class GitTaskResultNotificationHandler extends GitTaskResultHandlerAdapter
 {

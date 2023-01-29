@@ -15,25 +15,23 @@
  */
 package git4idea.stash;
 
-import java.util.Collection;
-
-import javax.annotation.Nonnull;
-import javax.swing.event.HyperlinkEvent;
-
-import javax.annotation.Nullable;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationListener;
+import consulo.application.progress.ProgressIndicator;
 import consulo.logging.Logger;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.VcsNotifier;
-import com.intellij.openapi.vcs.changes.ChangeListManagerEx;
-import com.intellij.openapi.vcs.changes.ChangeListManagerImpl;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.project.Project;
+import consulo.project.ui.notification.Notification;
+import consulo.project.ui.notification.event.NotificationListener;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.VcsNotifier;
+import consulo.versionControlSystem.change.ChangeListManager;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.commands.Git;
 import git4idea.config.GitVcsSettings;
 import git4idea.merge.GitConflictResolver;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.swing.event.HyperlinkEvent;
+import java.util.Collection;
 
 /**
  * Saves and restores uncommitted local changes - it is used before and after the update process.
@@ -49,7 +47,7 @@ public abstract class GitChangesSaver
 	@Nonnull
 	protected final Project myProject;
 	@Nonnull
-	protected final ChangeListManagerEx myChangeManager;
+	protected final ChangeListManager myChangeManager;
 	@Nonnull
 	protected final Git myGit;
 	@Nonnull
@@ -84,7 +82,7 @@ public abstract class GitChangesSaver
 		myGit = git;
 		myProgressIndicator = indicator;
 		myStashMessage = stashMessage;
-		myChangeManager = ChangeListManagerImpl.getInstanceImpl(project);
+		myChangeManager = ChangeListManager.getInstance(project);
 	}
 
 	/**

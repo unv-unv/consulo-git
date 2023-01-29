@@ -15,15 +15,14 @@
  */
 package git4idea.history.browser;
 
-import com.intellij.openapi.vcs.FilePath;
-import com.intellij.openapi.vcs.ObjectsConvertor;
-import com.intellij.openapi.vcs.changes.Change;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.containers.Convertor;
+import consulo.versionControlSystem.FilePath;
+import consulo.versionControlSystem.change.Change;
+import consulo.versionControlSystem.util.ObjectsConvertor;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitCommit;
 import git4idea.history.wholeTree.AbstractHash;
-import javax.annotation.Nonnull;
 
+import javax.annotation.Nonnull;
 import java.util.*;
 
 /**
@@ -68,21 +67,21 @@ public class GitHeavyCommit {
   private boolean myOnTracked;
 
   public GitHeavyCommit(@Nonnull VirtualFile root, @Nonnull final AbstractHash shortHash,
-						@Nonnull final SHAHash hash,
-						final String author,
-						final String committer,
-						final Date date,
-						final String subject,
-						final String description,
-						final Set<String> parentsHashes,
-						final List<FilePath> pathsList,
-						final String authorEmail,
-						final String comitterEmail,
-						List<String> tags,
-						final List<String> localBranches,
-						final List<String> remoteBranches,
-						List<Change> changes,
-						long authorTime) {
+                        @Nonnull final SHAHash hash,
+                        final String author,
+                        final String committer,
+                        final Date date,
+                        final String subject,
+                        final String description,
+                        final Set<String> parentsHashes,
+                        final List<FilePath> pathsList,
+                        final String authorEmail,
+                        final String comitterEmail,
+                        List<String> tags,
+                        final List<String> localBranches,
+                        final List<String> remoteBranches,
+                        List<Change> changes,
+                        long authorTime) {
     myRoot = root;
     myShortHash = shortHash;
     myAuthor = author;
@@ -231,12 +230,7 @@ public class GitHeavyCommit {
   }
 
   public List<AbstractHash> getConvertedParents() {
-    return ObjectsConvertor.convert(getParentsHashes(), new Convertor<String, AbstractHash>() {
-      @Override
-      public AbstractHash convert(String o) {
-        return AbstractHash.create(o);
-      }
-    });
+    return ObjectsConvertor.convert(getParentsHashes(), o -> AbstractHash.create(o));
   }
 
   public String getSubject() {

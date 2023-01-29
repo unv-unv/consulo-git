@@ -15,7 +15,7 @@
  */
 package git4idea.update;
 
-import com.intellij.openapi.application.ApplicationNamesInfo;
+import consulo.application.Application;
 import git4idea.config.GitVcsSettings;
 import git4idea.config.UpdateMethod;
 import git4idea.i18n.GitBundle;
@@ -98,6 +98,6 @@ public class GitUpdateOptionsPanel {
   private void createUIComponents() {
     myShelveRadioButton = new JRadioButton(GitBundle.message("update.options.save.shelve"));
     myShelveRadioButton.setToolTipText(GitBundle.message("update.options.save.shelve.tooltip",
-                                                         ApplicationNamesInfo.getInstance().getFullProductName()));
+                                                         Application.get().getName().get()));
   }
 }

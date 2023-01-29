@@ -26,17 +26,17 @@ import java.util.Set;
 
 import javax.annotation.Nonnull;
 
-import com.intellij.openapi.options.Configurable;
-import com.intellij.openapi.progress.ProcessCanceledException;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Ref;
-import com.intellij.openapi.vcs.FilePath;
-import com.intellij.openapi.vcs.update.SequentialUpdatesContext;
-import com.intellij.openapi.vcs.update.UpdateEnvironment;
-import com.intellij.openapi.vcs.update.UpdateSession;
-import com.intellij.openapi.vcs.update.UpdatedFiles;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.application.progress.ProgressIndicator;
+import consulo.component.ProcessCanceledException;
+import consulo.configurable.Configurable;
+import consulo.project.Project;
+import consulo.versionControlSystem.update.UpdateEnvironment;
+import consulo.versionControlSystem.update.UpdatedFiles;
+import consulo.util.lang.ref.Ref;
+import consulo.versionControlSystem.FilePath;
+import consulo.versionControlSystem.update.SequentialUpdatesContext;
+import consulo.versionControlSystem.update.UpdateSession;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.config.GitVcsSettings;
 import git4idea.repo.GitRepositoryManager;
 
@@ -60,9 +60,9 @@ public class GitUpdateEnvironment implements UpdateEnvironment
 
 	@Nonnull
 	public UpdateSession updateDirectories(@Nonnull FilePath[] filePaths,
-			UpdatedFiles updatedFiles,
-			ProgressIndicator progressIndicator,
-			@Nonnull Ref<SequentialUpdatesContext> sequentialUpdatesContextRef) throws ProcessCanceledException
+                                           UpdatedFiles updatedFiles,
+                                           ProgressIndicator progressIndicator,
+                                           @Nonnull Ref<SequentialUpdatesContext> sequentialUpdatesContextRef) throws ProcessCanceledException
 	{
 		Set<VirtualFile> roots = gitRoots(Arrays.asList(filePaths));
 		GitRepositoryManager repositoryManager = getRepositoryManager(myProject);

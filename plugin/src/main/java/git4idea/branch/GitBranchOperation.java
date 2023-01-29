@@ -15,40 +15,34 @@
  */
 package git4idea.branch;
 
-import static com.intellij.openapi.application.ModalityState.defaultModalityState;
-import static com.intellij.openapi.util.text.StringUtil.pluralize;
-import static com.intellij.util.ObjectUtils.chooseNotNull;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import com.google.common.collect.Maps;
-import com.intellij.dvcs.DvcsUtil;
-import com.intellij.openapi.application.ApplicationManager;
+import consulo.application.Application;
+import consulo.application.ApplicationManager;
+import consulo.application.progress.ProgressIndicator;
+import consulo.document.FileDocumentManager;
+import consulo.ide.impl.idea.openapi.vfs.VfsUtil;
 import consulo.logging.Logger;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.VcsNotifier;
-import com.intellij.openapi.vcs.changes.Change;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.Function;
-import com.intellij.util.containers.MultiMap;
+import consulo.project.Project;
+import consulo.util.collection.MultiMap;
+import consulo.util.lang.Pair;
+import consulo.util.lang.StringUtil;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.VcsNotifier;
+import consulo.versionControlSystem.change.Change;
+import consulo.versionControlSystem.distributed.DvcsUtil;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitUtil;
 import git4idea.commands.Git;
 import git4idea.commands.GitMessageWithFilesDetector;
 import git4idea.config.GitVcsSettings;
 import git4idea.repo.GitRepository;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.*;
+
+import static consulo.util.lang.ObjectUtil.chooseNotNull;
+import static consulo.util.lang.StringUtil.pluralize;
 
 /**
  * Common class for Git operations with branches aware of multi-root configuration,
@@ -56,7 +50,6 @@ import git4idea.repo.GitRepository;
  */
 abstract class GitBranchOperation
 {
-
 	protected static final Logger LOG = Logger.getInstance(GitBranchOperation.class);
 
 	@Nonnull
@@ -217,7 +210,7 @@ abstract class GitBranchOperation
 
 	protected final void saveAllDocuments()
 	{
-		ApplicationManager.getApplication().invokeAndWait(() -> FileDocumentManager.getInstance().saveAllDocuments(), defaultModalityState());
+		ApplicationManager.getApplication().invokeAndWait(() -> FileDocumentManager.getInstance().saveAllDocuments(), Application.get().getDefaultModalityState());
 	}
 
 	/**
@@ -435,7 +428,7 @@ abstract class GitBranchOperation
 
 	/**
 	 * When checkout or merge operation on a repository fails with the error "local changes would be overwritten by...",
-	 * affected local files are captured by the {@link git4idea.commands.GitMessageWithFilesDetector detector}.
+	 * affected local files are captured by the {@link GitMessageWithFilesDetector detector}.
 	 * Then all remaining (non successful repositories) are searched if they are about to fail with the same problem.
 	 * All collected local changes which prevent the operation, together with these repositories, are returned.
 	 *
@@ -447,9 +440,9 @@ abstract class GitBranchOperation
 	 */
 	@Nonnull
 	protected Pair<List<GitRepository>, List<Change>> getConflictingRepositoriesAndAffectedChanges(@Nonnull GitRepository currentRepository,
-			@Nonnull GitMessageWithFilesDetector localChangesOverwrittenBy,
-			String currentBranch,
-			String nextBranch)
+																								   @Nonnull GitMessageWithFilesDetector localChangesOverwrittenBy,
+																								   String currentBranch,
+																								   String nextBranch)
 	{
 
 		// get changes overwritten by checkout from the error message captured from Git
@@ -478,21 +471,10 @@ abstract class GitBranchOperation
 		{
 			return grouped.keySet().iterator().next();
 		}
-		return StringUtil.join(grouped.entrySet(), new Function<Map.Entry<String, Collection<VirtualFile>>, String>()
+		return StringUtil.join(grouped.entrySet(), entry ->
 		{
-			@Override
-			public String fun(Map.Entry<String, Collection<VirtualFile>> entry)
-			{
-				String roots = StringUtil.join(entry.getValue(), new Function<VirtualFile, String>()
-				{
-					@Override
-					public String fun(VirtualFile file)
-					{
-						return file.getName();
-					}
-				}, ", ");
-				return entry.getKey() + " (in " + roots + ")";
-			}
+			String roots = StringUtil.join(entry.getValue(), file -> file.getName(), ", ");
+			return entry.getKey() + " (in " + roots + ")";
 		}, "<br/>");
 	}
 

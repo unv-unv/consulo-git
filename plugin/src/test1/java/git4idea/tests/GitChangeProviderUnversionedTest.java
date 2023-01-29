@@ -15,19 +15,22 @@
  */
 package git4idea.tests;
 
-import com.intellij.openapi.progress.EmptyProgressIndicator;
-import com.intellij.openapi.vcs.FilePathImpl;
-import com.intellij.openapi.vcs.VcsConfiguration;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.VcsShowConfirmationOption;
-import com.intellij.openapi.vcs.changes.Change;
-import com.intellij.openapi.vcs.changes.ChangeListManager;
+import consulo.application.progress.EmptyProgressIndicator;
+import consulo.ide.impl.idea.openapi.vcs.FilePathImpl;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.change.Change;
 import com.intellij.testFramework.vcs.MockChangeListManagerGate;
-import com.intellij.openapi.vcs.changes.ui.RollbackProgressModifier;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.ide.impl.idea.openapi.vcs.changes.ui.RollbackProgressModifier;
+import consulo.virtualFileSystem.VirtualFile;
 import com.intellij.testFramework.vcs.MockChangelistBuilder;
-import com.intellij.util.ArrayUtil;
+import consulo.util.collection.ArrayUtil;
+import consulo.versionControlSystem.VcsConfiguration;
+import consulo.versionControlSystem.VcsShowConfirmationOption;
+import consulo.versionControlSystem.change.ChangeListManager;
 import git4idea.GitVcs;
+import git4idea.repo.GitUntrackedFilesHolder;
+import git4idea.status.GitChangeProvider;
+import git4idea.status.GitNewChangesCollector;
 import git4idea.test.GitTestRepository;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -40,9 +43,9 @@ import java.util.List;
 import static org.testng.Assert.*;
 
 /**
- * Tests unversioned files tracking by the {@link git4idea.status.GitChangeProvider}.
- * This test is separate from {@link GitChangeProviderTest}, because in the {@link git4idea.status.GitNewChangesCollector} 
- * untracked files are handled separately by the {@link git4idea.repo.GitUntrackedFilesHolder}.
+ * Tests unversioned files tracking by the {@link GitChangeProvider}.
+ * This test is separate from {@link GitChangeProviderTest}, because in the {@link GitNewChangesCollector}
+ * untracked files are handled separately by the {@link GitUntrackedFilesHolder}.
  *
  * @author Kirill Likhodedov
  * @deprecated Use {@link GitLightTest}
@@ -101,7 +104,7 @@ public class GitChangeProviderUnversionedTest extends GitChangeProviderTest {
     assertTrue(dir.exists());
     VirtualFile vf = dir.findChild("newfile.txt");
     assertTrue(vf.exists());
-    myDirtyScope.addDirtyDirRecursively(new FilePathImpl(dir));
+    myDirtyScope.addDirtyDirRecursively(new consulo.ide.impl.idea.openapi.vcs.FilePathImpl(dir));
     assertUnversioned(vf);
   }
   

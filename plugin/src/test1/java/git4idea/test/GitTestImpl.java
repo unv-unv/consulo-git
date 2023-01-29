@@ -17,12 +17,12 @@ package git4idea.test;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
-import com.intellij.execution.process.ProcessOutputTypes;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.process.ProcessOutputTypes;
+import consulo.ide.impl.idea.openapi.util.io.FileUtil;
+import consulo.util.lang.StringUtil;
+import consulo.versionControlSystem.VcsException;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.project.Project;
 import git4idea.commands.Git;
 import git4idea.commands.GitCommandResult;
 import git4idea.commands.GitImpl;
@@ -38,7 +38,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
-import static com.intellij.openapi.util.text.StringUtil.join;
+import static consulo.util.lang.StringUtil.join;
 import static git4idea.test.GitExecutor.cd;
 import static git4idea.test.GitExecutor.git;
 import static java.lang.String.format;

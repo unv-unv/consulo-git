@@ -19,18 +19,19 @@ import java.io.Closeable;
 import java.util.List;
 
 import javax.annotation.Nonnull;
-import com.intellij.CommonBundle;
-import com.intellij.openapi.application.ApplicationManager;
+
+import consulo.application.ApplicationManager;
+import consulo.application.CommonBundle;
 import consulo.logging.Logger;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.Ref;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.ui.ex.awt.Messages;
+import consulo.util.lang.ref.Ref;
+import consulo.project.Project;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.DialogManager;
 import git4idea.commands.GitHandler;
 
 /**
- * The handler for rebase editor request. The handler shows {@link git4idea.rebase.GitRebaseEditor}
+ * The handler for rebase editor request. The handler shows {@link GitRebaseEditor}
  * dialog with the specified file. If user accepts the changes, it saves file and returns 0,
  * otherwise it just returns error code.
  */
@@ -75,7 +76,7 @@ public class GitInteractiveRebaseEditorHandler implements Closeable, GitRebaseEd
 
 	/**
 	 * The constructor from fields that is expected to be
-	 * accessed only from {@link git4idea.rebase.GitRebaseEditorService}.
+	 * accessed only from {@link GitRebaseEditorService}.
 	 *
 	 * @param service the service object that has created this handler
 	 * @param project the context project

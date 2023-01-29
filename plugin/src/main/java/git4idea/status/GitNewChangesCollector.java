@@ -15,16 +15,20 @@
  */
 package git4idea.status;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vcs.*;
-import com.intellij.openapi.vcs.changes.Change;
-import com.intellij.openapi.vcs.changes.ChangeListManager;
-import com.intellij.openapi.vcs.changes.ContentRevision;
-import com.intellij.openapi.vcs.changes.VcsDirtyScope;
-import com.intellij.openapi.vcs.history.VcsRevisionNumber;
-import com.intellij.openapi.vfs.VirtualFile;
 import consulo.logging.Logger;
+import consulo.project.Project;
+import consulo.util.lang.StringUtil;
+import consulo.versionControlSystem.AbstractVcs;
+import consulo.versionControlSystem.FilePath;
+import consulo.versionControlSystem.ProjectLevelVcsManager;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.change.Change;
+import consulo.versionControlSystem.change.ChangeListManager;
+import consulo.versionControlSystem.change.ContentRevision;
+import consulo.versionControlSystem.change.VcsDirtyScope;
+import consulo.versionControlSystem.history.VcsRevisionNumber;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.status.FileStatus;
 import git4idea.GitContentRevision;
 import git4idea.GitFormatException;
 import git4idea.GitRevisionNumber;
@@ -36,25 +40,25 @@ import git4idea.commands.GitHandler;
 import git4idea.commands.GitSimpleHandler;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitUntrackedFilesHolder;
-import javax.annotation.Nonnull;
 
+import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
  * <p>
- *   Collects changes from the Git repository in the given {@link com.intellij.openapi.vcs.changes.VcsDirtyScope}
- *   by calling {@code 'git status --porcelain -z'} on it.
- *   Works only on Git 1.7.0 and later.
+ * Collects changes from the Git repository in the given {@link VcsDirtyScope}
+ * by calling {@code 'git status --porcelain -z'} on it.
+ * Works only on Git 1.7.0 and later.
  * </p>
  * <p>
- *   The class is immutable: collect changes and get the instance from where they can be retrieved by {@link #collect}.
+ * The class is immutable: collect changes and get the instance from where they can be retrieved by {@link #collect}.
  * </p>
  *
  * @author Kirill Likhodedov
  */
-class GitNewChangesCollector extends GitChangesCollector {
+public class GitNewChangesCollector extends GitChangesCollector {
 
   private static final Logger LOG = Logger.getInstance(GitNewChangesCollector.class);
   private final GitRepository myRepository;
@@ -69,8 +73,8 @@ class GitNewChangesCollector extends GitChangesCollector {
    */
   @Nonnull
   static GitNewChangesCollector collect(@Nonnull Project project, @Nonnull Git git, @Nonnull ChangeListManager changeListManager,
-										@Nonnull ProjectLevelVcsManager vcsManager, @Nonnull AbstractVcs vcs,
-										@Nonnull VcsDirtyScope dirtyScope, @Nonnull VirtualFile vcsRoot) throws VcsException {
+                                        @Nonnull ProjectLevelVcsManager vcsManager, @Nonnull AbstractVcs vcs,
+                                        @Nonnull VcsDirtyScope dirtyScope, @Nonnull VirtualFile vcsRoot) throws VcsException {
     return new GitNewChangesCollector(project, git, changeListManager, vcsManager, vcs, dirtyScope, vcsRoot);
   }
 
@@ -87,9 +91,8 @@ class GitNewChangesCollector extends GitChangesCollector {
   }
 
   private GitNewChangesCollector(@Nonnull Project project, @Nonnull Git git, @Nonnull ChangeListManager changeListManager,
-								 @Nonnull ProjectLevelVcsManager vcsManager, @Nonnull AbstractVcs vcs,
-								 @Nonnull VcsDirtyScope dirtyScope, @Nonnull VirtualFile vcsRoot) throws VcsException
-  {
+                                 @Nonnull ProjectLevelVcsManager vcsManager, @Nonnull AbstractVcs vcs,
+                                 @Nonnull VcsDirtyScope dirtyScope, @Nonnull VirtualFile vcsRoot) throws VcsException {
     super(project, changeListManager, vcsManager, vcs, dirtyScope, vcsRoot);
     myGit = git;
     myRepository = GitUtil.getRepositoryManager(myProject).getRepositoryForRoot(vcsRoot);
@@ -112,7 +115,8 @@ class GitNewChangesCollector extends GitChangesCollector {
     if (myRepository == null) {
       // if GitRepository was not initialized at the time of creation of the GitNewChangesCollector => collecting unversioned files by hands.
       myUnversionedFiles.addAll(myGit.untrackedFiles(myProject, myVcsRoot, null));
-    } else {
+    }
+    else {
       GitUntrackedFilesHolder untrackedFilesHolder = myRepository.getUntrackedFilesHolder();
       myUnversionedFiles.addAll(untrackedFilesHolder.retrieveUntrackedFiles());
     }
@@ -166,13 +170,17 @@ class GitNewChangesCollector extends GitChangesCollector {
         case ' ':
           if (yStatus == 'M') {
             reportModified(filepath, head);
-          } else if (yStatus == 'D') {
+          }
+          else if (yStatus == 'D') {
             reportDeleted(filepath, head);
-          } else if (yStatus == 'T') {
+          }
+          else if (yStatus == 'T') {
             reportTypeChanged(filepath, head);
-          } else if (yStatus == 'U') {
+          }
+          else if (yStatus == 'U') {
             reportConflict(filepath, head);
-          } else {
+          }
+          else {
             throwYStatus(output, handler, line, xStatus, yStatus);
           }
           break;
@@ -180,9 +188,11 @@ class GitNewChangesCollector extends GitChangesCollector {
         case 'M':
           if (yStatus == ' ' || yStatus == 'M' || yStatus == 'T') {
             reportModified(filepath, head);
-          } else if (yStatus == 'D') {
+          }
+          else if (yStatus == 'D') {
             reportDeleted(filepath, head);
-          } else {
+          }
+          else {
             throwYStatus(output, handler, line, xStatus, yStatus);
           }
           break;
@@ -195,11 +205,14 @@ class GitNewChangesCollector extends GitChangesCollector {
         case 'A':
           if (yStatus == 'M' || yStatus == ' ' || yStatus == 'T') {
             reportAdded(filepath);
-          } else if (yStatus == 'D') {
+          }
+          else if (yStatus == 'D') {
             // added + deleted => no change (from IDEA point of view).
-          } else if (yStatus == 'U' || yStatus == 'A') { // AU - unmerged, added by us; AA - unmerged, both added
+          }
+          else if (yStatus == 'U' || yStatus == 'A') { // AU - unmerged, added by us; AA - unmerged, both added
             reportConflict(filepath, head);
-          }  else {
+          }
+          else {
             throwYStatus(output, handler, line, xStatus, yStatus);
           }
           break;
@@ -207,13 +220,16 @@ class GitNewChangesCollector extends GitChangesCollector {
         case 'D':
           if (yStatus == 'M' || yStatus == ' ' || yStatus == 'T') {
             reportDeleted(filepath, head);
-          } else if (yStatus == 'U') { // DU - unmerged, deleted by us
+          }
+          else if (yStatus == 'U') { // DU - unmerged, deleted by us
             reportConflict(filepath, head);
-          } else if (yStatus == 'D') { // DD - unmerged, both deleted
+          }
+          else if (yStatus == 'D') { // DD - unmerged, both deleted
             // TODO
             // currently not displaying, because "both deleted" conflicts can't be handled by our conflict resolver.
             // see IDEA-63156
-          } else {
+          }
+          else {
             throwYStatus(output, handler, line, xStatus, yStatus);
           }
           break;
@@ -222,7 +238,8 @@ class GitNewChangesCollector extends GitChangesCollector {
           if (yStatus == 'U' || yStatus == 'A' || yStatus == 'D' || yStatus == 'T') {
             // UU - unmerged, both modified; UD - unmerged, deleted by them; UA - umerged, added by them
             reportConflict(filepath, head);
-          } else {
+          }
+          else {
             throwYStatus(output, handler, line, xStatus, yStatus);
           }
           break;
@@ -234,9 +251,11 @@ class GitNewChangesCollector extends GitChangesCollector {
 
           if (yStatus == 'D') {
             reportDeleted(filepath, head);
-          } else if (yStatus == ' ' || yStatus == 'M' || yStatus == 'T') {
+          }
+          else if (yStatus == ' ' || yStatus == 'M' || yStatus == 'T') {
             reportRename(filepath, oldFilename, head);
-          } else {
+          }
+          else {
             throwYStatus(output, handler, line, xStatus, yStatus);
           }
           break;
@@ -244,9 +263,11 @@ class GitNewChangesCollector extends GitChangesCollector {
         case 'T'://TODO
           if (yStatus == ' ' || yStatus == 'M') {
             reportTypeChanged(filepath, head);
-          } else if (yStatus == 'D') {
+          }
+          else if (yStatus == 'D') {
             reportDeleted(filepath, head);
-          } else {
+          }
+          else {
             throwYStatus(output, handler, line, xStatus, yStatus);
           }
           break;
@@ -273,7 +294,8 @@ class GitNewChangesCollector extends GitChangesCollector {
       myRepository.update();
       final String rev = myRepository.getCurrentRevision();
       return rev != null ? new GitRevisionNumber(rev) : VcsRevisionNumber.NULL;
-    } else {
+    }
+    else {
       // this may happen on the project startup, when GitChangeProvider may be queried before GitRepository has been initialized.
       LOG.info("GitRepository is null for root " + myVcsRoot);
       return getHeadFromGit();
@@ -300,7 +322,7 @@ class GitNewChangesCollector extends GitChangesCollector {
 
   private static void throwGFE(String message, GitHandler handler, String output, String line, char xStatus, char yStatus) {
     throw new GitFormatException(String.format("%s\n xStatus=[%s], yStatus=[%s], line=[%s], \n" +
-                                               "handler:\n%s\n output: \n%s",
+                                                 "handler:\n%s\n output: \n%s",
                                                message, xStatus, yStatus, line.replace('\u0000', '!'), handler, output));
   }
 

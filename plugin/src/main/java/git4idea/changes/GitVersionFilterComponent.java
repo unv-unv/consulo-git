@@ -15,8 +15,8 @@
  */
 package git4idea.changes;
 
-import com.intellij.openapi.vcs.versionBrowser.ChangeBrowserSettings;
-import com.intellij.openapi.vcs.versionBrowser.StandardVersionFilterComponent;
+import consulo.ide.impl.idea.openapi.vcs.versionBrowser.StandardVersionFilterComponent;
+import consulo.versionControlSystem.versionBrowser.ChangeBrowserSettings;
 
 import javax.swing.*;
 

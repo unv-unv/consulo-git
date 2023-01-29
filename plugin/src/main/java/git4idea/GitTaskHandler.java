@@ -15,112 +15,97 @@
  */
 package git4idea;
 
-import com.intellij.dvcs.branch.DvcsTaskHandler;
-import com.intellij.openapi.project.Project;
-import com.intellij.util.Function;
-import com.intellij.util.containers.ContainerUtil;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.project.Project;
+import consulo.util.collection.ContainerUtil;
+import consulo.versionControlSystem.distributed.branch.DvcsTaskHandler;
 import git4idea.branch.GitBrancher;
 import git4idea.branch.GitBranchesCollection;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import git4idea.validators.GitRefNameValidator;
+import jakarta.inject.Inject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * @author Dmitry Avdeev
- *         Date: 17.07.13
+ * Date: 17.07.13
  */
-public class GitTaskHandler extends DvcsTaskHandler<GitRepository>
-{
+@ExtensionImpl
+public class GitTaskHandler extends DvcsTaskHandler<GitRepository> {
 
-	@Nonnull
-	private final GitBrancher myBrancher;
-	@Nonnull
-	private final GitRefNameValidator myNameValidator;
+  @Nonnull
+  private final GitBrancher myBrancher;
+  @Nonnull
+  private final GitRefNameValidator myNameValidator;
 
-	public GitTaskHandler(@Nonnull GitBrancher brancher, @Nonnull GitRepositoryManager repositoryManager, @Nonnull Project project)
-	{
-		super(repositoryManager, project, "branch");
-		myBrancher = brancher;
-		myNameValidator = GitRefNameValidator.getInstance();
-	}
+  @Inject
+  public GitTaskHandler(@Nonnull GitBrancher brancher, @Nonnull GitRepositoryManager repositoryManager, @Nonnull Project project) {
+    super(repositoryManager, project, "branch");
+    myBrancher = brancher;
+    myNameValidator = GitRefNameValidator.getInstance();
+  }
 
-	@Override
-	protected void checkout(@Nonnull String taskName, @Nonnull List<GitRepository> repos, @Nullable Runnable callInAwtLater)
-	{
-		myBrancher.checkout(taskName, false, repos, callInAwtLater);
-	}
+  @Override
+  protected void checkout(@Nonnull String taskName, @Nonnull List<GitRepository> repos, @Nullable Runnable callInAwtLater) {
+    myBrancher.checkout(taskName, false, repos, callInAwtLater);
+  }
 
-	@Override
-	protected void checkoutAsNewBranch(@Nonnull String name, @Nonnull List<GitRepository> repositories)
-	{
-		myBrancher.checkoutNewBranch(name, repositories);
-	}
+  @Override
+  protected void checkoutAsNewBranch(@Nonnull String name, @Nonnull List<GitRepository> repositories) {
+    myBrancher.checkoutNewBranch(name, repositories);
+  }
 
-	@Override
-	protected String getActiveBranch(GitRepository repository)
-	{
-		return repository.getCurrentBranchName();
-	}
+  @Override
+  protected String getActiveBranch(GitRepository repository) {
+    return repository.getCurrentBranchName();
+  }
 
-	@Override
-	protected void mergeAndClose(@Nonnull String branch, @Nonnull List<GitRepository> repositories)
-	{
-		myBrancher.merge(branch, GitBrancher.DeleteOnMergeOption.DELETE, repositories);
-	}
+  @Override
+  protected void mergeAndClose(@Nonnull String branch, @Nonnull List<GitRepository> repositories) {
+    myBrancher.merge(branch, GitBrancher.DeleteOnMergeOption.DELETE, repositories);
+  }
 
-	@Override
-	protected boolean hasBranch(@Nonnull GitRepository repository, @Nonnull TaskInfo info)
-	{
-		GitBranchesCollection branches = repository.getBranches();
-		return info.isRemote() ? branches.getRemoteBranches().stream().anyMatch(branch -> info.getName().equals(branch.getName())) : branches.findLocalBranch(info.getName()) != null;
-	}
+  @Override
+  protected boolean hasBranch(@Nonnull GitRepository repository, @Nonnull TaskInfo info) {
+    GitBranchesCollection branches = repository.getBranches();
+    return info.isRemote() ? branches.getRemoteBranches()
+                                     .stream()
+                                     .anyMatch(branch -> info.getName()
+                                                             .equals(branch.getName())) : branches.findLocalBranch(info.getName()) != null;
+  }
 
-	@Nonnull
-	@Override
-	protected Iterable<TaskInfo> getAllBranches(@Nonnull GitRepository repository)
-	{
-		GitBranchesCollection branches = repository.getBranches();
-		List<TaskInfo> list = ContainerUtil.map(branches.getLocalBranches(), new Function<GitBranch, TaskInfo>()
-		{
-			@Override
-			public TaskInfo fun(GitBranch branch)
-			{
-				return new TaskInfo(branch.getName(), Collections.singleton(repository.getPresentableUrl()));
-			}
-		});
-		list.addAll(ContainerUtil.map(branches.getRemoteBranches(), new Function<GitBranch, TaskInfo>()
-		{
-			@Override
-			public TaskInfo fun(GitBranch branch)
-			{
-				return new TaskInfo(branch.getName(), Collections.singleton(repository.getPresentableUrl()))
-				{
-					@Override
-					public boolean isRemote()
-					{
-						return true;
-					}
-				};
-			}
-		}));
-		return list;
-	}
+  @Nonnull
+  @Override
+  protected Iterable<TaskInfo> getAllBranches(@Nonnull GitRepository repository) {
+    GitBranchesCollection branches = repository.getBranches();
+    List<TaskInfo> list = ContainerUtil.map(branches.getLocalBranches(),
+                                            branch -> new TaskInfo(branch.getName(),
+                                                                   Collections.singleton(repository.getPresentableUrl())));
+    list.addAll(ContainerUtil.map(branches.getRemoteBranches(),
+                                  (Function<GitBranch, TaskInfo>)branch -> new TaskInfo(branch.getName(),
+                                                                                        Collections.singleton(repository.getPresentableUrl())) {
+                                    @Override
+                                    public boolean isRemote() {
+                                      return true;
+                                    }
+                                  }));
+    return list;
+  }
 
-	@Override
-	public boolean isBranchNameValid(@Nonnull String branchName)
-	{
-		return myNameValidator.checkInput(branchName);
-	}
+  @Override
+  public boolean isBranchNameValid(@Nonnull String branchName) {
+    return myNameValidator.checkInput(branchName);
+  }
 
-	@Nonnull
-	@Override
-	public String cleanUpBranchName(@Nonnull String suggestedName)
-	{
-		return myNameValidator.cleanUpBranchName(suggestedName);
-	}
+  @Nonnull
+  @Override
+  public String cleanUpBranchName(@Nonnull String suggestedName) {
+    return myNameValidator.cleanUpBranchName(suggestedName);
+  }
 }

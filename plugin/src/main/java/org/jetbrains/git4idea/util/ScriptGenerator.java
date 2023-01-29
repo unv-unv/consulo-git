@@ -15,13 +15,12 @@
  */
 package org.jetbrains.git4idea.util;
 
-import com.intellij.openapi.application.PathManager;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.SystemInfo;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vfs.VfsUtilCore;
-import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.io.URLUtil;
+import consulo.application.util.SystemInfo;
+import consulo.ide.impl.idea.openapi.application.PathManager;
+import consulo.util.collection.ContainerUtil;
+import consulo.util.io.FileUtil;
+import consulo.util.io.URLUtil;
+import consulo.util.lang.Pair;
 import org.jetbrains.annotations.NonNls;
 
 import javax.annotation.Nonnull;
@@ -45,7 +44,7 @@ public class ScriptGenerator {
   /**
    * The extension of the ssh script name
    */
-  @NonNls public static final String SCRIPT_EXT;
+  public static final String SCRIPT_EXT;
 
   static {
     if (SystemInfo.isWindows) {
@@ -107,7 +106,7 @@ public class ScriptGenerator {
         if (location != null) {
           URI uri = location.toURI();
           Pair<String, String> pair = URLUtil.splitJarUrl(uri.toURL().toString());
-          if(pair == null) {
+          if (pair == null) {
             // FIXME [VISTALL] our classloader return wrong uri
             return uri.getPath();
           }
@@ -187,7 +186,7 @@ public class ScriptGenerator {
     finally {
       out.close();
     }
-    FileUtil.setExecutableAttribute(scriptPath.getPath(), true);
+    consulo.ide.impl.idea.openapi.util.io.FileUtil.setExecutableAttribute(scriptPath.getPath(), true);
     return scriptPath;
   }
 
@@ -197,7 +196,7 @@ public class ScriptGenerator {
   public String commandLine() {
     StringBuilder cmd = new StringBuilder();
     cmd.append('\"').append(System.getProperty("java.home")).append(File.separatorChar).append("bin").append(File.separatorChar)
-      .append("java\" -cp \"");
+       .append("java\" -cp \"");
     boolean first = true;
     for (String p : myPaths) {
       if (!first) {

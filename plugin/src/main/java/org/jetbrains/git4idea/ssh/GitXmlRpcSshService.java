@@ -15,107 +15,121 @@
  */
 package org.jetbrains.git4idea.ssh;
 
-import java.util.UUID;
-import java.util.Vector;
+import com.trilead.ssh2.KnownHosts;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import git4idea.commands.GitSSHGUIHandler;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import org.jetbrains.git4idea.rt.ssh.GitSSHHandler;
+import org.jetbrains.git4idea.rt.ssh.SSHMain;
+import org.jetbrains.git4idea.rt.ssh.SSHMainBundle;
+import org.jetbrains.git4idea.util.ScriptGenerator;
 
 import javax.annotation.Nonnull;
-import jakarta.inject.Singleton;
-
-import org.jetbrains.git4idea.util.ScriptGenerator;
-import com.trilead.ssh2.KnownHosts;
-import git4idea.commands.GitSSHGUIHandler;
+import java.util.UUID;
+import java.util.Vector;
 
 /**
  * @author Kirill Likhodedov
  */
 @Singleton
-public class GitXmlRpcSshService extends GitXmlRpcHandlerService<GitSSHGUIHandler>
-{
+@ServiceAPI(ComponentScope.APPLICATION)
+@ServiceImpl
+public class GitXmlRpcSshService extends GitXmlRpcHandlerService<GitSSHGUIHandler> {
 
-	private GitXmlRpcSshService()
-	{
-		super(GitSSHHandler.GIT_SSH_PREFIX, GitSSHHandler.HANDLER_NAME, SSHMain.class);
-	}
+  @Inject
+  GitXmlRpcSshService() {
+    super(GitSSHHandler.GIT_SSH_PREFIX, GitSSHHandler.HANDLER_NAME, SSHMain.class);
+  }
 
-	@Override
-	protected void customizeScriptGenerator(@Nonnull ScriptGenerator generator)
-	{
-		generator.addClasses(KnownHosts.class);
-		generator.addResource(SSHMainBundle.class, "/org/jetbrains/git4idea/ssh/SSHMainBundle.properties");
-	}
+  @Override
+  protected void customizeScriptGenerator(@Nonnull ScriptGenerator generator) {
+    generator.addClasses(KnownHosts.class);
+    generator.addResource(SSHMainBundle.class, "/org/jetbrains/git4idea/ssh/SSHMainBundle.properties");
+  }
 
-	@Nonnull
-	@Override
-	protected Object createRpcRequestHandlerDelegate()
-	{
-		return new InternalRequestHandler();
-	}
+  @Nonnull
+  @Override
+  protected Object createRpcRequestHandlerDelegate() {
+    return new InternalRequestHandler();
+  }
 
-	/**
-	 * Internal handler implementation class, do not use it.
-	 */
-	public class InternalRequestHandler implements GitSSHHandler
-	{
+  /**
+   * Internal handler implementation class, do not use it.
+   */
+  public class InternalRequestHandler implements GitSSHHandler {
 
-		@Override
-		public boolean verifyServerHostKey(String handler, String hostname, int port, String serverHostKeyAlgorithm, String serverHostKey, boolean isNew)
-		{
-			return getHandler(UUID.fromString(handler)).verifyServerHostKey(hostname, port, serverHostKeyAlgorithm, serverHostKey, isNew);
-		}
+    @Override
+    public boolean verifyServerHostKey(String handler,
+                                       String hostname,
+                                       int port,
+                                       String serverHostKeyAlgorithm,
+                                       String serverHostKey,
+                                       boolean isNew) {
+      return getHandler(UUID.fromString(handler)).verifyServerHostKey(hostname, port, serverHostKeyAlgorithm, serverHostKey, isNew);
+    }
 
-		@Override
-		public String askPassphrase(String handler, String username, String keyPath, boolean resetPassword, String lastError)
-		{
-			return adjustNull(getHandler(UUID.fromString(handler)).askPassphrase(username, keyPath, resetPassword, lastError));
-		}
+    @Override
+    public String askPassphrase(String handler, String username, String keyPath, boolean resetPassword, String lastError) {
+      return adjustNull(getHandler(UUID.fromString(handler)).askPassphrase(username, keyPath, resetPassword, lastError));
+    }
 
-		@Override
-		@SuppressWarnings({"UseOfObsoleteCollectionType"})
-		public Vector<String> replyToChallenge(String token, String username, String name, String instruction, int numPrompts, Vector<String> prompt, Vector<Boolean> echo, String lastError)
-		{
-			return adjustNull(getHandler(UUID.fromString(token)).replyToChallenge(username, name, instruction, numPrompts, prompt, echo, lastError));
-		}
+    @Override
+    @SuppressWarnings({"UseOfObsoleteCollectionType"})
+    public Vector<String> replyToChallenge(String token,
+                                           String username,
+                                           String name,
+                                           String instruction,
+                                           int numPrompts,
+                                           Vector<String> prompt,
+                                           Vector<Boolean> echo,
+                                           String lastError) {
+      return adjustNull(getHandler(UUID.fromString(token)).replyToChallenge(username,
+                                                                            name,
+                                                                            instruction,
+                                                                            numPrompts,
+                                                                            prompt,
+                                                                            echo,
+                                                                            lastError));
+    }
 
-		@Override
-		public String askPassword(String token, String username, boolean resetPassword, String lastError)
-		{
-			return adjustNull(getHandler(UUID.fromString(token)).askPassword(username, resetPassword, lastError));
-		}
+    @Override
+    public String askPassword(String token, String username, boolean resetPassword, String lastError) {
+      return adjustNull(getHandler(UUID.fromString(token)).askPassword(username, resetPassword, lastError));
+    }
 
-		@Override
-		public String setLastSuccessful(String token, String userName, String method, String error)
-		{
-			getHandler(UUID.fromString(token)).setLastSuccessful(userName, method, error);
-			return "";
-		}
+    @Override
+    public String setLastSuccessful(String token, String userName, String method, String error) {
+      getHandler(UUID.fromString(token)).setLastSuccessful(userName, method, error);
+      return "";
+    }
 
-		@Override
-		public String getLastSuccessful(String token, String userName)
-		{
-			return getHandler(UUID.fromString(token)).getLastSuccessful(userName);
-		}
+    @Override
+    public String getLastSuccessful(String token, String userName) {
+      return getHandler(UUID.fromString(token)).getLastSuccessful(userName);
+    }
 
-		/**
-		 * Adjust null value ({@code "-"} if null, {@code "+"+s) if non-null)
-		 *
-		 * @param s a value to adjust
-		 * @return adjusted string
-		 */
-		private String adjustNull(final String s)
-		{
-			return s == null ? "-" : "+" + s;
-		}
+    /**
+     * Adjust null value ({@code "-"} if null, {@code "+"+s) if non-null)
+     *
+     * @param s a value to adjust
+     * @return adjusted string
+     */
+    private String adjustNull(final String s) {
+      return s == null ? "-" : "+" + s;
+    }
 
-		/**
-		 * Adjust null value (returns empty array)
-		 *
-		 * @param s if null return empty array
-		 * @return s if not null, empty array otherwise
-		 */
-		@SuppressWarnings({"UseOfObsoleteCollectionType"})
-		private <T> Vector<T> adjustNull(final Vector<T> s)
-		{
-			return s == null ? new Vector<>() : s;
-		}
-	}
+    /**
+     * Adjust null value (returns empty array)
+     *
+     * @param s if null return empty array
+     * @return s if not null, empty array otherwise
+     */
+    @SuppressWarnings({"UseOfObsoleteCollectionType"})
+    private <T> Vector<T> adjustNull(final Vector<T> s) {
+      return s == null ? new Vector<>() : s;
+    }
+  }
 }

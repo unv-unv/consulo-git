@@ -19,15 +19,16 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.Nonnull;
-import com.intellij.openapi.application.ApplicationManager;
+
+import consulo.application.ApplicationManager;
 import consulo.logging.Logger;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.Condition;
-import com.intellij.openapi.util.Couple;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.changes.Change;
-import com.intellij.util.containers.ContainerUtil;
+import consulo.project.Project;
+import consulo.ui.ex.awt.Messages;
+import consulo.util.lang.Couple;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.change.Change;
+import consulo.util.collection.ContainerUtil;
+import consulo.util.lang.function.Condition;
 import git4idea.GitCommit;
 import git4idea.GitExecutionException;
 import git4idea.GitLocalBranch;

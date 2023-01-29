@@ -15,7 +15,7 @@
  */
 package git4idea.ui;
 
-import com.intellij.openapi.util.text.StringUtil;
+import consulo.util.lang.StringUtil;
 import git4idea.i18n.GitBundle;
 
 /**

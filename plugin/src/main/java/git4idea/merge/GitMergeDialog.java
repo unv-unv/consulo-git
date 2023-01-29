@@ -15,19 +15,19 @@
  */
 package git4idea.merge;
 
-import com.intellij.ide.util.ElementsChooser;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.project.Project;
+import consulo.ui.ex.awt.DialogWrapper;
+import consulo.ui.ex.awt.ElementsChooser;
+import consulo.versionControlSystem.VcsException;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitVcs;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitLineHandler;
 import git4idea.commands.GitSimpleHandler;
 import git4idea.i18n.GitBundle;
 import git4idea.util.GitUIUtil;
-import javax.annotation.Nonnull;
 
+import javax.annotation.Nonnull;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -90,7 +90,6 @@ public class GitMergeDialog extends DialogWrapper {
   private final GitVcs myVcs;
 
 
-
   /**
    * A constructor
    *
@@ -141,11 +140,8 @@ public class GitMergeDialog extends DialogWrapper {
     c.fill = GridBagConstraints.BOTH;
     myBranchToMergeContainer.add(myBranchChooser, c);
     GitMergeUtil.setupStrategies(myBranchChooser, myStrategy);
-    final ElementsChooser.ElementsMarkListener<String> listener = new ElementsChooser.ElementsMarkListener<String>() {
-      public void elementMarkChanged(final String element, final boolean isMarked) {
-        setOKActionEnabled(myBranchChooser.getMarkedElements().size() != 0);
-      }
-    };
+    final ElementsChooser.ElementsMarkListener<String> listener =
+      (element, isMarked) -> setOKActionEnabled(myBranchChooser.getMarkedElements().size() != 0);
     listener.elementMarkChanged(null, true);
     myBranchChooser.addElementsMarkListener(listener);
   }
@@ -161,7 +157,7 @@ public class GitMergeDialog extends DialogWrapper {
     handler.addParameters("--no-color", "-a", "--no-merged");
     String output = handler.run();
     myBranchChooser.clear();
-    for (StringTokenizer lines = new StringTokenizer(output, "\n", false); lines.hasMoreTokens();) {
+    for (StringTokenizer lines = new StringTokenizer(output, "\n", false); lines.hasMoreTokens(); ) {
       String branch = lines.nextToken().substring(2);
       myBranchChooser.addElement(branch, false);
     }

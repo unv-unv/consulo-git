@@ -19,13 +19,14 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Nonnull;
-import com.intellij.dvcs.push.OutgoingCommitsProvider;
-import com.intellij.dvcs.push.OutgoingResult;
-import com.intellij.dvcs.push.PushSpec;
-import com.intellij.dvcs.push.VcsError;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.vcs.log.VcsFullCommitDetails;
+
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.distributed.push.OutgoingCommitsProvider;
+import consulo.versionControlSystem.distributed.push.OutgoingResult;
+import consulo.versionControlSystem.distributed.push.PushSpec;
+import consulo.versionControlSystem.distributed.push.VcsError;
+import consulo.project.Project;
+import consulo.versionControlSystem.log.VcsFullCommitDetails;
 import git4idea.GitCommit;
 import git4idea.GitUtil;
 import git4idea.history.GitHistoryUtils;

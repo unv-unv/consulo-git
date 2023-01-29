@@ -17,7 +17,7 @@ package git4idea;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.virtualFileSystem.VirtualFile;
 import com.intellij.testFramework.VfsTestUtil;
 import cucumber.annotation.en.Given;
 import cucumber.annotation.en.Then;

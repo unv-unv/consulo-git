@@ -12,9 +12,10 @@
  */
 package git4idea.history.wholeTree;
 
+import consulo.versionControlSystem.log.Hash;
+import consulo.versionControlSystem.log.base.HashImpl;
+
 import javax.annotation.Nonnull;
-import com.intellij.vcs.log.Hash;
-import com.intellij.vcs.log.impl.HashImpl;
 
 /**
  * @author irengrig

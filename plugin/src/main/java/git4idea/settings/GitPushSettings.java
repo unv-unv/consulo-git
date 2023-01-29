@@ -15,15 +15,17 @@
  */
 package git4idea.settings;
 
-import com.intellij.openapi.components.*;
-import com.intellij.openapi.components.StoragePathMacros;
-import com.intellij.openapi.project.Project;
+import consulo.component.persist.PersistentStateComponent;
+import consulo.component.persist.Storage;
+import consulo.component.persist.StoragePathMacros;
+import consulo.ide.ServiceManager;
+import consulo.project.Project;
 import git4idea.config.UpdateMethod;
 
 /**
  * @author Kirill Likhodedov
  */
-@State(name = "Git.Push.Settings", storages = {@Storage(file = StoragePathMacros.WORKSPACE_FILE)})
+@consulo.component.persist.State(name = "Git.Push.Settings", storages = {@Storage(file = StoragePathMacros.WORKSPACE_FILE)})
 public class GitPushSettings implements PersistentStateComponent<GitPushSettings.State> {
 
   private State myState = new State();

@@ -15,49 +15,27 @@
  */
 package git4idea.rebase;
 
-import static com.intellij.dvcs.DvcsUtil.getShortRepositoryName;
-import static com.intellij.openapi.vfs.VfsUtilCore.toVirtualFileArray;
-import static com.intellij.util.ObjectUtils.assertNotNull;
-import static com.intellij.util.ObjectUtils.notNull;
-import static com.intellij.util.containers.ContainerUtil.*;
-import static com.intellij.util.containers.ContainerUtilRt.newArrayList;
-import static com.intellij.util.containers.ContainerUtilRt.newLinkedHashSet;
-import static git4idea.GitUtil.getRootsFromRepositories;
-import static java.util.Collections.singleton;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.swing.event.HyperlinkEvent;
-
-import org.jetbrains.annotations.Contract;
-import com.google.common.annotations.VisibleForTesting;
-import com.intellij.dvcs.DvcsUtil;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationListener;
-import com.intellij.openapi.application.AccessToken;
-import com.intellij.openapi.components.ServiceManager;
+import consulo.application.AccessToken;
+import consulo.application.progress.ProgressIndicator;
+import consulo.application.progress.ProgressManager;
+import consulo.application.progress.Task;
+import consulo.component.ProcessCanceledException;
+import consulo.ide.ServiceManager;
 import consulo.logging.Logger;
-import com.intellij.openapi.progress.ProcessCanceledException;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Condition;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.VcsNotifier;
-import com.intellij.openapi.vcs.changes.ChangeListManager;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.ExceptionUtil;
-import com.intellij.util.Function;
-import com.intellij.util.ThreeState;
-import com.intellij.util.containers.MultiMap;
+import consulo.project.Project;
+import consulo.project.ui.notification.Notification;
+import consulo.project.ui.notification.event.NotificationListener;
+import consulo.util.collection.MultiMap;
+import consulo.util.lang.ExceptionUtil;
+import consulo.util.lang.StringUtil;
+import consulo.util.lang.ThreeState;
+import consulo.util.lang.function.Condition;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.VcsNotifier;
+import consulo.versionControlSystem.change.ChangeListManager;
+import consulo.versionControlSystem.distributed.DvcsUtil;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
 import git4idea.GitUtil;
 import git4idea.branch.GitRebaseParams;
 import git4idea.commands.Git;
@@ -71,10 +49,23 @@ import git4idea.repo.GitRepositoryManager;
 import git4idea.stash.GitChangesSaver;
 import git4idea.util.GitFreezingProcess;
 import git4idea.util.GitUntrackedFilesHelper;
+import org.jetbrains.annotations.Contract;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.swing.event.HyperlinkEvent;
+import java.util.*;
+import java.util.function.Function;
+
+import static consulo.util.collection.ContainerUtil.*;
+import static consulo.util.lang.ObjectUtil.assertNotNull;
+import static consulo.util.lang.ObjectUtil.notNull;
+import static consulo.versionControlSystem.distributed.DvcsUtil.getShortRepositoryName;
+import static git4idea.GitUtil.getRootsFromRepositories;
+import static java.util.Collections.singleton;
 
 public class GitRebaseProcess
 {
-
 	private static final Logger LOG = Logger.getInstance(GitRebaseProcess.class);
 
 	@Nonnull
@@ -137,8 +128,8 @@ public class GitRebaseProcess
 		LOG.info("Started rebase");
 		LOG.debug("Started rebase with the following spec: " + myRebaseSpec);
 
-		Map<GitRepository, GitRebaseStatus> statuses = newLinkedHashMap(myRebaseSpec.getStatuses());
-		Collection<GitRepository> toRefresh = newLinkedHashSet();
+		Map<GitRepository, GitRebaseStatus> statuses = new LinkedHashMap<>(myRebaseSpec.getStatuses());
+		Collection<GitRepository> toRefresh = new LinkedHashSet<>();
 		List<GitRepository> repositoriesToRebase = myRebaseSpec.getIncompleteRepositories();
 		try(AccessToken ignored = DvcsUtil.workingTreeChangeStarted(myProject, "Rebase"))
 		{
@@ -332,7 +323,6 @@ public class GitRebaseProcess
 		}
 	}
 
-	@VisibleForTesting
 	@Nonnull
 	protected Collection<GitRepository> getDirtyRoots(@Nonnull Collection<GitRepository> repositories)
 	{
@@ -348,7 +338,7 @@ public class GitRebaseProcess
 	{
 		GitUtil.updateRepositories(repositories);
 		// TODO use --diff-stat, and refresh only what's needed
-		VfsUtil.markDirtyAndRefresh(false, true, false, toVirtualFileArray(getRootsFromRepositories(repositories)));
+		VirtualFileUtil.markDirtyAndRefresh(false, true, false, VirtualFileUtil.toVirtualFileArray(getRootsFromRepositories(repositories)));
 	}
 
 	private boolean saveDirtyRootsInitially(@Nonnull List<GitRepository> repositories)
@@ -405,14 +395,7 @@ public class GitRebaseProcess
 	private void notifySuccess(@Nonnull Map<GitRepository, GitSuccessfulRebase> successful, final MultiMap<GitRepository, GitRebaseUtils.CommitInfo> skippedCommits)
 	{
 		String rebasedBranch = getCommonCurrentBranchNameIfAllTheSame(myRebaseSpec.getAllRepositories());
-		List<SuccessType> successTypes = map(successful.values(), new Function<GitSuccessfulRebase, SuccessType>()
-		{
-			@Override
-			public SuccessType fun(@Nonnull GitSuccessfulRebase rebase)
-			{
-				return rebase.getSuccessType();
-			}
-		});
+		List<SuccessType> successTypes = map(successful.values(), rebase -> rebase.getSuccessType());
 		SuccessType commonType = getItemIfAllTheSame(successTypes, SuccessType.REBASED);
 		GitRebaseParams params = myRebaseSpec.getParams();
 		String baseBranch = params == null ? null : notNull(params.getNewBase(), params.getUpstream());
@@ -435,20 +418,13 @@ public class GitRebaseProcess
 	@Nullable
 	private static String getCommonCurrentBranchNameIfAllTheSame(@Nonnull Collection<GitRepository> repositories)
 	{
-		return getItemIfAllTheSame(map(repositories, new Function<GitRepository, String>()
-		{
-			@Override
-			public String fun(@Nonnull GitRepository repository)
-			{
-				return repository.getCurrentBranchName();
-			}
-		}), null);
+		return getItemIfAllTheSame(map(repositories, repository -> repository.getCurrentBranchName()), null);
 	}
 
 	@Contract("_, !null -> !null")
 	private static <T> T getItemIfAllTheSame(@Nonnull Collection<T> collection, @Nullable T defaultItem)
 	{
-		return newHashSet(collection).size() == 1 ? getFirstItem(collection) : defaultItem;
+		return new HashSet<>(collection).size() == 1 ? getFirstItem(collection) : defaultItem;
 	}
 
 	private void notifyNotAllConflictsResolved(@Nonnull GitRepository conflictingRepository, MultiMap<GitRepository, GitRebaseUtils.CommitInfo> skippedCommits)
@@ -532,16 +508,12 @@ public class GitRebaseProcess
 		{
 			message += "The following commits were skipped during rebase:<br/>";
 		}
-		message += StringUtil.join(skippedCommits.values(), new Function<GitRebaseUtils.CommitInfo, String>()
+		message += StringUtil.join(skippedCommits.values(), commitInfo ->
 		{
-			@Override
-			public String fun(@Nonnull GitRebaseUtils.CommitInfo commitInfo)
-			{
-				String commitMessage = StringUtil.shortenPathWithEllipsis(commitInfo.subject, 72, true);
-				String hash = commitInfo.revision.asString();
-				String shortHash = DvcsUtil.getShortHash(commitInfo.revision.asString());
-				return String.format("<a href='%s'>%s</a> %s", hash, shortHash, commitMessage);
-			}
+			String commitMessage = StringUtil.shortenPathWithEllipsis(commitInfo.subject, 72, true);
+			String hash = commitInfo.revision.asString();
+			String shortHash = DvcsUtil.getShortHash(commitInfo.revision.asString());
+			return String.format("<a href='%s'>%s</a> %s", hash, shortHash, commitMessage);
 		}, "<br/>");
 		return message;
 	}
@@ -560,7 +532,7 @@ public class GitRebaseProcess
 	@Nonnull
 	private static Map<GitRepository, GitSuccessfulRebase> getSuccessfulRepositories(@Nonnull Map<GitRepository, GitRebaseStatus> statuses)
 	{
-		Map<GitRepository, GitSuccessfulRebase> map = newLinkedHashMap();
+		Map<GitRepository, GitSuccessfulRebase> map = new LinkedHashMap<>();
 		for(GitRepository repository : statuses.keySet())
 		{
 			GitRebaseStatus status = statuses.get(repository);
@@ -665,7 +637,7 @@ public class GitRebaseProcess
 			@Override
 			public void run(@Nonnull ProgressIndicator indicator)
 			{
-				GitRebaseUtils.abort(myProject, indicator);
+				GitRebaseUtils.abort((Project) myProject, indicator);
 			}
 		});
 	}
@@ -677,7 +649,7 @@ public class GitRebaseProcess
 			@Override
 			public void run(@Nonnull ProgressIndicator indicator)
 			{
-				GitRebaseUtils.continueRebase(myProject);
+				GitRebaseUtils.continueRebase((Project) myProject);
 			}
 		});
 	}
@@ -694,20 +666,6 @@ public class GitRebaseProcess
 	@Nullable
 	private static GitRepository findRootBySkippedCommit(@Nonnull final String hash, final MultiMap<GitRepository, GitRebaseUtils.CommitInfo> skippedCommits)
 	{
-		return find(skippedCommits.keySet(), new Condition<GitRepository>()
-		{
-			@Override
-			public boolean value(GitRepository repository)
-			{
-				return exists(skippedCommits.get(repository), new Condition<GitRebaseUtils.CommitInfo>()
-				{
-					@Override
-					public boolean value(GitRebaseUtils.CommitInfo info)
-					{
-						return info.revision.asString().equals(hash);
-					}
-				});
-			}
-		});
+		return find(skippedCommits.keySet(), repository -> exists(skippedCommits.get(repository), info -> info.revision.asString().equals(hash)));
 	}
 }

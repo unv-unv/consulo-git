@@ -15,7 +15,7 @@
  */
 package git4idea.test;
 
-import com.intellij.openapi.ui.DialogWrapper;
+import consulo.ui.ex.awt.DialogWrapper;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;

@@ -15,7 +15,7 @@
  */
 package git4idea.rebase;
 
-import com.intellij.execution.process.ProcessOutputTypes;
+import consulo.process.ProcessOutputTypes;
 import consulo.util.dataholder.Key;
 import git4idea.commands.GitLineHandlerAdapter;
 

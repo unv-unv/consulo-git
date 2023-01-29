@@ -16,7 +16,7 @@
 package git4idea.actions;
 
 import javax.annotation.Nonnull;
-import com.intellij.vcs.log.Hash;
+import consulo.versionControlSystem.log.Hash;
 import git4idea.history.wholeTree.GitCreateNewTag;
 import git4idea.repo.GitRepository;
 

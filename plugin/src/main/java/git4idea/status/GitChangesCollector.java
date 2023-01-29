@@ -15,16 +15,21 @@
  */
 package git4idea.status;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vcs.*;
-import com.intellij.openapi.vcs.changes.Change;
-import com.intellij.openapi.vcs.changes.ChangeListManager;
-import com.intellij.openapi.vcs.changes.ContentRevision;
-import com.intellij.openapi.vcs.changes.VcsDirtyScope;
-import com.intellij.openapi.vfs.VirtualFile;
-import javax.annotation.Nonnull;
 
+import consulo.project.Project;
+import consulo.util.io.FileUtil;
+import consulo.versionControlSystem.AbstractVcs;
+import consulo.versionControlSystem.FilePath;
+import consulo.versionControlSystem.ProjectLevelVcsManager;
+import consulo.versionControlSystem.base.FilePathImpl;
+import consulo.versionControlSystem.change.Change;
+import consulo.versionControlSystem.change.ChangeListManager;
+import consulo.versionControlSystem.change.ContentRevision;
+import consulo.versionControlSystem.change.VcsDirtyScope;
+import consulo.versionControlSystem.root.VcsRoot;
+import consulo.virtualFileSystem.VirtualFile;
+
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.util.*;
 
@@ -52,7 +57,7 @@ abstract class GitChangesCollector {
 
 
   GitChangesCollector(@Nonnull Project project, @Nonnull ChangeListManager changeListManager, @Nonnull ProjectLevelVcsManager vcsManager,
-					  @Nonnull AbstractVcs vcs, @Nonnull VcsDirtyScope dirtyScope, @Nonnull VirtualFile vcsRoot) {
+                      @Nonnull AbstractVcs vcs, @Nonnull VcsDirtyScope dirtyScope, @Nonnull VirtualFile vcsRoot) {
     myProject = project;
     myChangeListManager = changeListManager;
     myVcsManager = vcsManager;
@@ -64,13 +69,15 @@ abstract class GitChangesCollector {
   /**
    * @return the set of unversioned files (from the specified dirty scope).
    */
-  abstract @Nonnull
+  abstract
+  @Nonnull
   Collection<VirtualFile> getUnversionedFiles();
 
   /**
    * @return the set of changes (changed files) from the specified dirty scope.
    */
-  abstract @Nonnull
+  abstract
+  @Nonnull
   Collection<Change> getChanges();
 
   /**

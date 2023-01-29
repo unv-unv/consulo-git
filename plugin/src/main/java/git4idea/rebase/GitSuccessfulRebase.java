@@ -15,12 +15,13 @@
  */
 package git4idea.rebase;
 
+import consulo.util.lang.StringUtil;
+
 import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import com.intellij.openapi.util.text.StringUtil;
 
 class GitSuccessfulRebase extends GitRebaseStatus
 {

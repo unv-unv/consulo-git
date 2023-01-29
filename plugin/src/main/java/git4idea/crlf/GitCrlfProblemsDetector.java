@@ -15,12 +15,11 @@
  */
 package git4idea.crlf;
 
-import com.intellij.openapi.fileEditor.impl.LoadTextUtil;
-import com.intellij.openapi.progress.ProgressIndicatorProvider;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.application.progress.ProgressIndicatorProvider;
 import consulo.logging.Logger;
+import consulo.project.Project;
+import consulo.util.io.FileUtil;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitUtil;
 import git4idea.attributes.GitAttribute;
 import git4idea.attributes.GitCheckAttrParser;
@@ -127,7 +126,7 @@ public class GitCrlfProblemsDetector {
 
   @Nonnull
   private Map<VirtualFile, Collection<VirtualFile>> findFilesWithCrlf(@Nonnull Map<VirtualFile, List<VirtualFile>> allFilesByRoots,
-                                                                      @Nonnull Collection<VirtualFile> rootsWithIncorrectAutoCrlf) {
+                                                                                                                          @Nonnull Collection<VirtualFile> rootsWithIncorrectAutoCrlf) {
     Map<VirtualFile, Collection<VirtualFile>> filesWithCrlfByRoots = new HashMap<VirtualFile, Collection<VirtualFile>>();
     for (Map.Entry<VirtualFile, List<VirtualFile>> entry : allFilesByRoots.entrySet()) {
       VirtualFile root = entry.getKey();
@@ -147,7 +146,7 @@ public class GitCrlfProblemsDetector {
     Collection<VirtualFile> filesWithCrlf = new ArrayList<VirtualFile>();
     for (VirtualFile file : files) {
       ProgressIndicatorProvider.checkCanceled();
-      String separator = LoadTextUtil.detectLineSeparator(file, true);
+      String separator = file.getDetectedLineSeparator();
       if (CRLF.equals(separator)) {
         filesWithCrlf.add(file);
       }

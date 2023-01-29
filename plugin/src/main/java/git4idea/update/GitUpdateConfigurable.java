@@ -15,8 +15,8 @@
  */
 package git4idea.update;
 
-import com.intellij.openapi.options.Configurable;
-import com.intellij.openapi.options.ConfigurationException;
+import consulo.configurable.Configurable;
+import consulo.configurable.ConfigurationException;
 import git4idea.config.GitVcsSettings;
 import git4idea.i18n.GitBundle;
 import org.jetbrains.annotations.Nls;

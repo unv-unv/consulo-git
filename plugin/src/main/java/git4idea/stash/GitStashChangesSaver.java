@@ -15,27 +15,18 @@
  */
 package git4idea.stash;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-import javax.swing.event.HyperlinkEvent;
-
-import javax.annotation.Nullable;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationListener;
+import consulo.application.progress.ProgressIndicator;
 import consulo.logging.Logger;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.VcsNotifier;
-import com.intellij.openapi.vcs.history.VcsRevisionNumber;
-import com.intellij.openapi.vcs.merge.MergeDialogCustomizer;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.containers.ContainerUtil;
+import consulo.project.Project;
+import consulo.project.ui.notification.Notification;
+import consulo.project.ui.notification.event.NotificationListener;
+import consulo.util.lang.StringUtil;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.VcsNotifier;
+import consulo.versionControlSystem.history.VcsRevisionNumber;
+import consulo.versionControlSystem.merge.MergeDialogCustomizer;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
 import git4idea.GitUtil;
 import git4idea.commands.Git;
 import git4idea.commands.GitCommandResult;
@@ -47,6 +38,14 @@ import git4idea.repo.GitRepositoryManager;
 import git4idea.ui.GitUnstashDialog;
 import git4idea.util.GitUIUtil;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.swing.event.HyperlinkEvent;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 public class GitStashChangesSaver extends GitChangesSaver
 {
 
@@ -56,7 +55,7 @@ public class GitStashChangesSaver extends GitChangesSaver
 	@Nonnull
 	private final GitRepositoryManager myRepositoryManager;
 	@Nonnull
-	private final Set<VirtualFile> myStashedRoots = ContainerUtil.newHashSet(); // save stashed roots to unstash only them
+	private final Set<VirtualFile> myStashedRoots = new HashSet<>(); // save stashed roots to unstash only them
 
 	public GitStashChangesSaver(@Nonnull Project project, @Nonnull Git git, @Nonnull ProgressIndicator progressIndicator, @Nonnull String stashMessage)
 	{
@@ -165,7 +164,7 @@ public class GitStashChangesSaver extends GitChangesSaver
 
 		GitSimpleEventDetector conflictDetector = new GitSimpleEventDetector(GitSimpleEventDetector.Event.MERGE_CONFLICT_ON_UNSTASH);
 		GitCommandResult result = myGit.stashPop(repository, conflictDetector);
-		VfsUtil.markDirtyAndRefresh(false, true, false, root);
+		VirtualFileUtil.markDirtyAndRefresh(false, true, false, root);
 		if(result.success())
 		{
 			return false;

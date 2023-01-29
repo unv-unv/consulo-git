@@ -19,13 +19,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import consulo.application.progress.ProgressIndicator;
 import org.intellij.lang.annotations.MagicConstant;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.changes.Change;
-import com.intellij.openapi.vfs.VirtualFile;
+
+import consulo.project.Project;
+import consulo.versionControlSystem.change.Change;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitCommit;
 import git4idea.repo.GitRepository;
 
@@ -38,7 +39,7 @@ public interface GitBranchUiHandler
 {
 
 	@Nonnull
-	ProgressIndicator getProgressIndicator();
+    ProgressIndicator getProgressIndicator();
 
 	boolean notifyErrorWithRollbackProposal(@Nonnull String title, @Nonnull String message, @Nonnull String rollbackProposal);
 

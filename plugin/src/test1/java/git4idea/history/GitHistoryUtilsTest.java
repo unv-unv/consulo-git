@@ -15,19 +15,19 @@
  */
 package git4idea.history;
 
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vcs.FilePath;
-import com.intellij.openapi.vcs.FilePathImpl;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.diff.ItemLatestState;
-import com.intellij.openapi.vcs.history.VcsFileRevision;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.ArrayUtil;
-import com.intellij.util.AsynchConsumer;
-import com.intellij.util.Consumer;
-import com.intellij.util.Function;
-import com.intellij.vcsUtil.VcsUtil;
+import consulo.ide.impl.idea.openapi.util.io.FileUtil;
+import consulo.versionControlSystem.FilePath;
+import consulo.ide.impl.idea.openapi.vcs.FilePathImpl;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.history.VcsFileRevision;
+import consulo.versionControlSystem.util.VcsUtil;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.util.collection.ArrayUtil;
+import consulo.application.util.function.AsynchConsumer;
+import consulo.ide.impl.idea.util.Consumer;
+import consulo.ide.impl.idea.util.Function;
+import consulo.util.lang.Pair;
+import consulo.versionControlSystem.diff.ItemLatestState;
 import git4idea.GitFileRevision;
 import git4idea.GitRevisionNumber;
 import git4idea.history.browser.GitCommit;
@@ -186,7 +186,7 @@ public class GitHistoryUtilsTest extends GitTest {
     myRepo.refresh();
     VirtualFile vFile = VcsUtil.getVirtualFile(filePath);
     assertNotNull(vFile);
-    List<VcsFileRevision> history = GitHistoryUtils.history(myProject, new FilePathImpl(vFile));
+    List<VcsFileRevision> history = GitHistoryUtils.history(myProject, new consulo.ide.impl.idea.openapi.vcs.FilePathImpl(vFile));
     assertEquals(history.size(), commits.size(), "History size doesn't match. Actual history: \n" + toReadable(history));
     assertEquals(toReadable(history), toReadable(commits), "History is different.");
   }
@@ -232,7 +232,7 @@ public class GitHistoryUtilsTest extends GitTest {
 
   @Nonnull
   private String toReadable(@Nonnull Collection<VcsFileRevision> history) {
-    int maxSubjectLength = findMaxLength(history, new Function<VcsFileRevision, String>() {
+    int maxSubjectLength = findMaxLength(history, new consulo.ide.impl.idea.util.Function<VcsFileRevision, String>() {
       @Override
       public String fun(VcsFileRevision revision) {
         return revision.getCommitMessage();
@@ -248,7 +248,7 @@ public class GitHistoryUtilsTest extends GitTest {
   }
 
   private String toReadable(List<TestCommit> commits) {
-    int maxSubjectLength = findMaxLength(commits, new Function<TestCommit, String>() {
+    int maxSubjectLength = findMaxLength(commits, new consulo.ide.impl.idea.util.Function<TestCommit, String>() {
       @Override
       public String fun(TestCommit revision) {
         return revision.getCommitMessage();
@@ -338,13 +338,13 @@ public class GitHistoryUtilsTest extends GitTest {
   @Test
   public void testAppendableHistory() throws Exception {
     final List<GitFileRevision> revisions = new ArrayList<GitFileRevision>(3);
-    Consumer<GitFileRevision> consumer = new Consumer<GitFileRevision>() {
+    consulo.ide.impl.idea.util.Consumer<GitFileRevision> consumer = new consulo.ide.impl.idea.util.Consumer<GitFileRevision>() {
       @Override
       public void consume(GitFileRevision gitFileRevision) {
         revisions.add(gitFileRevision);
       }
     };
-    Consumer<VcsException> exceptionConsumer = new Consumer<VcsException>() {
+    consulo.ide.impl.idea.util.Consumer<VcsException> exceptionConsumer = new consulo.ide.impl.idea.util.Consumer<VcsException>() {
       @Override
       public void consume(VcsException exception) {
         fail("No exception expected", exception);

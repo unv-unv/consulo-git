@@ -15,34 +15,27 @@
  */
 package git4idea.ui.branch;
 
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import javax.annotation.Nonnull;
-import javax.swing.BorderFactory;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Splitter;
-import com.intellij.openapi.vcs.changes.Change;
-import com.intellij.openapi.vcs.changes.ui.ChangesBrowser;
-import com.intellij.ui.components.JBLabel;
-import com.intellij.util.ArrayUtil;
-import com.intellij.util.Consumer;
-import com.intellij.util.ui.UIUtil;
+import consulo.ide.impl.idea.openapi.vcs.changes.ui.ChangesBrowser;
+import consulo.project.Project;
+import consulo.ui.ex.awt.JBLabel;
+import consulo.ui.ex.awt.Splitter;
+import consulo.ui.ex.awt.UIUtil;
+import consulo.util.collection.ArrayUtil;
+import consulo.versionControlSystem.change.Change;
 import git4idea.GitCommit;
 import git4idea.repo.GitRepository;
 import git4idea.ui.GitCommitListPanel;
 import git4idea.ui.GitRepositoryComboboxListCellRenderer;
 import git4idea.util.GitCommitCompareInfo;
+
+import javax.annotation.Nonnull;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * @author Kirill Likhodedov
@@ -152,12 +145,9 @@ class GitCompareBranchesLogPanel extends JPanel {
 	private static void addSelectionListener(@Nonnull GitCommitListPanel sourcePanel,
 			@Nonnull final GitCommitListPanel otherPanel,
 			@Nonnull final ChangesBrowser changesBrowser) {
-		sourcePanel.addListMultipleSelectionListener(new Consumer<java.util.List<Change>>() {
-			@Override
-			public void consume(List<Change> changes) {
-				changesBrowser.setChangesToDisplay(changes);
-				otherPanel.clearSelection();
-			}
+		sourcePanel.addListMultipleSelectionListener(changes -> {
+			changesBrowser.setChangesToDisplay(changes);
+			otherPanel.clearSelection();
 		});
 	}
 

@@ -15,23 +15,24 @@
  */
 package git4idea.history;
 
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vcs.FilePath;
-import com.intellij.openapi.vcs.FilePathImpl;
-import com.intellij.openapi.vcs.VcsConfiguration;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.annotate.ShowAllAffectedGenericAction;
-import com.intellij.openapi.vcs.changes.ContentRevision;
-import com.intellij.openapi.vcs.history.*;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.ArrayUtil;
-import com.intellij.util.Consumer;
-import com.intellij.util.Processor;
-import com.intellij.util.ui.ColumnInfo;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.ide.impl.idea.openapi.vcs.annotate.ShowAllAffectedGenericAction;
+import consulo.ide.impl.idea.openapi.vcs.history.CopyRevisionNumberAction;
 import consulo.logging.Logger;
-import git4idea.GitFileRevision;
+import consulo.project.Project;
+import consulo.ui.ex.action.AnAction;
+import consulo.ui.ex.awt.ColumnInfo;
+import consulo.util.collection.ArrayUtil;
+import consulo.util.lang.StringUtil;
+import consulo.versionControlSystem.FilePath;
+import consulo.versionControlSystem.VcsConfiguration;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.base.FilePathImpl;
+import consulo.versionControlSystem.change.ContentRevision;
+import consulo.versionControlSystem.history.*;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitRevisionNumber;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
@@ -40,36 +41,43 @@ import git4idea.config.GitExecutableValidator;
 import git4idea.history.browser.SHAHash;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
+import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import javax.swing.*;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * Git history provider implementation
  */
 @Singleton
-public class GitHistoryProvider implements VcsHistoryProvider, VcsCacheableHistorySessionFactory<Boolean, VcsAbstractHistorySession>,
-                                           VcsBaseRevisionAdviser {
+@ServiceAPI(ComponentScope.PROJECT)
+@ServiceImpl
+public class GitHistoryProvider implements VcsHistoryProvider, VcsCacheableHistorySessionFactory<Boolean, VcsAbstractHistorySession>, VcsBaseRevisionAdviser {
   private static final Logger log = Logger.getInstance(GitHistoryProvider.class.getName());
 
   @Nonnull
   private final Project myProject;
 
+  @Inject
   public GitHistoryProvider(@Nonnull Project project) {
     myProject = project;
   }
 
-  public VcsDependentHistoryComponents getUICustomization(final VcsHistorySession session, JComponent forShortcutRegistration) {
+  public VcsDependentHistoryComponents getUICustomization(final VcsHistorySession session,
+                                                          JComponent forShortcutRegistration) {
     return VcsDependentHistoryComponents.createOnlyColumns(new ColumnInfo[0]);
   }
 
   public AnAction[] getAdditionalActions(Runnable refresher) {
-    return new AnAction[]{ ShowAllAffectedGenericAction.getInstance(), new CopyRevisionNumberAction()};
+    return new AnAction[]{
+      ShowAllAffectedGenericAction.getInstance(),
+      new CopyRevisionNumberAction()
+    };
   }
 
   public boolean isDateOmittable() {
@@ -104,7 +112,8 @@ public class GitHistoryProvider implements VcsHistoryProvider, VcsCacheableHisto
     List<VcsFileRevision> revisions = null;
     try {
       revisions = GitHistoryUtils.history(myProject, filePath);
-    } catch (VcsException e) {
+    }
+    catch (VcsException e) {
       GitVcs.getInstance(myProject).getExecutableValidator().showNotificationOrThrow(e);
     }
     return createSession(filePath, revisions, null);
@@ -140,14 +149,18 @@ public class GitHistoryProvider implements VcsHistoryProvider, VcsCacheableHisto
 
   @Override
   public boolean getBaseVersionContent(FilePath filePath,
-                                       Processor<CharSequence> processor,
+                                       Predicate<CharSequence> processor,
                                        final String beforeVersionId,
                                        List<String> warnings)
     throws VcsException {
-    if (StringUtil.isEmptyOrSpaces(beforeVersionId) || filePath.getVirtualFile() == null) return false;
+    if (StringUtil.isEmptyOrSpaces(beforeVersionId) || filePath.getVirtualFile() == null) {
+      return false;
+    }
     // apply if base revision id matches revision
     final VirtualFile root = GitUtil.getGitRoot(filePath);
-    if (root == null) return false;
+    if (root == null) {
+      return false;
+    }
 
     final SHAHash shaHash = GitChangeUtils.commitExists(myProject, root, beforeVersionId, null, "HEAD");
     if (shaHash == null) {
@@ -155,11 +168,11 @@ public class GitHistoryProvider implements VcsHistoryProvider, VcsCacheableHisto
     }
 
     final ContentRevision content = GitVcs.getInstance(myProject).getDiffProvider()
-      .createFileContent(new GitRevisionNumber(shaHash.getValue()), filePath.getVirtualFile());
+                                          .createFileContent(new GitRevisionNumber(shaHash.getValue()), filePath.getVirtualFile());
     if (content == null) {
       throw new VcsException("Can not load content of '" + filePath.getPath() + "' for revision '" + shaHash.getValue() + "'");
     }
-    return ! processor.process(content.getContent());
+    return !processor.test(content.getContent());
   }
 
   public void reportAppendableHistory(final FilePath path, final VcsAppendableHistorySessionPartner partner) throws VcsException {
@@ -168,19 +181,13 @@ public class GitHistoryProvider implements VcsHistoryProvider, VcsCacheableHisto
 
     VcsConfiguration vcsConfiguration = VcsConfiguration.getInstance(myProject);
     String[] additionalArgs = vcsConfiguration.LIMIT_HISTORY ?
-                              new String[] { "--max-count=" + vcsConfiguration.MAXIMUM_HISTORY_ROWS } :
-                              ArrayUtil.EMPTY_STRING_ARRAY;
+      new String[]{"--max-count=" + vcsConfiguration.MAXIMUM_HISTORY_ROWS} :
+      ArrayUtil.EMPTY_STRING_ARRAY;
 
     final GitExecutableValidator validator = GitVcs.getInstance(myProject).getExecutableValidator();
-    GitHistoryUtils.history(myProject, refreshPath(path), null, new Consumer<GitFileRevision>() {
-      public void consume(GitFileRevision gitFileRevision) {
-        partner.acceptRevision(gitFileRevision);
-      }
-    }, new Consumer<VcsException>() {
-      public void consume(VcsException e) {
-        if (validator.checkExecutableAndNotifyIfNeeded()) {
-          partner.reportException(e);
-        }
+    GitHistoryUtils.history(myProject, refreshPath(path), null, gitFileRevision -> partner.acceptRevision(gitFileRevision), e -> {
+      if (validator.checkExecutableAndNotifyIfNeeded()) {
+        partner.reportException(e);
       }
     }, additionalArgs);
   }

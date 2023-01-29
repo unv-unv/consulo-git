@@ -25,13 +25,13 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.FilePath;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.changes.Change;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.ArrayUtil;
-import com.intellij.vcsUtil.VcsUtil;
+import consulo.project.Project;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.change.Change;
+import consulo.util.collection.ArrayUtil;
+import consulo.versionControlSystem.util.VcsUtil;
+import consulo.versionControlSystem.FilePath;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitUtil;
 import git4idea.commands.GitHandler;
 
@@ -40,7 +40,7 @@ import git4idea.commands.GitHandler;
  * The access methods try heavily to return some default value if real is unavailable, for example, blank string is better than null.
  * BUT if one tries to get an option which was not specified to the GitLogParser, one will get null.
  *
- * @see git4idea.history.GitLogParser
+ * @see GitLogParser
  */
 class GitLogRecord
 {
@@ -240,7 +240,7 @@ class GitLogRecord
 	}
 
 	/**
-	 * for debugging purposes - see {@link GitUtil#parseTimestampWithNFEReport(String, git4idea.commands.GitHandler, String)}.
+	 * for debugging purposes - see {@link GitUtil#parseTimestampWithNFEReport(String, GitHandler, String)}.
 	 */
 	public void setUsedHandler(GitHandler handler)
 	{

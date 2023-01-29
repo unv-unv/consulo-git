@@ -15,21 +15,21 @@
  */
 package git4idea.update;
 
-import com.intellij.openapi.application.ApplicationNamesInfo;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.vcs.FilePath;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.ui.UIUtil;
-import com.intellij.vcsUtil.VcsUtil;
+import consulo.application.Application;
+import consulo.project.Project;
+import consulo.ui.ex.awt.DialogWrapper;
+import consulo.ui.ex.awt.UIUtil;
+import consulo.versionControlSystem.FilePath;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.util.VcsUtil;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitUtil;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitSimpleHandler;
-import git4idea.util.StringScanner;
 import git4idea.i18n.GitBundle;
 import git4idea.rollback.GitRollbackEnvironment;
 import git4idea.util.GitUIUtil;
+import git4idea.util.StringScanner;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -92,7 +92,8 @@ public class GitUpdateLocallyModifiedDialog extends DialogWrapper {
       }
     });
     myDescriptionLabel
-      .setText(GitBundle.message("update.locally.modified.message", ApplicationNamesInfo.getInstance().getFullProductName()));
+      .setText(GitBundle.message
+        ("update.locally.modified.message", Application.get().getName().get()));
     init();
   }
 

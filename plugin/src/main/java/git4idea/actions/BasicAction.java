@@ -15,34 +15,33 @@
  */
 package git4idea.actions;
 
-import static com.intellij.openapi.vfs.VirtualFileVisitor.ONE_LEVEL_DEEP;
-import static com.intellij.openapi.vfs.VirtualFileVisitor.SKIP_ROOT;
+import consulo.application.ApplicationManager;
+import consulo.application.progress.ProgressIndicator;
+import consulo.application.progress.Task;
+import consulo.document.FileDocumentManager;
+import consulo.language.editor.CommonDataKeys;
+import consulo.project.Project;
+import consulo.ui.ex.action.ActionPlaces;
+import consulo.ui.ex.action.AnActionEvent;
+import consulo.ui.ex.action.DumbAwareAction;
+import consulo.ui.ex.action.Presentation;
+import consulo.ui.ex.awt.UIUtil;
+import consulo.versionControlSystem.ProjectLevelVcsManager;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.util.VcsFileUtil;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
+import consulo.virtualFileSystem.util.VirtualFileVisitor;
+import git4idea.GitVcs;
+import git4idea.util.GitUIUtil;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-import com.intellij.openapi.actionSystem.ActionPlaces;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.project.DumbAwareAction;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.ProjectLevelVcsManager;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VfsUtilCore;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileVisitor;
-import com.intellij.util.ui.UIUtil;
-import com.intellij.vcsUtil.VcsFileUtil;
-import git4idea.GitVcs;
-import git4idea.util.GitUIUtil;
+import static consulo.virtualFileSystem.util.VirtualFileVisitor.ONE_LEVEL_DEEP;
+import static consulo.virtualFileSystem.util.VirtualFileVisitor.SKIP_ROOT;
 
 /**
  * Basic abstract action handler for all Git actions to extend.
@@ -83,15 +82,9 @@ public abstract class BasicAction extends DumbAwareAction
 			{
 				public void run(@Nonnull ProgressIndicator indicator)
 				{
-					VfsUtil.markDirtyAndRefresh(false, true, false, affectedFiles);
+					VirtualFileUtil.markDirtyAndRefresh(false, true, false, affectedFiles);
 					VcsFileUtil.markFilesDirty(project, Arrays.asList(affectedFiles));
-					UIUtil.invokeLaterIfNeeded(new Runnable()
-					{
-						public void run()
-						{
-							GitUIUtil.showOperationErrors(project, exceptions, actionName);
-						}
-					});
+					UIUtil.invokeLaterIfNeeded(() -> GitUIUtil.showOperationErrors(project, exceptions, actionName));
 				}
 			});
 		}
@@ -135,7 +128,7 @@ public abstract class BasicAction extends DumbAwareAction
 			}
 
 		}
-		return VfsUtilCore.toVirtualFileArray(affectedFiles);
+		return VirtualFileUtil.toVirtualFileArray(affectedFiles);
 	}
 
 	/**
@@ -150,7 +143,7 @@ public abstract class BasicAction extends DumbAwareAction
 	 */
 	private void addChildren(@Nonnull final Project project, @Nonnull final List<VirtualFile> files, @Nonnull VirtualFile file)
 	{
-		VfsUtilCore.visitChildrenRecursively(file, new VirtualFileVisitor(SKIP_ROOT, (isRecursive() ? null : ONE_LEVEL_DEEP))
+		VirtualFileUtil.visitChildrenRecursively(file, new VirtualFileVisitor(SKIP_ROOT, (isRecursive() ? null : ONE_LEVEL_DEEP))
 		{
 			@Override
 			public boolean visitFile(@Nonnull VirtualFile file)

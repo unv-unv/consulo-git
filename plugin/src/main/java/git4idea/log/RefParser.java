@@ -1,28 +1,26 @@
 package git4idea.log;
 
+import consulo.versionControlSystem.log.Hash;
+import consulo.versionControlSystem.log.VcsLogObjectsFactory;
+import consulo.versionControlSystem.log.VcsRef;
+import consulo.versionControlSystem.log.base.HashImpl;
+import consulo.virtualFileSystem.VirtualFile;
+import git4idea.repo.GitRepositoryReader;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.vcs.log.Hash;
-import com.intellij.vcs.log.VcsLogObjectsFactory;
-import com.intellij.vcs.log.VcsRef;
-import com.intellij.vcs.log.impl.HashImpl;
-
-import javax.annotation.Nullable;
-
 
 /**
- * TODO: remove when tags are supported by the {@link git4idea.repo.GitRepositoryReader}.
+ * TODO: remove when tags are supported by the {@link GitRepositoryReader}.
  *
  * @author erokhins
  */
 class RefParser
 {
-
 	private final VcsLogObjectsFactory myFactory;
 
 	public RefParser(VcsLogObjectsFactory factory)

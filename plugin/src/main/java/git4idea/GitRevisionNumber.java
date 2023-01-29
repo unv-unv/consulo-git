@@ -15,21 +15,21 @@
  */
 package git4idea;
 
-import java.util.Date;
-import java.util.StringTokenizer;
-
-import org.jetbrains.annotations.NonNls;
-import javax.annotation.Nonnull;
-import com.intellij.dvcs.DvcsUtil;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.history.ShortVcsRevisionNumber;
-import com.intellij.openapi.vcs.history.VcsRevisionNumber;
-import com.intellij.openapi.vfs.VirtualFile;
 import consulo.logging.Logger;
+import consulo.project.Project;
+import consulo.util.lang.StringUtil;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.distributed.DvcsUtil;
+import consulo.versionControlSystem.history.ShortVcsRevisionNumber;
+import consulo.versionControlSystem.history.VcsRevisionNumber;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitSimpleHandler;
+import org.jetbrains.annotations.NonNls;
+
+import javax.annotation.Nonnull;
+import java.util.Date;
+import java.util.StringTokenizer;
 
 /**
  * Git revision number

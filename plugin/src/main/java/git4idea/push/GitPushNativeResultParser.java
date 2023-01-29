@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 import javax.annotation.Nonnull;
 
 import consulo.logging.Logger;
-import com.intellij.util.containers.ContainerUtil;
+import consulo.util.collection.ContainerUtil;
 
 import javax.annotation.Nullable;
 

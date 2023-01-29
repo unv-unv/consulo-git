@@ -16,20 +16,29 @@
 
 package git4idea.vfs;
 
-import com.intellij.openapi.fileTypes.ExactFileNameMatcher;
-import com.intellij.openapi.fileTypes.FileTypeConsumer;
-import com.intellij.openapi.fileTypes.FileTypeFactory;
-import com.intellij.openapi.fileTypes.PlainTextFileType;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.language.plain.PlainTextFileType;
+import consulo.virtualFileSystem.fileType.FileNameMatcherFactory;
+import consulo.virtualFileSystem.fileType.FileTypeConsumer;
+import consulo.virtualFileSystem.fileType.FileTypeFactory;
+import jakarta.inject.Inject;
+
 import javax.annotation.Nonnull;
 
 /**
  * The file type factory that declares types of git files
  */
+@ExtensionImpl
 public class GitFileTypeFactory extends FileTypeFactory {
-  /**
-   * {@inheritDoc}
-   */
+  private final FileNameMatcherFactory myFileNameMatcherFactory;
+
+  @Inject
+  public GitFileTypeFactory(FileNameMatcherFactory fileNameMatcherFactory) {
+    myFileNameMatcherFactory = fileNameMatcherFactory;
+  }
+
   public void createFileTypes(@Nonnull FileTypeConsumer consumer) {
-    consumer.consume(PlainTextFileType.INSTANCE, new ExactFileNameMatcher(".gitignore"), new ExactFileNameMatcher(".gitmodules"));
+    consumer.consume(PlainTextFileType.INSTANCE, myFileNameMatcherFactory.createExactFileNameMatcher(".gitignore"),
+                     myFileNameMatcherFactory.createExactFileNameMatcher(".gitmodules"));
   }
 }

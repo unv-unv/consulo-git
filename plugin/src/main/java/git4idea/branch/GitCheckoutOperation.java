@@ -15,38 +15,31 @@
  */
 package git4idea.branch;
 
-import static git4idea.util.GitUIUtil.code;
+import consulo.application.AccessToken;
+import consulo.application.progress.ProgressIndicator;
+import consulo.project.Project;
+import consulo.project.ui.notification.Notification;
+import consulo.project.ui.notification.event.NotificationListener;
+import consulo.util.collection.ArrayUtil;
+import consulo.util.lang.Pair;
+import consulo.versionControlSystem.VcsNotifier;
+import consulo.versionControlSystem.change.Change;
+import consulo.versionControlSystem.distributed.DvcsUtil;
+import consulo.virtualFileSystem.VirtualFile;
+import git4idea.GitUtil;
+import git4idea.commands.*;
+import git4idea.config.GitVcsSettings;
+import git4idea.repo.GitRepository;
+import git4idea.util.GitPreservingProcess;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.swing.event.HyperlinkEvent;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.annotation.Nonnull;
-import javax.swing.event.HyperlinkEvent;
-
-import javax.annotation.Nullable;
-import com.intellij.dvcs.DvcsUtil;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationListener;
-import com.intellij.openapi.application.AccessToken;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.vcs.VcsNotifier;
-import com.intellij.openapi.vcs.changes.Change;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.ArrayUtil;
-import git4idea.GitUtil;
-import git4idea.commands.Git;
-import git4idea.commands.GitCommandResult;
-import git4idea.commands.GitCompoundResult;
-import git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector;
-import git4idea.commands.GitMessageWithFilesDetector;
-import git4idea.commands.GitSimpleEventDetector;
-import git4idea.commands.GitUntrackedFilesOverwrittenByOperationDetector;
-import git4idea.config.GitVcsSettings;
-import git4idea.repo.GitRepository;
-import git4idea.util.GitPreservingProcess;
+import static git4idea.util.GitUIUtil.code;
 
 /**
  * Represents {@code git checkout} operation.

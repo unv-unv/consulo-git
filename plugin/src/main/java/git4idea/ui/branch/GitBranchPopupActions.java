@@ -15,18 +15,18 @@
  */
 package git4idea.ui.branch;
 
-import com.intellij.dvcs.ui.BranchActionGroup;
-import com.intellij.dvcs.ui.LightActionGroup;
-import com.intellij.dvcs.ui.NewBranchAction;
-import com.intellij.dvcs.ui.PopupElementWithAdditionalInfo;
-import com.intellij.openapi.actionSystem.ActionGroup;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.project.DumbAwareAction;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.util.containers.ContainerUtil;
+import consulo.ide.impl.idea.dvcs.ui.BranchActionGroup;
+import consulo.ide.impl.idea.dvcs.ui.LightActionGroup;
+import consulo.ide.impl.idea.dvcs.ui.NewBranchAction;
+import consulo.ide.impl.idea.dvcs.ui.PopupElementWithAdditionalInfo;
+import consulo.ui.ex.action.AnAction;
+import consulo.ui.ex.action.AnActionEvent;
+import consulo.ide.ServiceManager;
+import consulo.ui.ex.action.DumbAwareAction;
+import consulo.project.Project;
+import consulo.ui.ex.awt.Messages;
+import consulo.util.collection.ContainerUtil;
+import consulo.ui.ex.action.ActionGroup;
 import git4idea.branch.GitBranchUtil;
 import git4idea.branch.GitBrancher;
 import git4idea.repo.GitRepository;
@@ -37,8 +37,8 @@ import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 
-import static com.intellij.dvcs.ui.BranchActionGroupPopup.wrapWithMoreActionIfNeeded;
-import static com.intellij.dvcs.ui.BranchActionUtil.*;
+import static consulo.ide.impl.idea.dvcs.ui.BranchActionGroupPopup.wrapWithMoreActionIfNeeded;
+import static consulo.ide.impl.idea.dvcs.ui.BranchActionUtil.*;
 import static git4idea.GitStatisticsCollectorKt.reportUsage;
 import static git4idea.branch.GitBranchType.LOCAL;
 import static git4idea.branch.GitBranchType.REMOTE;

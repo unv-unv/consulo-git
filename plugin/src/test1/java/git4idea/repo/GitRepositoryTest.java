@@ -15,8 +15,8 @@
  */
 package git4idea.repo;
 
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.vfs.VfsUtil;
+import consulo.ide.ServiceManager;
+import consulo.ide.impl.idea.openapi.vfs.VfsUtil;
 import git4idea.GitBranch;
 import git4idea.GitPlatformFacade;
 import git4idea.test.GitLightTest;

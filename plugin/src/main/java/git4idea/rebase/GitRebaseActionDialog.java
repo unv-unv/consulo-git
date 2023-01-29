@@ -15,9 +15,9 @@
  */
 package git4idea.rebase;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.project.Project;
+import consulo.ui.ex.awt.DialogWrapper;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.util.GitUIUtil;
 
 import javax.annotation.Nullable;

@@ -15,7 +15,7 @@
  */
 package git4idea.commands;
 
-import com.intellij.openapi.project.Project;
+import consulo.project.Project;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 import javax.annotation.Nonnull;

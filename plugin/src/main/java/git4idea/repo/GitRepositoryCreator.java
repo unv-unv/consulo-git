@@ -15,40 +15,39 @@
  */
 package git4idea.repo;
 
-import javax.annotation.Nonnull;
-
-import com.intellij.dvcs.repo.Repository;
-import com.intellij.dvcs.repo.VcsRepositoryCreator;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.VcsKey;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.project.Project;
+import consulo.versionControlSystem.VcsKey;
+import consulo.versionControlSystem.distributed.repository.Repository;
+import consulo.versionControlSystem.distributed.repository.VcsRepositoryCreator;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
+import jakarta.inject.Inject;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class GitRepositoryCreator extends VcsRepositoryCreator
-{
-	@Nonnull
-	private final Project myProject;
+@ExtensionImpl
+public class GitRepositoryCreator implements VcsRepositoryCreator {
+  @Nonnull
+  private final Project myProject;
 
-	public GitRepositoryCreator(@Nonnull Project project)
-	{
-		myProject = project;
-	}
+  @Inject
+  public GitRepositoryCreator(@Nonnull Project project) {
+    myProject = project;
+  }
 
-	@Override
-	@Nullable
-	public Repository createRepositoryIfValid(@Nonnull VirtualFile root)
-	{
-		VirtualFile gitDir = GitUtil.findGitDir(root);
-		return gitDir == null ? null : GitRepositoryImpl.getInstance(root, gitDir, myProject, true);
-	}
+  @Override
+  @Nullable
+  public Repository createRepositoryIfValid(@Nonnull VirtualFile root) {
+    VirtualFile gitDir = GitUtil.findGitDir(root);
+    return gitDir == null ? null : GitRepositoryImpl.getInstance(root, gitDir, myProject, true);
+  }
 
-	@Nonnull
-	@Override
-	public VcsKey getVcsKey()
-	{
-		return GitVcs.getKey();
-	}
+  @Nonnull
+  @Override
+  public VcsKey getVcsKey() {
+    return GitVcs.getKey();
+  }
 }

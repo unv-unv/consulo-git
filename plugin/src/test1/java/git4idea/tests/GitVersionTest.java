@@ -15,7 +15,7 @@
  */
 package git4idea.tests;
 
-import com.intellij.openapi.util.SystemInfo;
+import consulo.application.util.SystemInfo;
 import git4idea.config.GitVersion;
 import org.testng.annotations.Test;
 

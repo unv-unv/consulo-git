@@ -15,13 +15,15 @@
  */
 package git4idea.checkin;
 
-import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.vcs.CheckinProjectPanel;
-import com.intellij.openapi.vcs.FileStatus;
-import com.intellij.openapi.vcs.changes.Change;
-import com.intellij.openapi.vcs.changes.CommitContext;
-import com.intellij.openapi.vcs.checkin.CheckinHandler;
-import com.intellij.openapi.vcs.checkin.CheckinHandlerFactory;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.ui.ex.awt.Messages;
+import consulo.versionControlSystem.change.CommitContext;
+import consulo.versionControlSystem.checkin.CheckinHandlerFactory;
+import consulo.versionControlSystem.checkin.CheckinProjectPanel;
+import consulo.virtualFileSystem.status.FileStatus;
+import consulo.versionControlSystem.change.Change;
+import consulo.versionControlSystem.checkin.CheckinHandler;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -29,6 +31,7 @@ import javax.annotation.Nonnull;
  *
  * @author Kirill Likhodedov
  */
+@ExtensionImpl
 public class UnresolvedMergeCheckFactory extends CheckinHandlerFactory {
   @Nonnull
   @Override

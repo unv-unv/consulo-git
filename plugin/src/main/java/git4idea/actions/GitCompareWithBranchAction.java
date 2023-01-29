@@ -15,7 +15,7 @@
  */
 package git4idea.actions;
 
-import static com.intellij.openapi.vcs.history.VcsDiffUtil.createChangesWithCurrentContentForFile;
+import static consulo.ide.impl.idea.openapi.vcs.history.VcsDiffUtil.createChangesWithCurrentContentForFile;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,14 +23,14 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Nonnull;
-import com.intellij.dvcs.actions.DvcsCompareWithBranchAction;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.FilePath;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.changes.Change;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.containers.ContainerUtil;
-import com.intellij.vcsUtil.VcsUtil;
+import consulo.ide.impl.idea.dvcs.actions.DvcsCompareWithBranchAction;
+import consulo.project.Project;
+import consulo.util.collection.ContainerUtil;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.change.Change;
+import consulo.versionControlSystem.util.VcsUtil;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.versionControlSystem.FilePath;
 import git4idea.GitBranch;
 import git4idea.GitContentRevision;
 import git4idea.GitRevisionNumber;

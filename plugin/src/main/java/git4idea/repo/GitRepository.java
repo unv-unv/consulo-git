@@ -19,9 +19,9 @@ import java.util.Collection;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import com.intellij.dvcs.repo.Repository;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.messages.Topic;
+import consulo.versionControlSystem.distributed.repository.Repository;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.component.messagebus.Topic;
 import git4idea.GitLocalBranch;
 import git4idea.GitVcs;
 import git4idea.branch.GitBranchesCollection;
@@ -33,7 +33,7 @@ import git4idea.branch.GitBranchesCollection;
  * All get-methods (like {@link #getCurrentRevision()}) are just getters of the correspondent fields and thus are very fast.
  * </p>
  * <p>
- * The GitRepository is updated "externally" by the {@link git4idea.repo.GitRepositoryUpdater}, when correspondent {@code .git/} service files
+ * The GitRepository is updated "externally" by the {@link GitRepositoryUpdater}, when correspondent {@code .git/} service files
  * change.
  * </p>
  * <p>
@@ -69,7 +69,7 @@ public interface GitRepository extends Repository
 	 */
 	@Deprecated
 	@Nonnull
-	VirtualFile getGitDir();
+    VirtualFile getGitDir();
 
 	@Nonnull
 	GitRepositoryFiles getRepositoryFiles();
@@ -95,7 +95,7 @@ public interface GitRepository extends Repository
 
 	/**
 	 * Returns remotes defined in this Git repository.
-	 * It is different from {@link git4idea.repo.GitConfig#getRemotes()} because remotes may be defined not only in {@code .git/config},
+	 * It is different from {@link GitConfig#getRemotes()} because remotes may be defined not only in {@code .git/config},
 	 * but in {@code .git/remotes/} or even {@code .git/branches} as well.
 	 * On the other hand, it is a very old way to define remotes and we are not going to implement this until needed.
 	 * See <a href="http://thread.gmane.org/gmane.comp.version-control.git/182960">discussion in the Git mailing list</a> that confirms

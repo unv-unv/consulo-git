@@ -151,7 +151,7 @@
           </component>
         </children>
       </grid>
-      <component id="843df" class="com.intellij.ide.util.ElementsChooser" binding="myBranchChooser" custom-create="true">
+      <component id="843df" class="consulo.ui.ex.awt.ElementsChooser" binding="myBranchChooser" custom-create="true">
         <constraints>
           <grid row="3" column="1" row-span="1" col-span="2" vsize-policy="7" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>

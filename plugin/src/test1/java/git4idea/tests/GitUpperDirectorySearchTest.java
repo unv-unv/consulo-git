@@ -15,15 +15,15 @@
  */
 package git4idea.tests;
 
-import com.intellij.openapi.util.SystemInfo;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.ide.impl.idea.openapi.util.io.FileUtil;
+import consulo.ui.ex.awt.UIUtil;
+import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.VirtualFile;
 import com.intellij.testFramework.fixtures.IdeaProjectTestFixture;
 import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory;
 import com.intellij.testFramework.fixtures.TestFixtureBuilder;
-import com.intellij.util.ui.UIUtil;
-import com.intellij.vcsUtil.VcsFileUtil;
+import consulo.ide.impl.idea.vcsUtil.VcsFileUtil;
+import consulo.application.util.SystemInfo;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -77,7 +77,7 @@ public class GitUpperDirectorySearchTest {
     Assert.assertNotNull(dir);
     Assert.assertNotNull(childFile);
 
-    final VirtualFile result = VcsFileUtil.getPossibleBase(childFile, dirName);
+    final VirtualFile result = consulo.ide.impl.idea.vcsUtil.VcsFileUtil.getPossibleBase(childFile, dirName);
     Assert.assertEquals(result, dir);
   }
 
@@ -98,7 +98,7 @@ public class GitUpperDirectorySearchTest {
     Assert.assertNotNull(dir);
     Assert.assertNotNull(childFile);
 
-    final VirtualFile result = VcsFileUtil.getPossibleBase(childFile, dirName.split("/"));
+    final VirtualFile result = consulo.ide.impl.idea.vcsUtil.VcsFileUtil.getPossibleBase(childFile, dirName.split("/"));
     Assert.assertEquals(result, dir);
   }
 
@@ -119,7 +119,7 @@ public class GitUpperDirectorySearchTest {
     Assert.assertNotNull(dir);
     Assert.assertNotNull(childFile);
 
-    final VirtualFile result = VcsFileUtil.getPossibleBase(childFile, dirName.split("/"));
+    final VirtualFile result = consulo.ide.impl.idea.vcsUtil.VcsFileUtil.getPossibleBase(childFile, dirName.split("/"));
     Assert.assertEquals(result, dir);
   }
 }

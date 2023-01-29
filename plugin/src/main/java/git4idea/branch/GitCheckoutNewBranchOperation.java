@@ -15,19 +15,19 @@
  */
 package git4idea.branch;
 
-import static git4idea.util.GitUIUtil.code;
-
-import java.util.Collection;
-
-import javax.annotation.Nonnull;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vcs.VcsNotifier;
+import consulo.project.Project;
+import consulo.util.lang.StringUtil;
+import consulo.versionControlSystem.VcsNotifier;
 import git4idea.commands.Git;
 import git4idea.commands.GitCommandResult;
 import git4idea.commands.GitCompoundResult;
 import git4idea.commands.GitSimpleEventDetector;
 import git4idea.repo.GitRepository;
+
+import javax.annotation.Nonnull;
+import java.util.Collection;
+
+import static git4idea.util.GitUIUtil.code;
 
 /**
  * Create new branch (starting from the current branch) and check it out.

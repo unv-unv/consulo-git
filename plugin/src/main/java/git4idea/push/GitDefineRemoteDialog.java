@@ -15,31 +15,23 @@
  */
 package git4idea.push;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-
-import javax.annotation.Nonnull;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-
-import javax.annotation.Nullable;
+import consulo.application.progress.ProgressManager;
+import consulo.application.util.function.ThrowableComputable;
+import consulo.component.ProcessCanceledException;
+import consulo.ide.impl.idea.openapi.vfs.VfsUtilCore;
 import consulo.logging.Logger;
-import com.intellij.openapi.progress.ProcessCanceledException;
-import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.ThrowableComputable;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.VfsUtilCore;
-import com.intellij.ui.components.JBLabel;
-import com.intellij.util.ui.GridBag;
-import com.intellij.util.ui.UIUtil;
+import consulo.ui.ex.awt.*;
+import consulo.util.lang.StringUtil;
 import git4idea.commands.Git;
 import git4idea.commands.GitCommandResult;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import git4idea.validators.GitRefNameValidator;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.swing.*;
+import java.awt.*;
 
 class GitDefineRemoteDialog extends DialogWrapper
 {

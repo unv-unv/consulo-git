@@ -15,7 +15,7 @@
  */
 package git4idea.crlf;
 
-import com.intellij.openapi.util.SystemInfo;
+import consulo.application.util.SystemInfo;
 
 /**
  * @author Kirill Likhodedov

@@ -15,23 +15,22 @@
  */
 package git4idea.crlf;
 
-import com.intellij.ide.BrowserUtil;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.ui.components.JBCheckBox;
-import com.intellij.ui.components.JBLabel;
-import com.intellij.ui.components.labels.LinkLabel;
-import com.intellij.ui.components.labels.LinkListener;
-import com.intellij.util.ui.GridBag;
-import com.intellij.util.ui.UIUtil;
+import consulo.ide.impl.idea.ide.BrowserUtil;
+import consulo.ui.ex.awt.*;
+import consulo.ui.ex.awt.LinkListener;
+import consulo.ui.ex.awt.UIUtil;
+import consulo.project.Project;
+import consulo.ui.ex.awt.DialogWrapper;
+import consulo.ui.ex.awt.JBLabel;
+
 import javax.annotation.Nonnull;
 
 import javax.annotation.Nullable;
 import javax.swing.*;
 import java.awt.*;
 
-import static com.intellij.util.ui.UIUtil.DEFAULT_HGAP;
-import static com.intellij.util.ui.UIUtil.DEFAULT_VGAP;
+import static consulo.ui.ex.awt.UIUtil.DEFAULT_HGAP;
+import static consulo.ui.ex.awt.UIUtil.DEFAULT_VGAP;
 import static git4idea.crlf.GitCrlfUtil.*;
 
 /**

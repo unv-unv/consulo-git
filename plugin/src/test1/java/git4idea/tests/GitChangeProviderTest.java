@@ -15,15 +15,17 @@
  */
 package git4idea.tests;
 
-import com.intellij.openapi.progress.EmptyProgressIndicator;
-import com.intellij.openapi.vcs.*;
-import com.intellij.openapi.vcs.changes.Change;
-import com.intellij.openapi.vcs.changes.ChangeListManager;
-import com.intellij.openapi.vcs.changes.VcsModifiableDirtyScope;
+import consulo.application.progress.EmptyProgressIndicator;
+import consulo.versionControlSystem.FilePath;
+import consulo.versionControlSystem.change.Change;
+import consulo.ide.impl.idea.openapi.vcs.changes.VcsModifiableDirtyScope;
 import com.intellij.testFramework.vcs.MockChangeListManagerGate;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.virtualFileSystem.VirtualFile;
 import com.intellij.testFramework.vcs.MockChangelistBuilder;
 import com.intellij.testFramework.vcs.MockDirtyScope;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.change.ChangeListManager;
+import consulo.virtualFileSystem.status.FileStatus;
 import git4idea.GitVcs;
 import git4idea.status.GitChangeProvider;
 import git4idea.test.GitTest;
@@ -124,7 +126,7 @@ public class GitChangeProviderTest extends GitTest {
   protected void assertChanges(VirtualFile[] virtualFiles, FileStatus[] fileStatuses) throws VcsException {
     Map<FilePath, Change> result = getChanges(virtualFiles);
     for (int i = 0; i < virtualFiles.length; i++) {
-      FilePath fp = new FilePathImpl(virtualFiles[i]);
+      FilePath fp = new consulo.ide.impl.idea.openapi.vcs.FilePathImpl(virtualFiles[i]);
       FileStatus status = fileStatuses[i];
       if (status == null) {
         assertFalse(result.containsKey(fp), "File [" + tos(fp) + " shouldn't be in the change list, but it was.");
@@ -144,7 +146,7 @@ public class GitChangeProviderTest extends GitTest {
    * Assumes that only one change for a file has happened.
    */
   protected Map<FilePath, Change> getChanges(VirtualFile... changedFiles) throws VcsException {
-    final List<FilePath> changedPaths = ObjectsConvertor.vf2fp(Arrays.asList(changedFiles));
+    final List<FilePath> changedPaths = consulo.ide.impl.idea.openapi.vcs.ObjectsConvertor.vf2fp(Arrays.asList(changedFiles));
 
     // get changes
     MockChangelistBuilder builder = new MockChangelistBuilder();
@@ -165,7 +167,7 @@ public class GitChangeProviderTest extends GitTest {
           }
         }
       } else {
-        filePath = new FilePathImpl(file);
+        filePath = new consulo.ide.impl.idea.openapi.vcs.FilePathImpl(file);
       }
       result.put(filePath, change);
     }
@@ -210,6 +212,6 @@ public class GitChangeProviderTest extends GitTest {
   }
 
   private void dirty(VirtualFile file) {
-    myDirtyScope.addDirtyFile(new FilePathImpl(file));
+    myDirtyScope.addDirtyFile(new consulo.ide.impl.idea.openapi.vcs.FilePathImpl(file));
   }
 }

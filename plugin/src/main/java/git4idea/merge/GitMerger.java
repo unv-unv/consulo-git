@@ -15,19 +15,11 @@
  */
 package git4idea.merge;
 
-import static com.intellij.util.ObjectUtils.assertNotNull;
-import static com.intellij.util.containers.ContainerUtil.filter;
-import static git4idea.GitUtil.getRootsFromRepositories;
-
-import java.io.File;
-import java.util.Collection;
-
-import javax.annotation.Nonnull;
-import com.intellij.dvcs.repo.Repository;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Condition;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.project.Project;
+import consulo.util.lang.function.Condition;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.distributed.repository.Repository;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitBranch;
 import git4idea.GitUtil;
 import git4idea.branch.GitBranchUtil;
@@ -35,6 +27,14 @@ import git4idea.commands.GitCommand;
 import git4idea.commands.GitSimpleHandler;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
+
+import javax.annotation.Nonnull;
+import java.io.File;
+import java.util.Collection;
+
+import static consulo.util.collection.ContainerUtil.filter;
+import static consulo.util.lang.ObjectUtil.assertNotNull;
+import static git4idea.GitUtil.getRootsFromRepositories;
 
 public class GitMerger
 {

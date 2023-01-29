@@ -16,16 +16,16 @@
 package git4idea.tests;
 
 import com.intellij.mock.MockVirtualFileSystem;
-import com.intellij.openapi.util.EmptyRunnable;
-import com.intellij.openapi.util.Ref;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vcs.Ring;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileSystem;
-import com.intellij.util.ArrayUtil;
-import com.intellij.util.containers.Convertor;
-import com.intellij.util.containers.ReadonlyList;
-import com.intellij.util.ui.ColumnInfo;
+import consulo.ui.ex.awt.ColumnInfo;
+import consulo.util.collection.ArrayUtil;
+import consulo.util.lang.StringUtil;
+import consulo.ide.impl.idea.openapi.vcs.Ring;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.ide.impl.idea.util.containers.Convertor;
+import consulo.ide.impl.idea.util.containers.ReadonlyList;
+import consulo.util.lang.EmptyRunnable;
+import consulo.util.lang.ref.Ref;
+import consulo.virtualFileSystem.VirtualFileSystem;
 import git4idea.history.wholeTree.*;
 import junit.framework.Assert;
 import junit.framework.TestCase;

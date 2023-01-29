@@ -15,80 +15,88 @@
  */
 package git4idea.config;
 
-import com.intellij.openapi.options.Configurable;
-import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.project.Project;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.configurable.ConfigurationException;
+import consulo.configurable.ProjectConfigurable;
+import consulo.configurable.StandardConfigurableIds;
 import consulo.disposer.Disposable;
 import consulo.git.config.GitVcsPanel;
+import consulo.project.Project;
 import consulo.ui.Component;
 import consulo.ui.annotation.RequiredUIAccess;
 import git4idea.GitVcs;
+import jakarta.inject.Inject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class GitVcsConfigurable implements Configurable
-{
-	public static final String DISPLAY_NAME = GitVcs.NAME;
+@ExtensionImpl
+public class GitVcsConfigurable implements ProjectConfigurable {
+  public static final String DISPLAY_NAME = GitVcs.NAME;
 
-	private final Project myProject;
-	private final GitVcsSettings mySettings;
-	@Nonnull
-	private final GitSharedSettings mySharedSettings;
-	private GitVcsPanel panel;
+  private final Project myProject;
+  private final GitVcsSettings mySettings;
+  @Nonnull
+  private final GitSharedSettings mySharedSettings;
+  private GitVcsPanel panel;
 
-	public GitVcsConfigurable(@Nonnull Project project, @Nonnull GitVcsSettings settings, @Nonnull GitSharedSettings sharedSettings)
-	{
-		myProject = project;
-		mySettings = settings;
-		mySharedSettings = sharedSettings;
-	}
+  @Inject
+  public GitVcsConfigurable(@Nonnull Project project, @Nonnull GitVcsSettings settings, @Nonnull GitSharedSettings sharedSettings) {
+    myProject = project;
+    mySettings = settings;
+    mySharedSettings = sharedSettings;
+  }
 
-	@Nonnull
-	@Override
-	public String getDisplayName()
-	{
-		return DISPLAY_NAME;
-	}
+  @Nonnull
+  @Override
+  public String getId() {
+    return "vcs.git";
+  }
 
-	@Nullable
-	@Override
-	public String getHelpTopic()
-	{
-		return "project.propVCSSupport.VCSs.Git";
-	}
+  @Nullable
+  @Override
+  public String getParentId() {
+    return StandardConfigurableIds.VCS_GROUP;
+  }
 
-	@RequiredUIAccess
-	@Nonnull
-	@Override
-	public Component createUIComponent(@Nonnull Disposable uiDisposable)
-	{
-		if(panel == null)
-		{
-			panel = new GitVcsPanel(myProject, uiDisposable);
-			panel.load(mySettings, mySharedSettings);
-		}
-		return panel.getPanel();
-	}
+  @Nonnull
+  @Override
+  public String getDisplayName() {
+    return DISPLAY_NAME;
+  }
 
-	@RequiredUIAccess
-	@Override
-	public boolean isModified()
-	{
-		return panel.isModified(mySettings, mySharedSettings);
-	}
+  @Nullable
+  @Override
+  public String getHelpTopic() {
+    return "project.propVCSSupport.VCSs.Git";
+  }
 
-	@RequiredUIAccess
-	@Override
-	public void apply() throws ConfigurationException
-	{
-		panel.save(mySettings, mySharedSettings);
-	}
+  @RequiredUIAccess
+  @Nonnull
+  @Override
+  public Component createUIComponent(@Nonnull Disposable uiDisposable) {
+    if (panel == null) {
+      panel = new GitVcsPanel(myProject, uiDisposable);
+      panel.load(mySettings, mySharedSettings);
+    }
+    return panel.getPanel();
+  }
 
-	@RequiredUIAccess
-	@Override
-	public void reset()
-	{
-		panel.load(mySettings, mySharedSettings);
-	}
+  @RequiredUIAccess
+  @Override
+  public boolean isModified() {
+    return panel.isModified(mySettings, mySharedSettings);
+  }
+
+  @RequiredUIAccess
+  @Override
+  public void apply() throws ConfigurationException {
+    panel.save(mySettings, mySharedSettings);
+  }
+
+  @RequiredUIAccess
+  @Override
+  public void reset() {
+    panel.load(mySettings, mySharedSettings);
+  }
 }

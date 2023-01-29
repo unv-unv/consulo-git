@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 
 import javax.annotation.Nonnull;
 import consulo.util.dataholder.Key;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.virtualFileSystem.VirtualFile;
 
 /**
  * <p>Detects the error which happens, when some untracked working tree files prevent merge or checkout.</p>

@@ -15,9 +15,12 @@
  */
 package git4idea;
 
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.ide.ServiceManager;
+import consulo.project.Project;
+import consulo.ui.ex.awt.Messages;
 import consulo.ui.image.Image;
 import jakarta.inject.Singleton;
 
@@ -28,13 +31,20 @@ import javax.annotation.Nullable;
  * @author Kirill Likhodedov
  */
 @Singleton
+@ServiceAPI(ComponentScope.PROJECT)
+@ServiceImpl
 public class MessageManager {
 
   public static MessageManager getInstance(@Nonnull Project project) {
     return ServiceManager.getService(project, MessageManager.class);
   }
 
-  public static int showYesNoDialog(Project project, String description, String title, String yesText, String noText, @Nullable Image icon) {
+  public static int showYesNoDialog(Project project,
+                                    String description,
+                                    String title,
+                                    String yesText,
+                                    String noText,
+                                    @Nullable Image icon) {
     return getInstance(project).doShowYesNoDialog(project, description, title, yesText, noText, icon);
   }
 

@@ -15,9 +15,10 @@
  */
 package git4idea;
 
-import com.intellij.openapi.vcs.diff.RevisionSelector;
-import com.intellij.openapi.vcs.history.VcsRevisionNumber;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.versionControlSystem.history.VcsRevisionNumber;
+import consulo.versionControlSystem.diff.RevisionSelector;
+import consulo.virtualFileSystem.VirtualFile;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 

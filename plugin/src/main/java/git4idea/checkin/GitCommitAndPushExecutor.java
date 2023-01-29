@@ -15,8 +15,8 @@
  */
 package git4idea.checkin;
 
-import com.intellij.openapi.vcs.changes.CommitExecutor;
-import com.intellij.openapi.vcs.changes.CommitSession;
+import consulo.versionControlSystem.change.CommitExecutor;
+import consulo.versionControlSystem.change.CommitSession;
 import org.jetbrains.annotations.Nls;
 import javax.annotation.Nonnull;
 

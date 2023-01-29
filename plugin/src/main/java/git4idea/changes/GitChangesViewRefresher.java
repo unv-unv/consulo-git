@@ -15,9 +15,10 @@
  */
 package git4idea.changes;
 
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.changes.ChangesViewRefresher;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.project.Project;
+import consulo.versionControlSystem.change.ChangesViewRefresher;
+import consulo.ide.ServiceManager;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import javax.annotation.Nonnull;
@@ -28,6 +29,7 @@ import javax.annotation.Nonnull;
  *
  * @author Kirill Likhodedov
  */
+@ExtensionImpl
 public class GitChangesViewRefresher implements ChangesViewRefresher {
 
   @Override

@@ -15,33 +15,30 @@
  */
 package git4idea.repo;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import consulo.application.util.concurrent.QueueProcessor;
+import consulo.component.messagebus.MessageBusConnection;
+import consulo.disposer.Disposable;
+import consulo.project.Project;
+import consulo.util.collection.ContainerUtil;
+import consulo.versionControlSystem.distributed.DvcsUtil;
+import consulo.versionControlSystem.util.VcsUtil;
+import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.event.BulkFileListener;
+import consulo.virtualFileSystem.event.VFileEvent;
+import git4idea.util.GitFileUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import com.intellij.dvcs.DvcsUtil;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.openapi.vfs.newvfs.BulkFileListener;
-import com.intellij.openapi.vfs.newvfs.events.VFileEvent;
-import com.intellij.util.Function;
-import com.intellij.util.concurrency.QueueProcessor;
-import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.messages.MessageBusConnection;
-import com.intellij.vcsUtil.VcsUtil;
-import consulo.disposer.Disposable;
-import git4idea.util.GitFileUtils;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Listens to .git service files changes and updates {@link GitRepository} when needed.
  */
 final class GitRepositoryUpdater implements Disposable, BulkFileListener
 {
-
 	@Nonnull
 	private final GitRepository myRepository;
 	@Nonnull
@@ -64,14 +61,7 @@ final class GitRepositoryUpdater implements Disposable, BulkFileListener
 	GitRepositoryUpdater(@Nonnull GitRepository repository, @Nonnull GitRepositoryFiles gitFiles)
 	{
 		myRepository = repository;
-		Collection<String> rootPaths = ContainerUtil.map(gitFiles.getRootDirs(), new Function<VirtualFile, String>()
-		{
-			@Override
-			public String fun(VirtualFile file)
-			{
-				return file.getPath();
-			}
-		});
+		Collection<String> rootPaths = ContainerUtil.map(gitFiles.getRootDirs(), file -> file.getPath());
 		myWatchRequests = LocalFileSystem.getInstance().addRootsToWatch(rootPaths, true);
 
 		myRepositoryFiles = gitFiles;
@@ -85,7 +75,7 @@ final class GitRepositoryUpdater implements Disposable, BulkFileListener
 		if(!project.isDisposed())
 		{
 			myMessageBusConnection = project.getMessageBus().connect();
-			myMessageBusConnection.subscribe(VirtualFileManager.VFS_CHANGES, this);
+			myMessageBusConnection.subscribe(BulkFileListener.class, this);
 		}
 		else
 		{

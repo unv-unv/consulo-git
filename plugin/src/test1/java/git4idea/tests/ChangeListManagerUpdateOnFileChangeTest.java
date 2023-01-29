@@ -15,8 +15,8 @@
  */
 package git4idea.tests;
 
-import com.intellij.openapi.vcs.changes.ChangeListManagerImpl;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.ide.impl.idea.openapi.vcs.changes.ChangeListManagerImpl;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.test.GitTest;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;

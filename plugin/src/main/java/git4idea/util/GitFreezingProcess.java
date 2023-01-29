@@ -15,103 +15,17 @@
  */
 package git4idea.util;
 
+import consulo.project.Project;
+import consulo.versionControlSystem.change.VcsFreezingProcess;
+
 import javax.annotation.Nonnull;
-import com.intellij.ide.SaveAndSyncHandler;
-import com.intellij.openapi.application.ApplicationManager;
-import consulo.logging.Logger;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ex.ProjectManagerEx;
-import com.intellij.openapi.vcs.changes.ChangeListManager;
-import com.intellij.openapi.vcs.changes.ChangeListManagerEx;
-import com.intellij.openapi.vcs.changes.ChangeListManagerImpl;
 
 /**
  * Executes an action surrounding it with freezing-unfreezing of the ChangeListManager
  * and blocking/unblocking save/sync on frame de/activation.
  */
-public class GitFreezingProcess
-{
-
-	private static final Logger LOG = Logger.getInstance(GitFreezingProcess.class);
-
-	@Nonnull
-	private final String myOperationTitle;
-	@Nonnull
-	private final Runnable myRunnable;
-
-	@Nonnull
-	private final ChangeListManagerEx myChangeListManager;
-	@Nonnull
-	private final ProjectManagerEx myProjectManager;
-	@Nonnull
-	private final SaveAndSyncHandler mySaveAndSyncHandler;
-
-	public GitFreezingProcess(@Nonnull Project project, @Nonnull String operationTitle, @Nonnull Runnable runnable)
-	{
-		myOperationTitle = operationTitle;
-		myRunnable = runnable;
-
-		myChangeListManager = (ChangeListManagerEx) ChangeListManager.getInstance(project);
-		myProjectManager = ProjectManagerEx.getInstanceEx();
-		mySaveAndSyncHandler = SaveAndSyncHandler.getInstance();
-	}
-
-	public void execute()
-	{
-		LOG.debug("starting");
-		try
-		{
-			LOG.debug("saving documents, blocking project autosync");
-			saveAndBlockInAwt();
-			LOG.debug("freezing the ChangeListManager");
-			freeze();
-			try
-			{
-				LOG.debug("running the operation");
-				myRunnable.run();
-				LOG.debug("operation completed.");
-			}
-			finally
-			{
-				LOG.debug("unfreezing the ChangeListManager");
-				unfreeze();
-			}
-		}
-		finally
-		{
-			LOG.debug("unblocking project autosync");
-			unblockInAwt();
-		}
-		LOG.debug("finished.");
-	}
-
-	private void saveAndBlockInAwt()
-	{
-		ApplicationManager.getApplication().invokeAndWait(() -> {
-			myProjectManager.blockReloadingProjectOnExternalChanges();
-			FileDocumentManager.getInstance().saveAllDocuments();
-			mySaveAndSyncHandler.blockSaveOnFrameDeactivation();
-			mySaveAndSyncHandler.blockSyncOnFrameActivation();
-		});
-	}
-
-	private void unblockInAwt()
-	{
-		ApplicationManager.getApplication().invokeAndWait(() -> {
-			myProjectManager.unblockReloadingProjectOnExternalChanges();
-			mySaveAndSyncHandler.unblockSaveOnFrameDeactivation();
-			mySaveAndSyncHandler.unblockSyncOnFrameActivation();
-		});
-	}
-
-	private void freeze()
-	{
-		((ChangeListManagerImpl) myChangeListManager).freeze("Local changes are not available until Git " + myOperationTitle + " is finished.");
-	}
-
-	private void unfreeze()
-	{
-		myChangeListManager.letGo();
-	}
+public class GitFreezingProcess extends VcsFreezingProcess {
+  public GitFreezingProcess(@Nonnull Project project, @Nonnull String operationTitle, @Nonnull Runnable runnable) {
+    super(project, "Local changes are not available until Git " + operationTitle + " is finished.", runnable);
+  }
 }

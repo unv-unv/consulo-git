@@ -15,15 +15,15 @@
  */
 package git4idea.commands;
 
-import com.intellij.execution.process.ProcessOutputTypes;
-import com.intellij.openapi.project.Project;
+import consulo.process.ProcessOutputTypes;
+import consulo.project.Project;
+import consulo.proxy.EventDispatcher;
 import consulo.util.dataholder.Key;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vcs.LineHandlerHelper;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.EventDispatcher;
-import javax.annotation.Nonnull;
+import consulo.util.lang.StringUtil;
+import consulo.versionControlSystem.util.LineHandlerHelper;
+import consulo.virtualFileSystem.VirtualFile;
 
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.util.Iterator;
 

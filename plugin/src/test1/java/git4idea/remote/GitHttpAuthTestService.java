@@ -16,10 +16,11 @@
 package git4idea.remote;
 
 import javax.annotation.Nonnull;
+
+import consulo.project.Project;
+import consulo.ui.ModalityState;
 import jakarta.inject.Singleton;
 
-import com.intellij.openapi.application.ModalityState;
-import com.intellij.openapi.project.Project;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitHttpAuthService;
 import git4idea.commands.GitHttpAuthenticator;
@@ -60,7 +61,7 @@ public class GitHttpAuthTestService extends GitHttpAuthService {
   @Nonnull
   @Override
   public GitHttpAuthenticator createAuthenticator(@Nonnull Project project, @Nullable ModalityState state, @Nonnull GitCommand command,
-												  @Nonnull String url) {
+                                                  @Nonnull String url) {
     return myAuthenticator;
   }
 

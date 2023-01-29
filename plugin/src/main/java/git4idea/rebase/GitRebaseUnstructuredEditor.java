@@ -15,16 +15,18 @@
  */
 package git4idea.rebase;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.project.Project;
+import consulo.ui.ex.awt.DialogWrapper;
+import consulo.util.io.FileUtil;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.config.GitConfigUtil;
 import git4idea.i18n.GitBundle;
 
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 
 /**
  * The dialog used for the unstructured information from git rebase.
@@ -66,7 +68,7 @@ public class GitRebaseUnstructuredEditor extends DialogWrapper {
     myGitRootLabel.setText(root.getPresentableUrl());
     encoding = GitConfigUtil.getCommitEncoding(project, root);
     myFile = new File(path);
-    myTextArea.setText(FileUtil.loadFile(myFile, encoding));
+    myTextArea.setText(Files.readString(myFile.toPath(), Charset.forName(encoding)));
     myTextArea.setCaretPosition(0);
     init();
   }

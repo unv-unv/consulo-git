@@ -15,43 +15,30 @@
  */
 package git4idea.history;
 
-import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import com.intellij.dvcs.DvcsUtil;
-import com.intellij.openapi.actionSystem.ActionGroup;
-import com.intellij.openapi.actionSystem.ActionPlaces;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.actionSystem.impl.SimpleDataContext;
-import com.intellij.openapi.components.ServiceManager;
+import consulo.application.progress.ProgressIndicator;
+import consulo.application.progress.Task;
+import consulo.dataContext.DataContext;
+import consulo.ide.ServiceManager;
+import consulo.ide.impl.idea.openapi.actionSystem.impl.SimpleDataContext;
+import consulo.ide.impl.idea.openapi.vcs.history.BaseDiffFromHistoryHandler;
 import consulo.logging.Logger;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.MessageType;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
-import com.intellij.openapi.ui.popup.ListPopup;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vcs.FilePath;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.changes.Change;
-import com.intellij.openapi.vcs.changes.ContentRevision;
-import com.intellij.openapi.vcs.history.BaseDiffFromHistoryHandler;
-import com.intellij.openapi.vcs.history.DiffFromHistoryHandler;
-import com.intellij.openapi.vcs.history.VcsFileRevision;
-import com.intellij.openapi.vcs.ui.VcsBalloonProblemNotifier;
-import com.intellij.ui.awt.RelativePoint;
-import com.intellij.util.ArrayUtil;
-import com.intellij.util.Consumer;
-import com.intellij.util.containers.ContainerUtil;
+import consulo.project.Project;
+import consulo.project.ui.notification.NotificationType;
+import consulo.ui.ex.RelativePoint;
+import consulo.ui.ex.action.*;
+import consulo.ui.ex.popup.JBPopupFactory;
+import consulo.ui.ex.popup.ListPopup;
+import consulo.util.collection.ArrayUtil;
+import consulo.util.collection.ContainerUtil;
+import consulo.util.io.FileUtil;
+import consulo.versionControlSystem.FilePath;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.change.Change;
+import consulo.versionControlSystem.change.ContentRevision;
+import consulo.versionControlSystem.distributed.DvcsUtil;
+import consulo.versionControlSystem.history.DiffFromHistoryHandler;
+import consulo.versionControlSystem.history.VcsFileRevision;
+import consulo.versionControlSystem.ui.VcsBalloonProblemNotifier;
 import git4idea.GitFileRevision;
 import git4idea.GitRevisionNumber;
 import git4idea.GitUtil;
@@ -61,11 +48,20 @@ import git4idea.commands.GitCommandResult;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Consumer;
+
 /**
- * {@link DiffFromHistoryHandler#showDiffForTwo(com.intellij.openapi.project.Project, com.intellij.openapi.vcs.FilePath, com.intellij.openapi.vcs.history.VcsFileRevision,
- * com.intellij.openapi.vcs.history.VcsFileRevision) "Show Diff" for 2 revision} calls the common code.
- * {@link DiffFromHistoryHandler#showDiffForOne(com.intellij.openapi.actionSystem.AnActionEvent, com.intellij.openapi.vcs.FilePath, com.intellij.openapi.vcs.history.VcsFileRevision,
- * com.intellij.openapi.vcs.history.VcsFileRevision) "Show diff" for 1 revision}
+ * {@link DiffFromHistoryHandler#showDiffForTwo(Project, FilePath, VcsFileRevision,
+ * VcsFileRevision) "Show Diff" for 2 revision} calls the common code.
+ * {@link DiffFromHistoryHandler#showDiffForOne(AnActionEvent, FilePath, VcsFileRevision,
+ * VcsFileRevision) "Show diff" for 1 revision}
  * behaves differently for merge commits: for them it shown a popup displaying the parents of the selected commit. Selecting a parent
  * from the popup shows the difference with this parent.
  * If an ordinary (not merge) revision with 1 parent, it is the same as usual: just compare with the parent;
@@ -145,12 +141,12 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
 		checkIfFileWasTouchedAndFindParentsInBackground(filePath, rev, parents, new Consumer<MergeCommitPreCheckInfo>()
 		{
 			@Override
-			public void consume(MergeCommitPreCheckInfo info)
+			public void accept(MergeCommitPreCheckInfo info)
 			{
 				if(!info.wasFileTouched())
 				{
 					String message = String.format("There were no changes in %s in this merge commit, besides those which were made in both branches", filePath.getName());
-					VcsBalloonProblemNotifier.showOverVersionControlView(GitDiffFromHistoryHandler.this.myProject, message, MessageType.INFO);
+					VcsBalloonProblemNotifier.showOverVersionControlView(GitDiffFromHistoryHandler.this.myProject, message, NotificationType.INFORMATION);
 				}
 				showPopup(event, rev, filePath, info.getParents());
 			}
@@ -210,7 +206,7 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
 			{
 				if(myInfo != null)
 				{ // if info == null => an exception happened
-					resultHandler.consume(myInfo);
+					resultHandler.accept(myInfo);
 				}
 			}
 		}.queue();

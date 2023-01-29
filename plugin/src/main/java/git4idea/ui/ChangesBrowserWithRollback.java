@@ -19,15 +19,15 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.Nonnull;
-import com.intellij.openapi.actionSystem.EmptyAction;
-import com.intellij.openapi.actionSystem.IdeActions;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Condition;
-import com.intellij.openapi.vcs.changes.Change;
-import com.intellij.openapi.vcs.changes.ChangeListManager;
-import com.intellij.openapi.vcs.changes.actions.RollbackDialogAction;
-import com.intellij.openapi.vcs.changes.ui.ChangesBrowser;
-import com.intellij.util.containers.ContainerUtil;
+import consulo.ui.ex.action.EmptyAction;
+import consulo.ui.ex.action.IdeActions;
+import consulo.project.Project;
+import consulo.util.collection.ContainerUtil;
+import consulo.util.lang.function.Condition;
+import consulo.versionControlSystem.change.Change;
+import consulo.versionControlSystem.change.ChangeListManager;
+import consulo.ide.impl.idea.openapi.vcs.changes.actions.RollbackDialogAction;
+import consulo.ide.impl.idea.openapi.vcs.changes.ui.ChangesBrowser;
 
 /**
  * {@link ChangesBrowser} extension with Rollback/Revert action added to the toolbar.

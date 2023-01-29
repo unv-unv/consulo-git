@@ -15,39 +15,39 @@
  */
 package git4idea.actions;
 
-import javax.annotation.Nonnull;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.fileChooser.FileChooser;
-import com.intellij.openapi.fileChooser.FileChooserDescriptor;
-import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.project.DumbAwareAction;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vcs.ProjectLevelVcsManager;
-import com.intellij.openapi.vcs.VcsNotifier;
-import com.intellij.openapi.vcs.changes.VcsDirtyScopeManager;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.Consumer;
-import com.intellij.vcsUtil.VcsUtil;
+import consulo.application.progress.ProgressIndicator;
+import consulo.application.progress.Task;
+import consulo.fileChooser.FileChooserDescriptor;
+import consulo.fileChooser.FileChooserDescriptorFactory;
+import consulo.fileChooser.IdeaFileChooser;
+import consulo.ide.ServiceManager;
+import consulo.language.editor.CommonDataKeys;
+import consulo.project.Project;
+import consulo.project.ProjectManager;
+import consulo.ui.ex.action.AnActionEvent;
+import consulo.ui.ex.action.DumbAwareAction;
+import consulo.ui.ex.awt.Messages;
+import consulo.util.lang.StringUtil;
+import consulo.versionControlSystem.ProjectLevelVcsManager;
+import consulo.versionControlSystem.VcsNotifier;
+import consulo.versionControlSystem.change.VcsDirtyScopeManager;
+import consulo.versionControlSystem.util.VcsUtil;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
 import git4idea.commands.Git;
 import git4idea.commands.GitCommandResult;
 import git4idea.i18n.GitBundle;
 
+import javax.annotation.Nonnull;
+import java.util.function.Consumer;
+
 /**
  * Initialize git repository action
  */
 public class GitInit extends DumbAwareAction
 {
-
 	@Override
 	public void actionPerformed(final AnActionEvent e)
 	{
@@ -71,51 +71,46 @@ public class GitInit extends DumbAwareAction
 
 	private static void doInit(final Project project, FileChooserDescriptor fcd, VirtualFile baseDir, final VirtualFile finalBaseDir)
 	{
-		FileChooser.chooseFile(fcd, project, baseDir, new Consumer<VirtualFile>()
+		IdeaFileChooser.chooseFile(fcd, project, baseDir, (Consumer<VirtualFile>) root ->
 		{
-			@Override
-			public void consume(final VirtualFile root)
+			if(GitUtil.isUnderGit(root) && Messages.showYesNoDialog(project, GitBundle.message("init.warning.already.under.git", StringUtil.escapeXml(root.getPresentableUrl())),
+					GitBundle.message("init.warning.title"), Messages.getWarningIcon()) != Messages.YES)
 			{
-				if(GitUtil.isUnderGit(root) && Messages.showYesNoDialog(project, GitBundle.message("init.warning.already.under.git", StringUtil.escapeXml(root.getPresentableUrl())),
-						GitBundle.message("init.warning.title"), Messages.getWarningIcon()) != Messages.YES)
-				{
-					return;
-				}
-
-				GitCommandResult result = ServiceManager.getService(Git.class).init(project, root);
-				if(!result.success())
-				{
-					GitVcs vcs = GitVcs.getInstance(project);
-					if(vcs != null && vcs.getExecutableValidator().checkExecutableAndNotifyIfNeeded())
-					{
-						VcsNotifier.getInstance(project).notifyError("Git init failed", result.getErrorOutputAsHtmlString());
-					}
-					return;
-				}
-
-				if(project.isDefault())
-				{
-					return;
-				}
-				final String path = root.equals(finalBaseDir) ? "" : root.getPath();
-				GitVcs.runInBackground(new Task.Backgroundable(project, GitBundle.message("common.refreshing"))
-				{
-					@Override
-					public void run(@Nonnull ProgressIndicator indicator)
-					{
-						refreshAndConfigureVcsMappings(project, root, path);
-					}
-				});
+				return;
 			}
+
+			GitCommandResult result = ServiceManager.getService(Git.class).init(project, root);
+			if(!result.success())
+			{
+				GitVcs vcs = GitVcs.getInstance(project);
+				if(vcs != null && vcs.getExecutableValidator().checkExecutableAndNotifyIfNeeded())
+				{
+					VcsNotifier.getInstance(project).notifyError("Git init failed", result.getErrorOutputAsHtmlString());
+				}
+				return;
+			}
+
+			if(project.isDefault())
+			{
+				return;
+			}
+			final String path = root.equals(finalBaseDir) ? "" : root.getPath();
+			GitVcs.runInBackground(new Task.Backgroundable(project, GitBundle.message("common.refreshing"))
+			{
+				@Override
+				public void run(@Nonnull ProgressIndicator indicator)
+				{
+					refreshAndConfigureVcsMappings(project, root, path);
+				}
+			});
 		});
 	}
 
 	public static void refreshAndConfigureVcsMappings(final Project project, final VirtualFile root, final String path)
 	{
-		VfsUtil.markDirtyAndRefresh(false, true, false, root);
+		VirtualFileUtil.markDirtyAndRefresh(false, true, false, root);
 		ProjectLevelVcsManager manager = ProjectLevelVcsManager.getInstance(project);
 		manager.setDirectoryMappings(VcsUtil.addMapping(manager.getDirectoryMappings(), path, GitVcs.NAME));
-		manager.updateActiveVcss();
 		VcsDirtyScopeManager.getInstance(project).dirDirtyRecursively(root);
 	}
 }

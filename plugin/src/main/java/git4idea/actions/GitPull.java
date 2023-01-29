@@ -15,18 +15,14 @@
  */
 package git4idea.actions;
 
-import java.util.List;
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-import com.intellij.history.Label;
-import com.intellij.history.LocalHistory;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.update.ActionInfo;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.application.progress.ProgressIndicator;
+import consulo.application.progress.Task;
+import consulo.localHistory.Label;
+import consulo.localHistory.LocalHistory;
+import consulo.project.Project;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.update.ActionInfo;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitRevisionNumber;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
@@ -41,6 +37,10 @@ import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import git4idea.util.GitUIUtil;
+
+import javax.annotation.Nonnull;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Git "pull" action
@@ -64,17 +64,17 @@ public class GitPull extends GitRepositoryAction {
       return;
     }
     final Label beforeLabel = LocalHistory.getInstance().putSystemLabel(project, "Before update");
-    
+
     new Task.Backgroundable(project, GitBundle.message("pulling.title", dialog.getRemote()), true) {
       @Override
       public void run(@Nonnull ProgressIndicator indicator) {
-        final GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager(myProject);
+        final GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager((Project)myProject);
 
         GitRepository repository = repositoryManager.getRepositoryForRoot(dialog.gitRoot());
         assert repository != null : "Repository can't be null for root " + dialog.gitRoot();
         String remoteOrUrl = dialog.getRemote();
-        
-        
+
+
         GitRemote remote = GitUtil.findRemoteByName(repository, remoteOrUrl);
         String url = (remote == null) ? remoteOrUrl : remote.getFirstUrl();
         if (url == null) {
@@ -90,7 +90,7 @@ public class GitPull extends GitRepositoryAction {
           return;
         }
         final GitRevisionNumber currentRev = new GitRevisionNumber(revision);
-    
+
         GitTask pullTask = new GitTask(project, handler, GitBundle.message("pulling.title", dialog.getRemote()));
         pullTask.setProgressIndicator(indicator);
         pullTask.setProgressAnalyzer(new GitStandardProgressAnalyzer());
@@ -102,7 +102,7 @@ public class GitPull extends GitRepositoryAction {
             repositoryManager.updateRepository(root);
             runFinalTasks(project, GitVcs.getInstance(project), affectedRoots, getActionName(), exceptions);
           }
-    
+
           @Override
           protected void onFailure() {
             GitUIUtil.notifyGitErrors(project, "Error pulling " + dialog.getRemote(), "", handler.errors());

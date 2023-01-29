@@ -15,28 +15,26 @@
  */
 package git4idea.util;
 
-import java.awt.BorderLayout;
+import consulo.ide.impl.idea.openapi.vcs.changes.ui.FilePathChangesTreeList;
+import consulo.project.Project;
+import consulo.ui.ex.action.ActionManager;
+import consulo.ui.ex.action.ActionPlaces;
+import consulo.ui.ex.action.ActionToolbar;
+import consulo.ui.ex.action.DefaultActionGroup;
+import consulo.util.collection.ContainerUtil;
+import consulo.versionControlSystem.FilePath;
+import consulo.versionControlSystem.base.FilePathImpl;
+
+import javax.annotation.Nonnull;
+import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
-
-import javax.annotation.Nonnull;
-import javax.swing.JPanel;
-
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.ActionPlaces;
-import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.FilePath;
-import com.intellij.openapi.vcs.FilePathImpl;
-import com.intellij.openapi.vcs.changes.ui.FilePathChangesTreeList;
-import com.intellij.util.Function;
-import com.intellij.util.containers.ContainerUtil;
+import java.util.function.Function;
 
 public class GitSimplePathsBrowser extends JPanel
 {
-
 	public GitSimplePathsBrowser(@Nonnull Project project, @Nonnull Collection<String> absolutePaths)
 	{
 		super(new BorderLayout());
@@ -67,13 +65,6 @@ public class GitSimplePathsBrowser extends JPanel
 	@Nonnull
 	private static List<FilePath> toFilePaths(@Nonnull Collection<String> absolutePaths)
 	{
-		return ContainerUtil.map(absolutePaths, new Function<String, FilePath>()
-		{
-			@Override
-			public FilePath fun(String path)
-			{
-				return new FilePathImpl(new File(path), false);
-			}
-		});
+		return ContainerUtil.map(absolutePaths, path -> new FilePathImpl(new File(path), false));
 	}
 }

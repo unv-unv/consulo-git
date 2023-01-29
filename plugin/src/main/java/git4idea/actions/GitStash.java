@@ -15,11 +15,11 @@
  */
 package git4idea.actions;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.changes.ChangeListManager;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.versionControlSystem.change.ChangeListManager;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.project.Project;
+import consulo.versionControlSystem.VcsException;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
 import git4idea.commands.GitHandlerUtil;
 import git4idea.commands.GitLineHandler;
 import git4idea.i18n.GitBundle;
@@ -53,7 +53,7 @@ public class GitStash extends GitRepositoryAction {
     affectedRoots.add(root);
     final GitLineHandler h = d.handler();
     GitHandlerUtil.doSynchronously(h, GitBundle.message("stashing.title"), h.printableCommandLine());
-    VfsUtil.markDirtyAndRefresh(true, true, false, root);
+    VirtualFileUtil.markDirtyAndRefresh(true, true, false, root);
   }
 
   /**

@@ -19,12 +19,12 @@ import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.intellij.dvcs.test.MockVcsHelper;
 import com.intellij.dvcs.test.MockVirtualFile;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vcs.FilePathImpl;
-import com.intellij.openapi.vcs.changes.Change;
-import com.intellij.openapi.vcs.changes.LocalChangeList;
-import com.intellij.openapi.vcs.history.VcsRevisionNumber;
-import com.intellij.openapi.vfs.newvfs.impl.NullVirtualFile;
+import consulo.util.lang.StringUtil;
+import consulo.ide.impl.idea.openapi.vcs.FilePathImpl;
+import consulo.versionControlSystem.change.Change;
+import consulo.versionControlSystem.change.LocalChangeList;
+import consulo.versionControlSystem.history.VcsRevisionNumber;
+import consulo.virtualFileSystem.NullVirtualFile;
 import com.intellij.testFramework.vcs.MockChangeListManager;
 import com.intellij.testFramework.vcs.MockContentRevision;
 import cucumber.annotation.en.And;
@@ -258,7 +258,7 @@ public class GitCherryPickStepdefs {
   private static GitCommit mockCommit(String hash, String message) {
     AbstractHash ahash = AbstractHash.create(hash);
     List<Change> changes = new ArrayList<Change>();
-    changes.add(new Change(null, new MockContentRevision(new FilePathImpl(new MockVirtualFile("name")), VcsRevisionNumber.NULL)));
+    changes.add(new Change(null, new MockContentRevision(new consulo.ide.impl.idea.openapi.vcs.FilePathImpl(new MockVirtualFile("name")), VcsRevisionNumber.NULL)));
     return new GitCommit(NullVirtualFile.INSTANCE, ahash, SHAHash.emulate(ahash), "John Smith", null, null, message, message,
                          null, null, null, null, null, null, null, changes, 0);
   }

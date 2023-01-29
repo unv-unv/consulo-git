@@ -15,19 +15,19 @@
  */
 package git4idea.history;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.util.Function;
+import consulo.project.Project;
+import consulo.util.lang.StringUtil;
 import git4idea.GitFormatException;
 import git4idea.GitVcs;
 import git4idea.config.GitVersionSpecialty;
-import javax.annotation.Nonnull;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -54,7 +54,7 @@ import java.util.regex.Pattern;
  * <p>If you use '--name-status' or '--name-only' flags in 'git log' you also <b>must</b> call {@link #parseStatusBeforeName(boolean)} with
  * true or false respectively, because it also affects the output.</p>
  *
- * @see git4idea.history.GitLogRecord
+ * @see GitLogRecord
  */
 public class GitLogParser {
 	// Single records begin with %x01, end with %03. Items of commit information (hash, committer, subject, etc.) are separated by %x02.
@@ -139,11 +139,7 @@ public class GitLogParser {
 	}
 
 	private static String makeFormatFromOptions(GitLogOption[] options) {
-		Function<GitLogOption,String> function = new Function<GitLogOption, String>() {
-			@Override public String fun(GitLogOption option) {
-				return "%" + option.getPlaceholder();
-			}
-		};
+		Function<GitLogOption,String> function = option -> "%" + option.getPlaceholder();
 		return RECORD_START_GIT + StringUtil.join(options, function, ITEMS_SEPARATOR_GIT) + RECORD_END_GIT;
 	}
 

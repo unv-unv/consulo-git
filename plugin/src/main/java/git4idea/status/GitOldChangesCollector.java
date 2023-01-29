@@ -15,14 +15,18 @@
  */
 package git4idea.status;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Comparing;
-import com.intellij.openapi.vcs.*;
-import com.intellij.openapi.vcs.changes.Change;
-import com.intellij.openapi.vcs.changes.ChangeListManager;
-import com.intellij.openapi.vcs.changes.ContentRevision;
-import com.intellij.openapi.vcs.changes.VcsDirtyScope;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.project.Project;
+import consulo.versionControlSystem.AbstractVcs;
+import consulo.versionControlSystem.FilePath;
+import consulo.versionControlSystem.ProjectLevelVcsManager;
+import consulo.versionControlSystem.change.Change;
+import consulo.versionControlSystem.change.ChangeListManager;
+import consulo.versionControlSystem.change.ContentRevision;
+import consulo.versionControlSystem.change.VcsDirtyScope;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.util.lang.Comparing;
+import consulo.versionControlSystem.VcsException;
+import consulo.virtualFileSystem.status.FileStatus;
 import git4idea.GitContentRevision;
 import git4idea.GitRevisionNumber;
 import git4idea.GitUtil;
@@ -36,7 +40,7 @@ import java.util.*;
 
 /**
  * <p>
- *   Collects changes from the Git repository in the specified {@link com.intellij.openapi.vcs.changes.VcsDirtyScope}
+ *   Collects changes from the Git repository in the specified {@link VcsDirtyScope}
  *   using the older technique that is replaced by {@link GitNewChangesCollector} for Git later than 1.7.0 inclusive.
  *   This class is used for Git older than 1.7.0 not inclusive, that don't have <code>'git status --porcelain'</code>.
  * </p>
@@ -104,8 +108,8 @@ class GitOldChangesCollector extends GitChangesCollector {
    */
   @Nonnull
   static GitOldChangesCollector collect(@Nonnull Project project, @Nonnull ChangeListManager changeListManager,
-										@Nonnull ProjectLevelVcsManager vcsManager, @Nonnull AbstractVcs vcs,
-										@Nonnull VcsDirtyScope dirtyScope, @Nonnull VirtualFile vcsRoot) throws VcsException {
+                                        @Nonnull ProjectLevelVcsManager vcsManager, @Nonnull AbstractVcs vcs,
+                                        @Nonnull VcsDirtyScope dirtyScope, @Nonnull VirtualFile vcsRoot) throws VcsException {
     return new GitOldChangesCollector(project, changeListManager, vcsManager, vcs, dirtyScope, vcsRoot);
   }
 
@@ -122,8 +126,8 @@ class GitOldChangesCollector extends GitChangesCollector {
   }
 
   private GitOldChangesCollector(@Nonnull Project project, @Nonnull ChangeListManager changeListManager,
-								 @Nonnull ProjectLevelVcsManager vcsManager, @Nonnull AbstractVcs vcs, @Nonnull VcsDirtyScope dirtyScope,
-								 @Nonnull VirtualFile vcsRoot) throws VcsException {
+                                 @Nonnull ProjectLevelVcsManager vcsManager, @Nonnull AbstractVcs vcs, @Nonnull VcsDirtyScope dirtyScope,
+                                 @Nonnull VirtualFile vcsRoot) throws VcsException {
     super(project, changeListManager, vcsManager, vcs, dirtyScope, vcsRoot);
     updateIndex();
     collectUnmergedAndUnversioned();

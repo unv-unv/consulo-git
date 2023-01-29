@@ -15,20 +15,19 @@
  */
 package git4idea.actions;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import com.intellij.dvcs.repo.AbstractRepositoryManager;
-import com.intellij.dvcs.ui.VcsLogSingleCommitAction;
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.ide.ServiceManager;
+import consulo.ide.impl.idea.dvcs.ui.VcsLogSingleCommitAction;
+import consulo.project.Project;
+import consulo.versionControlSystem.distributed.repository.AbstractRepositoryManager;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 public abstract class GitLogSingleCommitAction extends VcsLogSingleCommitAction<GitRepository>
 {
-
 	@Nonnull
 	@Override
 	protected AbstractRepositoryManager<GitRepository> getRepositoryManager(@Nonnull Project project)
@@ -42,5 +41,4 @@ public abstract class GitLogSingleCommitAction extends VcsLogSingleCommitAction<
 	{
 		return getRepositoryManager(project).getRepositoryForRoot(root);
 	}
-
 }

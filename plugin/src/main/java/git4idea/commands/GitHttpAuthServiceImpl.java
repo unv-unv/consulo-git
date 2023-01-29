@@ -15,23 +15,27 @@
  */
 package git4idea.commands;
 
-import java.util.Collection;
-
-import javax.annotation.Nonnull;
+import consulo.annotation.component.ServiceImpl;
+import consulo.project.Project;
+import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
-import com.intellij.openapi.project.Project;
+import javax.annotation.Nonnull;
+import java.util.Collection;
 
 /**
  * @author Kirill Likhodedov
  */
 @Singleton
-class GitHttpAuthServiceImpl extends GitHttpAuthService
-{
-	@Override
-	@Nonnull
-	public GitHttpAuthenticator createAuthenticator(@Nonnull Project project, @Nonnull GitCommand command, @Nonnull Collection<String> urls)
-	{
-		return new GitHttpGuiAuthenticator(project, command, urls);
-	}
+@ServiceImpl
+class GitHttpAuthServiceImpl extends GitHttpAuthService {
+  @Inject
+  GitHttpAuthServiceImpl() {
+  }
+
+  @Override
+  @Nonnull
+  public GitHttpAuthenticator createAuthenticator(@Nonnull Project project, @Nonnull GitCommand command, @Nonnull Collection<String> urls) {
+    return new GitHttpGuiAuthenticator(project, command, urls);
+  }
 }

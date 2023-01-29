@@ -15,8 +15,9 @@
  */
 package git4idea.config;
 
+import consulo.application.util.SystemInfo;
+
 import javax.annotation.Nonnull;
-import com.intellij.openapi.util.SystemInfo;
 
 /**
  * <p>

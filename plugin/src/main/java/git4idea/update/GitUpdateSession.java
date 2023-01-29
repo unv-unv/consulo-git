@@ -15,8 +15,9 @@
  */
 package git4idea.update;
 
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.update.UpdateSession;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.update.UpdateSession;
+
 import javax.annotation.Nonnull;
 
 import java.util.Collections;

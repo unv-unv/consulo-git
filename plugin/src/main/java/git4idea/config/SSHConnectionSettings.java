@@ -15,9 +15,16 @@
  */
 package git4idea.config;
 
-import com.intellij.openapi.components.*;
-import com.intellij.util.xmlb.annotations.MapAnnotation;
-import com.intellij.util.xmlb.annotations.Property;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.component.persist.PersistentStateComponent;
+import consulo.component.persist.State;
+import consulo.component.persist.Storage;
+import consulo.component.persist.StoragePathMacros;
+import consulo.ide.ServiceManager;
+import consulo.util.xml.serializer.annotation.MapAnnotation;
+import consulo.util.xml.serializer.annotation.Property;
 import jakarta.inject.Singleton;
 
 import java.util.HashMap;
@@ -32,6 +39,8 @@ import java.util.TreeMap;
   name = "SSHConnectionSettings",
   storages = {@Storage(
     file = StoragePathMacros.APP_CONFIG + "/security.xml")})
+@ServiceAPI(ComponentScope.APPLICATION)
+@ServiceImpl
 public class SSHConnectionSettings implements PersistentStateComponent<SSHConnectionSettings.State> {
   /**
    * The last successful hosts, the entries are sorted to save on efforts on sorting during saving and loading
@@ -103,7 +112,7 @@ public class SSHConnectionSettings implements PersistentStateComponent<SSHConnec
      */
     @Property(surroundWithTag = false)
     @MapAnnotation(surroundKeyWithTag = false, surroundValueWithTag = false, surroundWithTag = false,
-                   entryTagName = "successfulAuthentication", keyAttributeName = "user", valueAttributeName = "method")
+      entryTagName = "successfulAuthentication", keyAttributeName = "user", valueAttributeName = "method")
     public Map<String, String> getLastSuccessful() {
       return myLastSuccessful;
     }

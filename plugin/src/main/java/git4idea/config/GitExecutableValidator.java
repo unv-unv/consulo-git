@@ -15,15 +15,19 @@
  */
 package git4idea.config;
 
-import java.util.Collections;
-
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.execution.ExecutableValidator;
+import consulo.ide.setting.ShowSettingsUtil;
+import consulo.project.Project;
+import consulo.versionControlSystem.VcsException;
+import git4idea.i18n.GitBundle;
+import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 import javax.annotation.Nonnull;
-import com.intellij.execution.ExecutableValidator;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.VcsException;
-import git4idea.i18n.GitBundle;
+import java.util.Collections;
 
 /**
  * Project service that is used to check whether currently set git executable is valid (just calls 'git version' and parses the output),
@@ -32,46 +36,41 @@ import git4idea.i18n.GitBundle;
  * @author Kirill Likhodedov
  */
 @Singleton
-public class GitExecutableValidator extends ExecutableValidator
-{
+@ServiceAPI(ComponentScope.PROJECT)
+@ServiceImpl
+public class GitExecutableValidator extends ExecutableValidator {
 
-	public GitExecutableValidator(@Nonnull Project project)
-	{
-		super(project, GitBundle.message("git.executable.notification.title"), GitBundle.message("git.executable.notification.description"));
-	}
+  @Inject
+  public GitExecutableValidator(@Nonnull Project project) {
+    super(project, GitBundle.message("git.executable.notification.title"), GitBundle.message("git.executable.notification.description"));
+  }
 
-	@Override
-	protected String getCurrentExecutable()
-	{
-		return GitExecutableManager.getInstance().getPathToGit(myProject);
-	}
+  @Override
+  protected String getCurrentExecutable() {
+    return GitExecutableManager.getInstance().getPathToGit(myProject);
+  }
 
-	@Nonnull
-	@Override
-	protected String getConfigurableDisplayName()
-	{
-		return GitVcsConfigurable.DISPLAY_NAME;
-	}
+  @Override
+  protected void showSettings() {
+    ShowSettingsUtil.getInstance().showSettingsDialog(null, GitVcsConfigurable.class);
+  }
 
-	@Override
-	public boolean isExecutableValid(@Nonnull String executable)
-	{
-		return doCheckExecutable(executable, Collections.singletonList("--version"));
-	}
+  @Override
+  public boolean isExecutableValid(@Nonnull String executable) {
+    return doCheckExecutable(executable, Collections.singletonList("--version"));
+  }
 
-	/**
-	 * Checks if git executable is valid. If not (which is a common case for low-level vcs exceptions), shows the
-	 * notification. Otherwise throws the exception.
-	 * This is to be used in catch-clauses
-	 *
-	 * @param e exception which was thrown.
-	 * @throws VcsException if git executable is valid.
-	 */
-	public void showNotificationOrThrow(VcsException e) throws VcsException
-	{
-		if(checkExecutableAndNotifyIfNeeded())
-		{
-			throw e;
-		}
-	}
+  /**
+   * Checks if git executable is valid. If not (which is a common case for low-level vcs exceptions), shows the
+   * notification. Otherwise throws the exception.
+   * This is to be used in catch-clauses
+   *
+   * @param e exception which was thrown.
+   * @throws VcsException if git executable is valid.
+   */
+  public void showNotificationOrThrow(VcsException e) throws VcsException {
+    if (checkExecutableAndNotifyIfNeeded()) {
+      throw e;
+    }
+  }
 }

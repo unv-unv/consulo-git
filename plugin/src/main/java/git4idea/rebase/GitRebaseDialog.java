@@ -15,37 +15,16 @@
  */
 package git4idea.rebase;
 
-import static com.intellij.openapi.util.text.StringUtil.isEmptyOrSpaces;
-import static com.intellij.util.ObjectUtils.assertNotNull;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.annotation.Nonnull;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.event.DocumentEvent;
-
-import javax.annotation.Nullable;
-import com.intellij.openapi.components.ServiceManager;
+import consulo.ide.ServiceManager;
 import consulo.logging.Logger;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.ComboBox;
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.ui.DocumentAdapter;
-import git4idea.GitBranch;
-import git4idea.GitRevisionNumber;
-import git4idea.GitStandardRemoteBranch;
-import git4idea.GitSvnRemoteBranch;
-import git4idea.GitTag;
-import git4idea.GitUtil;
+import consulo.project.Project;
+import consulo.ui.ex.awt.ComboBox;
+import consulo.ui.ex.awt.DialogWrapper;
+import consulo.ui.ex.awt.event.DocumentAdapter;
+import consulo.util.lang.StringUtil;
+import consulo.versionControlSystem.VcsException;
+import consulo.virtualFileSystem.VirtualFile;
+import git4idea.*;
 import git4idea.branch.GitBranchUtil;
 import git4idea.branch.GitRebaseParams;
 import git4idea.config.GitConfigUtil;
@@ -58,12 +37,23 @@ import git4idea.repo.GitRepositoryManager;
 import git4idea.ui.GitReferenceValidator;
 import git4idea.util.GitUIUtil;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
+
+import static consulo.util.lang.ObjectUtil.assertNotNull;
+import static consulo.util.lang.StringUtil.isEmptyOrSpaces;
+
 /**
  * The dialog that allows initiating git rebase activity
  */
 public class GitRebaseDialog extends DialogWrapper
 {
-
 	private static final Logger LOG = Logger.getInstance(GitRebaseDialog.class);
 
 	@Nonnull

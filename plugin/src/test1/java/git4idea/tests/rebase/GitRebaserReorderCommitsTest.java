@@ -15,8 +15,8 @@
  */
 package git4idea.tests.rebase;
 
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.ide.ServiceManager;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.commands.Git;
 import git4idea.rebase.GitRebaser;
 import git4idea.test.GitTest;
@@ -27,11 +27,12 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.testng.Assert.assertEquals;
 
 /**
- * NB: we don't test merge commits here, since {@link GitRebaser#reoderCommitsIfNeeded(com.intellij.openapi.vfs.VirtualFile, String, java.util.List)}
+ * NB: we don't test merge commits here, since {@link GitRebaser#reoderCommitsIfNeeded(VirtualFile, String, List)}
  * is not suitable for this.
  * @author Kirill Likhodedov
  * @deprecated Use {@link GitLightTest}

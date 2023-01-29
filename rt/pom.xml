@@ -15,51 +15,67 @@
   - limitations under the License.
   -->
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
-		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>consulo</groupId>
-		<artifactId>arch.managment</artifactId>
-		<version>2-SNAPSHOT</version>
-		<relativePath/>
-	</parent>
+  <parent>
+    <groupId>consulo</groupId>
+    <artifactId>arch.managment</artifactId>
+    <version>3-SNAPSHOT</version>
+    <relativePath/>
+  </parent>
 
-	<repositories>
-		<repository>
-			<id>consulo</id>
-			<url>https://maven.consulo.io/repository/snapshots/</url>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>interval:60</updatePolicy>
-			</snapshots>
-		</repository>
-	</repositories>
+  <repositories>
+    <repository>
+      <id>consulo</id>
+      <url>https://maven.consulo.io/repository/snapshots/</url>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>interval:60</updatePolicy>
+      </snapshots>
+    </repository>
+  </repositories>
 
-	<groupId>consulo.plugin</groupId>
-	<artifactId>com.intellij.git-rt</artifactId>
-	<version>2-SNAPSHOT</version>
-	<packaging>jar</packaging>
+  <groupId>consulo.plugin</groupId>
+  <artifactId>com.intellij.git-rt</artifactId>
+  <version>3-SNAPSHOT</version>
+  <packaging>jar</packaging>
 
-	<dependencies>
-		<dependency>
-			<groupId>consulo</groupId>
-			<artifactId>consulo-annotation</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>consulo</groupId>
-			<artifactId>consulo-util-nodep</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.trilead</groupId>
-			<artifactId>trilead-ssh2</artifactId>
-			<version>1.0.0-build221</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.xmlrpc</groupId>
-			<artifactId>xmlrpc-client</artifactId>
-		</dependency>
-	</dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestEntries>
+              <Automatic-Module-Name>com.intellij.git.rt</Automatic-Module-Name>
+            </manifestEntries>
+          </archive>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  
+  <dependencies>
+    <dependency>
+      <groupId>consulo</groupId>
+      <artifactId>consulo-annotation</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>consulo</groupId>
+      <artifactId>consulo-util-nodep</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.trilead</groupId>
+      <artifactId>trilead-ssh2</artifactId>
+      <version>1.0.0-build221</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlrpc</groupId>
+      <artifactId>xmlrpc-client</artifactId>
+    </dependency>
+  </dependencies>
 </project>

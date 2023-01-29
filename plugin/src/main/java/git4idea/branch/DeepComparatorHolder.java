@@ -15,56 +15,54 @@
  */
 package git4idea.branch;
 
-import java.util.Map;
-
-import javax.annotation.Nonnull;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.disposer.Disposable;
+import consulo.disposer.Disposer;
+import consulo.project.Project;
+import consulo.versionControlSystem.log.VcsLogUi;
+import git4idea.repo.GitRepositoryManager;
+import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
-import consulo.disposer.Disposable;
-import com.intellij.openapi.project.Project;
-import com.intellij.util.containers.ContainerUtil;
-import com.intellij.vcs.log.VcsLogUi;
-import consulo.disposer.Disposer;
-import git4idea.repo.GitRepositoryManager;
+import javax.annotation.Nonnull;
+import java.util.HashMap;
+import java.util.Map;
 
 @Singleton
-public class DeepComparatorHolder implements Disposable
-{
+@ServiceAPI(ComponentScope.PROJECT)
+@ServiceImpl
+public class DeepComparatorHolder implements Disposable {
+  @Nonnull
+  private final Project myProject;
+  @Nonnull
+  private final GitRepositoryManager myRepositoryManager;
 
-	@Nonnull
-	private final Project myProject;
-	@Nonnull
-	private final GitRepositoryManager myRepositoryManager;
+  @Nonnull
+  private final Map<VcsLogUi, DeepComparator> myComparators;
 
-	@Nonnull
-	private final Map<VcsLogUi, DeepComparator> myComparators;
+  @Inject
+  public DeepComparatorHolder(@Nonnull Project project, @Nonnull GitRepositoryManager repositoryManager) {
+    myProject = project;
+    myRepositoryManager = repositoryManager;
+    myComparators = new HashMap<>();
+    Disposer.register(project, this);
+  }
 
-	// initialized by pico-container
-	@SuppressWarnings("UnusedDeclaration")
-	private DeepComparatorHolder(@Nonnull Project project, @Nonnull GitRepositoryManager repositoryManager)
-	{
-		myProject = project;
-		myRepositoryManager = repositoryManager;
-		myComparators = ContainerUtil.newHashMap();
-		Disposer.register(project, this);
-	}
+  @Nonnull
+  public DeepComparator getInstance(@Nonnull VcsLogUi ui) {
+    DeepComparator comparator = myComparators.get(ui);
+    if (comparator == null) {
+      comparator = new DeepComparator(myProject, myRepositoryManager, ui, this);
+      myComparators.put(ui, comparator);
+    }
+    return comparator;
+  }
 
-	@Nonnull
-	public DeepComparator getInstance(@Nonnull VcsLogUi ui)
-	{
-		DeepComparator comparator = myComparators.get(ui);
-		if(comparator == null)
-		{
-			comparator = new DeepComparator(myProject, myRepositoryManager, ui, this);
-			myComparators.put(ui, comparator);
-		}
-		return comparator;
-	}
-
-	@Override
-	public void dispose()
-	{
-		myComparators.clear();
-	}
+  @Override
+  public void dispose() {
+    myComparators.clear();
+  }
 
 }

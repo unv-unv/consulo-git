@@ -15,8 +15,8 @@
  */
 package git4idea.repo;
 
-import com.intellij.dvcs.repo.Repository;
-import com.intellij.vcs.log.Hash;
+import consulo.versionControlSystem.distributed.repository.Repository;
+import consulo.versionControlSystem.log.Hash;
 import consulo.util.collection.HashingStrategy;
 import consulo.util.collection.Sets;
 import git4idea.GitBranch;

@@ -14,9 +14,9 @@ package git4idea;/*
  * limitations under the License.
  */
 
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationType;
-import com.intellij.openapi.util.text.StringUtil;
+import consulo.project.ui.notification.Notification;
+import consulo.ui.NotificationType;
+import consulo.util.lang.StringUtil;
 import cucumber.annotation.en.And;
 import cucumber.annotation.en.Given;
 import cucumber.annotation.en.Then;

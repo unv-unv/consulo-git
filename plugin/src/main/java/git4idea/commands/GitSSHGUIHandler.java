@@ -15,42 +15,34 @@
  */
 package git4idea.commands;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import consulo.application.Application;
+import consulo.application.ApplicationManager;
+import consulo.credentialStorage.ui.PasswordSafePromptDialog;
+import consulo.project.Project;
+import consulo.ui.ex.awt.DialogWrapper;
+import consulo.ui.ex.awt.Messages;
+import consulo.ui.ex.awt.UIUtil;
+import git4idea.config.SSHConnectionSettings;
+import git4idea.i18n.GitBundle;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.swing.*;
+import javax.swing.text.JTextComponent;
+import java.awt.*;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-
-import javax.annotation.Nonnull;
-import javax.swing.Action;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
-import javax.swing.text.JTextComponent;
-
-import javax.annotation.Nullable;
-import com.intellij.ide.passwordSafe.ui.PasswordSafePromptDialog;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ModalityState;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.util.ui.UIUtil;
-import git4idea.config.SSHConnectionSettings;
-import git4idea.i18n.GitBundle;
 
 /**
  * Swing GUI handler for the SSH events
  */
 public class GitSSHGUIHandler
 {
-	@Nullable
+	@Nonnull
 	private final Project myProject;
 
-	GitSSHGUIHandler(@Nullable Project project)
+	GitSSHGUIHandler(@Nonnull Project project)
 	{
 		myProject = project;
 	}
@@ -77,7 +69,7 @@ public class GitSSHGUIHandler
 			{
 				rc.set(Messages.YES == Messages.showYesNoDialog(myProject, message, GitBundle.message("ssh.confirm.key.titile"), null));
 			}
-		}, ModalityState.any());
+		}, Application.get().getAnyModalityState());
 		return rc.get();
 	}
 
@@ -85,7 +77,8 @@ public class GitSSHGUIHandler
 	public String askPassphrase(final String username, final String keyPath, boolean resetPassword, final String lastError)
 	{
 		String error = processLastError(resetPassword, lastError);
-		return PasswordSafePromptDialog.askPassphrase(myProject, GitBundle.message("ssh.ask.passphrase.title"), 
+		PasswordSafePromptDialog passwordSafePromptDialog = myProject.getInstance(PasswordSafePromptDialog.class);
+		return passwordSafePromptDialog.askPassphrase(GitBundle.message("ssh.ask.passphrase.title"),
 				GitBundle.message("ssh.askPassphrase.message", keyPath, username), GitSSHGUIHandler.class, "PASSPHRASE:" + keyPath, resetPassword, 
 				error);
 	}
@@ -109,7 +102,7 @@ public class GitSSHGUIHandler
 				{
 					showError(lastError);
 				}
-			}, ModalityState.any());
+			}, Application.get().getAnyModalityState());
 			error = null;
 		}
 		else
@@ -163,7 +156,7 @@ public class GitSSHGUIHandler
 					rc.set(dialog.getResults());
 				}
 			}
-		}, ModalityState.any());
+		}, Application.get().getAnyModalityState());
 		return rc.get();
 	}
 
@@ -178,7 +171,8 @@ public class GitSSHGUIHandler
 	public String askPassword(final String username, boolean resetPassword, final String lastError)
 	{
 		String error = processLastError(resetPassword, lastError);
-		return PasswordSafePromptDialog.askPassword(myProject, GitBundle.message("ssh.password.title"), GitBundle.message("ssh.password.message", 
+		PasswordSafePromptDialog passwordSafePromptDialog = myProject.getInstance(PasswordSafePromptDialog.class);
+		return passwordSafePromptDialog.askPassword(GitBundle.message("ssh.password.title"), GitBundle.message("ssh.password.message",
 				username), GitSSHGUIHandler.class, "PASSWORD:" + username, resetPassword, error);
 	}
 

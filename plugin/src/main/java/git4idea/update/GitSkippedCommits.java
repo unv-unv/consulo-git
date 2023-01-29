@@ -15,245 +15,197 @@
  */
 package git4idea.update;
 
-import java.awt.Component;
-import java.awt.Font;
+import consulo.ide.impl.idea.openapi.ui.PanelWithActionsAndCloseButton;
+import consulo.ide.impl.idea.openapi.vcs.annotate.ShowAllAffectedGenericAction;
+import consulo.language.editor.CommonDataKeys;
+import consulo.project.Project;
+import consulo.project.ui.wm.ToolWindowId;
+import consulo.project.ui.wm.ToolWindowManager;
+import consulo.ui.ex.JBColor;
+import consulo.ui.ex.action.CommonShortcuts;
+import consulo.ui.ex.action.CustomShortcutSet;
+import consulo.ui.ex.action.DefaultActionGroup;
+import consulo.ui.ex.awt.JBScrollPane;
+import consulo.ui.ex.awt.UIUtil;
+import consulo.ui.ex.awt.tree.Tree;
+import consulo.ui.ex.awt.tree.TreeUtil;
+import consulo.ui.ex.content.Content;
+import consulo.ui.ex.content.ContentFactory;
+import consulo.ui.ex.content.ContentManager;
+import consulo.ui.ex.content.ContentsUtil;
+import consulo.util.dataholder.Key;
+import consulo.versionControlSystem.ProjectLevelVcsManager;
+import consulo.versionControlSystem.VcsDataKeys;
+import consulo.versionControlSystem.util.VcsUtil;
+import consulo.virtualFileSystem.VirtualFile;
+import git4idea.GitFileRevision;
+import git4idea.rebase.GitRebaseUtils;
+
+import javax.annotation.Nonnull;
+import javax.swing.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreePath;
+import java.awt.*;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 
-import javax.annotation.Nonnull;
-import javax.swing.JComponent;
-import javax.swing.JTree;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeCellRenderer;
-import javax.swing.tree.TreePath;
-
-import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.actionSystem.CommonShortcuts;
-import com.intellij.openapi.actionSystem.CustomShortcutSet;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.PanelWithActionsAndCloseButton;
-import consulo.util.dataholder.Key;
-import com.intellij.openapi.vcs.VcsDataKeys;
-import com.intellij.openapi.vcs.annotate.ShowAllAffectedGenericAction;
-import com.intellij.openapi.vcs.ex.ProjectLevelVcsManagerEx;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.wm.ToolWindowId;
-import com.intellij.openapi.wm.ToolWindowManager;
-import com.intellij.ui.JBColor;
-import com.intellij.ui.components.JBScrollPane;
-import com.intellij.ui.content.Content;
-import com.intellij.ui.content.ContentFactory;
-import com.intellij.ui.content.ContentManager;
-import com.intellij.ui.treeStructure.Tree;
-import com.intellij.util.ContentsUtil;
-import com.intellij.util.ui.UIUtil;
-import com.intellij.util.ui.tree.TreeUtil;
-import com.intellij.vcsUtil.VcsUtil;
-import git4idea.GitFileRevision;
-import git4idea.rebase.GitRebaseUtils;
-
 /**
  * The panel that displays list of skipped commits during update
  */
-public class GitSkippedCommits extends PanelWithActionsAndCloseButton
-{
-	/**
-	 * The current project
-	 */
-	private final Project myProject;
-	/**
-	 * Tree control
-	 */
-	private final Tree myTree;
-	/**
-	 * Get center component
-	 */
-	private JBScrollPane myCenterComponent;
+public class GitSkippedCommits extends PanelWithActionsAndCloseButton {
+  /**
+   * The current project
+   */
+  private final Project myProject;
+  /**
+   * Tree control
+   */
+  private final Tree myTree;
+  /**
+   * Get center component
+   */
+  private JBScrollPane myCenterComponent;
 
-	/**
-	 * The constructor
-	 *
-	 * @param contentManager content manager
-	 * @param project        the context project
-	 * @param skippedCommits the map with skipped commits
-	 */
-	public GitSkippedCommits(@Nonnull ContentManager contentManager, Project project, SortedMap<VirtualFile, List<GitRebaseUtils.CommitInfo>> skippedCommits)
-	{
-		super(contentManager, null);
-		myProject = project;
-		DefaultMutableTreeNode treeRoot = new DefaultMutableTreeNode("ROOT", true);
-		for(Map.Entry<VirtualFile, List<GitRebaseUtils.CommitInfo>> e : skippedCommits.entrySet())
-		{
-			DefaultMutableTreeNode vcsRoot = new DefaultMutableTreeNode(new VcsRoot(e.getKey()));
-			int missed = 0;
-			for(GitRebaseUtils.CommitInfo c : e.getValue())
-			{
-				if(c != null)
-				{
-					vcsRoot.add(new DefaultMutableTreeNode(new Commit(e.getKey(), c)));
-				}
-				else
-				{
-					missed++;
-				}
-			}
-			treeRoot.add(vcsRoot);
-			if(missed > 0)
-			{
-				vcsRoot.add(new DefaultMutableTreeNode("The " + missed + " commit(s) were not parsed due to unsupported rebase directory format"));
-			}
-		}
-		myTree = new Tree(treeRoot);
-		myTree.setCellRenderer(createTreeCellRenderer());
-		myTree.setRootVisible(false);
-		myCenterComponent = new JBScrollPane(myTree);
-		init();
-		TreeUtil.expandAll(myTree);
-	}
+  /**
+   * The constructor
+   *
+   * @param contentManager content manager
+   * @param project        the context project
+   * @param skippedCommits the map with skipped commits
+   */
+  public GitSkippedCommits(@Nonnull ContentManager contentManager,
+                           Project project,
+                           SortedMap<VirtualFile, List<GitRebaseUtils.CommitInfo>> skippedCommits) {
+    super(contentManager, null);
+    myProject = project;
+    DefaultMutableTreeNode treeRoot = new DefaultMutableTreeNode("ROOT", true);
+    for (Map.Entry<VirtualFile, List<GitRebaseUtils.CommitInfo>> e : skippedCommits.entrySet()) {
+      DefaultMutableTreeNode vcsRoot = new DefaultMutableTreeNode(new VcsRoot(e.getKey()));
+      int missed = 0;
+      for (GitRebaseUtils.CommitInfo c : e.getValue()) {
+        if (c != null) {
+          vcsRoot.add(new DefaultMutableTreeNode(new Commit(e.getKey(), c)));
+        }
+        else {
+          missed++;
+        }
+      }
+      treeRoot.add(vcsRoot);
+      if (missed > 0) {
+        vcsRoot.add(new DefaultMutableTreeNode("The " + missed + " commit(s) were not parsed due to unsupported rebase directory format"));
+      }
+    }
+    myTree = new Tree(treeRoot);
+    myTree.setCellRenderer(createTreeCellRenderer());
+    myTree.setRootVisible(false);
+    myCenterComponent = new JBScrollPane(myTree);
+    init();
+    TreeUtil.expandAll(myTree);
+  }
 
-	/**
-	 * @return new cell renderer
-	 */
-	private DefaultTreeCellRenderer createTreeCellRenderer()
-	{
-		return new DefaultTreeCellRenderer()
-		{
-			@Override
-			public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus)
-			{
-				Component r = super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
-				Object o = value instanceof DefaultMutableTreeNode ? ((DefaultMutableTreeNode) value).getUserObject() : null;
-				if(o instanceof VcsRoot)
-				{
-					r.setFont(tree.getFont().deriveFont(Font.BOLD));
-					r.setForeground(sel ? textSelectionColor : textNonSelectionColor);
-				}
-				else if(o instanceof String)
-				{
-					r.setForeground(sel ? textSelectionColor : JBColor.RED);
-					r.setFont(tree.getFont());
-				}
-				else
-				{
-					r.setForeground(sel ? textSelectionColor : textNonSelectionColor);
-					r.setFont(tree.getFont());
-				}
-				return r;
-			}
-		};
-	}
+  /**
+   * @return new cell renderer
+   */
+  private DefaultTreeCellRenderer createTreeCellRenderer() {
+    return new DefaultTreeCellRenderer() {
+      @Override
+      public Component getTreeCellRendererComponent(JTree tree,
+                                                    Object value,
+                                                    boolean sel,
+                                                    boolean expanded,
+                                                    boolean leaf,
+                                                    int row,
+                                                    boolean hasFocus) {
+        Component r = super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+        Object o = value instanceof DefaultMutableTreeNode ? ((DefaultMutableTreeNode)value).getUserObject() : null;
+        if (o instanceof VcsRoot) {
+          r.setFont(tree.getFont().deriveFont(Font.BOLD));
+          r.setForeground(sel ? textSelectionColor : textNonSelectionColor);
+        }
+        else if (o instanceof String) {
+          r.setForeground(sel ? textSelectionColor : JBColor.RED);
+          r.setFont(tree.getFont());
+        }
+        else {
+          r.setForeground(sel ? textSelectionColor : textNonSelectionColor);
+          r.setFont(tree.getFont());
+        }
+        return r;
+      }
+    };
+  }
 
-	@Override
-	protected JComponent createCenterPanel()
-	{
-		return myCenterComponent;
-	}
+  @Override
+  protected JComponent createCenterPanel() {
+    return myCenterComponent;
+  }
 
-	@Override
-	protected void addActionsTo(DefaultActionGroup group)
-	{
-		super.addActionsTo(group);
-		ShowAllAffectedGenericAction showCommit = ShowAllAffectedGenericAction.getInstance();
-		showCommit.registerCustomShortcutSet(new CustomShortcutSet(CommonShortcuts.DOUBLE_CLICK_1.getShortcuts()[0]), myTree);
-		group.addAction(showCommit);
+  @Override
+  protected void addActionsTo(DefaultActionGroup group) {
+    super.addActionsTo(group);
+    ShowAllAffectedGenericAction showCommit = ShowAllAffectedGenericAction.getInstance();
+    showCommit.registerCustomShortcutSet(new CustomShortcutSet(CommonShortcuts.DOUBLE_CLICK_1.getShortcuts()[0]), myTree);
+    group.addAction(showCommit);
 
-	}
+  }
 
-	@Override
-	public Object getData(@Nonnull Key<?> dataId)
-	{
-		if(CommonDataKeys.PROJECT == dataId)
-		{
-			return myProject;
-		}
-		TreePath selectionPath = myTree.getSelectionPath();
-		DefaultMutableTreeNode node = selectionPath == null ? null : (DefaultMutableTreeNode) selectionPath.getLastPathComponent();
-		Object o = node == null ? null : node.getUserObject();
-		if(o instanceof Commit)
-		{
-			Commit c = (Commit) o;
-			if(VcsDataKeys.VCS_VIRTUAL_FILE == dataId)
-			{
-				return c.root;
-			}
-			if(VcsDataKeys.VCS_FILE_REVISION == dataId)
-			{
-				return new GitFileRevision(myProject, VcsUtil.getFilePath(c.root.getPath()), c.commitInfo.revision);
-			}
-		}
-		return super.getData(dataId);
-	}
+  @Override
+  public Object getData(@Nonnull Key<?> dataId) {
+    if (CommonDataKeys.PROJECT == dataId) {
+      return myProject;
+    }
+    TreePath selectionPath = myTree.getSelectionPath();
+    DefaultMutableTreeNode node = selectionPath == null ? null : (DefaultMutableTreeNode)selectionPath.getLastPathComponent();
+    Object o = node == null ? null : node.getUserObject();
+    if (o instanceof Commit) {
+      Commit c = (Commit)o;
+      if (VcsDataKeys.VCS_VIRTUAL_FILE == dataId) {
+        return c.root;
+      }
+      if (VcsDataKeys.VCS_FILE_REVISION == dataId) {
+        return new GitFileRevision(myProject, VcsUtil.getFilePath(c.root.getPath()), c.commitInfo.revision);
+      }
+    }
+    return super.getData(dataId);
+  }
 
-	/**
-	 * Show skipped commits
-	 *
-	 * @param project        the context project
-	 * @param skippedCommits the skipped commits
-	 */
-	public static void showSkipped(final Project project, final SortedMap<VirtualFile, List<GitRebaseUtils.CommitInfo>> skippedCommits)
-	{
-		UIUtil.invokeLaterIfNeeded(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				ContentManager contentManager = ProjectLevelVcsManagerEx.getInstanceEx(project).getContentManager();
-				if(contentManager == null)
-				{
-					return;
-				}
-				GitSkippedCommits skipped = new GitSkippedCommits(contentManager, project, skippedCommits);
-				Content content = ContentFactory.SERVICE.getInstance().createContent(skipped, "Skipped Commits", true);
-				ContentsUtil.addContent(contentManager, content, true);
-				ToolWindowManager.getInstance(project).getToolWindow(ToolWindowId.VCS).activate(null);
-			}
-		});
-	}
+  @Override
+  public void dispose() {
+  }
 
-	@Override
-	public void dispose()
-	{
-	}
+  /**
+   * Wrapper for vcs root
+   */
+  private static class VcsRoot {
+    final VirtualFile root;
 
-	/**
-	 * Wrapper for vcs root
-	 */
-	private static class VcsRoot
-	{
-		final VirtualFile root;
+    public VcsRoot(VirtualFile root) {
+      this.root = root;
+    }
 
-		public VcsRoot(VirtualFile root)
-		{
-			this.root = root;
-		}
+    @Override
+    public String toString() {
+      return root.getPath();
+    }
+  }
 
-		@Override
-		public String toString()
-		{
-			return root.getPath();
-		}
-	}
+  /**
+   * Wrapper for commit
+   */
+  private static class Commit {
+    final VirtualFile root;
+    final GitRebaseUtils.CommitInfo commitInfo;
 
-	/**
-	 * Wrapper for commit
-	 */
-	private static class Commit
-	{
-		final VirtualFile root;
-		final GitRebaseUtils.CommitInfo commitInfo;
+    public Commit(VirtualFile root, GitRebaseUtils.CommitInfo commitInfo) {
+      this.root = root;
+      this.commitInfo = commitInfo;
+    }
 
-		public Commit(VirtualFile root, GitRebaseUtils.CommitInfo commitInfo)
-		{
-			this.root = root;
-			this.commitInfo = commitInfo;
-		}
-
-		@Override
-		public String toString()
-		{
-			return commitInfo.revision.asString().substring(0, 8) + ": " + commitInfo.subject;
-		}
-	}
+    @Override
+    public String toString() {
+      return commitInfo.revision.asString().substring(0, 8) + ": " + commitInfo.subject;
+    }
+  }
 }

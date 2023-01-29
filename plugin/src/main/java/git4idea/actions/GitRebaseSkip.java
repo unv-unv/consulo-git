@@ -16,8 +16,9 @@
 package git4idea.actions;
 
 import javax.annotation.Nonnull;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.project.Project;
+
+import consulo.application.progress.ProgressIndicator;
+import consulo.project.Project;
 import git4idea.rebase.GitRebaseUtils;
 import git4idea.repo.GitRepository;
 

@@ -1,6 +1,6 @@
 package git4idea.push;
 
-import com.intellij.dvcs.push.VcsPushOptionValue;
+import consulo.versionControlSystem.distributed.push.VcsPushOptionValue;
 
 /**
  * from kotlin

@@ -15,29 +15,13 @@
  */
 package git4idea.merge;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
-import javax.annotation.Nonnull;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-
-import javax.annotation.Nullable;
-import com.intellij.ide.util.ElementsChooser;
 import consulo.logging.Logger;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.ui.ListCellRendererWrapper;
+import consulo.project.Project;
+import consulo.ui.ex.awt.DialogWrapper;
+import consulo.ui.ex.awt.ElementsChooser;
+import consulo.ui.ex.awt.ListCellRendererWrapper;
+import consulo.util.lang.StringUtil;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitBranch;
 import git4idea.GitRemoteBranch;
 import git4idea.GitUtil;
@@ -49,6 +33,16 @@ import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import git4idea.util.GitUIUtil;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Git pull dialog
@@ -130,11 +124,12 @@ public class GitPullDialog extends DialogWrapper {
         updateBranches();
       }
     });
-    final ElementsChooser.ElementsMarkListener<String> listener = new ElementsChooser.ElementsMarkListener<String>() {
-      public void elementMarkChanged(final String element, final boolean isMarked) {
-        validateDialog();
-      }
-    };
+    final ElementsChooser.ElementsMarkListener<String> listener =
+      new ElementsChooser.ElementsMarkListener<String>() {
+        public void elementMarkChanged(final String element, final boolean isMarked) {
+          validateDialog();
+        }
+      };
     myBranchChooser.addElementsMarkListener(listener);
     listener.elementMarkChanged(null, true);
     GitUIUtil.imply(mySquashCommitCheckBox, true, myNoCommitCheckBox, true);
@@ -307,7 +302,6 @@ public class GitPullDialog extends DialogWrapper {
   /**
    * Create list cell renderer for remotes. It shows both name and url and highlights the default
    * remote for the branch with bold.
-   *
    *
    * @param defaultRemote a default remote
    * @return a list cell renderer for virtual files (it renders presentable URL

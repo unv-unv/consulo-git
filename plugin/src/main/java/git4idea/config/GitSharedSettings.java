@@ -15,59 +15,55 @@
  */
 package git4idea.config;
 
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.component.persist.PersistentStateComponent;
+import consulo.component.persist.State;
+import consulo.component.persist.Storage;
+import consulo.component.persist.StoragePathMacros;
+import consulo.util.collection.ContainerUtil;
+import jakarta.inject.Singleton;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import jakarta.inject.Singleton;
-
-import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.State;
-import com.intellij.openapi.components.Storage;
-import com.intellij.openapi.components.StoragePathMacros;
-import com.intellij.util.containers.ContainerUtil;
-
 @Singleton
 @State(name = "GitSharedSettings", storages = @Storage(file = StoragePathMacros.PROJECT_CONFIG_DIR + "/vcs.xml"))
-public class GitSharedSettings implements PersistentStateComponent<GitSharedSettings.State>
-{
+@ServiceAPI(ComponentScope.PROJECT)
+@ServiceImpl
+public class GitSharedSettings implements PersistentStateComponent<GitSharedSettings.State> {
+  public static class State {
+    public List<String> FORCE_PUSH_PROHIBITED_PATTERNS = ContainerUtil.newArrayList("master");
+  }
 
-	public static class State
-	{
-		public List<String> FORCE_PUSH_PROHIBITED_PATTERNS = ContainerUtil.newArrayList("master");
-	}
+  private State myState = new State();
 
-	private State myState = new State();
+  @Nullable
+  @Override
+  public State getState() {
+    return myState;
+  }
 
-	@Nullable
-	@Override
-	public State getState()
-	{
-		return myState;
-	}
+  @Override
+  public void loadState(State state) {
+    myState = state;
+  }
 
-	@Override
-	public void loadState(State state)
-	{
-		myState = state;
-	}
+  @Nonnull
+  public List<String> getForcePushProhibitedPatterns() {
+    return Collections.unmodifiableList(myState.FORCE_PUSH_PROHIBITED_PATTERNS);
+  }
 
-	@Nonnull
-	public List<String> getForcePushProhibitedPatterns()
-	{
-		return Collections.unmodifiableList(myState.FORCE_PUSH_PROHIBITED_PATTERNS);
-	}
+  public void setForcePushProhibitedPatters(@Nonnull List<String> patterns) {
+    myState.FORCE_PUSH_PROHIBITED_PATTERNS = new ArrayList<String>(patterns);
+  }
 
-	public void setForcePushProhibitedPatters(@Nonnull List<String> patterns)
-	{
-		myState.FORCE_PUSH_PROHIBITED_PATTERNS = new ArrayList<String>(patterns);
-	}
-
-	public boolean isBranchProtected(@Nonnull String branch)
-	{
-		// let "master" match only "master" and not "any-master-here" by default
-		return getForcePushProhibitedPatterns().stream().anyMatch(pattern -> branch.matches("^" + pattern + "$"));
-	}
+  public boolean isBranchProtected(@Nonnull String branch) {
+    // let "master" match only "master" and not "any-master-here" by default
+    return getForcePushProhibitedPatterns().stream().anyMatch(pattern -> branch.matches("^" + pattern + "$"));
+  }
 }

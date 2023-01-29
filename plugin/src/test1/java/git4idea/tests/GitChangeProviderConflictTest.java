@@ -15,8 +15,8 @@
  */
 package git4idea.tests;
 
-import com.intellij.openapi.vcs.FileStatus;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.status.FileStatus;
 import org.testng.annotations.Test;
 
 /**

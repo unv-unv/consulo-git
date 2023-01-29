@@ -15,16 +15,16 @@
  */
 package git4idea.commands;
 
-import java.io.File;
+import consulo.process.ProcessOutputTypes;
+import consulo.project.Project;
+import consulo.util.dataholder.Key;
+import consulo.util.lang.StringUtil;
+import consulo.versionControlSystem.VcsException;
+import consulo.virtualFileSystem.VirtualFile;
+import git4idea.i18n.GitBundle;
 
 import javax.annotation.Nonnull;
-import com.intellij.execution.process.ProcessOutputTypes;
-import com.intellij.openapi.project.Project;
-import consulo.util.dataholder.Key;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vfs.VirtualFile;
-import git4idea.i18n.GitBundle;
+import java.io.File;
 
 /**
  * Simple Git handler that accumulates stdout and stderr and has nothing on stdin.

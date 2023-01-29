@@ -2,23 +2,23 @@ package git4idea;
 
 import com.intellij.dvcs.test.MockVcsHelper;
 import com.intellij.idea.IdeaTestApplication;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ProjectComponent;
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.AbstractVcs;
-import com.intellij.openapi.vcs.AbstractVcsHelper;
-import com.intellij.openapi.vcs.ProjectLevelVcsManager;
-import com.intellij.openapi.vcs.changes.ChangeListManager;
-import com.intellij.openapi.vcs.changes.ChangeListManagerImpl;
-import com.intellij.openapi.vcs.changes.VcsDirtyScopeManager;
-import com.intellij.openapi.vcs.impl.ProjectLevelVcsManagerImpl;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.ide.ServiceManager;
+import consulo.ide.impl.idea.openapi.vcs.changes.ChangeListManagerImpl;
+import consulo.ide.impl.idea.openapi.vcs.impl.ProjectLevelVcsManagerImpl;
+import consulo.util.lang.function.ThrowableRunnable;
+import consulo.virtualFileSystem.LocalFileSystem;
 import com.intellij.testFramework.fixtures.IdeaProjectTestFixture;
 import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory;
-import com.intellij.util.ThrowableRunnable;
-import com.intellij.util.ui.UIUtil;
+import consulo.ui.ex.awt.UIUtil;
+import consulo.application.ApplicationManager;
+import consulo.project.Project;
+import consulo.versionControlSystem.AbstractVcs;
+import consulo.versionControlSystem.AbstractVcsHelper;
+import consulo.versionControlSystem.ProjectLevelVcsManager;
+import consulo.versionControlSystem.change.ChangeListManager;
+import consulo.versionControlSystem.change.VcsDirtyScopeManager;
+import consulo.virtualFileSystem.VirtualFile;
 import cucumber.annotation.After;
 import cucumber.annotation.Before;
 import cucumber.annotation.Order;
@@ -140,7 +140,7 @@ public class GitCucumberWorld {
   @Nonnull
   private static GitRepository createRepo(String root) {
     GitTestInitUtil.initRepo(root);
-    ProjectLevelVcsManagerImpl vcsManager = (ProjectLevelVcsManagerImpl)ProjectLevelVcsManager.getInstance(myProject);
+    ProjectLevelVcsManagerImpl vcsManager = (ProjectLevelVcsManagerImpl) ProjectLevelVcsManager.getInstance(myProject);
     vcsManager.setDirectoryMapping(root, GitVcs.NAME);
     VirtualFile file = LocalFileSystem.getInstance().findFileByIoFile(new File(root));
     GitRepository repository = myPlatformFacade.getRepositoryManager(myProject).getRepositoryForRoot(file);
@@ -154,7 +154,7 @@ public class GitCucumberWorld {
     ((BuiltInServerManagerImpl)BuiltInServerManager.getInstance()).setEnabledInUnitTestMode(true);
     // default port will be occupied by main idea instance => define the custom default to avoid searching of free port
     System.setProperty(BuiltInServerManagerImpl.PROPERTY_RPC_PORT, "64463");
-    myHttpAuthService = (GitHttpAuthTestService)ServiceManager.getService(GitHttpAuthService.class);
+    myHttpAuthService = (GitHttpAuthTestService) ServiceManager.getService(GitHttpAuthService.class);
   }
 
   @Before("@nestedroot")

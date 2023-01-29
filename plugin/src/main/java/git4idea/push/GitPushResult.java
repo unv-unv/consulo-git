@@ -15,60 +15,54 @@
  */
 package git4idea.push;
 
-import java.util.Map;
+import consulo.localHistory.Label;
+import consulo.versionControlSystem.update.UpdatedFiles;
+import git4idea.repo.GitRepository;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import com.intellij.history.Label;
-import com.intellij.openapi.vcs.update.UpdatedFiles;
-import git4idea.repo.GitRepository;
+import java.util.Map;
 
 /**
  * Combined push result for all affected repositories in the project.
  */
-class GitPushResult
-{
-	@Nonnull
-	private final Map<GitRepository, GitPushRepoResult> myResults;
-	@Nonnull
-	private final UpdatedFiles myUpdatedFiles;
-	@Nullable
-	private final Label myBeforeUpdateLabel;
-	@Nullable
-	private final Label myAfterUpdateLabel;
+class GitPushResult {
+  @Nonnull
+  private final Map<GitRepository, GitPushRepoResult> myResults;
+  @Nonnull
+  private final UpdatedFiles myUpdatedFiles;
+  @Nullable
+  private final Label myBeforeUpdateLabel;
+  @Nullable
+  private final Label myAfterUpdateLabel;
 
-	GitPushResult(@Nonnull Map<GitRepository, GitPushRepoResult> results,
-			@Nonnull UpdatedFiles files,
-			@Nullable Label beforeUpdateLabel,
-			@Nullable Label afterUpdateLabel)
-	{
-		myResults = results;
-		myUpdatedFiles = files;
-		myBeforeUpdateLabel = beforeUpdateLabel;
-		myAfterUpdateLabel = afterUpdateLabel;
-	}
+  GitPushResult(@Nonnull Map<GitRepository, GitPushRepoResult> results,
+                @Nonnull UpdatedFiles files,
+                @Nullable Label beforeUpdateLabel,
+                @Nullable Label afterUpdateLabel) {
+    myResults = results;
+    myUpdatedFiles = files;
+    myBeforeUpdateLabel = beforeUpdateLabel;
+    myAfterUpdateLabel = afterUpdateLabel;
+  }
 
-	@Nonnull
-	public Map<GitRepository, GitPushRepoResult> getResults()
-	{
-		return myResults;
-	}
+  @Nonnull
+  public Map<GitRepository, GitPushRepoResult> getResults() {
+    return myResults;
+  }
 
-	@Nonnull
-	public UpdatedFiles getUpdatedFiles()
-	{
-		return myUpdatedFiles;
-	}
+  @Nonnull
+  public UpdatedFiles getUpdatedFiles() {
+    return myUpdatedFiles;
+  }
 
-	@Nullable
-	public Label getBeforeUpdateLabel()
-	{
-		return myBeforeUpdateLabel;
-	}
+  @Nullable
+  public Label getBeforeUpdateLabel() {
+    return myBeforeUpdateLabel;
+  }
 
-	@Nullable
-	public Label getAfterUpdateLabel()
-	{
-		return myAfterUpdateLabel;
-	}
+  @Nullable
+  public Label getAfterUpdateLabel() {
+    return myAfterUpdateLabel;
+  }
 }

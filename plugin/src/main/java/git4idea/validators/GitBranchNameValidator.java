@@ -15,7 +15,7 @@
  */
 package git4idea.validators;
 
-import com.intellij.openapi.ui.InputValidator;
+import consulo.ui.ex.InputValidator;
 
 import java.util.regex.Pattern;
 

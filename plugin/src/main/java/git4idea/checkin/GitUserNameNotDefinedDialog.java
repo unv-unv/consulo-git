@@ -15,18 +15,17 @@
  */
 package git4idea.checkin;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.ui.ValidationInfo;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.ui.components.JBCheckBox;
-import com.intellij.ui.components.JBLabel;
-import com.intellij.util.SystemProperties;
-import com.intellij.util.ui.GridBag;
-import com.intellij.util.ui.UIUtil;
-import com.intellij.xml.util.XmlStringUtil;
+import consulo.ui.ex.awt.*;
+import consulo.util.lang.Pair;
+import consulo.util.lang.StringUtil;
+import consulo.util.lang.SystemProperties;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.ui.ex.awt.JBLabel;
+import consulo.util.lang.xml.XmlStringUtil;
+import consulo.project.Project;
+import consulo.ui.ex.awt.DialogWrapper;
+import consulo.ui.ex.awt.ValidationInfo;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -36,9 +35,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
-import static com.intellij.openapi.util.text.StringUtil.isEmptyOrSpaces;
-import static com.intellij.util.ui.UIUtil.DEFAULT_HGAP;
-import static com.intellij.util.ui.UIUtil.DEFAULT_VGAP;
+import static consulo.util.lang.StringUtil.isEmptyOrSpaces;
+import static consulo.ui.ex.awt.UIUtil.DEFAULT_HGAP;
+import static consulo.ui.ex.awt.UIUtil.DEFAULT_VGAP;
 
 /**
  * @author Kirill Likhodedov
@@ -94,7 +93,7 @@ class GitUserNameNotDefinedDialog extends DialogWrapper {
     if (rootsWithDefinedProps.isEmpty()) {
       return null;
     }
-    Iterator<Map.Entry<VirtualFile,Pair<String,String>>> iterator = rootsWithDefinedProps.entrySet().iterator();
+    Iterator<Map.Entry<VirtualFile, Pair<String,String>>> iterator = rootsWithDefinedProps.entrySet().iterator();
     Pair<String, String> firstValue = iterator.next().getValue();
     while (iterator.hasNext()) {
       // nothing to propose if there are different values set in different repositories

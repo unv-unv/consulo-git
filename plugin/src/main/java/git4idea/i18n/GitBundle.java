@@ -28,8 +28,8 @@ package git4idea.i18n;
  */
 
 import consulo.annotation.DeprecationInfo;
+import consulo.component.util.localize.AbstractBundle;
 import org.jetbrains.annotations.PropertyKey;
-import com.intellij.AbstractBundle;
 
 /**
  * Git4Idea package I18N localization bundle helper

@@ -15,15 +15,15 @@
  */
 package git4idea.changes;
 
-import java.util.Collection;
-import java.util.Date;
-
-import javax.annotation.Nonnull;
-import com.intellij.openapi.vcs.AbstractVcs;
-import com.intellij.openapi.vcs.changes.Change;
-import com.intellij.vcs.CommittedChangeListForRevision;
+import consulo.versionControlSystem.AbstractVcs;
+import consulo.versionControlSystem.change.Change;
+import consulo.versionControlSystem.versionBrowser.CommittedChangeListForRevision;
 import git4idea.GitRevisionNumber;
 import git4idea.GitVcs;
+
+import javax.annotation.Nonnull;
+import java.util.Collection;
+import java.util.Date;
 
 public class GitCommittedChangeList extends CommittedChangeListForRevision
 {

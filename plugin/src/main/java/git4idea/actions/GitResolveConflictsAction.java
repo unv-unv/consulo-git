@@ -15,15 +15,15 @@
  */
 package git4idea.actions;
 
-import com.intellij.openapi.actionSystem.ActionPlaces;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.AbstractVcsHelper;
-import com.intellij.openapi.vcs.FileStatus;
-import com.intellij.openapi.vcs.changes.Change;
-import com.intellij.openapi.vcs.changes.ChangeListManager;
-import com.intellij.openapi.vcs.changes.ContentRevision;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.project.Project;
+import consulo.ui.ex.action.ActionPlaces;
+import consulo.ui.ex.action.AnActionEvent;
+import consulo.versionControlSystem.AbstractVcsHelper;
+import consulo.versionControlSystem.change.Change;
+import consulo.versionControlSystem.change.ChangeListManager;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.versionControlSystem.change.ContentRevision;
+import consulo.virtualFileSystem.status.FileStatus;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
 import git4idea.repo.GitRepository;
@@ -38,7 +38,7 @@ public class GitResolveConflictsAction extends GitAction {
 
   @Override
   public void actionPerformed(@Nonnull AnActionEvent event) {
-    final Project project = event.getProject();
+    final Project project = event.getData(Project.KEY);
     if (project == null) {
       return;
     }
@@ -77,7 +77,7 @@ public class GitResolveConflictsAction extends GitAction {
 
   @Override
   protected boolean isEnabled(@Nonnull AnActionEvent event) {
-    final Collection<Change> changes = ChangeListManager.getInstance(event.getProject()).getAllChanges();
+    final Collection<Change> changes = ChangeListManager.getInstance(event.getData(Project.KEY)).getAllChanges();
     if (changes.size() > 1000) {
       return true;
     }

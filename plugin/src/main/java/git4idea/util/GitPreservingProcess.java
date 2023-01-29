@@ -15,29 +15,27 @@
  */
 package git4idea.util;
 
-import static com.intellij.openapi.util.text.StringUtil.join;
-
-import java.util.Collection;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import consulo.application.progress.ProgressIndicator;
+import consulo.application.util.DateFormatUtil;
+import consulo.application.util.function.Computable;
 import consulo.logging.Logger;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Clock;
-import com.intellij.openapi.util.Computable;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.VcsNotifier;
-import com.intellij.openapi.vcs.history.VcsRevisionNumber;
-import com.intellij.openapi.vcs.merge.MergeDialogCustomizer;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.text.DateFormatUtil;
+import consulo.project.Project;
+import consulo.util.lang.Clock;
+import consulo.util.lang.StringUtil;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.VcsNotifier;
+import consulo.versionControlSystem.history.VcsRevisionNumber;
+import consulo.versionControlSystem.merge.MergeDialogCustomizer;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.commands.Git;
 import git4idea.config.GitVcsSettings;
 import git4idea.merge.GitConflictResolver;
 import git4idea.stash.GitChangesSaver;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Collection;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Executes a Git operation on a number of repositories surrounding it by stash-unstash procedure.
@@ -45,7 +43,6 @@ import git4idea.stash.GitChangesSaver;
  */
 public class GitPreservingProcess
 {
-
 	private static final Logger LOG = Logger.getInstance(GitPreservingProcess.class);
 
 	@Nonnull
@@ -184,7 +181,7 @@ public class GitPreservingProcess
 		{
 			LOG.info("Couldn't save local changes", e);
 			VcsNotifier.getInstance(myProject).notifyError("Couldn't save uncommitted changes.", String.format("Tried to save uncommitted changes in stash before %s, " +
-					"but failed with an error.<br/>%s", myOperationTitle, join(e.getMessages())));
+					"but failed with an error.<br/>%s", myOperationTitle, StringUtil.join(e.getMessages(), "")));
 			return false;
 		}
 	}

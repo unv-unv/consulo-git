@@ -15,230 +15,202 @@
  */
 package git4idea.branch;
 
-import java.util.List;
-
-import javax.annotation.Nonnull;
-import jakarta.inject.Singleton;
-
-import javax.annotation.Nullable;
-import com.intellij.openapi.application.Application;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.project.Project;
+import consulo.annotation.component.ServiceImpl;
+import consulo.application.Application;
+import consulo.application.ApplicationManager;
+import consulo.application.progress.ProgressIndicator;
+import consulo.application.progress.Task;
+import consulo.project.Project;
 import git4idea.GitVcs;
 import git4idea.commands.Git;
 import git4idea.repo.GitRepository;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
 
 /**
  * @author Kirill Likhodedov
  */
 @Singleton
-class GitBrancherImpl implements GitBrancher
-{
+@ServiceImpl
+class GitBrancherImpl implements GitBrancher {
+  @Nonnull
+  private final Project myProject;
+  @Nonnull
+  private final Git myGit;
 
+  @Inject
+  GitBrancherImpl(@Nonnull Project project, @Nonnull Git git) {
+    myProject = project;
+    myGit = git;
+  }
 
-	@Nonnull
-	private final Project myProject;
-	@Nonnull
-	private final Git myGit;
+  @Override
+  public void checkoutNewBranch(@Nonnull final String name, @Nonnull final List<GitRepository> repositories) {
+    new CommonBackgroundTask(myProject, "Checking out new branch " + name, null) {
+      @Override
+      public void execute(@Nonnull ProgressIndicator indicator) {
+        newWorker(indicator).checkoutNewBranch(name, repositories);
+      }
+    }.runInBackground();
+  }
 
-	GitBrancherImpl(@Nonnull Project project, @Nonnull Git git)
-	{
-		myProject = project;
-		myGit = git;
-	}
+  private GitBranchWorker newWorker(ProgressIndicator indicator) {
+    return new GitBranchWorker(myProject, myGit, new GitBranchUiHandlerImpl(myProject, myGit, indicator));
+  }
 
-	@Override
-	public void checkoutNewBranch(@Nonnull final String name, @Nonnull final List<GitRepository> repositories)
-	{
-		new CommonBackgroundTask(myProject, "Checking out new branch " + name, null)
-		{
-			@Override
-			public void execute(@Nonnull ProgressIndicator indicator)
-			{
-				newWorker(indicator).checkoutNewBranch(name, repositories);
-			}
-		}.runInBackground();
-	}
+  @Override
+  public void createNewTag(@Nonnull final String name,
+                           @Nonnull final String reference,
+                           @Nonnull final List<GitRepository> repositories,
+                           @Nullable Runnable callInAwtLater) {
+    new CommonBackgroundTask(myProject, "Checking out new branch " + name, callInAwtLater) {
+      @Override
+      public void execute(@Nonnull ProgressIndicator indicator) {
+        newWorker(indicator).createNewTag(name, reference, repositories);
+      }
+    }.runInBackground();
+  }
 
-	private GitBranchWorker newWorker(ProgressIndicator indicator)
-	{
-		return new GitBranchWorker(myProject, myGit, new GitBranchUiHandlerImpl(myProject, myGit, indicator));
-	}
+  @Override
+  public void checkout(@Nonnull final String reference,
+                       final boolean detach,
+                       @Nonnull final List<GitRepository> repositories,
+                       @Nullable Runnable callInAwtLater) {
+    new CommonBackgroundTask(myProject, "Checking out " + reference, callInAwtLater) {
+      @Override
+      public void execute(@Nonnull ProgressIndicator indicator) {
+        newWorker(indicator).checkout(reference, detach, repositories);
+      }
+    }.runInBackground();
+  }
 
-	@Override
-	public void createNewTag(@Nonnull final String name, @Nonnull final String reference, @Nonnull final List<GitRepository> repositories, @Nullable Runnable callInAwtLater)
-	{
-		new CommonBackgroundTask(myProject, "Checking out new branch " + name, callInAwtLater)
-		{
-			@Override
-			public void execute(@Nonnull ProgressIndicator indicator)
-			{
-				newWorker(indicator).createNewTag(name, reference, repositories);
-			}
-		}.runInBackground();
-	}
+  @Override
+  public void checkoutNewBranchStartingFrom(@Nonnull final String newBranchName,
+                                            @Nonnull final String startPoint,
+                                            @Nonnull final List<GitRepository> repositories,
+                                            @Nullable Runnable callInAwtLater) {
+    new CommonBackgroundTask(myProject, String.format("Checking out %s from %s", newBranchName, startPoint), callInAwtLater) {
+      @Override
+      public void execute(@Nonnull ProgressIndicator indicator) {
+        newWorker(indicator).checkoutNewBranchStartingFrom(newBranchName, startPoint, repositories);
+      }
+    }.runInBackground();
+  }
 
-	@Override
-	public void checkout(@Nonnull final String reference, final boolean detach, @Nonnull final List<GitRepository> repositories, @Nullable Runnable callInAwtLater)
-	{
-		new CommonBackgroundTask(myProject, "Checking out " + reference, callInAwtLater)
-		{
-			@Override
-			public void execute(@Nonnull ProgressIndicator indicator)
-			{
-				newWorker(indicator).checkout(reference, detach, repositories);
-			}
-		}.runInBackground();
-	}
+  @Override
+  public void deleteBranch(@Nonnull final String branchName, @Nonnull final List<GitRepository> repositories) {
+    new CommonBackgroundTask(myProject, "Deleting " + branchName, null) {
+      @Override
+      public void execute(@Nonnull ProgressIndicator indicator) {
+        newWorker(indicator).deleteBranch(branchName, repositories);
+      }
+    }.runInBackground();
+  }
 
-	@Override
-	public void checkoutNewBranchStartingFrom(@Nonnull final String newBranchName, @Nonnull final String startPoint, @Nonnull final List<GitRepository> repositories,
-											  @Nullable Runnable callInAwtLater)
-	{
-		new CommonBackgroundTask(myProject, String.format("Checking out %s from %s", newBranchName, startPoint), callInAwtLater)
-		{
-			@Override
-			public void execute(@Nonnull ProgressIndicator indicator)
-			{
-				newWorker(indicator).checkoutNewBranchStartingFrom(newBranchName, startPoint, repositories);
-			}
-		}.runInBackground();
-	}
+  @Override
+  public void deleteRemoteBranch(@Nonnull final String branchName, @Nonnull final List<GitRepository> repositories) {
+    new CommonBackgroundTask(myProject, "Deleting " + branchName, null) {
+      @Override
+      public void execute(@Nonnull ProgressIndicator indicator) {
+        newWorker(indicator).deleteRemoteBranch(branchName, repositories);
+      }
+    }.runInBackground();
+  }
 
-	@Override
-	public void deleteBranch(@Nonnull final String branchName, @Nonnull final List<GitRepository> repositories)
-	{
-		new CommonBackgroundTask(myProject, "Deleting " + branchName, null)
-		{
-			@Override
-			public void execute(@Nonnull ProgressIndicator indicator)
-			{
-				newWorker(indicator).deleteBranch(branchName, repositories);
-			}
-		}.runInBackground();
-	}
+  @Override
+  public void compare(@Nonnull final String branchName,
+                      @Nonnull final List<GitRepository> repositories,
+                      @Nonnull final GitRepository selectedRepository) {
+    new CommonBackgroundTask(myProject, "Comparing with " + branchName, null) {
+      @Override
+      public void execute(@Nonnull ProgressIndicator indicator) {
+        newWorker(indicator).compare(branchName, repositories, selectedRepository);
+      }
+    }.runInBackground();
 
-	@Override
-	public void deleteRemoteBranch(@Nonnull final String branchName, @Nonnull final List<GitRepository> repositories)
-	{
-		new CommonBackgroundTask(myProject, "Deleting " + branchName, null)
-		{
-			@Override
-			public void execute(@Nonnull ProgressIndicator indicator)
-			{
-				newWorker(indicator).deleteRemoteBranch(branchName, repositories);
-			}
-		}.runInBackground();
-	}
+  }
 
-	@Override
-	public void compare(@Nonnull final String branchName, @Nonnull final List<GitRepository> repositories, @Nonnull final GitRepository selectedRepository)
-	{
-		new CommonBackgroundTask(myProject, "Comparing with " + branchName, null)
-		{
-			@Override
-			public void execute(@Nonnull ProgressIndicator indicator)
-			{
-				newWorker(indicator).compare(branchName, repositories, selectedRepository);
-			}
-		}.runInBackground();
+  @Override
+  public void merge(@Nonnull final String branchName,
+                    @Nonnull final DeleteOnMergeOption deleteOnMerge,
+                    @Nonnull final List<GitRepository> repositories) {
+    new CommonBackgroundTask(myProject, "Merging " + branchName, null) {
+      @Override
+      public void execute(@Nonnull ProgressIndicator indicator) {
+        newWorker(indicator).merge(branchName, deleteOnMerge, repositories);
+      }
+    }.runInBackground();
+  }
 
-	}
+  @Override
+  public void rebase(@Nonnull final List<GitRepository> repositories, @Nonnull final String branchName) {
+    new CommonBackgroundTask(myProject, "Rebasing onto " + branchName, null) {
+      @Override
+      void execute(@Nonnull ProgressIndicator indicator) {
+        newWorker(indicator).rebase(repositories, branchName);
+      }
+    }.runInBackground();
+  }
 
-	@Override
-	public void merge(@Nonnull final String branchName, @Nonnull final DeleteOnMergeOption deleteOnMerge, @Nonnull final List<GitRepository> repositories)
-	{
-		new CommonBackgroundTask(myProject, "Merging " + branchName, null)
-		{
-			@Override
-			public void execute(@Nonnull ProgressIndicator indicator)
-			{
-				newWorker(indicator).merge(branchName, deleteOnMerge, repositories);
-			}
-		}.runInBackground();
-	}
+  @Override
+  public void rebaseOnCurrent(@Nonnull final List<GitRepository> repositories, @Nonnull final String branchName) {
+    new CommonBackgroundTask(myProject, "Rebasing " + branchName + "...", null) {
+      @Override
+      void execute(@Nonnull ProgressIndicator indicator) {
+        newWorker(indicator).rebaseOnCurrent(repositories, branchName);
+      }
+    }.runInBackground();
+  }
 
-	@Override
-	public void rebase(@Nonnull final List<GitRepository> repositories, @Nonnull final String branchName)
-	{
-		new CommonBackgroundTask(myProject, "Rebasing onto " + branchName, null)
-		{
-			@Override
-			void execute(@Nonnull ProgressIndicator indicator)
-			{
-				newWorker(indicator).rebase(repositories, branchName);
-			}
-		}.runInBackground();
-	}
+  @Override
+  public void renameBranch(@Nonnull final String currentName,
+                           @Nonnull final String newName,
+                           @Nonnull final List<GitRepository> repositories) {
+    new CommonBackgroundTask(myProject, "Renaming " + currentName + " to " + newName + "...", null) {
+      @Override
+      void execute(@Nonnull ProgressIndicator indicator) {
+        newWorker(indicator).renameBranch(currentName, newName, repositories);
+      }
+    }.runInBackground();
+  }
 
-	@Override
-	public void rebaseOnCurrent(@Nonnull final List<GitRepository> repositories, @Nonnull final String branchName)
-	{
-		new CommonBackgroundTask(myProject, "Rebasing " + branchName + "...", null)
-		{
-			@Override
-			void execute(@Nonnull ProgressIndicator indicator)
-			{
-				newWorker(indicator).rebaseOnCurrent(repositories, branchName);
-			}
-		}.runInBackground();
-	}
+  /**
+   * Executes common operations before/after executing the actual branch operation.
+   */
+  private static abstract class CommonBackgroundTask extends Task.Backgroundable {
 
-	@Override
-	public void renameBranch(@Nonnull final String currentName, @Nonnull final String newName, @Nonnull final List<GitRepository> repositories)
-	{
-		new CommonBackgroundTask(myProject, "Renaming " + currentName + " to " + newName + "...", null)
-		{
-			@Override
-			void execute(@Nonnull ProgressIndicator indicator)
-			{
-				newWorker(indicator).renameBranch(currentName, newName, repositories);
-			}
-		}.runInBackground();
-	}
+    @Nullable
+    private final Runnable myCallInAwtAfterExecution;
 
-	/**
-	 * Executes common operations before/after executing the actual branch operation.
-	 */
-	private static abstract class CommonBackgroundTask extends Task.Backgroundable
-	{
+    private CommonBackgroundTask(@Nullable final Project project, @Nonnull final String title, @Nullable Runnable callInAwtAfterExecution) {
+      super(project, title);
+      myCallInAwtAfterExecution = callInAwtAfterExecution;
+    }
 
-		@Nullable
-		private final Runnable myCallInAwtAfterExecution;
+    @Override
+    public final void run(@Nonnull ProgressIndicator indicator) {
+      execute(indicator);
+      if (myCallInAwtAfterExecution != null) {
+        Application application = ApplicationManager.getApplication();
+        if (application.isUnitTestMode()) {
+          myCallInAwtAfterExecution.run();
+        }
+        else {
+          application.invokeLater(myCallInAwtAfterExecution, application.getDefaultModalityState());
+        }
+      }
+    }
 
-		private CommonBackgroundTask(@Nullable final Project project, @Nonnull final String title, @Nullable Runnable callInAwtAfterExecution)
-		{
-			super(project, title);
-			myCallInAwtAfterExecution = callInAwtAfterExecution;
-		}
+    abstract void execute(@Nonnull ProgressIndicator indicator);
 
-		@Override
-		public final void run(@Nonnull ProgressIndicator indicator)
-		{
-			execute(indicator);
-			if(myCallInAwtAfterExecution != null)
-			{
-				Application application = ApplicationManager.getApplication();
-				if(application.isUnitTestMode())
-				{
-					myCallInAwtAfterExecution.run();
-				}
-				else
-				{
-					application.invokeLater(myCallInAwtAfterExecution, application.getDefaultModalityState());
-				}
-			}
-		}
+    void runInBackground() {
+      GitVcs.runInBackground(this);
+    }
 
-		abstract void execute(@Nonnull ProgressIndicator indicator);
-
-		void runInBackground()
-		{
-			GitVcs.runInBackground(this);
-		}
-
-	}
+  }
 
 }

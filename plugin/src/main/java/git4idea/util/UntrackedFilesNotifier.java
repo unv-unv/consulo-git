@@ -15,30 +15,27 @@
  */
 package git4idea.util;
 
+import consulo.ide.impl.idea.openapi.vcs.changes.ui.SelectFilesDialog;
+import consulo.project.Project;
+import consulo.project.ui.notification.Notification;
+import consulo.project.ui.notification.event.NotificationListener;
+import consulo.ui.ex.awt.DialogWrapper;
+import consulo.util.collection.ContainerUtil;
+import consulo.util.lang.StringUtil;
+import consulo.versionControlSystem.VcsNotifier;
+import consulo.virtualFileSystem.VirtualFile;
+import git4idea.GitUtil;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.swing.*;
+import javax.swing.event.HyperlinkEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-import javax.swing.Action;
-import javax.swing.event.HyperlinkEvent;
-
-import javax.annotation.Nullable;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationListener;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vcs.VcsNotifier;
-import com.intellij.openapi.vcs.changes.ui.SelectFilesDialog;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.Function;
-import com.intellij.util.containers.ContainerUtil;
-import git4idea.GitUtil;
-
 public class UntrackedFilesNotifier
 {
-
 	private UntrackedFilesNotifier()
 	{
 	}
@@ -62,14 +59,7 @@ public class UntrackedFilesNotifier
 		final String notificationDesc = description == null ? createUntrackedFilesOverwrittenDescription(operation, true) : description;
 
 		final Collection<String> absolutePaths = GitUtil.toAbsolute(root, relativePaths);
-		final List<VirtualFile> untrackedFiles = ContainerUtil.mapNotNull(absolutePaths, new Function<String, VirtualFile>()
-		{
-			@Override
-			public VirtualFile fun(String absolutePath)
-			{
-				return GitUtil.findRefreshFileOrLog(absolutePath);
-			}
-		});
+		final List<VirtualFile> untrackedFiles = ContainerUtil.mapNotNull(absolutePaths, absolutePath -> GitUtil.findRefreshFileOrLog(absolutePath));
 
 		VcsNotifier.getInstance(project).notifyError(notificationTitle, notificationDesc, new NotificationListener()
 		{

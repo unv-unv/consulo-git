@@ -15,9 +15,9 @@
  */
 package git4idea.test;
 
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.vcsUtil.VcsUtil;
+import consulo.ide.impl.idea.openapi.util.io.FileUtil;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.versionControlSystem.util.VcsUtil;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -26,7 +26,7 @@ import java.io.IOException;
 
 /**
  * Representation of a Git repository for tests purposes.
- * Works with {@link java.io.File} - be sure to {@link #refresh()} the repository if a {@link VirtualFile} is needed.
+ * Works with {@link File} - be sure to {@link #refresh()} the repository if a {@link VirtualFile} is needed.
  * @author Kirill Likhodedov
  * @deprecated Use {@link GitLightTest}
  */

@@ -15,8 +15,8 @@
  */
 package git4idea.actions;
 
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.vcs.log.Hash;
+import consulo.ide.ServiceManager;
+import consulo.versionControlSystem.log.Hash;
 import git4idea.branch.GitBrancher;
 import git4idea.repo.GitRepository;
 import javax.annotation.Nonnull;

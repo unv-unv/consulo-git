@@ -15,25 +15,27 @@
  */
 package git4idea.actions;
 
+import consulo.annotation.component.ExtensionImpl;
+import consulo.dataContext.DataContext;
+import consulo.project.Project;
+import consulo.ui.ex.action.ActionManager;
+import consulo.ui.ex.action.AnAction;
+import consulo.ui.ex.action.AnSeparator;
+import consulo.versionControlSystem.AbstractVcs;
+import consulo.versionControlSystem.action.VcsQuickListContentProvider;
+import git4idea.GitVcs;
+import git4idea.i18n.GitBundle;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnSeparator;
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.AbstractVcs;
-import com.intellij.openapi.vcs.actions.VcsQuickListContentProvider;
-import git4idea.GitVcs;
-import git4idea.i18n.GitBundle;
-
 /**
  * @author Roman.Chernyatchik
  */
+@ExtensionImpl
 public class GitQuickListContentProvider implements VcsQuickListContentProvider {
   public List<AnAction> getVcsActions(@Nullable Project project, @Nullable AbstractVcs activeVcs,
                                       @Nullable DataContext dataContext) {

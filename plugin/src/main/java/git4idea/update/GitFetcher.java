@@ -15,9 +15,30 @@
  */
 package git4idea.update;
 
-import static git4idea.GitBranch.REFS_HEADS_PREFIX;
-import static git4idea.GitBranch.REFS_REMOTES_PREFIX;
+import consulo.application.progress.ProgressIndicator;
+import consulo.logging.Logger;
+import consulo.project.Project;
+import consulo.util.dataholder.Key;
+import consulo.util.lang.StringUtil;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.VcsNotifier;
+import consulo.versionControlSystem.distributed.DvcsUtil;
+import consulo.virtualFileSystem.VirtualFile;
+import git4idea.GitLocalBranch;
+import git4idea.GitRemoteBranch;
+import git4idea.GitUtil;
+import git4idea.GitVcs;
+import git4idea.branch.GitBranchUtil;
+import git4idea.commands.*;
+import git4idea.config.GitVersionSpecialty;
+import git4idea.repo.GitBranchTrackInfo;
+import git4idea.repo.GitRemote;
+import git4idea.repo.GitRepository;
+import git4idea.repo.GitRepositoryManager;
+import git4idea.util.GitUIUtil;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -26,36 +47,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.annotation.Nonnull;
-
-import com.intellij.dvcs.DvcsUtil;
-import consulo.logging.Logger;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.project.Project;
-import consulo.util.dataholder.Key;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.VcsNotifier;
-import com.intellij.openapi.vfs.VirtualFile;
-import git4idea.GitLocalBranch;
-import git4idea.GitRemoteBranch;
-import git4idea.GitUtil;
-import git4idea.GitVcs;
-import git4idea.branch.GitBranchUtil;
-import git4idea.commands.GitCommand;
-import git4idea.commands.GitLineHandlerAdapter;
-import git4idea.commands.GitLineHandlerPasswordRequestAware;
-import git4idea.commands.GitStandardProgressAnalyzer;
-import git4idea.commands.GitTask;
-import git4idea.commands.GitTaskResultHandlerAdapter;
-import git4idea.config.GitVersionSpecialty;
-import git4idea.repo.GitBranchTrackInfo;
-import git4idea.repo.GitRemote;
-import git4idea.repo.GitRepository;
-import git4idea.repo.GitRepositoryManager;
-import git4idea.util.GitUIUtil;
-
-import javax.annotation.Nullable;
+import static git4idea.GitBranch.REFS_HEADS_PREFIX;
+import static git4idea.GitBranch.REFS_REMOTES_PREFIX;
 
 /**
  * @author Kirill Likhodedov

@@ -15,57 +15,44 @@
  */
 package git4idea.changes;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import consulo.application.util.function.AsynchConsumer;
 import consulo.logging.Logger;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vcs.ChangeListColumn;
-import com.intellij.openapi.vcs.CommittedChangesProvider;
-import com.intellij.openapi.vcs.FilePath;
-import com.intellij.openapi.vcs.FilePathImpl;
-import com.intellij.openapi.vcs.RepositoryLocation;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.changes.Change;
-import com.intellij.openapi.vcs.changes.ChangesUtil;
-import com.intellij.openapi.vcs.changes.committed.DecoratorManager;
-import com.intellij.openapi.vcs.changes.committed.VcsCommittedListsZipper;
-import com.intellij.openapi.vcs.changes.committed.VcsCommittedViewAuxiliary;
-import com.intellij.openapi.vcs.history.VcsFileRevision;
-import com.intellij.openapi.vcs.history.VcsRevisionNumber;
-import com.intellij.openapi.vcs.versionBrowser.ChangeBrowserSettings;
-import com.intellij.openapi.vcs.versionBrowser.ChangesBrowserSettingsEditor;
-import com.intellij.openapi.vcs.versionBrowser.CommittedChangeList;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.AsynchConsumer;
-import com.intellij.util.Consumer;
-import git4idea.GitFileRevision;
-import git4idea.GitLocalBranch;
-import git4idea.GitRemoteBranch;
-import git4idea.GitRevisionNumber;
-import git4idea.GitUtil;
+import consulo.project.Project;
+import consulo.util.io.FileUtil;
+import consulo.util.lang.Pair;
+import consulo.util.lang.StringUtil;
+import consulo.versionControlSystem.*;
+import consulo.versionControlSystem.base.FilePathImpl;
+import consulo.versionControlSystem.change.Change;
+import consulo.versionControlSystem.change.ChangesUtil;
+import consulo.versionControlSystem.change.commited.DecoratorManager;
+import consulo.versionControlSystem.change.commited.VcsCommittedListsZipper;
+import consulo.versionControlSystem.change.commited.VcsCommittedViewAuxiliary;
+import consulo.versionControlSystem.history.VcsFileRevision;
+import consulo.versionControlSystem.history.VcsRevisionNumber;
+import consulo.versionControlSystem.versionBrowser.ChangeBrowserSettings;
+import consulo.versionControlSystem.versionBrowser.ChangesBrowserSettingsEditor;
+import consulo.versionControlSystem.versionBrowser.CommittedChangeList;
+import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.VirtualFile;
+import git4idea.*;
 import git4idea.commands.GitSimpleHandler;
 import git4idea.history.GitHistoryUtils;
 import git4idea.history.browser.GitHeavyCommit;
 import git4idea.history.browser.SymbolicRefs;
 import git4idea.repo.GitRepository;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.File;
+import java.util.*;
+import java.util.function.Consumer;
+
 /**
  * The provider for committed change lists
  */
 public class GitCommittedChangeListProvider implements CommittedChangesProvider<CommittedChangeList, ChangeBrowserSettings>
 {
-
 	private static final Logger LOG = Logger.getInstance(GitCommittedChangeListProvider.class);
 
 	@Nonnull
@@ -132,14 +119,7 @@ public class GitCommittedChangeListProvider implements CommittedChangesProvider<
 	{
 		try
 		{
-			getCommittedChangesImpl(settings, location, maxCount, new Consumer<GitCommittedChangeList>()
-			{
-				@Override
-				public void consume(GitCommittedChangeList gitCommittedChangeList)
-				{
-					consumer.consume(gitCommittedChangeList);
-				}
-			});
+			getCommittedChangesImpl(settings, location, maxCount, gitCommittedChangeList -> consumer.accept(gitCommittedChangeList));
 		}
 		finally
 		{
@@ -148,27 +128,21 @@ public class GitCommittedChangeListProvider implements CommittedChangesProvider<
 	}
 
 	public List<CommittedChangeList> getCommittedChanges(ChangeBrowserSettings settings,
-			RepositoryLocation location,
-			final int maxCount) throws VcsException
+                                                                                                     RepositoryLocation location,
+                                                                                                     final int maxCount) throws VcsException
 	{
 
 		final List<CommittedChangeList> result = new ArrayList<CommittedChangeList>();
 
-		getCommittedChangesImpl(settings, location, maxCount, new Consumer<GitCommittedChangeList>()
-		{
-			public void consume(GitCommittedChangeList committedChangeList)
-			{
-				result.add(committedChangeList);
-			}
-		});
+		getCommittedChangesImpl(settings, location, maxCount, committedChangeList -> result.add(committedChangeList));
 
 		return result;
 	}
 
 	private void getCommittedChangesImpl(ChangeBrowserSettings settings,
-			RepositoryLocation location,
-			final int maxCount,
-			final Consumer<GitCommittedChangeList> consumer) throws VcsException
+                                         RepositoryLocation location,
+                                         final int maxCount,
+                                         final Consumer<GitCommittedChangeList> consumer) throws VcsException
 	{
 		GitRepositoryLocation l = (GitRepositoryLocation) location;
 		final Long beforeRev = settings.getChangeBeforeFilter();
@@ -182,38 +156,35 @@ public class GitCommittedChangeListProvider implements CommittedChangesProvider<
 			throw new VcsException("The repository does not exists anymore: " + l.getRoot());
 		}
 
-		GitUtil.getLocalCommittedChanges(myProject, root, new Consumer<GitSimpleHandler>()
+		GitUtil.getLocalCommittedChanges(myProject, root, h ->
 		{
-			public void consume(GitSimpleHandler h)
+			if(!StringUtil.isEmpty(author))
 			{
-				if(!StringUtil.isEmpty(author))
-				{
-					h.addParameters("--author=" + author);
-				}
-				if(beforeDate != null)
-				{
-					h.addParameters("--before=" + GitUtil.gitTime(beforeDate));
-				}
-				if(afterDate != null)
-				{
-					h.addParameters("--after=" + GitUtil.gitTime(afterDate));
-				}
-				if(maxCount != getUnlimitedCountValue())
-				{
-					h.addParameters("-n" + maxCount);
-				}
-				if(beforeRev != null && afterRev != null)
-				{
-					h.addParameters(GitUtil.formatLongRev(afterRev) + ".." + GitUtil.formatLongRev(beforeRev));
-				}
-				else if(beforeRev != null)
-				{
-					h.addParameters(GitUtil.formatLongRev(beforeRev));
-				}
-				else if(afterRev != null)
-				{
-					h.addParameters(GitUtil.formatLongRev(afterRev) + "..");
-				}
+				h.addParameters("--author=" + author);
+			}
+			if(beforeDate != null)
+			{
+				h.addParameters("--before=" + GitUtil.gitTime(beforeDate));
+			}
+			if(afterDate != null)
+			{
+				h.addParameters("--after=" + GitUtil.gitTime(afterDate));
+			}
+			if(maxCount != getUnlimitedCountValue())
+			{
+				h.addParameters("-n" + maxCount);
+			}
+			if(beforeRev != null && afterRev != null)
+			{
+				h.addParameters(GitUtil.formatLongRev(afterRev) + ".." + GitUtil.formatLongRev(beforeRev));
+			}
+			else if(beforeRev != null)
+			{
+				h.addParameters(GitUtil.formatLongRev(beforeRev));
+			}
+			else if(afterRev != null)
+			{
+				h.addParameters(GitUtil.formatLongRev(afterRev) + "..");
 			}
 		}, consumer, false);
 	}

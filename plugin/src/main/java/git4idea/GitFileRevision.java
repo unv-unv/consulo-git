@@ -15,25 +15,25 @@
  */
 package git4idea;
 
+import consulo.project.Project;
+import consulo.util.lang.Couple;
+import consulo.versionControlSystem.FilePath;
+import consulo.versionControlSystem.RepositoryLocation;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.history.VcsFileRevision;
+import consulo.versionControlSystem.history.VcsFileRevisionDvcsSpecific;
+import consulo.versionControlSystem.history.VcsFileRevisionEx;
+import consulo.versionControlSystem.history.VcsRevisionNumber;
+import consulo.versionControlSystem.util.VcsFileUtil;
+import consulo.virtualFileSystem.VirtualFile;
+import git4idea.util.GitFileUtils;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Couple;
-import com.intellij.openapi.vcs.FilePath;
-import com.intellij.openapi.vcs.RepositoryLocation;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.history.VcsFileRevision;
-import com.intellij.openapi.vcs.history.VcsFileRevisionDvcsSpecific;
-import com.intellij.openapi.vcs.history.VcsFileRevisionEx;
-import com.intellij.openapi.vcs.history.VcsRevisionNumber;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.vcsUtil.VcsFileUtil;
-import git4idea.util.GitFileUtils;
 
 public class GitFileRevision extends VcsFileRevisionEx implements Comparable<VcsFileRevision>, VcsFileRevisionDvcsSpecific
 {

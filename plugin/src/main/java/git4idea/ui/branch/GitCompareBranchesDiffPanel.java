@@ -15,11 +15,11 @@
  */
 package git4idea.ui.branch;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.changes.Change;
-import com.intellij.openapi.vcs.changes.ui.ChangesBrowser;
-import com.intellij.ui.components.JBLabel;
-import com.intellij.util.ui.UIUtil;
+import consulo.ide.impl.idea.openapi.vcs.changes.ui.ChangesBrowser;
+import consulo.project.Project;
+import consulo.ui.ex.awt.JBLabel;
+import consulo.ui.ex.awt.UIUtil;
+import consulo.versionControlSystem.change.Change;
 import git4idea.util.GitCommitCompareInfo;
 
 import javax.swing.*;
@@ -45,13 +45,13 @@ class GitCompareBranchesDiffPanel extends JPanel {
     myBranchName = branchName;
 
     setLayout(new BorderLayout(UIUtil.DEFAULT_VGAP, UIUtil.DEFAULT_HGAP));
-    add(createNorthPanel(),  BorderLayout.NORTH);
+    add(createNorthPanel(), BorderLayout.NORTH);
     add(createCenterPanel());
   }
 
   private JComponent createNorthPanel() {
     return new JBLabel(String.format("<html>Difference between current working tree on <b><code>%s</code></b> " +
-                                     "and files in <b><code>%s</code></b>:</html>", myCurrentBranchName, myBranchName),
+                                       "and files in <b><code>%s</code></b>:</html>", myCurrentBranchName, myBranchName),
                        UIUtil.ComponentStyle.REGULAR);
   }
 

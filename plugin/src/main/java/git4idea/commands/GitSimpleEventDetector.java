@@ -17,7 +17,7 @@ package git4idea.commands;
 
 import javax.annotation.Nonnull;
 import consulo.util.dataholder.Key;
-import com.intellij.openapi.util.text.StringUtil;
+import consulo.util.lang.StringUtil;
 
 /**
  * @author Kirill Likhodedov

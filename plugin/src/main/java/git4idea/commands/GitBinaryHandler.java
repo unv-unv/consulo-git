@@ -23,11 +23,11 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.Nonnull;
-import com.intellij.execution.ExecutionException;
-import com.intellij.ide.IdeBundle;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.process.ExecutionException;
+import consulo.ide.IdeBundle;
+import consulo.project.Project;
+import consulo.versionControlSystem.VcsException;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitVcs;
 
 /**

@@ -17,13 +17,13 @@
 package git4idea.diff;
 
 import consulo.logging.Logger;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.FilePath;
-import com.intellij.openapi.vcs.TreeDiffProvider;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.vcsUtil.VcsFileUtil;
-import com.intellij.vcsUtil.VcsUtil;
+import consulo.project.Project;
+import consulo.versionControlSystem.FilePath;
+import consulo.versionControlSystem.TreeDiffProvider;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.util.VcsFileUtil;
+import consulo.versionControlSystem.util.VcsUtil;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitBranchesSearcher;
 import git4idea.changes.GitChangeUtils;
 import git4idea.commands.GitCommand;
@@ -36,7 +36,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class GitTreeDiffProvider implements TreeDiffProvider {
-  private final static Logger LOG = Logger.getInstance("#git4idea.diff.GitTreeDiffProvider");
+  private final static Logger LOG = Logger.getInstance(GitTreeDiffProvider.class);
   private final Project myProject;
 
   public GitTreeDiffProvider(final Project project) {

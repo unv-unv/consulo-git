@@ -15,103 +15,91 @@
  */
 package git4idea.config;
 
-import javax.annotation.Nonnull;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.component.persist.*;
+import consulo.ide.ServiceManager;
 import jakarta.inject.Singleton;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.RoamingType;
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.components.State;
-import com.intellij.openapi.components.Storage;
-import com.intellij.openapi.components.StoragePathMacros;
 
 /**
  * The application wide settings for the git
  */
 @Singleton
 @State(name = "Git.Application.Settings", storages = {
-		@Storage(file = StoragePathMacros.APP_CONFIG + "/git.xml", roamingType = RoamingType.PER_PLATFORM),
-		@Storage(file = StoragePathMacros.APP_CONFIG + "/vcs.xml", deprecated = true),
+  @Storage(file = StoragePathMacros.APP_CONFIG + "/git.xml", roamingType = RoamingType.PER_OS),
+  @Storage(file = StoragePathMacros.APP_CONFIG + "/vcs.xml", deprecated = true),
 })
-public class GitVcsApplicationSettings implements PersistentStateComponent<GitVcsApplicationSettings.State>
-{
-	private State myState = new State();
+@ServiceAPI(ComponentScope.APPLICATION)
+@ServiceImpl
+public class GitVcsApplicationSettings implements PersistentStateComponent<GitVcsApplicationSettings.State> {
+  private State myState = new State();
 
-	/**
-	 * Kinds of SSH executable to be used with the git
-	 */
-	public enum SshExecutable
-	{
-		IDEA_SSH,
-		NATIVE_SSH,
-		PUTTY
-	}
+  /**
+   * Kinds of SSH executable to be used with the git
+   */
+  public enum SshExecutable {
+    IDEA_SSH,
+    NATIVE_SSH,
+    PUTTY
+  }
 
-	public static class State
-	{
-		public String myPathToGit = null;
-		public SshExecutable SSH_EXECUTABLE = null;
-	}
+  public static class State {
+    public String myPathToGit = null;
+    public SshExecutable SSH_EXECUTABLE = null;
+  }
 
-	public static GitVcsApplicationSettings getInstance()
-	{
-		return ServiceManager.getService(GitVcsApplicationSettings.class);
-	}
+  public static GitVcsApplicationSettings getInstance() {
+    return ServiceManager.getService(GitVcsApplicationSettings.class);
+  }
 
-	@Override
-	public State getState()
-	{
-		return myState;
-	}
+  @Override
+  public State getState() {
+    return myState;
+  }
 
-	public void loadState(State state)
-	{
-		myState = state;
-	}
+  public void loadState(State state) {
+    myState = state;
+  }
 
-	/**
-	 * @deprecated use {@link #getSavedPathToGit()} to get the path from settings if there's any
-	 * or use {@link GitExecutableManager#getPathToGit()}/{@link GitExecutableManager#getPathToGit(Project)} to get git executable with
-	 * auto-detection
-	 */
-	@Nonnull
-	@Deprecated
-	public String getPathToGit()
-	{
-		return GitExecutableManager.getInstance().getPathToGit();
-	}
+  /**
+   * @deprecated use {@link #getSavedPathToGit()} to get the path from settings if there's any
+   * or use {@link GitExecutableManager#getPathToGit()}/{@link GitExecutableManager#getPathToGit(Project)} to get git executable with
+   * auto-detection
+   */
+  @Nonnull
+  @Deprecated
+  public String getPathToGit() {
+    return GitExecutableManager.getInstance().getPathToGit();
+  }
 
-	@Nullable
-	public String getSavedPathToGit()
-	{
-		return myState.myPathToGit;
-	}
+  @Nullable
+  public String getSavedPathToGit() {
+    return myState.myPathToGit;
+  }
 
-	public void setPathToGit(String pathToGit)
-	{
-		myState.myPathToGit = pathToGit;
-	}
+  public void setPathToGit(String pathToGit) {
+    myState.myPathToGit = pathToGit;
+  }
 
-	public void setIdeaSsh(@Nonnull SshExecutable executable)
-	{
-		myState.SSH_EXECUTABLE = executable;
-	}
+  public void setIdeaSsh(@Nonnull SshExecutable executable) {
+    myState.SSH_EXECUTABLE = executable;
+  }
 
-	@Nullable
-	@Deprecated
-	public SshExecutable getIdeaSsh()
-	{
-		return getSshExecutableType();
-	}
+  @Nullable
+  @Deprecated
+  public SshExecutable getIdeaSsh() {
+    return getSshExecutableType();
+  }
 
-	@Nonnull
-	public SshExecutable getSshExecutableType()
-	{
-		if(myState.SSH_EXECUTABLE == null)
-		{
-			myState.SSH_EXECUTABLE = SshExecutable.IDEA_SSH;
-		}
-		return myState.SSH_EXECUTABLE;
-	}
+  @Nonnull
+  public SshExecutable getSshExecutableType() {
+    if (myState.SSH_EXECUTABLE == null) {
+      myState.SSH_EXECUTABLE = SshExecutable.IDEA_SSH;
+    }
+    return myState.SSH_EXECUTABLE;
+  }
 }

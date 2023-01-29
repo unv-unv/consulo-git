@@ -15,32 +15,25 @@
 */
 package git4idea.repo;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.ini4j.Ini;
-import org.ini4j.Profile;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import com.intellij.openapi.util.Condition;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.util.ArrayUtil;
-import com.intellij.util.Function;
-import com.intellij.util.containers.ContainerUtil;
 import consulo.logging.Logger;
+import consulo.util.collection.ArrayUtil;
+import consulo.util.collection.ContainerUtil;
+import consulo.util.lang.Pair;
+import consulo.util.lang.StringUtil;
+import consulo.util.lang.function.Condition;
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
 import git4idea.branch.GitBranchUtil;
+import org.ini4j.Ini;
+import org.ini4j.Profile;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Reads information from the {@code .git/config} file, and parses it to actual objects.
@@ -53,7 +46,6 @@ import git4idea.branch.GitBranchUtil;
  */
 public class GitConfig
 {
-
 	private static final Logger LOG = Logger.getInstance(GitConfig.class);
 
 	private static final Pattern REMOTE_SECTION = Pattern.compile("(?:svn-)?remote \"(.*)\"");
@@ -91,14 +83,10 @@ public class GitConfig
 	Collection<GitRemote> parseRemotes()
 	{
 		// populate GitRemotes with substituting urls when needed
-		return ContainerUtil.map(myRemotes, new Function<Remote, GitRemote>()
+		return ContainerUtil.map(myRemotes, remote ->
 		{
-			@Override
-			public GitRemote fun(@Nullable Remote remote)
-			{
-				assert remote != null;
-				return convertRemoteToGitRemote(myUrls, remote);
-			}
+			assert remote != null;
+			return convertRemoteToGitRemote(myUrls, remote);
 		});
 	}
 
@@ -115,17 +103,13 @@ public class GitConfig
 	@Nonnull
 	Collection<GitBranchTrackInfo> parseTrackInfos(@Nonnull final Collection<GitLocalBranch> localBranches, @Nonnull final Collection<GitRemoteBranch> remoteBranches)
 	{
-		return ContainerUtil.mapNotNull(myTrackedInfos, new Function<BranchConfig, GitBranchTrackInfo>()
+		return ContainerUtil.mapNotNull(myTrackedInfos, config ->
 		{
-			@Override
-			public GitBranchTrackInfo fun(BranchConfig config)
+			if(config != null)
 			{
-				if(config != null)
-				{
-					return convertBranchConfig(config, localBranches, remoteBranches);
-				}
-				return null;
+				return convertBranchConfig(config, localBranches, remoteBranches);
 			}
+			return null;
 		});
 	}
 

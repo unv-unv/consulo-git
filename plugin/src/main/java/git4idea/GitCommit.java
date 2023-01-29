@@ -15,23 +15,22 @@
  */
 package git4idea;
 
+import consulo.application.util.function.ThrowableComputable;
+import consulo.project.Project;
+import consulo.util.collection.ContainerUtil;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.change.Change;
+import consulo.versionControlSystem.log.Hash;
+import consulo.versionControlSystem.log.VcsUser;
+import consulo.versionControlSystem.log.base.VcsChangesLazilyParsedDetails;
+import consulo.virtualFileSystem.VirtualFile;
+import git4idea.history.GitChangesParser;
+import git4idea.history.GitLogStatusInfo;
+
+import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-
-import javax.annotation.Nonnull;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.ThrowableComputable;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.changes.Change;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.Function;
-import com.intellij.util.containers.ContainerUtil;
-import com.intellij.vcs.log.Hash;
-import com.intellij.vcs.log.VcsUser;
-import com.intellij.vcs.log.impl.VcsChangesLazilyParsedDetails;
-import git4idea.history.GitChangesParser;
-import git4idea.history.GitLogStatusInfo;
 
 /**
  * Represents a Git commit with its meta information (hash, author, message, etc.), its parents and the {@link Change changes}.
@@ -76,14 +75,7 @@ public final class GitCommit extends VcsChangesLazilyParsedDetails
 			if(myChanges == null)
 			{
 				myChanges = GitChangesParser.parse(myData.project, myData.root, myData.changesOutput, myData.hash.asString(), new Date(myData.time),
-						ContainerUtil.map(myData.parents, new Function<Hash, String>()
-				{
-					@Override
-					public String fun(Hash hash)
-					{
-						return hash.asString();
-					}
-				}));
+						ContainerUtil.map(myData.parents, hash -> hash.asString()));
 				myData = null; // don't hold the not-yet-parsed string
 			}
 			return myChanges;

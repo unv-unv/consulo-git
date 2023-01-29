@@ -15,17 +15,16 @@
  */
 package git4idea.push;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import com.intellij.util.Function;
-import com.intellij.util.containers.ContainerUtil;
+import consulo.util.collection.ContainerUtil;
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
 import git4idea.update.GitUpdateResult;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Result of pushing one repository.
@@ -33,11 +32,10 @@ import git4idea.update.GitUpdateResult;
  * Includes information about the number of pushed commits (or -1 if undefined),
  * and tells whether the repository was updated after the push was rejected.
  *
- * @see git4idea.push.GitPushNativeResult
+ * @see GitPushNativeResult
  */
 class GitPushRepoResult
 {
-
 	enum Type
 	{
 		SUCCESS,
@@ -82,14 +80,7 @@ class GitPushRepoResult
 			@Nonnull GitLocalBranch source,
 			@Nonnull GitRemoteBranch target)
 	{
-		List<String> tags = ContainerUtil.map(tagResults, new Function<GitPushNativeResult, String>()
-		{
-			@Override
-			public String fun(GitPushNativeResult result)
-			{
-				return result.getSourceRef();
-			}
-		});
+		List<String> tags = ContainerUtil.map(tagResults, result1 -> result1.getSourceRef());
 		return new GitPushRepoResult(convertType(result), commits, source.getFullName(), target.getFullName(), target.getRemote().getName(), tags, null, null);
 	}
 

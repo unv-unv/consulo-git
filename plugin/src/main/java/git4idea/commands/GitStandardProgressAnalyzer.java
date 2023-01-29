@@ -15,7 +15,7 @@
  */
 package git4idea.commands;
 
-import com.intellij.openapi.progress.ProgressIndicator;
+import consulo.application.progress.ProgressIndicator;
 import consulo.util.dataholder.Key;
 
 import java.util.HashMap;

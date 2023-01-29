@@ -15,11 +15,11 @@
  */
 package git4idea.validators;
 
-import java.util.regex.Pattern;
+import consulo.ui.ex.InputValidator;
+import consulo.util.lang.StringUtil;
 
 import javax.annotation.Nonnull;
-import com.intellij.openapi.ui.InputValidator;
-import com.intellij.openapi.util.text.StringUtil;
+import java.util.regex.Pattern;
 
 /**
  * Checks that the specified String is a valid Git reference name.

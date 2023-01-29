@@ -16,8 +16,8 @@
 
 package git4idea.changes;
 
-import com.intellij.openapi.vcs.RepositoryLocation;
-import com.intellij.openapi.vcs.VcsException;
+import consulo.versionControlSystem.RepositoryLocation;
+import consulo.versionControlSystem.VcsException;
 
 import java.io.File;
 

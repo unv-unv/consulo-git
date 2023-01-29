@@ -15,45 +15,33 @@
  */
 package git4idea.branch;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.annotation.Nonnull;
-import javax.swing.event.HyperlinkEvent;
-
-import com.intellij.dvcs.DvcsUtil;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationListener;
-import com.intellij.openapi.application.AccessToken;
-import com.intellij.openapi.components.ServiceManager;
+import consulo.application.AccessToken;
+import consulo.application.util.function.Computable;
+import consulo.ide.ServiceManager;
 import consulo.logging.Logger;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Computable;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.vcs.VcsNotifier;
-import com.intellij.openapi.vcs.changes.Change;
-import com.intellij.openapi.vcs.changes.ChangeListManager;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.ui.UIUtil;
+import consulo.project.Project;
+import consulo.project.ui.notification.Notification;
+import consulo.project.ui.notification.event.NotificationListener;
+import consulo.ui.ex.awt.UIUtil;
+import consulo.util.lang.Pair;
+import consulo.versionControlSystem.VcsNotifier;
+import consulo.versionControlSystem.change.Change;
+import consulo.versionControlSystem.change.ChangeListManager;
+import consulo.versionControlSystem.distributed.DvcsUtil;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitUtil;
-import git4idea.commands.Git;
-import git4idea.commands.GitCommandResult;
-import git4idea.commands.GitCompoundResult;
-import git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector;
-import git4idea.commands.GitMessageWithFilesDetector;
-import git4idea.commands.GitSimpleEventDetector;
-import git4idea.commands.GitUntrackedFilesOverwrittenByOperationDetector;
+import git4idea.commands.*;
 import git4idea.config.GitVcsSettings;
 import git4idea.merge.GitMergeCommittingConflictResolver;
 import git4idea.merge.GitMerger;
 import git4idea.repo.GitRepository;
 import git4idea.reset.GitResetMode;
 import git4idea.util.GitPreservingProcess;
+
+import javax.annotation.Nonnull;
+import javax.swing.event.HyperlinkEvent;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 class GitMergeOperation extends GitBranchOperation
 {

@@ -15,28 +15,21 @@
  */
 package git4idea.rollback;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Nonnull;
-import jakarta.inject.Singleton;
-
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.FilePath;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.changes.Change;
-import com.intellij.openapi.vcs.changes.ContentRevision;
-import com.intellij.openapi.vcs.rollback.RollbackEnvironment;
-import com.intellij.openapi.vcs.rollback.RollbackProgressListener;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.vcsUtil.VcsFileUtil;
-import com.intellij.vcsUtil.VcsUtil;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.ide.ServiceManager;
+import consulo.project.Project;
+import consulo.versionControlSystem.FilePath;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.change.Change;
+import consulo.versionControlSystem.change.ContentRevision;
+import consulo.versionControlSystem.rollback.RollbackEnvironment;
+import consulo.versionControlSystem.rollback.RollbackProgressListener;
+import consulo.versionControlSystem.util.VcsFileUtil;
+import consulo.versionControlSystem.util.VcsUtil;
+import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitUtil;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitHandlerUtil;
@@ -45,14 +38,23 @@ import git4idea.i18n.GitBundle;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitUntrackedFilesHolder;
 import git4idea.util.GitFileUtils;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+
+import javax.annotation.Nonnull;
+import java.io.File;
+import java.util.*;
 
 /**
  * Git rollback/revert environment
  */
 @Singleton
+@ServiceAPI(ComponentScope.PROJECT)
+@ServiceImpl
 public class GitRollbackEnvironment implements RollbackEnvironment {
   private final Project myProject;
 
+  @Inject
   public GitRollbackEnvironment(@Nonnull Project project) {
     myProject = project;
   }
@@ -196,8 +198,8 @@ public class GitRollbackEnvironment implements RollbackEnvironment {
   /**
    * Remove file paths from index (git remove --cached).
    *
-   * @param root  a git root
-   * @param files files to remove from index.
+   * @param root          a git root
+   * @param files         files to remove from index.
    * @param toUnversioned passed true if the file will be unversioned after unindexing, i.e. it was added before the revert operation.
    * @throws VcsException if there is a problem with running git
    */

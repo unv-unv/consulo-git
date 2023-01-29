@@ -15,10 +15,10 @@
  */
 package git4idea.ui;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.ui.DocumentAdapter;
+import consulo.project.Project;
+import consulo.versionControlSystem.VcsException;
+import consulo.ui.ex.awt.event.DocumentAdapter;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitRevisionNumber;
 import git4idea.GitUtil;
 import git4idea.util.GitUIUtil;

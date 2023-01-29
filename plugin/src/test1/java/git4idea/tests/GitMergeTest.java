@@ -15,11 +15,11 @@
  */
 package git4idea.tests;
 
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ModalityState;
-import com.intellij.openapi.vcs.changes.Change;
-import com.intellij.openapi.vcs.changes.ChangeListManager;
-import com.intellij.openapi.vcs.changes.LocalChangeList;
+import consulo.application.ApplicationManager;
+import consulo.ui.ModalityState;
+import consulo.versionControlSystem.change.Change;
+import consulo.versionControlSystem.change.ChangeListManager;
+import consulo.versionControlSystem.change.LocalChangeList;
 import git4idea.test.GitTest;
 import git4idea.test.GitTestUtil;
 import org.testng.annotations.Test;

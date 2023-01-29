@@ -15,8 +15,8 @@
  */
 package git4idea;
 
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.text.StringUtil;
+import consulo.util.lang.Pair;
+import consulo.util.lang.StringUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;

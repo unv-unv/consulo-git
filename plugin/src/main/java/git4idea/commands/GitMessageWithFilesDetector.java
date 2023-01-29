@@ -16,23 +16,23 @@
 package git4idea.commands;
 
 import consulo.util.dataholder.Key;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vfs.VirtualFile;
-import javax.annotation.Nonnull;
+import consulo.util.io.FileUtil;
+import consulo.virtualFileSystem.VirtualFile;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * The listener of {@link git4idea.commands.GitLineHandler} which watches Git output and detects some message in console,
+ * The listener of {@link GitLineHandler} which watches Git output and detects some message in console,
  * captures the following list of files and stops saving them when another message occurs.
- *
+ * <p>
  * For example, the situation, when local changes would be overwritten by checkout.
  *
- * @see GitSimpleEventDetector
  * @author Kirill Likhodedov
+ * @see GitSimpleEventDetector
  */
 public class GitMessageWithFilesDetector implements GitLineHandlerListener {
 
@@ -84,7 +84,7 @@ public class GitMessageWithFilesDetector implements GitLineHandlerListener {
   public Set<String> getRelativeFilePaths() {
     return myAffectedFiles;
   }
-  
+
   @Nonnull
   public Collection<VirtualFile> getFiles() {
     Collection<VirtualFile> files = new ArrayList<VirtualFile>(myAffectedFiles.size());

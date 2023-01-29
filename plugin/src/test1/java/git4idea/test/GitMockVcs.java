@@ -15,9 +15,9 @@
  */
 package git4idea.test;
 
-import com.intellij.openapi.options.Configurable;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.AbstractVcs;
+import consulo.configurable.Configurable;
+import consulo.versionControlSystem.AbstractVcs;
+import consulo.project.Project;
 
 /**
  * @author Kirill Likhodedov

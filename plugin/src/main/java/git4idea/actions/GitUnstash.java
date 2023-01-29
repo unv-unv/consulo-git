@@ -15,10 +15,10 @@
  */
 package git4idea.actions;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.changes.ChangeListManager;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.change.ChangeListManager;
+import consulo.project.Project;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.i18n.GitBundle;
 import git4idea.ui.GitUnstashDialog;
 import javax.annotation.Nonnull;

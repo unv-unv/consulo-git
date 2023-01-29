@@ -16,8 +16,10 @@
 package git4idea.rebase;
 
 import consulo.util.dataholder.Key;
-import com.intellij.openapi.util.text.StringUtil;
+import consulo.util.lang.StringUtil;
+import git4idea.commands.GitLineHandler;
 import git4idea.commands.GitLineHandlerAdapter;
+import git4idea.commands.GitLineHandlerListener;
 
 /**
  * <p>
@@ -27,7 +29,7 @@ import git4idea.commands.GitLineHandlerAdapter;
  * discarded while merging. In that case 'git rebase --skip' is used.
  * </p>
  * <p>
- * To use the detector add it as a {@link git4idea.commands.GitLineHandlerListener} to {@link git4idea.commands.GitLineHandler}
+ * To use the detector add it as a {@link GitLineHandlerListener} to {@link GitLineHandler}
  * </p>
  */
 public class GitRebaseProblemDetector extends GitLineHandlerAdapter

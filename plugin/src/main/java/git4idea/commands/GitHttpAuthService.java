@@ -15,63 +15,61 @@
  */
 package git4idea.commands;
 
-import java.util.Collection;
-import java.util.UUID;
-
-import javax.annotation.Nonnull;
-import org.jetbrains.git4idea.http.GitAskPassApp;
-import org.jetbrains.git4idea.http.GitAskPassXmlRpcHandler;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.project.Project;
+import org.jetbrains.git4idea.rt.http.GitAskPassApp;
+import org.jetbrains.git4idea.rt.http.GitAskPassXmlRpcHandler;
 import org.jetbrains.git4idea.ssh.GitXmlRpcHandlerService;
 import org.jetbrains.git4idea.util.ScriptGenerator;
-import com.intellij.openapi.project.Project;
+
+import javax.annotation.Nonnull;
+import java.util.Collection;
+import java.util.UUID;
 
 /**
  * Provides the authentication mechanism for Git HTTP connections.
  */
-public abstract class GitHttpAuthService extends GitXmlRpcHandlerService<GitHttpAuthenticator>
-{
+@ServiceAPI(ComponentScope.APPLICATION)
+public abstract class GitHttpAuthService extends GitXmlRpcHandlerService<GitHttpAuthenticator> {
 
-	protected GitHttpAuthService()
-	{
-		super("intellij-git-askpass", GitAskPassXmlRpcHandler.HANDLER_NAME, GitAskPassApp.class);
-	}
+  protected GitHttpAuthService() {
+    super("intellij-git-askpass", GitAskPassXmlRpcHandler.HANDLER_NAME, GitAskPassApp.class);
+  }
 
-	@Override
-	protected void customizeScriptGenerator(@Nonnull ScriptGenerator generator)
-	{
-	}
+  @Override
+  protected void customizeScriptGenerator(@Nonnull ScriptGenerator generator) {
+  }
 
-	@Nonnull
-	@Override
-	protected Object createRpcRequestHandlerDelegate()
-	{
-		return new InternalRequestHandlerDelegate();
-	}
+  @Nonnull
+  @Override
+  protected Object createRpcRequestHandlerDelegate() {
+    return new InternalRequestHandlerDelegate();
+  }
 
-	/**
-	 * Creates new {@link GitHttpAuthenticator} that will be requested to handle username and password requests from Git.
-	 */
-	@Nonnull
-	public abstract GitHttpAuthenticator createAuthenticator(@Nonnull Project project, @Nonnull GitCommand command, @Nonnull Collection<String> urls);
+  /**
+   * Creates new {@link GitHttpAuthenticator} that will be requested to handle username and password requests from Git.
+   */
+  @Nonnull
+  public abstract GitHttpAuthenticator createAuthenticator(@Nonnull Project project,
+                                                           @Nonnull GitCommand command,
+                                                           @Nonnull Collection<String> urls);
 
-	/**
-	 * Internal handler implementation class, it is made public to be accessible via XML RPC.
-	 */
-	public class InternalRequestHandlerDelegate implements GitAskPassXmlRpcHandler
-	{
-		@Nonnull
-		@Override
-		public String askUsername(String token, @Nonnull String url)
-		{
-			return getHandler(UUID.fromString(token)).askUsername(url);
-		}
+  /**
+   * Internal handler implementation class, it is made public to be accessible via XML RPC.
+   */
+  public class InternalRequestHandlerDelegate implements GitAskPassXmlRpcHandler {
+    @Nonnull
+    @Override
+    public String askUsername(String token, @Nonnull String url) {
+      return getHandler(UUID.fromString(token)).askUsername(url);
+    }
 
-		@Nonnull
-		@Override
-		public String askPassword(String token, @Nonnull String url)
-		{
-			return getHandler(UUID.fromString(token)).askPassword(url);
-		}
-	}
+    @Nonnull
+    @Override
+    public String askPassword(String token, @Nonnull String url) {
+      return getHandler(UUID.fromString(token)).askPassword(url);
+    }
+  }
 
 }

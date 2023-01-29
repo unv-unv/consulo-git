@@ -15,15 +15,16 @@
  */
 package git4idea.ui;
 
-import com.intellij.dvcs.DvcsUtil;
-import com.intellij.ui.ListCellRendererWrapper;
+
+import consulo.ui.ex.awt.ListCellRendererWrapper;
+import consulo.versionControlSystem.distributed.DvcsUtil;
 import git4idea.repo.GitRepository;
 
 import javax.swing.*;
 
 /**
  * Common {@link ListCellRenderer} do be used in {@link JComboBox} displaying {@link GitRepository GitRepositories}.
- * We don't want to use {@link git4idea.repo.GitRepository#toString()} since it is not the best way to display the repository in the UI.
+ * We don't want to use {@link GitRepository#toString()} since it is not the best way to display the repository in the UI.
  * 
  * @author Kirill Likhodedov
  */

@@ -15,21 +15,21 @@
  */
 package git4idea.actions;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.FileStatus;
-import com.intellij.openapi.vcs.FileStatusManager;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.changes.Change;
-import com.intellij.openapi.vcs.changes.ChangeListManager;
-import com.intellij.openapi.vcs.changes.ui.RollbackChangesDialog;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.ui.UIUtil;
+import consulo.ide.impl.idea.openapi.vcs.changes.ui.RollbackChangesDialog;
+import consulo.project.Project;
+import consulo.ui.ex.awt.UIUtil;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.change.Change;
+import consulo.versionControlSystem.change.ChangeListManager;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.status.FileStatus;
+import consulo.virtualFileSystem.status.FileStatusManager;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
 import git4idea.i18n.GitBundle;
 import git4idea.repo.GitRepository;
-import javax.annotation.Nonnull;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -40,7 +40,10 @@ import java.util.List;
 public class GitRevert extends BasicAction {
 
   @Override
-  public boolean perform(@Nonnull final Project project, GitVcs vcs, @Nonnull final List<VcsException> exceptions, @Nonnull VirtualFile[] affectedFiles) {
+  public boolean perform(@Nonnull final Project project,
+                         GitVcs vcs,
+                         @Nonnull final List<VcsException> exceptions,
+                         @Nonnull VirtualFile[] affectedFiles) {
     final ChangeListManager changeListManager = ChangeListManager.getInstance(project);
     if (changeListManager.isFreezedWithNotification("Can not revert now")) return true;
     final List<Change> changes = new ArrayList<Change>(affectedFiles.length);

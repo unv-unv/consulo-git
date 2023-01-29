@@ -15,36 +15,34 @@
  */
 package git4idea.roots;
 
-import java.io.File;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.versionControlSystem.VcsKey;
+import consulo.versionControlSystem.VcsRootChecker;
+import git4idea.GitUtil;
+import git4idea.GitVcs;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import com.intellij.openapi.vcs.VcsKey;
-import com.intellij.openapi.vcs.VcsRootChecker;
-import git4idea.GitUtil;
-import git4idea.GitVcs;
+import java.io.File;
 
 /**
  * @author Kirill Likhodedov
  */
-public class GitRootChecker extends VcsRootChecker
-{
-	@Override
-	public boolean isRoot(@Nonnull String path)
-	{
-		return GitUtil.isGitRoot(new File(path));
-	}
+@ExtensionImpl
+public class GitRootChecker extends VcsRootChecker {
+  @Override
+  public boolean isRoot(@Nonnull String path) {
+    return GitUtil.isGitRoot(new File(path));
+  }
 
-	@Override
-	@Nonnull
-	public VcsKey getSupportedVcs()
-	{
-		return GitVcs.getKey();
-	}
+  @Override
+  @Nonnull
+  public VcsKey getSupportedVcs() {
+    return GitVcs.getKey();
+  }
 
-	@Override
-	public boolean isVcsDir(@Nullable String path)
-	{
-		return path != null && path.toLowerCase().endsWith(GitUtil.DOT_GIT);
-	}
+  @Override
+  public boolean isVcsDir(@Nullable String path) {
+    return path != null && path.toLowerCase().endsWith(GitUtil.DOT_GIT);
+  }
 }

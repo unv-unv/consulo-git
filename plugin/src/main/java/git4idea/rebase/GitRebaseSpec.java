@@ -15,27 +15,16 @@
  */
 package git4idea.rebase;
 
-import static com.intellij.dvcs.DvcsUtil.getShortNames;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import com.intellij.dvcs.DvcsUtil;
-import com.intellij.openapi.components.ServiceManager;
+import consulo.application.progress.ProgressIndicator;
+import consulo.ide.ServiceManager;
 import consulo.logging.Logger;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Condition;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.util.Function;
-import com.intellij.util.containers.ContainerUtil;
-import com.intellij.vcs.log.Hash;
+import consulo.project.Project;
+import consulo.util.collection.ContainerUtil;
+import consulo.util.lang.Pair;
+import consulo.util.lang.StringUtil;
+import consulo.util.lang.function.Condition;
+import consulo.versionControlSystem.distributed.DvcsUtil;
+import consulo.versionControlSystem.log.Hash;
 import git4idea.GitLocalBranch;
 import git4idea.GitUtil;
 import git4idea.branch.GitRebaseParams;
@@ -44,9 +33,14 @@ import git4idea.repo.GitRepository;
 import git4idea.stash.GitChangesSaver;
 import git4idea.stash.GitStashChangesSaver;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.*;
+
+import static consulo.versionControlSystem.distributed.DvcsUtil.getShortNames;
+
 public class GitRebaseSpec
 {
-
 	private static final Logger LOG = Logger.getInstance(GitRebaseSpec.class);
 
 	@Nullable
@@ -205,15 +199,11 @@ public class GitRebaseSpec
 	@Nonnull
 	private static Map<GitRepository, String> findInitialHeadPositions(@Nonnull Collection<GitRepository> repositories, @Nullable final String branchToCheckout)
 	{
-		return ContainerUtil.map2Map(repositories, new Function<GitRepository, Pair<GitRepository, String>>()
+		return ContainerUtil.map2Map(repositories, repository ->
 		{
-			@Override
-			public Pair<GitRepository, String> fun(@Nonnull GitRepository repository)
-			{
-				String currentRevision = findCurrentRevision(repository, branchToCheckout);
-				LOG.debug("Current revision in [" + repository.getRoot().getName() + "] is [" + currentRevision + "]");
-				return Pair.create(repository, currentRevision);
-			}
+			String currentRevision = findCurrentRevision(repository, branchToCheckout);
+			LOG.debug("Current revision in [" + repository.getRoot().getName() + "] is [" + currentRevision + "]");
+			return Pair.create(repository, currentRevision);
 		});
 	}
 
@@ -246,15 +236,11 @@ public class GitRebaseSpec
 	@Nonnull
 	private static Map<GitRepository, String> findInitialBranchNames(@Nonnull Collection<GitRepository> repositories)
 	{
-		return ContainerUtil.map2Map(repositories, new Function<GitRepository, Pair<GitRepository, String>>()
+		return ContainerUtil.map2Map(repositories, repository ->
 		{
-			@Override
-			public Pair<GitRepository, String> fun(@Nonnull GitRepository repository)
-			{
-				String currentBranchName = repository.getCurrentBranchName();
-				LOG.debug("Current branch in [" + repository.getRoot().getName() + "] is [" + currentBranchName + "]");
-				return Pair.create(repository, currentBranchName);
-			}
+			String currentBranchName = repository.getCurrentBranchName();
+			LOG.debug("Current branch in [" + repository.getRoot().getName() + "] is [" + currentBranchName + "]");
+			return Pair.create(repository, currentBranchName);
 		});
 	}
 
@@ -305,22 +291,8 @@ public class GitRebaseSpec
 	@Override
 	public String toString()
 	{
-		String initialHeadPositions = StringUtil.join(myInitialHeadPositions.keySet(), new Function<GitRepository, String>()
-		{
-			@Override
-			public String fun(@Nonnull GitRepository repository)
-			{
-				return DvcsUtil.getShortRepositoryName(repository) + ": " + myInitialHeadPositions.get(repository);
-			}
-		}, ", ");
-		String statuses = StringUtil.join(myStatuses.keySet(), new Function<GitRepository, String>()
-		{
-			@Override
-			public String fun(GitRepository repository)
-			{
-				return DvcsUtil.getShortRepositoryName(repository) + ": " + myStatuses.get(repository);
-			}
-		}, ", ");
+		String initialHeadPositions = StringUtil.join(myInitialHeadPositions.keySet(), repository -> DvcsUtil.getShortRepositoryName(repository) + ": " + myInitialHeadPositions.get(repository), ", ");
+		String statuses = StringUtil.join(myStatuses.keySet(), repository -> DvcsUtil.getShortRepositoryName(repository) + ": " + myStatuses.get(repository), ", ");
 		return String.format("{Params: [%s].\nInitial positions: %s.\nStatuses: %s.\nSaver: %s}", myParams, initialHeadPositions, statuses, mySaver);
 	}
 }

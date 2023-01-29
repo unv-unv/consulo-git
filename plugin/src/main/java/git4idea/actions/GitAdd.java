@@ -15,26 +15,24 @@
  */
 package git4idea.actions;
 
+import consulo.ide.impl.idea.openapi.vcs.changes.actions.ScheduleForAdditionAction;
+import consulo.ui.ex.action.AnActionEvent;
+import consulo.virtualFileSystem.status.FileStatus;
+
 import javax.annotation.Nonnull;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.vcs.FileStatus;
-import com.intellij.openapi.vcs.changes.actions.ScheduleForAdditionAction;
 
-public class GitAdd extends ScheduleForAdditionAction
-{
+public class GitAdd extends ScheduleForAdditionAction {
 
-	@Override
-	protected boolean isStatusForAddition(FileStatus status)
-	{
-		return status == FileStatus.UNKNOWN ||
-				status == FileStatus.MODIFIED ||
-				status == FileStatus.MERGED_WITH_CONFLICTS ||
-				status == FileStatus.ADDED;
-	}
+  @Override
+  protected boolean isStatusForAddition(FileStatus status) {
+    return status == FileStatus.UNKNOWN ||
+      status == FileStatus.MODIFIED ||
+      status == FileStatus.MERGED_WITH_CONFLICTS ||
+      status == FileStatus.ADDED;
+  }
 
-	@Override
-	protected boolean checkVirtualFiles(@Nonnull AnActionEvent e)
-	{
-		return true;
-	}
+  @Override
+  protected boolean checkVirtualFiles(@Nonnull AnActionEvent e) {
+    return true;
+  }
 }

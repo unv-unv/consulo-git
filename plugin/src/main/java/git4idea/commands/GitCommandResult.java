@@ -15,17 +15,17 @@
  */
 package git4idea.commands;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import consulo.util.collection.ContainerUtil;
+import consulo.util.lang.ObjectUtil;
+import consulo.util.lang.StringUtil;
+import consulo.versionControlSystem.VcsException;
+import git4idea.GitUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.util.ObjectUtils;
-import com.intellij.util.containers.ContainerUtil;
-import git4idea.GitUtil;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * This class represents the result of a Git command execution.
@@ -34,7 +34,6 @@ import git4idea.GitUtil;
  */
 public class GitCommandResult
 {
-
 	private final boolean mySuccess;
 	private final int myExitCode;               // non-zero exit code doesn't necessarily mean an error
 	private final List<String> myErrorOutput;
@@ -73,7 +72,7 @@ public class GitCommandResult
 			mergedExitCode = second.myExitCode; // take exit code of the latest command
 		}
 		return new GitCommandResult(first.success() && second.success(), mergedExitCode, ContainerUtil.concat(first.myErrorOutput, second.myErrorOutput), ContainerUtil.concat(first.myOutput,
-				second.myOutput), ObjectUtils.chooseNotNull(second.myException, first.myException));
+				second.myOutput), ObjectUtil.chooseNotNull(second.myException, first.myException));
 	}
 
 	/**

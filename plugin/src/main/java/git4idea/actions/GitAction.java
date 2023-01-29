@@ -15,11 +15,11 @@
  */
 package git4idea.actions;
 
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.project.DumbAwareAction;
-import com.intellij.openapi.project.Project;
+import consulo.language.editor.CommonDataKeys;
+import consulo.ui.ex.action.AnActionEvent;
+import consulo.ui.ex.action.DumbAwareAction;
+import consulo.ui.ex.action.Presentation;
+import consulo.project.Project;
 import javax.annotation.Nonnull;
 
 /**
@@ -43,7 +43,7 @@ public abstract class GitAction extends DumbAwareAction {
 
   /**
    * Checks if this action should be enabled.
-   * Called in {@link #update(com.intellij.openapi.actionSystem.AnActionEvent)}, so don't execute long tasks here.
+   * Called in {@link #update(AnActionEvent)}, so don't execute long tasks here.
    * @return true if the action is enabled.
    */
   protected boolean isEnabled(@Nonnull AnActionEvent event) {

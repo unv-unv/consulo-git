@@ -15,31 +15,27 @@
  */
 package git4idea.branch;
 
-import java.awt.BorderLayout;
+import consulo.logging.Logger;
+import consulo.project.Project;
+import consulo.ui.ex.awt.DialogWrapper;
+import consulo.ui.ex.awt.JBLabel;
+import consulo.util.collection.ArrayUtil;
+import consulo.util.lang.xml.XmlStringUtil;
+import git4idea.DialogManager;
+import git4idea.GitCommit;
+import git4idea.repo.GitRepository;
+import git4idea.ui.GitCommitListWithDiffPanel;
+import git4idea.ui.GitRepositoryComboboxListCellRenderer;
+
+import javax.annotation.Nonnull;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
-import javax.annotation.Nonnull;
-import javax.swing.Action;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.ui.components.JBLabel;
-import com.intellij.util.ArrayUtil;
-import com.intellij.xml.util.XmlStringUtil;
-import consulo.logging.Logger;
-import git4idea.DialogManager;
-import git4idea.GitCommit;
-import git4idea.repo.GitRepository;
-import git4idea.ui.GitCommitListWithDiffPanel;
-import git4idea.ui.GitRepositoryComboboxListCellRenderer;
 
 /**
  * This dialog is shown when user tries to delete a local branch, which is not fully merged to the current branch.

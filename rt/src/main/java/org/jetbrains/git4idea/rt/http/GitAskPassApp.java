@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jetbrains.git4idea.http;
+package org.jetbrains.git4idea.rt.http;
 
 import consulo.util.nodep.Pair;
 import consulo.util.nodep.text.StringUtilRt;
-import org.jetbrains.git4idea.GitExternalApp;
+import org.jetbrains.git4idea.rt.GitExternalApp;
 
 import javax.annotation.Nonnull;
 

@@ -15,12 +15,12 @@
  */
 package git4idea.history;
 
-import com.intellij.openapi.util.EmptyRunnable;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.concurrency.Semaphore;
-import com.intellij.util.ui.ColumnInfo;
+import consulo.ui.ex.awt.ColumnInfo;
+import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.application.util.Semaphore;
+import consulo.util.lang.EmptyRunnable;
+import consulo.util.lang.Pair;
 import git4idea.history.browser.CachedRefs;
 import git4idea.history.browser.ChangesFilter;
 import git4idea.history.wholeTree.*;

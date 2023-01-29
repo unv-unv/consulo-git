@@ -15,24 +15,17 @@
  */
 package git4idea.update;
 
-import static java.util.Collections.singletonList;
-
-import java.util.Collection;
-import java.util.List;
-
-import javax.annotation.Nonnull;
-
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.ProjectLevelVcsManager;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.VcsNotifier;
-import com.intellij.openapi.vcs.changes.Change;
-import com.intellij.openapi.vcs.changes.ChangeListManager;
-import com.intellij.openapi.vcs.impl.LocalChangesUnderRoots;
-import com.intellij.openapi.vcs.update.UpdatedFiles;
-import com.intellij.util.containers.ContainerUtil;
+import consulo.application.progress.ProgressIndicator;
 import consulo.logging.Logger;
+import consulo.project.Project;
+import consulo.util.collection.ContainerUtil;
+import consulo.versionControlSystem.ProjectLevelVcsManager;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.VcsNotifier;
+import consulo.versionControlSystem.base.LocalChangesUnderRoots;
+import consulo.versionControlSystem.change.Change;
+import consulo.versionControlSystem.change.ChangeListManager;
+import consulo.versionControlSystem.update.UpdatedFiles;
 import git4idea.GitBranch;
 import git4idea.GitUtil;
 import git4idea.branch.GitBranchPair;
@@ -40,6 +33,12 @@ import git4idea.commands.Git;
 import git4idea.commands.GitCommandResult;
 import git4idea.rebase.GitRebaser;
 import git4idea.repo.GitRepository;
+
+import javax.annotation.Nonnull;
+import java.util.Collection;
+import java.util.List;
+
+import static java.util.Collections.singletonList;
 
 /**
  * Handles 'git pull --rebase'

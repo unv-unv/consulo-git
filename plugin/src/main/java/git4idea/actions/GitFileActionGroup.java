@@ -1,14 +1,14 @@
 package git4idea.actions;
 
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.project.DumbAware;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.containers.JBIterable;
+import consulo.application.dumb.DumbAware;
+import consulo.language.editor.CommonDataKeys;
+import consulo.ui.ex.action.DefaultActionGroup;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.util.collection.JBIterable;
 import consulo.git.localize.GitLocalize;
 import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.ex.action.AnActionEvent;
+import consulo.ui.ex.action.Presentation;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;

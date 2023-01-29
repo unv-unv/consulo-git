@@ -15,7 +15,7 @@
  */
 package git4idea;
 
-import com.intellij.vcs.log.Hash;
+import consulo.versionControlSystem.log.Hash;
 import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRemote;
 

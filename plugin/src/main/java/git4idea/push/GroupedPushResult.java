@@ -15,11 +15,11 @@
  */
 package git4idea.push;
 
-import java.util.Map;
+import git4idea.repo.GitRepository;
 
 import javax.annotation.Nonnull;
-import com.intellij.util.containers.ContainerUtil;
-import git4idea.repo.GitRepository;
+import java.util.HashMap;
+import java.util.Map;
 
 class GroupedPushResult
 {
@@ -47,10 +47,10 @@ class GroupedPushResult
 	@Nonnull
 	static GroupedPushResult group(@Nonnull Map<GitRepository, GitPushRepoResult> results)
 	{
-		Map<GitRepository, GitPushRepoResult> successful = ContainerUtil.newHashMap();
-		Map<GitRepository, GitPushRepoResult> rejected = ContainerUtil.newHashMap();
-		Map<GitRepository, GitPushRepoResult> customRejected = ContainerUtil.newHashMap();
-		Map<GitRepository, GitPushRepoResult> errors = ContainerUtil.newHashMap();
+		Map<GitRepository, GitPushRepoResult> successful = new HashMap<>();
+		Map<GitRepository, GitPushRepoResult> rejected = new HashMap<>();
+		Map<GitRepository, GitPushRepoResult> customRejected = new HashMap<>();
+		Map<GitRepository, GitPushRepoResult> errors = new HashMap<>();
 		for(Map.Entry<GitRepository, GitPushRepoResult> entry : results.entrySet())
 		{
 			GitRepository repository = entry.getKey();

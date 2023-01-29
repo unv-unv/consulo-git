@@ -16,7 +16,8 @@
 package git4idea.test;
 
 import com.intellij.dvcs.test.Executor;
-import com.intellij.openapi.util.text.StringUtil;
+import consulo.util.lang.StringUtil;
+
 import javax.annotation.Nonnull;
 
 import java.io.File;

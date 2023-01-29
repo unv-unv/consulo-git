@@ -15,11 +15,11 @@
  */
 package git4idea.history.wholeTree;
 
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.InputValidator;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.text.StringUtil;
+import consulo.ui.ex.InputValidator;
+import consulo.ui.ex.awt.Messages;
+import consulo.util.lang.StringUtil;
+import consulo.ide.ServiceManager;
+import consulo.project.Project;
 import git4idea.branch.GitBrancher;
 import git4idea.repo.GitRepository;
 

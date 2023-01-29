@@ -15,30 +15,28 @@
  */
 package git4idea.actions;
 
-import static com.intellij.dvcs.DvcsUtil.sortRepositories;
-import static git4idea.GitUtil.getRepositories;
-import static git4idea.GitUtil.getRootsFromRepositories;
-import static git4idea.GitUtil.hasGitRepositories;
-import static git4idea.rebase.GitRebaseUtils.getRebasingRepositories;
-import static java.util.Collections.singletonList;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.annotation.Nonnull;
-import com.intellij.dvcs.DvcsUtil;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.project.DumbAwareAction;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.containers.ContainerUtil;
+import consulo.application.progress.ProgressIndicator;
+import consulo.application.progress.ProgressManager;
+import consulo.application.progress.Task;
+import consulo.language.editor.CommonDataKeys;
+import consulo.project.Project;
+import consulo.ui.ex.action.AnActionEvent;
+import consulo.ui.ex.action.DumbAwareAction;
+import consulo.util.collection.ContainerUtil;
+import consulo.versionControlSystem.distributed.DvcsUtil;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.rebase.GitRebaseDialog;
 import git4idea.rebase.GitRebaseUtils;
 import git4idea.repo.GitRepository;
+
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
+
+import static consulo.versionControlSystem.distributed.DvcsUtil.sortRepositories;
+import static git4idea.GitUtil.*;
+import static git4idea.rebase.GitRebaseUtils.getRebasingRepositories;
+import static java.util.Collections.singletonList;
 
 public class GitRebase extends DumbAwareAction
 {
@@ -47,7 +45,7 @@ public class GitRebase extends DumbAwareAction
 	public void update(@Nonnull AnActionEvent e)
 	{
 		super.update(e);
-		Project project = e.getProject();
+		Project project = e.getData(Project.KEY);
 		if(project == null || !hasGitRepositories(project))
 		{
 			e.getPresentation().setEnabledAndVisible(false);

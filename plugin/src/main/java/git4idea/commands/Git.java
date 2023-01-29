@@ -15,172 +15,212 @@
  */
 package git4idea.commands;
 
-import java.io.File;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Computable;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.application.util.function.Computable;
+import consulo.ide.ServiceManager;
+import consulo.project.Project;
+import consulo.versionControlSystem.VcsException;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.branch.GitRebaseParams;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import git4idea.reset.GitResetMode;
 
-public interface Git
-{
-	@Nonnull
-	static Git getInstance()
-	{
-		return ServiceManager.getService(Git.class);
-	}
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.File;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
-	/**
-	 * A generic method to run a Git command, when existing methods like {@link #fetch(GitRepository, String, String, List, String...)}
-	 * are not sufficient.
-	 *
-	 * @param handlerConstructor this is needed, since the operation may need to repeat (e.g. in case of authentication failure).
-	 *                           make sure to supply a stateless constructor.
-	 */
-	@Nonnull
-	GitCommandResult runCommand(@Nonnull Computable<GitLineHandler> handlerConstructor);
+@ServiceAPI(ComponentScope.APPLICATION)
+public interface Git {
+  @Nonnull
+  static Git getInstance() {
+    return ServiceManager.getService(Git.class);
+  }
 
-	/**
-	 * A generic method to run a Git command, when existing methods are not sufficient. <br/>
-	 * Can be used instead of {@link #runCommand(Computable)} if the operation will not need to be repeated for sure
-	 * (e.g. it is a completely local operation).
-	 */
-	@Nonnull
-	GitCommandResult runCommand(@Nonnull GitLineHandler handler);
+  /**
+   * A generic method to run a Git command, when existing methods like {@link #fetch(GitRepository, String, String, List, String...)}
+   * are not sufficient.
+   *
+   * @param handlerConstructor this is needed, since the operation may need to repeat (e.g. in case of authentication failure).
+   *                           make sure to supply a stateless constructor.
+   */
+  @Nonnull
+  GitCommandResult runCommand(@Nonnull Computable<GitLineHandler> handlerConstructor);
 
-	@Nonnull
-	GitCommandResult init(@Nonnull Project project, @Nonnull VirtualFile root, @Nonnull GitLineHandlerListener... listeners);
+  /**
+   * A generic method to run a Git command, when existing methods are not sufficient. <br/>
+   * Can be used instead of {@link #runCommand(Computable)} if the operation will not need to be repeated for sure
+   * (e.g. it is a completely local operation).
+   */
+  @Nonnull
+  GitCommandResult runCommand(@Nonnull GitLineHandler handler);
 
-	@Nonnull
-	Set<VirtualFile> untrackedFiles(@Nonnull Project project, @Nonnull VirtualFile root, @Nullable Collection<VirtualFile> files) throws VcsException;
+  @Nonnull
+  GitCommandResult init(@Nonnull Project project, @Nonnull VirtualFile root, @Nonnull GitLineHandlerListener... listeners);
 
-	// relativePaths are guaranteed to fit into command line length limitations.
-	@Nonnull
-	Collection<VirtualFile> untrackedFilesNoChunk(@Nonnull Project project, @Nonnull VirtualFile root, @Nullable List<String> relativePaths) throws VcsException;
+  @Nonnull
+  Set<VirtualFile> untrackedFiles(@Nonnull Project project,
+                                  @Nonnull VirtualFile root,
+                                  @Nullable Collection<VirtualFile> files) throws VcsException;
 
-	@Nonnull
-	GitCommandResult clone(@Nonnull Project project,
-			@Nonnull File parentDirectory,
-			@Nonnull String url,
-			@Nullable String puttyKey,
-			@Nonnull String clonedDirectoryName,
-			@Nonnull GitLineHandlerListener... progressListeners);
+  // relativePaths are guaranteed to fit into command line length limitations.
+  @Nonnull
+  Collection<VirtualFile> untrackedFilesNoChunk(@Nonnull Project project,
+                                                @Nonnull VirtualFile root,
+                                                @Nullable List<String> relativePaths) throws VcsException;
 
-	@Nonnull
-	GitCommandResult config(@Nonnull GitRepository repository, String... params);
+  @Nonnull
+  GitCommandResult clone(@Nonnull Project project,
+                         @Nonnull File parentDirectory,
+                         @Nonnull String url,
+                         @Nullable String puttyKey,
+                         @Nonnull String clonedDirectoryName,
+                         @Nonnull GitLineHandlerListener... progressListeners);
 
-	@Nonnull
-	GitCommandResult diff(@Nonnull GitRepository repository, @Nonnull List<String> parameters, @Nonnull String range);
+  @Nonnull
+  GitCommandResult config(@Nonnull GitRepository repository, String... params);
 
-	@Nonnull
-	GitCommandResult merge(@Nonnull GitRepository repository, @Nonnull String branchToMerge, @Nullable List<String> additionalParams, @Nonnull GitLineHandlerListener... listeners);
+  @Nonnull
+  GitCommandResult diff(@Nonnull GitRepository repository, @Nonnull List<String> parameters, @Nonnull String range);
 
-	@Nonnull
-	GitCommandResult checkout(@Nonnull GitRepository repository, @Nonnull String reference, @Nullable String newBranch, boolean force, boolean detach, @Nonnull GitLineHandlerListener... listeners);
+  @Nonnull
+  GitCommandResult merge(@Nonnull GitRepository repository,
+                         @Nonnull String branchToMerge,
+                         @Nullable List<String> additionalParams,
+                         @Nonnull GitLineHandlerListener... listeners);
 
-	@Nonnull
-	GitCommandResult checkoutNewBranch(@Nonnull GitRepository repository, @Nonnull String branchName, @Nullable GitLineHandlerListener listener);
+  @Nonnull
+  GitCommandResult checkout(@Nonnull GitRepository repository,
+                            @Nonnull String reference,
+                            @Nullable String newBranch,
+                            boolean force,
+                            boolean detach,
+                            @Nonnull GitLineHandlerListener... listeners);
 
-	@Nonnull
-	GitCommandResult createNewTag(@Nonnull GitRepository repository, @Nonnull String tagName, @Nullable GitLineHandlerListener listener, @Nonnull String reference);
+  @Nonnull
+  GitCommandResult checkoutNewBranch(@Nonnull GitRepository repository,
+                                     @Nonnull String branchName,
+                                     @Nullable GitLineHandlerListener listener);
 
-	@Nonnull
-	GitCommandResult branchDelete(@Nonnull GitRepository repository, @Nonnull String branchName, boolean force, @Nonnull GitLineHandlerListener... listeners);
+  @Nonnull
+  GitCommandResult createNewTag(@Nonnull GitRepository repository,
+                                @Nonnull String tagName,
+                                @Nullable GitLineHandlerListener listener,
+                                @Nonnull String reference);
 
-	@Nonnull
-	GitCommandResult branchContains(@Nonnull GitRepository repository, @Nonnull String commit);
+  @Nonnull
+  GitCommandResult branchDelete(@Nonnull GitRepository repository,
+                                @Nonnull String branchName,
+                                boolean force,
+                                @Nonnull GitLineHandlerListener... listeners);
 
-	/**
-	 * Create branch without checking it out: <br/>
-	 * <pre>    git branch &lt;branchName&gt; &lt;startPoint&gt;</pre>
-	 */
-	@Nonnull
-	GitCommandResult branchCreate(@Nonnull GitRepository repository, @Nonnull String branchName, @Nonnull String startPoint);
+  @Nonnull
+  GitCommandResult branchContains(@Nonnull GitRepository repository, @Nonnull String commit);
 
-	@Nonnull
-	GitCommandResult renameBranch(@Nonnull GitRepository repository, @Nonnull String currentName, @Nonnull String newName, @Nonnull GitLineHandlerListener... listeners);
+  /**
+   * Create branch without checking it out: <br/>
+   * <pre>    git branch &lt;branchName&gt; &lt;startPoint&gt;</pre>
+   */
+  @Nonnull
+  GitCommandResult branchCreate(@Nonnull GitRepository repository, @Nonnull String branchName, @Nonnull String startPoint);
 
-	@Nonnull
-	GitCommandResult reset(@Nonnull GitRepository repository, @Nonnull GitResetMode mode, @Nonnull String target, @Nonnull GitLineHandlerListener... listeners);
+  @Nonnull
+  GitCommandResult renameBranch(@Nonnull GitRepository repository,
+                                @Nonnull String currentName,
+                                @Nonnull String newName,
+                                @Nonnull GitLineHandlerListener... listeners);
 
-	@Nonnull
-	GitCommandResult resetMerge(@Nonnull GitRepository repository, @Nullable String revision);
+  @Nonnull
+  GitCommandResult reset(@Nonnull GitRepository repository,
+                         @Nonnull GitResetMode mode,
+                         @Nonnull String target,
+                         @Nonnull GitLineHandlerListener... listeners);
 
-	@Nonnull
-	GitCommandResult tip(@Nonnull GitRepository repository, @Nonnull String branchName);
+  @Nonnull
+  GitCommandResult resetMerge(@Nonnull GitRepository repository, @Nullable String revision);
 
-	@Nonnull
-	GitCommandResult push(@Nonnull GitRepository repository,
-			@Nonnull String remote,
-			@Nullable String url,
-			@Nullable String puttyKey,
-			@Nonnull String spec,
-			boolean updateTracking,
-			@Nonnull GitLineHandlerListener... listeners);
+  @Nonnull
+  GitCommandResult tip(@Nonnull GitRepository repository, @Nonnull String branchName);
 
-	@Nonnull
-	GitCommandResult push(@Nonnull GitRepository repository,
-			@Nonnull GitRemote remote,
-			@Nonnull String spec,
-			boolean force,
-			boolean updateTracking,
-			boolean skipHook,
-			@Nullable String tagMode,
-			GitLineHandlerListener... listeners);
+  @Nonnull
+  GitCommandResult push(@Nonnull GitRepository repository,
+                        @Nonnull String remote,
+                        @Nullable String url,
+                        @Nullable String puttyKey,
+                        @Nonnull String spec,
+                        boolean updateTracking,
+                        @Nonnull GitLineHandlerListener... listeners);
 
-	@Nonnull
-	GitCommandResult show(@Nonnull GitRepository repository, @Nonnull String... params);
+  @Nonnull
+  GitCommandResult push(@Nonnull GitRepository repository,
+                        @Nonnull GitRemote remote,
+                        @Nonnull String spec,
+                        boolean force,
+                        boolean updateTracking,
+                        boolean skipHook,
+                        @Nullable String tagMode,
+                        GitLineHandlerListener... listeners);
 
-	@Nonnull
-	GitCommandResult cherryPick(@Nonnull GitRepository repository, @Nonnull String hash, boolean autoCommit, @Nonnull GitLineHandlerListener... listeners);
+  @Nonnull
+  GitCommandResult show(@Nonnull GitRepository repository, @Nonnull String... params);
 
-	@Nonnull
-	GitCommandResult getUnmergedFiles(@Nonnull GitRepository repository);
+  @Nonnull
+  GitCommandResult cherryPick(@Nonnull GitRepository repository,
+                              @Nonnull String hash,
+                              boolean autoCommit,
+                              @Nonnull GitLineHandlerListener... listeners);
 
-	@Nonnull
-	GitCommandResult checkAttr(@Nonnull GitRepository repository, @Nonnull Collection<String> attributes, @Nonnull Collection<VirtualFile> files);
+  @Nonnull
+  GitCommandResult getUnmergedFiles(@Nonnull GitRepository repository);
 
-	@Nonnull
-	GitCommandResult stashSave(@Nonnull GitRepository repository, @Nonnull String message);
+  @Nonnull
+  GitCommandResult checkAttr(@Nonnull GitRepository repository,
+                             @Nonnull Collection<String> attributes,
+                             @Nonnull Collection<VirtualFile> files);
 
-	@Nonnull
-	GitCommandResult stashPop(@Nonnull GitRepository repository, @Nonnull GitLineHandlerListener... listeners);
+  @Nonnull
+  GitCommandResult stashSave(@Nonnull GitRepository repository, @Nonnull String message);
 
-	@Nonnull
-	GitCommandResult fetch(@Nonnull GitRepository repository, @Nonnull GitRemote remote, @Nonnull List<GitLineHandlerListener> listeners, String... params);
+  @Nonnull
+  GitCommandResult stashPop(@Nonnull GitRepository repository, @Nonnull GitLineHandlerListener... listeners);
 
-	@Nonnull
-	GitCommandResult addRemote(@Nonnull GitRepository repository, @Nonnull String name, @Nonnull String url);
+  @Nonnull
+  GitCommandResult fetch(@Nonnull GitRepository repository,
+                         @Nonnull GitRemote remote,
+                         @Nonnull List<GitLineHandlerListener> listeners,
+                         String... params);
 
-	@Nonnull
-	GitCommandResult lsRemote(@Nonnull Project project, @Nonnull File workingDir, @Nonnull String url);
+  @Nonnull
+  GitCommandResult addRemote(@Nonnull GitRepository repository, @Nonnull String name, @Nonnull String url);
 
-	@Nonnull
-	GitCommandResult lsRemote(@Nonnull Project project, @Nonnull VirtualFile workingDir, @Nonnull GitRemote remote, String... additionalParameters);
+  @Nonnull
+  GitCommandResult lsRemote(@Nonnull Project project, @Nonnull File workingDir, @Nonnull String url);
 
-	@Nonnull
-	GitCommandResult remotePrune(@Nonnull GitRepository repository, @Nonnull GitRemote remote);
+  @Nonnull
+  GitCommandResult lsRemote(@Nonnull Project project,
+                            @Nonnull VirtualFile workingDir,
+                            @Nonnull GitRemote remote,
+                            String... additionalParameters);
 
-	@Nonnull
-	GitCommandResult rebase(@Nonnull GitRepository repository, @Nonnull GitRebaseParams parameters, @Nonnull GitLineHandlerListener... listeners);
+  @Nonnull
+  GitCommandResult remotePrune(@Nonnull GitRepository repository, @Nonnull GitRemote remote);
 
-	@Nonnull
-	GitCommandResult rebaseAbort(@Nonnull GitRepository repository, @Nonnull GitLineHandlerListener... listeners);
+  @Nonnull
+  GitCommandResult rebase(@Nonnull GitRepository repository,
+                          @Nonnull GitRebaseParams parameters,
+                          @Nonnull GitLineHandlerListener... listeners);
 
-	@Nonnull
-	GitCommandResult rebaseContinue(@Nonnull GitRepository repository, @Nonnull GitLineHandlerListener... listeners);
+  @Nonnull
+  GitCommandResult rebaseAbort(@Nonnull GitRepository repository, @Nonnull GitLineHandlerListener... listeners);
 
-	@Nonnull
-	GitCommandResult rebaseSkip(@Nonnull GitRepository repository, @Nonnull GitLineHandlerListener... listeners);
+  @Nonnull
+  GitCommandResult rebaseContinue(@Nonnull GitRepository repository, @Nonnull GitLineHandlerListener... listeners);
+
+  @Nonnull
+  GitCommandResult rebaseSkip(@Nonnull GitRepository repository, @Nonnull GitLineHandlerListener... listeners);
 
 }

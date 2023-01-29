@@ -17,7 +17,7 @@ package git4idea.validators;
 
 import org.junit.Assert;
 import org.junit.Test;
-import com.intellij.util.Function;
+import consulo.ide.impl.idea.util.Function;
 
 /**
  * The test for {@link GitRefNameValidator}.
@@ -115,7 +115,7 @@ public class GitRefNameValidatorTest
 	//@DataProvider(name = "invalid_chars")
 	public Object[][] createInvalidCharsData()
 	{
-		return populateWithIllegalChars(ILLEGAL_CHARS, new Function<String, String>()
+		return populateWithIllegalChars(ILLEGAL_CHARS, new consulo.ide.impl.idea.util.Function<String, String>()
 		{
 			@Override
 			public String fun(String s)
@@ -153,7 +153,7 @@ public class GitRefNameValidatorTest
 		});
 	}
 
-	private static Object[][] populateWithIllegalChars(String[] illegalChars, Function<String, String> toString)
+	private static Object[][] populateWithIllegalChars(String[] illegalChars, consulo.ide.impl.idea.util.Function<String, String> toString)
 	{
 		Object[][] data = new Object[illegalChars.length][];
 		for(int i = 0; i < illegalChars.length; i++)

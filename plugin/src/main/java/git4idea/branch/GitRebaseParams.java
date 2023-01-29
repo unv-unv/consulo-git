@@ -15,15 +15,16 @@
  */
 package git4idea.branch;
 
-import static com.intellij.openapi.util.text.StringUtil.nullize;
+import static consulo.util.lang.StringUtil.nullize;
 import static java.util.Arrays.asList;
 
 import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.util.containers.ContainerUtil;
+
+import consulo.util.collection.ContainerUtil;
+import consulo.util.lang.StringUtil;
 
 public class GitRebaseParams
 {

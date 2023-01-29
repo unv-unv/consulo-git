@@ -15,9 +15,9 @@
  */
 package git4idea.tests;
 
-import com.intellij.openapi.vcs.BigArray;
-import com.intellij.openapi.vcs.ComparableComparator;
-import com.intellij.openapi.vcs.GroupingMerger;
+import consulo.ide.impl.idea.openapi.vcs.BigArray;
+import consulo.ide.impl.idea.openapi.vcs.ComparableComparator;
+import consulo.ide.impl.idea.openapi.vcs.GroupingMerger;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 

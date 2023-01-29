@@ -15,13 +15,14 @@
  */
 package git4idea;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.FilePath;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.changes.BinaryContentRevision;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.vcsUtil.VcsFileUtil;
+import consulo.project.Project;
+import consulo.versionControlSystem.FilePath;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.change.BinaryContentRevision;
+import consulo.versionControlSystem.util.VcsFileUtil;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.util.GitFileUtils;
+
 import javax.annotation.Nonnull;
 
 /**

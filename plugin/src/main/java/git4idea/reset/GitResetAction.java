@@ -15,28 +15,27 @@
  */
 package git4idea.reset;
 
+import consulo.application.progress.ProgressIndicator;
+import consulo.application.progress.Task;
+import consulo.project.Project;
+import consulo.util.lang.ObjectUtil;
+import consulo.versionControlSystem.log.Hash;
+import consulo.versionControlSystem.log.VcsFullCommitDetails;
+import git4idea.config.GitVcsSettings;
+import git4idea.repo.GitRepository;
+
+import javax.annotation.Nonnull;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nonnull;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.project.Project;
-import com.intellij.util.ObjectUtils;
-import com.intellij.vcs.log.Hash;
-import com.intellij.vcs.log.VcsFullCommitDetails;
-import git4idea.config.GitVcsSettings;
-import git4idea.repo.GitRepository;
-
 public class GitResetAction extends GitOneCommitPerRepoLogAction
 {
-
 	@Override
 	protected void actionPerformed(@Nonnull final Project project, @Nonnull final Map<GitRepository, VcsFullCommitDetails> commits)
 	{
 		GitVcsSettings settings = GitVcsSettings.getInstance(project);
-		GitResetMode defaultMode = ObjectUtils.notNull(settings.getResetMode(), GitResetMode.getDefault());
+		GitResetMode defaultMode = ObjectUtil.notNull(settings.getResetMode(), GitResetMode.getDefault());
 		GitNewResetDialog dialog = new GitNewResetDialog(project, commits, defaultMode);
 		if(dialog.showAndGet())
 		{

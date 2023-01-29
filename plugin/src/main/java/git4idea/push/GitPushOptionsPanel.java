@@ -26,12 +26,12 @@ import javax.swing.JComponent;
 import javax.swing.JList;
 
 import javax.annotation.Nullable;
-import com.intellij.dvcs.push.VcsPushOptionValue;
-import com.intellij.dvcs.push.VcsPushOptionsPanel;
-import com.intellij.openapi.ui.ComboBox;
-import com.intellij.ui.ListCellRendererWrapper;
-import com.intellij.ui.components.JBCheckBox;
-import com.intellij.util.ui.JBUI;
+
+import consulo.ui.ex.awt.*;
+import consulo.versionControlSystem.distributed.push.VcsPushOptionValue;
+import consulo.versionControlSystem.distributed.push.VcsPushOptionsPanel;
+import consulo.ui.ex.awt.ComboBox;
+import consulo.ui.ex.awt.JBCheckBox;
 
 public class GitPushOptionsPanel extends VcsPushOptionsPanel
 {

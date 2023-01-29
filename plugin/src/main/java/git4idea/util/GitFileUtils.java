@@ -15,14 +15,14 @@
  */
 package git4idea.util;
 
+import consulo.application.util.SystemInfo;
 import consulo.logging.Logger;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.SystemInfo;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vcs.FilePath;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.vcsUtil.VcsFileUtil;
+import consulo.project.Project;
+import consulo.util.lang.StringUtil;
+import consulo.versionControlSystem.FilePath;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.util.VcsFileUtil;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitUtil;
 import git4idea.commands.GitBinaryHandler;
 import git4idea.commands.GitCommand;
@@ -30,14 +30,13 @@ import git4idea.commands.GitSimpleHandler;
 import git4idea.repo.GitRepository;
 
 import javax.annotation.Nonnull;
-
 import java.util.*;
 
 /**
  * File utilities for the git
  */
 public class GitFileUtils {
-  private static final Logger LOG = Logger.getInstance(GitFileUtils.class.getName());
+  private static final Logger LOG = Logger.getInstance(GitFileUtils.class);
 
   /**
    * The private constructor for static utility class
@@ -125,7 +124,7 @@ public class GitFileUtils {
   }
 
   private static void updateUntrackedFilesHolderOnFileAdd(@Nonnull Project project, @Nonnull VirtualFile root,
-														  @Nonnull Collection<VirtualFile> addedFiles) {
+                                                          @Nonnull Collection<VirtualFile> addedFiles) {
     final GitRepository repository = GitUtil.getRepositoryManager(project).getRepositoryForRoot(root);
     if (repository == null) {
       LOG.error("Repository not found for root " + root.getPresentableUrl());
@@ -135,7 +134,7 @@ public class GitFileUtils {
   }
 
   private static void updateUntrackedFilesHolderOnFileRemove(@Nonnull Project project, @Nonnull VirtualFile root,
-															 @Nonnull Collection<VirtualFile> removedFiles) {
+                                                             @Nonnull Collection<VirtualFile> removedFiles) {
     final GitRepository repository = GitUtil.getRepositoryManager(project).getRepositoryForRoot(root);
     if (repository == null) {
       LOG.error("Repository not found for root " + root.getPresentableUrl());
@@ -155,7 +154,7 @@ public class GitFileUtils {
    * Add files to the Git index.
    */
   public static void addPaths(@Nonnull Project project, @Nonnull VirtualFile root,
-							  @Nonnull Collection<FilePath> files) throws VcsException {
+                              @Nonnull Collection<FilePath> files) throws VcsException {
     addPaths(project, root, VcsFileUtil.chunkPaths(root, files));
     updateUntrackedFilesHolderOnFileAdd(project, root, getVirtualFilesFromFilePaths(files));
   }
@@ -173,7 +172,7 @@ public class GitFileUtils {
   }
 
   private static void addPaths(@Nonnull Project project, @Nonnull VirtualFile root,
-							   @Nonnull List<List<String>> chunkedPaths) throws VcsException {
+                               @Nonnull List<List<String>> chunkedPaths) throws VcsException {
     for (List<String> paths : chunkedPaths) {
       paths = excludeIgnoredFiles(project, root, paths);
 
@@ -190,7 +189,7 @@ public class GitFileUtils {
 
   @Nonnull
   private static List<String> excludeIgnoredFiles(@Nonnull Project project, @Nonnull VirtualFile root,
-												  @Nonnull List<String> paths) throws VcsException {
+                                                  @Nonnull List<String> paths) throws VcsException {
     GitSimpleHandler handler = new GitSimpleHandler(project, root, GitCommand.LS_FILES);
     handler.setSilent(true);
     handler.addParameters("--ignored", "--others", "--exclude-standard");

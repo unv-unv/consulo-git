@@ -15,132 +15,101 @@
  */
 package git4idea.update;
 
-import java.util.Arrays;
-
-import javax.annotation.Nonnull;
-import com.intellij.CommonBundle;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ModalityState;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.Condition;
-import com.intellij.openapi.util.Ref;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.Consumer;
-import com.intellij.util.EmptyConsumer;
-import com.intellij.util.Function;
-import com.intellij.util.ObjectUtils;
-import com.intellij.util.containers.ContainerUtil;
-import com.intellij.vcs.log.TimedVcsCommit;
-import com.intellij.vcs.log.VcsRef;
-import com.intellij.vcs.log.VcsUser;
+import consulo.application.ApplicationManager;
+import consulo.application.CommonBundle;
 import consulo.logging.Logger;
+import consulo.project.Project;
+import consulo.ui.ex.awt.Messages;
+import consulo.util.collection.ContainerUtil;
+import consulo.util.lang.ObjectUtil;
+import consulo.util.lang.ref.Ref;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.log.TimedVcsCommit;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.DialogManager;
 import git4idea.history.GitHistoryUtils;
 
-public class GitRebaseOverMergeProblem
-{
-	private static final Logger LOG = Logger.getInstance(GitRebaseOverMergeProblem.class);
-	public static final String DESCRIPTION = "You are about to rebase merge commits. \n" +
-			"This can lead to duplicate commits in history, or even data loss.\n" +
-			"It is recommended to merge instead of rebase in this case.";
+import javax.annotation.Nonnull;
+import java.util.Arrays;
+import java.util.function.Consumer;
 
-	public enum Decision
-	{
-		MERGE_INSTEAD("Merge"),
-		REBASE_ANYWAY("Rebase Anyway"),
-		CANCEL_OPERATION(CommonBundle.getCancelButtonText());
+public class GitRebaseOverMergeProblem {
+  private static final Logger LOG = Logger.getInstance(GitRebaseOverMergeProblem.class);
+  public static final String DESCRIPTION = "You are about to rebase merge commits. \n" +
+    "This can lead to duplicate commits in history, or even data loss.\n" +
+    "It is recommended to merge instead of rebase in this case.";
 
-		private final String myButtonText;
+  public enum Decision {
+    MERGE_INSTEAD("Merge"),
+    REBASE_ANYWAY("Rebase Anyway"),
+    CANCEL_OPERATION(CommonBundle.getCancelButtonText());
 
-		Decision(@Nonnull String buttonText)
-		{
-			myButtonText = buttonText;
-		}
+    private final String myButtonText;
 
-		@Nonnull
-		private static String[] getButtonTitles()
-		{
-			return ContainerUtil.map2Array(values(), String.class, new Function<Decision, String>()
-			{
-				@Override
-				public String fun(Decision decision)
-				{
-					return decision.myButtonText;
-				}
-			});
-		}
+    Decision(@Nonnull String buttonText) {
+      myButtonText = buttonText;
+    }
 
-		@Nonnull
-		public static Decision getOption(final int index)
-		{
-			return ObjectUtils.assertNotNull(ContainerUtil.find(values(), new Condition<Decision>()
-			{
-				@Override
-				public boolean value(Decision decision)
-				{
-					return decision.ordinal() == index;
-				}
-			}));
-		}
+    @Nonnull
+    private static String[] getButtonTitles() {
+      return ContainerUtil.map2Array(values(), String.class, decision -> decision.myButtonText);
+    }
 
-		private static int getDefaultButtonIndex()
-		{
-			return MERGE_INSTEAD.ordinal();
-		}
+    @Nonnull
+    public static Decision getOption(final int index) {
+      return ObjectUtil.assertNotNull(ContainerUtil.find(values(), decision -> decision.ordinal() == index));
+    }
 
-		private static int getFocusedButtonIndex()
-		{
-			return CANCEL_OPERATION.ordinal();
-		}
-	}
+    private static int getDefaultButtonIndex() {
+      return MERGE_INSTEAD.ordinal();
+    }
 
-	public static boolean hasProblem(@Nonnull Project project, @Nonnull VirtualFile root, @Nonnull String baseRef, @Nonnull String currentRef)
-	{
-		final Ref<Boolean> mergeFound = Ref.create(Boolean.FALSE);
-		Consumer<TimedVcsCommit> detectingConsumer = new Consumer<TimedVcsCommit>()
-		{
-			@Override
-			public void consume(TimedVcsCommit commit)
-			{
-				mergeFound.set(true);
-			}
-		};
+    private static int getFocusedButtonIndex() {
+      return CANCEL_OPERATION.ordinal();
+    }
+  }
 
-		String range = baseRef + ".." + currentRef;
-		try
-		{
-			GitHistoryUtils.readCommits(project, root, Arrays.asList(range, "--merges"), EmptyConsumer.<VcsUser>getInstance(),
-					EmptyConsumer.<VcsRef>getInstance(), detectingConsumer);
-		}
-		catch(VcsException e)
-		{
-			LOG.warn("Couldn't get git log --merges " + range, e);
-		}
-		return mergeFound.get();
-	}
+  public static boolean hasProblem(@Nonnull Project project,
+                                   @Nonnull VirtualFile root,
+                                   @Nonnull String baseRef,
+                                   @Nonnull String currentRef) {
+    final Ref<Boolean> mergeFound = Ref.create(Boolean.FALSE);
+    Consumer<TimedVcsCommit> detectingConsumer = commit -> mergeFound.set(true);
 
-	@Nonnull
-	public static Decision showDialog()
-	{
-		final Ref<Decision> decision = Ref.create();
-		ApplicationManager.getApplication().invokeAndWait(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				decision.set(doShowDialog());
-			}
-		}, ModalityState.defaultModalityState());
-		return decision.get();
-	}
+    String range = baseRef + ".." + currentRef;
+    try {
+      GitHistoryUtils.readCommits(project, root, Arrays.asList(range, "--merges"), e -> {
+                                  },
+                                  e -> {
+                                  }, detectingConsumer);
+    }
+    catch (VcsException e) {
+      LOG.warn("Couldn't get git log --merges " + range, e);
+    }
+    return mergeFound.get();
+  }
 
-	@Nonnull
-	private static Decision doShowDialog()
-	{
-		int decision = DialogManager.showMessage(DESCRIPTION, "Rebasing Merge Commits", Decision.getButtonTitles(),
-				Decision.getDefaultButtonIndex(), Decision.getFocusedButtonIndex(), Messages.getWarningIcon(), null);
-		return Decision.getOption(decision);
-	}
+  @Nonnull
+  public static Decision showDialog() {
+    final Ref<Decision> decision = Ref.create();
+    ApplicationManager.getApplication().invokeAndWait(new Runnable() {
+      @Override
+      public void run() {
+        decision.set(doShowDialog());
+      }
+    }, ApplicationManager.getApplication().getDefaultModalityState());
+    return decision.get();
+  }
+
+  @Nonnull
+  private static Decision doShowDialog() {
+    int decision = DialogManager.showMessage(DESCRIPTION,
+                                             "Rebasing Merge Commits",
+                                             Decision.getButtonTitles(),
+                                             Decision.getDefaultButtonIndex(),
+                                             Decision.getFocusedButtonIndex(),
+                                             Messages.getWarningIcon(),
+                                             null);
+    return Decision.getOption(decision);
+  }
 }

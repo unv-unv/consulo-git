@@ -15,170 +15,123 @@
  */
 package git4idea.commands;
 
-import java.io.File;
-import java.nio.charset.Charset;
+import consulo.process.ExecutionException;
+import consulo.process.ProcessHandler;
+import consulo.process.ProcessHandlerBuilder;
+import consulo.process.cmd.GeneralCommandLine;
+import consulo.process.event.ProcessEvent;
+import consulo.process.event.ProcessListener;
+import consulo.process.local.BaseProcessHandler;
+import consulo.project.Project;
+import consulo.util.dataholder.Key;
+import consulo.virtualFileSystem.VirtualFile;
 
 import javax.annotation.Nonnull;
-
-import com.intellij.execution.ExecutionException;
-import com.intellij.execution.configurations.GeneralCommandLine;
-import com.intellij.execution.process.KillableProcessHandler;
-import com.intellij.execution.process.OSProcessHandler;
-import com.intellij.execution.process.ProcessEvent;
-import com.intellij.execution.process.ProcessListener;
-import com.intellij.openapi.project.Project;
-import consulo.util.dataholder.Key;
-import com.intellij.openapi.util.registry.Registry;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.io.BaseOutputReader;
-
 import javax.annotation.Nullable;
+import java.io.File;
 
 /**
  * The handler for git commands with text outputs
  */
-public abstract class GitTextHandler extends GitHandler
-{
-	// note that access is safe because it accessed in unsynchronized block only after process is started, and it does not change after that
-	@SuppressWarnings({"FieldAccessedSynchronizedAndUnsynchronized"})
-	private OSProcessHandler myHandler;
-	private volatile boolean myIsDestroyed;
-	private final Object myProcessStateLock = new Object();
+public abstract class GitTextHandler extends GitHandler {
+  // note that access is safe because it accessed in unsynchronized block only after process is started, and it does not change after that
+  @SuppressWarnings({"FieldAccessedSynchronizedAndUnsynchronized"})
+  private ProcessHandler myHandler;
+  private volatile boolean myIsDestroyed;
+  private final Object myProcessStateLock = new Object();
 
-	protected GitTextHandler(@Nonnull Project project, @Nonnull File directory, @Nonnull GitCommand command)
-	{
-		super(project, directory, command);
-	}
+  protected GitTextHandler(@Nonnull Project project, @Nonnull File directory, @Nonnull GitCommand command) {
+    super(project, directory, command);
+  }
 
-	protected GitTextHandler(final Project project, final VirtualFile vcsRoot, final GitCommand command)
-	{
-		super(project, vcsRoot, command);
-	}
+  protected GitTextHandler(final Project project, final VirtualFile vcsRoot, final GitCommand command) {
+    super(project, vcsRoot, command);
+  }
 
-	@Nullable
-	@Override
-	protected Process startProcess() throws ExecutionException
-	{
-		synchronized(myProcessStateLock)
-		{
-			if(myIsDestroyed)
-			{
-				return null;
-			}
-			final OSProcessHandler processHandler = createProcess(myCommandLine);
-			myHandler = processHandler;
-			return myHandler.getProcess();
-		}
-	}
+  @Nullable
+  @Override
+  protected Process startProcess() throws ExecutionException {
+    synchronized (myProcessStateLock) {
+      if (myIsDestroyed) {
+        return null;
+      }
+      final ProcessHandler processHandler = createProcess(myCommandLine);
+      myHandler = processHandler;
+      return ((BaseProcessHandler<Process>)myHandler).getProcess();
+    }
+  }
 
-	@Override
-	protected void startHandlingStreams()
-	{
-		if(myHandler == null)
-		{
-			return;
-		}
-		myHandler.addProcessListener(new ProcessListener()
-		{
-			@Override
-			public void startNotified(final ProcessEvent event)
-			{
-				// do nothing
-			}
+  @Override
+  protected void startHandlingStreams() {
+    if (myHandler == null) {
+      return;
+    }
+    myHandler.addProcessListener(new ProcessListener() {
+      @Override
+      public void startNotified(final ProcessEvent event) {
+        // do nothing
+      }
 
-			@Override
-			public void processTerminated(final ProcessEvent event)
-			{
-				final int exitCode = event.getExitCode();
-				try
-				{
-					setExitCode(exitCode);
-					cleanupEnv();
-					GitTextHandler.this.processTerminated(exitCode);
-				}
-				finally
-				{
-					listeners().processTerminated(exitCode);
-				}
-			}
+      @Override
+      public void processTerminated(final ProcessEvent event) {
+        final int exitCode = event.getExitCode();
+        try {
+          setExitCode(exitCode);
+          cleanupEnv();
+          GitTextHandler.this.processTerminated(exitCode);
+        }
+        finally {
+          listeners().processTerminated(exitCode);
+        }
+      }
 
-			@Override
-			public void processWillTerminate(final ProcessEvent event, final boolean willBeDestroyed)
-			{
-				// do nothing
-			}
+      @Override
+      public void processWillTerminate(final ProcessEvent event, final boolean willBeDestroyed) {
+        // do nothing
+      }
 
-			@Override
-			public void onTextAvailable(final ProcessEvent event, final Key outputType)
-			{
-				GitTextHandler.this.onTextAvailable(event.getText(), outputType);
-			}
-		});
-		myHandler.startNotify();
-	}
+      @Override
+      public void onTextAvailable(final ProcessEvent event, final Key outputType) {
+        GitTextHandler.this.onTextAvailable(event.getText(), outputType);
+      }
+    });
+    myHandler.startNotify();
+  }
 
-	/**
-	 * Notification for handler to handle process exit event
-	 *
-	 * @param exitCode a exit code.
-	 */
-	protected abstract void processTerminated(int exitCode);
+  /**
+   * Notification for handler to handle process exit event
+   *
+   * @param exitCode a exit code.
+   */
+  protected abstract void processTerminated(int exitCode);
 
-	/**
-	 * This method is invoked when some text is available
-	 *
-	 * @param text       an available text
-	 * @param outputType output type
-	 */
-	protected abstract void onTextAvailable(final String text, final Key outputType);
+  /**
+   * This method is invoked when some text is available
+   *
+   * @param text       an available text
+   * @param outputType output type
+   */
+  protected abstract void onTextAvailable(final String text, final Key outputType);
 
-	@Override
-	public void destroyProcess()
-	{
-		synchronized(myProcessStateLock)
-		{
-			myIsDestroyed = true;
-			if(myHandler != null)
-			{
-				myHandler.destroyProcess();
-			}
-		}
-	}
+  @Override
+  public void destroyProcess() {
+    synchronized (myProcessStateLock) {
+      myIsDestroyed = true;
+      if (myHandler != null) {
+        myHandler.destroyProcess();
+      }
+    }
+  }
 
-	@Override
-	protected void waitForProcess()
-	{
-		if(myHandler != null)
-		{
-			myHandler.waitFor();
-		}
-	}
+  @Override
+  protected void waitForProcess() {
+    if (myHandler != null) {
+      myHandler.waitFor();
+    }
+  }
 
-	public OSProcessHandler createProcess(@Nonnull GeneralCommandLine commandLine) throws ExecutionException
-	{
-		commandLine.setCharset(getCharset());
-		return new MyOSProcessHandler(commandLine);
-	}
-
-	private static class MyOSProcessHandler extends KillableProcessHandler
-	{
-		public MyOSProcessHandler(GeneralCommandLine commandLine) throws ExecutionException
-		{
-			super(commandLine, true);
-		}
-
-		@Nonnull
-		@Override
-		public Charset getCharset()
-		{
-			return myCharset;
-		}
-
-		@Nonnull
-		@Override
-		protected BaseOutputReader.Options readerOptions()
-		{
-			return Registry.is("git.blocking.read", true) ? BaseOutputReader.Options.BLOCKING : BaseOutputReader.Options.NON_BLOCKING;
-		}
-	}
+  public ProcessHandler createProcess(@Nonnull GeneralCommandLine commandLine) throws ExecutionException {
+    commandLine.setCharset(getCharset());
+    return ProcessHandlerBuilder.create(commandLine).killable().blockingReader().build();
+  }
 }

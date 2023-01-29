@@ -15,18 +15,18 @@
  */
 package git4idea.log;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import consulo.ide.impl.idea.vcs.log.util.BekUtil;
+import consulo.util.collection.ContainerUtil;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.log.*;
+import consulo.virtualFileSystem.VirtualFile;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.Function;
-import com.intellij.util.containers.ContainerUtil;
-import com.intellij.vcs.log.*;
-import com.intellij.vcs.log.util.BekUtil;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
 
 class GitBekParentFixer
 {
@@ -67,14 +67,7 @@ class GitBekParentFixer
 	private static Set<Hash> getWrongCommits(@Nonnull GitLogProvider provider, @Nonnull VirtualFile root) throws VcsException
 	{
 		List<TimedVcsCommit> commitsMatchingFilter = provider.getCommitsMatchingFilter(root, MAGIC_FILTER, -1);
-		return ContainerUtil.map2Set(commitsMatchingFilter, new Function<TimedVcsCommit, Hash>()
-		{
-			@Override
-			public Hash fun(TimedVcsCommit timedVcsCommit)
-			{
-				return timedVcsCommit.getId();
-			}
-		});
+		return ContainerUtil.map2Set(commitsMatchingFilter, timedVcsCommit -> timedVcsCommit.getId());
 	}
 
 	@Nonnull

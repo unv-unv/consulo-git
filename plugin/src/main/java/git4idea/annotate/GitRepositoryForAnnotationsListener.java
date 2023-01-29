@@ -15,12 +15,13 @@
  */
 package git4idea.annotate;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.ProjectLevelVcsManager;
-import com.intellij.openapi.vcs.changes.VcsAnnotationRefresher;
+import consulo.project.Project;
+import consulo.versionControlSystem.ProjectLevelVcsManager;
+import consulo.versionControlSystem.change.VcsAnnotationRefresher;
 import git4idea.GitVcs;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -47,7 +48,8 @@ public class GitRepositoryForAnnotationsListener {
     return new GitRepositoryChangeListener() {
       @Override
       public void repositoryChanged(@Nonnull GitRepository repository) {
-        final VcsAnnotationRefresher refresher = myProject.getMessageBus().syncPublisher(VcsAnnotationRefresher.LOCAL_CHANGES_CHANGED);
+        final VcsAnnotationRefresher refresher =
+          myProject.getMessageBus().syncPublisher(VcsAnnotationRefresher.class);
         refresher.dirtyUnder(repository.getRoot());
       }
     };

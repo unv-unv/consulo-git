@@ -15,7 +15,7 @@
  */
 package git4idea;
 
-import com.intellij.openapi.progress.EmptyProgressIndicator;
+import consulo.application.progress.EmptyProgressIndicator;
 import cucumber.annotation.en.Then;
 import cucumber.annotation.en.When;
 import git4idea.checkout.GitCheckoutProvider;

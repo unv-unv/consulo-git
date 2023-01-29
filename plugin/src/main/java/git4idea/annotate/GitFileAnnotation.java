@@ -15,21 +15,25 @@
  */
 package git4idea.annotate;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.VcsKey;
-import com.intellij.openapi.vcs.annotate.*;
-import com.intellij.openapi.vcs.history.VcsFileRevision;
-import com.intellij.openapi.vcs.history.VcsRevisionNumber;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.text.DateFormatUtil;
+import consulo.application.util.DateFormatUtil;
+import consulo.ide.impl.idea.openapi.vcs.annotate.ShowAllAffectedGenericAction;
 import consulo.logging.Logger;
+import consulo.project.Project;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.VcsKey;
+import consulo.versionControlSystem.annotate.AnnotationSourceSwitcher;
+import consulo.versionControlSystem.annotate.FileAnnotation;
+import consulo.versionControlSystem.annotate.LineAnnotationAspect;
+import consulo.versionControlSystem.annotate.LineAnnotationAspectAdapter;
+import consulo.versionControlSystem.history.VcsFileRevision;
+import consulo.versionControlSystem.history.VcsRevisionNumber;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitRevisionNumber;
 import git4idea.GitVcs;
 import git4idea.i18n.GitBundle;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import java.util.*;
 
 /**

@@ -15,14 +15,14 @@
  */
 package git4idea.history;
 
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vcs.FilePath;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.changes.Change;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.testFramework.LightVirtualFile;
-import com.intellij.util.containers.ContainerUtil;
+import consulo.ide.impl.idea.openapi.util.io.FileUtil;
+import consulo.language.file.light.LightVirtualFile;
+import consulo.util.lang.StringUtil;
+import consulo.versionControlSystem.FilePath;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.change.Change;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.util.collection.ContainerUtil;
 import git4idea.GitUtil;
 import git4idea.test.GitTest;
 import javax.annotation.Nonnull;

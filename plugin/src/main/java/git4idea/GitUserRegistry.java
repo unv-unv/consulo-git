@@ -15,137 +15,120 @@
  */
 package git4idea;
 
-import java.util.Collection;
-import java.util.Map;
-
-import javax.annotation.Nonnull;
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ServiceAPI;
+import consulo.annotation.component.ServiceImpl;
+import consulo.application.ApplicationManager;
+import consulo.disposer.Disposable;
+import consulo.ide.ServiceManager;
+import consulo.logging.Logger;
+import consulo.project.Project;
+import consulo.util.collection.ContainerUtil;
+import consulo.util.lang.StringUtil;
+import consulo.util.lang.function.Condition;
+import consulo.versionControlSystem.ProjectLevelVcsManager;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.VcsListener;
+import consulo.versionControlSystem.log.VcsLogObjectsFactory;
+import consulo.versionControlSystem.log.VcsUser;
+import consulo.virtualFileSystem.VirtualFile;
+import git4idea.config.GitConfigUtil;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Condition;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vcs.ProjectLevelVcsManager;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.VcsListener;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.containers.ContainerUtil;
-import com.intellij.vcs.log.VcsLogObjectsFactory;
-import com.intellij.vcs.log.VcsUser;
-import consulo.disposer.Disposable;
-import consulo.logging.Logger;
-import git4idea.config.GitConfigUtil;
+import java.util.Collection;
+import java.util.Map;
 
 @Singleton
-public class GitUserRegistry implements Disposable, VcsListener
-{
+@ServiceAPI(ComponentScope.PROJECT)
+@ServiceImpl
+public class GitUserRegistry implements Disposable, VcsListener {
 
-	private static final Logger LOG = Logger.getInstance(GitUserRegistry.class);
+  private static final Logger LOG = Logger.getInstance(GitUserRegistry.class);
 
-	@Nonnull
-	private final Project myProject;
-	@Nonnull
-	private final ProjectLevelVcsManager myVcsManager;
-	@Nonnull
-	private final VcsLogObjectsFactory myFactory;
-	@Nonnull
-	private final Map<VirtualFile, VcsUser> myUserMap = ContainerUtil.newConcurrentMap();
+  @Nonnull
+  private final Project myProject;
+  @Nonnull
+  private final ProjectLevelVcsManager myVcsManager;
+  @Nonnull
+  private final VcsLogObjectsFactory myFactory;
+  @Nonnull
+  private final Map<VirtualFile, VcsUser> myUserMap = ContainerUtil.newConcurrentMap();
 
-	@Inject
-	public GitUserRegistry(@Nonnull Project project, @Nonnull ProjectLevelVcsManager vcsManager, @Nonnull VcsLogObjectsFactory factory)
-	{
-		myProject = project;
-		myVcsManager = vcsManager;
-		myFactory = factory;
-	}
+  @Inject
+  public GitUserRegistry(@Nonnull Project project, @Nonnull ProjectLevelVcsManager vcsManager, @Nonnull VcsLogObjectsFactory factory) {
+    myProject = project;
+    myVcsManager = vcsManager;
+    myFactory = factory;
+  }
 
-	public static GitUserRegistry getInstance(@Nonnull Project project)
-	{
-		return ServiceManager.getService(project, GitUserRegistry.class);
-	}
+  public static GitUserRegistry getInstance(@Nonnull Project project) {
+    return ServiceManager.getService(project, GitUserRegistry.class);
+  }
 
-	public void activate()
-	{
-		myProject.getMessageBus().connect().subscribe(ProjectLevelVcsManager.VCS_CONFIGURATION_CHANGED, this);
-		directoryMappingChanged();
-	}
+  public void activate() {
+    myProject.getMessageBus().connect().subscribe(ProjectLevelVcsManager.VCS_CONFIGURATION_CHANGED, this);
+    directoryMappingChanged();
+  }
 
-	@Nullable
-	public VcsUser getUser(@Nonnull VirtualFile root)
-	{
-		return myUserMap.get(root);
-	}
+  @Nullable
+  public VcsUser getUser(@Nonnull VirtualFile root) {
+    return myUserMap.get(root);
+  }
 
-	@Nullable
-	public VcsUser getOrReadUser(@Nonnull VirtualFile root)
-	{
-		VcsUser user = myUserMap.get(root);
-		if(user == null)
-		{
-			try
-			{
-				user = readCurrentUser(myProject, root);
-				if(user != null)
-				{
-					myUserMap.put(root, user);
-				}
-			}
-			catch(VcsException e)
-			{
-				LOG.warn("Could not retrieve user name in " + root, e);
-			}
-		}
-		return user;
-	}
+  @Nullable
+  public VcsUser getOrReadUser(@Nonnull VirtualFile root) {
+    VcsUser user = myUserMap.get(root);
+    if (user == null) {
+      try {
+        user = readCurrentUser(myProject, root);
+        if (user != null) {
+          myUserMap.put(root, user);
+        }
+      }
+      catch (VcsException e) {
+        LOG.warn("Could not retrieve user name in " + root, e);
+      }
+    }
+    return user;
+  }
 
-	@Nullable
-	private VcsUser readCurrentUser(@Nonnull Project project, @Nonnull VirtualFile root) throws VcsException
-	{
-		String userName = GitConfigUtil.getValue(project, root, GitConfigUtil.USER_NAME);
-		String userEmail = StringUtil.notNullize(GitConfigUtil.getValue(project, root, GitConfigUtil.USER_EMAIL));
-		return userName == null ? null : myFactory.createUser(userName, userEmail);
-	}
+  @Nullable
+  private VcsUser readCurrentUser(@Nonnull Project project, @Nonnull VirtualFile root) throws VcsException {
+    String userName = GitConfigUtil.getValue(project, root, GitConfigUtil.USER_NAME);
+    String userEmail = StringUtil.notNullize(GitConfigUtil.getValue(project, root, GitConfigUtil.USER_EMAIL));
+    return userName == null ? null : myFactory.createUser(userName, userEmail);
+  }
 
-	@Override
-	public void dispose()
-	{
-		myUserMap.clear();
-	}
+  @Override
+  public void dispose() {
+    myUserMap.clear();
+  }
 
-	@Override
-	public void directoryMappingChanged()
-	{
-		GitVcs vcs = GitVcs.getInstance(myProject);
-		if(vcs == null)
-		{
-			return;
-		}
-		final VirtualFile[] roots = myVcsManager.getRootsUnderVcs(vcs);
-		final Collection<VirtualFile> rootsToCheck = ContainerUtil.filter(roots, new Condition<VirtualFile>()
-		{
-			@Override
-			public boolean value(VirtualFile root)
-			{
-				return getUser(root) == null;
-			}
-		});
-		if(!rootsToCheck.isEmpty())
-		{
-			ApplicationManager.getApplication().executeOnPooledThread(new Runnable()
-			{
-				public void run()
-				{
-					for(VirtualFile root : rootsToCheck)
-					{
-						getOrReadUser(root);
-					}
-				}
-			});
-		}
-	}
+  @Override
+  public void directoryMappingChanged() {
+    GitVcs vcs = GitVcs.getInstance(myProject);
+    if (vcs == null) {
+      return;
+    }
+    final VirtualFile[] roots = myVcsManager.getRootsUnderVcs(vcs);
+    final Collection<VirtualFile> rootsToCheck = ContainerUtil.filter(roots, new Condition<VirtualFile>() {
+      @Override
+      public boolean value(VirtualFile root) {
+        return getUser(root) == null;
+      }
+    });
+    if (!rootsToCheck.isEmpty()) {
+      ApplicationManager.getApplication().executeOnPooledThread(new Runnable() {
+        public void run() {
+          for (VirtualFile root : rootsToCheck) {
+            getOrReadUser(root);
+          }
+        }
+      });
+    }
+  }
 
 }

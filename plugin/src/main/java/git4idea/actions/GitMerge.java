@@ -15,12 +15,12 @@
  */
 package git4idea.actions;
 
-import com.intellij.history.Label;
-import com.intellij.history.LocalHistory;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.update.ActionInfo;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.localHistory.Label;
+import consulo.localHistory.LocalHistory;
+import consulo.project.Project;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.update.ActionInfo;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitRevisionNumber;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
@@ -30,8 +30,8 @@ import git4idea.i18n.GitBundle;
 import git4idea.merge.GitMergeDialog;
 import git4idea.merge.GitMergeUtil;
 import git4idea.repo.GitRepositoryManager;
-import javax.annotation.Nonnull;
 
+import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;

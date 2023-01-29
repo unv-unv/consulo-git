@@ -15,36 +15,30 @@
  */
 package git4idea.util;
 
+import consulo.project.Project;
+import consulo.ui.ex.awt.ListCellRendererWrapper;
+import consulo.ui.ex.awt.Messages;
+import consulo.util.lang.StringUtil;
+import consulo.versionControlSystem.AbstractVcsHelper;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.VcsNotifier;
+import consulo.virtualFileSystem.VirtualFile;
+import git4idea.GitBranch;
+import git4idea.GitUtil;
+import git4idea.i18n.GitBundle;
+import git4idea.repo.GitRepository;
+import org.jetbrains.annotations.NonNls;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.swing.*;
+import javax.swing.text.JTextComponent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-
-import javax.annotation.Nonnull;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JTextField;
-import javax.swing.text.JTextComponent;
-
-import org.jetbrains.annotations.NonNls;
-
-import javax.annotation.Nullable;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vcs.AbstractVcsHelper;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.VcsNotifier;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.ui.ListCellRendererWrapper;
-import git4idea.GitBranch;
-import git4idea.GitUtil;
-import git4idea.i18n.GitBundle;
-import git4idea.repo.GitRepository;
 
 /**
  * Utilities for git plugin user interface

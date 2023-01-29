@@ -24,8 +24,8 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 import consulo.logging.Logger;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.vcs.changes.Change;
+import consulo.util.lang.Pair;
+import consulo.versionControlSystem.change.Change;
 import git4idea.GitCommit;
 import git4idea.repo.GitRepository;
 

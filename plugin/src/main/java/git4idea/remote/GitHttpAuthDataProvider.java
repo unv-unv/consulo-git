@@ -15,25 +15,27 @@
  */
 package git4idea.remote;
 
+import consulo.annotation.component.ComponentScope;
+import consulo.annotation.component.ExtensionAPI;
+import consulo.component.extension.ExtensionPointName;
+import consulo.credentialStorage.AuthData;
+import git4idea.commands.GitHttpAuthenticator;
+
 import javax.annotation.Nonnull;
-
-import com.intellij.openapi.extensions.ExtensionPointName;
-import com.intellij.util.AuthData;
-
 import javax.annotation.Nullable;
 
 /**
- * Provides authentication information to the {@link git4idea.commands.GitHttpAuthenticator} on attempt to connect an HTTP remote.
+ * Provides authentication information to the {@link GitHttpAuthenticator} on attempt to connect an HTTP remote.
  * Useful for reusing Github credentials stored in the settings to connect the github remote (IDEA-87530).
  *
  * @author Kirill Likhodedov
  */
-public interface GitHttpAuthDataProvider
-{
-	ExtensionPointName<GitHttpAuthDataProvider> EP_NAME = ExtensionPointName.create("com.intellij.git.httpAuthDataProvider");
+@ExtensionAPI(ComponentScope.APPLICATION)
+public interface GitHttpAuthDataProvider {
+  ExtensionPointName<GitHttpAuthDataProvider> EP_NAME = ExtensionPointName.create(GitHttpAuthDataProvider.class);
 
-	@Nullable
-	AuthData getAuthData(@Nonnull String url);
+  @Nullable
+  AuthData getAuthData(@Nonnull String url);
 
-	void forgetPassword(@Nonnull String url);
+  void forgetPassword(@Nonnull String url);
 }

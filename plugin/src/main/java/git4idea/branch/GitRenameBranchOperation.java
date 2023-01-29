@@ -15,16 +15,16 @@
  */
 package git4idea.branch;
 
-import java.util.Collection;
-import java.util.List;
-
-import javax.annotation.Nonnull;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.VcsNotifier;
+import consulo.project.Project;
+import consulo.versionControlSystem.VcsNotifier;
 import git4idea.commands.Git;
 import git4idea.commands.GitCommandResult;
 import git4idea.commands.GitCompoundResult;
 import git4idea.repo.GitRepository;
+
+import javax.annotation.Nonnull;
+import java.util.Collection;
+import java.util.List;
 
 public class GitRenameBranchOperation extends GitBranchOperation
 {

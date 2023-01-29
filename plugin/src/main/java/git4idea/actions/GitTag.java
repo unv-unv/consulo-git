@@ -15,9 +15,9 @@
  */
 package git4idea.actions;
 
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.project.Project;
+import consulo.versionControlSystem.VcsException;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.i18n.GitBundle;
 import git4idea.ui.GitTagDialog;
 import javax.annotation.Nonnull;

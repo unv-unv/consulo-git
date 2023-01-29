@@ -15,33 +15,32 @@
  */
 package git4idea.merge;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import javax.swing.JComboBox;
-
-import org.jetbrains.annotations.NonNls;
-import com.intellij.history.Label;
-import com.intellij.history.LocalHistory;
-import com.intellij.ide.util.ElementsChooser;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vcs.AbstractVcsHelper;
-import com.intellij.openapi.vcs.ProjectLevelVcsManager;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.ex.ProjectLevelVcsManagerEx;
-import com.intellij.openapi.vcs.update.ActionInfo;
-import com.intellij.openapi.vcs.update.FileGroup;
-import com.intellij.openapi.vcs.update.UpdateInfoTree;
-import com.intellij.openapi.vcs.update.UpdatedFiles;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.ui.UIUtil;
-import com.intellij.vcs.ViewUpdateInfoNotification;
+import consulo.ide.impl.idea.openapi.vcs.ex.ProjectLevelVcsManagerEx;
+import consulo.ide.impl.idea.openapi.vcs.update.UpdateInfoTree;
+import consulo.ide.impl.idea.vcs.ViewUpdateInfoNotification;
+import consulo.localHistory.Label;
+import consulo.localHistory.LocalHistory;
+import consulo.project.Project;
+import consulo.ui.ex.awt.ElementsChooser;
+import consulo.ui.ex.awt.UIUtil;
+import consulo.versionControlSystem.AbstractVcsHelper;
+import consulo.versionControlSystem.ProjectLevelVcsManager;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.update.ActionInfo;
+import consulo.versionControlSystem.update.FileGroup;
+import consulo.versionControlSystem.update.UpdatedFiles;
+import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitRevisionNumber;
 import git4idea.GitVcs;
 import git4idea.actions.GitRepositoryAction;
 import git4idea.i18n.GitBundle;
+import org.jetbrains.annotations.NonNls;
+
+import javax.swing.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Utilities for merge

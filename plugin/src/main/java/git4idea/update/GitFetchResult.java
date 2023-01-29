@@ -21,8 +21,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-import static com.intellij.openapi.util.text.StringUtil.join;
-import static com.intellij.openapi.util.text.StringUtil.pluralize;
+import static consulo.util.lang.StringUtil.join;
+import static consulo.util.lang.StringUtil.pluralize;
 
 /**
  * @author Kirill Likhodedov

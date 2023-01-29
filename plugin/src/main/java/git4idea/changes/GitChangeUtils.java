@@ -15,32 +15,17 @@
  */
 package git4idea.changes;
 
-import static com.intellij.util.ObjectUtils.assertNotNull;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.StringTokenizer;
-
-import org.jetbrains.annotations.NonNls;
-import javax.annotation.Nonnull;
-
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vcs.FilePath;
-import com.intellij.openapi.vcs.FileStatus;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.changes.Change;
-import com.intellij.openapi.vcs.changes.ContentRevision;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.ArrayUtil;
 import consulo.logging.Logger;
+import consulo.project.Project;
+import consulo.util.collection.ArrayUtil;
+import consulo.util.io.FileUtil;
+import consulo.util.lang.StringUtil;
+import consulo.versionControlSystem.FilePath;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.change.Change;
+import consulo.versionControlSystem.change.ContentRevision;
+import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.status.FileStatus;
 import git4idea.GitContentRevision;
 import git4idea.GitRevisionNumber;
 import git4idea.GitUtil;
@@ -50,8 +35,14 @@ import git4idea.commands.GitHandler;
 import git4idea.commands.GitSimpleHandler;
 import git4idea.history.browser.SHAHash;
 import git4idea.util.StringScanner;
+import org.jetbrains.annotations.NonNls;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.File;
+import java.util.*;
+
+import static consulo.util.lang.ObjectUtil.assertNotNull;
 
 /**
  * Change related utilities
@@ -85,12 +76,12 @@ public class GitChangeUtils
 	 * @throws VcsException if the input format does not matches expected format
 	 */
 	public static void parseChanges(Project project,
-			VirtualFile vcsRoot,
-			@Nullable GitRevisionNumber thisRevision,
-			GitRevisionNumber parentRevision,
-			String s,
-			Collection<Change> changes,
-			final Set<String> ignoreNames) throws VcsException
+                                    VirtualFile vcsRoot,
+                                    @Nullable GitRevisionNumber thisRevision,
+                                    GitRevisionNumber parentRevision,
+                                    String s,
+                                    Collection<Change> changes,
+                                    final Set<String> ignoreNames) throws VcsException
 	{
 		StringScanner sc = new StringScanner(s);
 		parseChanges(project, vcsRoot, thisRevision, parentRevision, sc, changes, ignoreNames);
@@ -139,12 +130,12 @@ public class GitChangeUtils
 	 * @throws VcsException if the input format does not matches expected format
 	 */
 	private static void parseChanges(Project project,
-			VirtualFile vcsRoot,
-			@Nullable GitRevisionNumber thisRevision,
-			@Nullable GitRevisionNumber parentRevision,
-			StringScanner s,
-			Collection<Change> changes,
-			final Set<String> ignoreNames) throws VcsException
+                                     VirtualFile vcsRoot,
+                                     @Nullable GitRevisionNumber thisRevision,
+                                     @Nullable GitRevisionNumber parentRevision,
+                                     StringScanner s,
+                                     Collection<Change> changes,
+                                     final Set<String> ignoreNames) throws VcsException
 	{
 		while(s.hasMoreData())
 		{
@@ -320,7 +311,7 @@ public class GitChangeUtils
 	 * @param skipDiffsForMerge
 	 * @param handler           the handler that produced the output to parse. - for debugging purposes.
 	 * @param local             pass {@code true} to indicate that this revision should be an editable
-	 *                          {@link com.intellij.openapi.vcs.changes.CurrentContentRevision}.
+	 *                          {@link consulo.ide.impl.idea.openapi.vcs.changes.CurrentContentRevision}.
 	 *                          Pass {@code false} for
 	 * @param revertable
 	 * @return the parsed changelist

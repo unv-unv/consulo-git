@@ -15,14 +15,18 @@
  */
 package git4idea.tests;
 
-import com.intellij.ide.startup.impl.StartupManagerImpl;
-import com.intellij.openapi.startup.StartupManager;
-import com.intellij.openapi.vcs.FilePath;
+import consulo.ide.impl.idea.ide.startup.impl.StartupManagerImpl;
+import consulo.project.startup.StartupManager;
 import com.intellij.openapi.vcs.changes.*;
-import com.intellij.openapi.vcs.changes.shelf.ShelveChangesManager;
-import com.intellij.openapi.vcs.changes.shelf.ShelvedChangeList;
-import com.intellij.openapi.vfs.VirtualFile;
+import consulo.ide.impl.idea.openapi.vcs.changes.shelf.ShelveChangesManager;
+import consulo.ide.impl.idea.openapi.vcs.changes.shelf.ShelvedChangeList;
+import consulo.versionControlSystem.change.ChangeListManager;
+import consulo.versionControlSystem.change.ChangesUtil;
+import consulo.versionControlSystem.change.LocalChangeList;
+import consulo.versionControlSystem.change.VcsDirtyScopeManager;
+import consulo.virtualFileSystem.VirtualFile;
 import com.intellij.util.containers.hash.HashSet;
+import consulo.versionControlSystem.FilePath;
 import git4idea.test.GitTest;
 import git4idea.test.GitTestUtil;
 import junit.framework.Assert;

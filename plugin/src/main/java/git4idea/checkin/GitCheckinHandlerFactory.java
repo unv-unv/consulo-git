@@ -15,27 +15,28 @@
  */
 package git4idea.checkin;
 
-import com.intellij.openapi.components.ServiceManager;
+import consulo.annotation.component.ExtensionImpl;
+import consulo.application.progress.ProgressIndicator;
+import consulo.application.progress.ProgressManager;
+import consulo.application.progress.Task;
+import consulo.ide.ServiceManager;
 import consulo.logging.Logger;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vcs.CheckinProjectPanel;
-import com.intellij.openapi.vcs.FilePath;
-import com.intellij.openapi.vcs.ProjectLevelVcsManager;
-import com.intellij.openapi.vcs.VcsException;
-import com.intellij.openapi.vcs.changes.ChangesUtil;
-import com.intellij.openapi.vcs.changes.CommitExecutor;
-import com.intellij.openapi.vcs.checkin.CheckinHandler;
-import com.intellij.openapi.vcs.checkin.VcsCheckinHandlerFactory;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.PairConsumer;
-import com.intellij.util.ui.UIUtil;
-import com.intellij.xml.util.XmlStringUtil;
+import consulo.project.Project;
+import consulo.ui.ex.awt.Messages;
+import consulo.ui.ex.awt.UIUtil;
+import consulo.util.lang.Pair;
+import consulo.util.lang.StringUtil;
+import consulo.util.lang.function.PairConsumer;
+import consulo.util.lang.xml.XmlStringUtil;
+import consulo.versionControlSystem.FilePath;
+import consulo.versionControlSystem.ProjectLevelVcsManager;
+import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.change.ChangesUtil;
+import consulo.versionControlSystem.change.CommitExecutor;
+import consulo.versionControlSystem.checkin.CheckinHandler;
+import consulo.versionControlSystem.checkin.CheckinProjectPanel;
+import consulo.versionControlSystem.checkin.VcsCheckinHandlerFactory;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
 import git4idea.commands.Git;
@@ -49,17 +50,19 @@ import git4idea.crlf.GitCrlfUtil;
 import git4idea.i18n.GitBundle;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Prohibits committing with an empty message, warns if committing into detached HEAD, checks if user name and correct CRLF attributes
  * are set.
+ *
  * @author Kirill Likhodedov
-*/
+ */
+@ExtensionImpl
 public class GitCheckinHandlerFactory extends VcsCheckinHandlerFactory {
 
   private static final Logger LOG = Logger.getInstance(GitCheckinHandlerFactory.class);
@@ -76,9 +79,9 @@ public class GitCheckinHandlerFactory extends VcsCheckinHandlerFactory {
 
   private class MyCheckinHandler extends CheckinHandler {
     @Nonnull
-	private final CheckinProjectPanel myPanel;
+    private final CheckinProjectPanel myPanel;
     @Nonnull
-	private final Project myProject;
+    private final Project myProject;
 
 
     public MyCheckinHandler(@Nonnull CheckinProjectPanel panel) {
@@ -115,7 +118,8 @@ public class GitCheckinHandlerFactory extends VcsCheckinHandlerFactory {
 
       final Git git = ServiceManager.getService(Git.class);
 
-      final Collection<VirtualFile> files = myPanel.getVirtualFiles(); // deleted files aren't included, but for them we don't care about CRLFs.
+      final Collection<VirtualFile> files =
+        myPanel.getVirtualFiles(); // deleted files aren't included, but for them we don't care about CRLFs.
       final AtomicReference<GitCrlfProblemsDetector> crlfHelper = new AtomicReference<GitCrlfProblemsDetector>();
       ProgressManager.getInstance().run(
         new Task.Modal(myProject, "Checking for line separator issues...", true) {
@@ -138,7 +142,7 @@ public class GitCheckinHandlerFactory extends VcsCheckinHandlerFactory {
           }
         });
         int decision = dialog.getExitCode();
-        if  (decision == GitCrlfDialog.CANCEL) {
+        if (decision == GitCrlfDialog.CANCEL) {
           return ReturnResult.CANCEL;
         }
         else {
@@ -204,9 +208,9 @@ public class GitCheckinHandlerFactory extends VcsCheckinHandlerFactory {
       if (System.getenv("HOME") == null && GitVersionSpecialty.DOESNT_DEFINE_HOME_ENV_VAR.existsIn(version)) {
         Messages.showErrorDialog(project,
                                  "You are using Git " + version + " which doesn't define %HOME% environment variable properly.\n" +
-                                 "Consider updating Git to a newer version " +
-                                 "or define %HOME% to point to the place where the global .gitconfig is stored \n" +
-                                 "(it is usually %USERPROFILE% or %HOMEDRIVE%%HOMEPATH%).",
+                                   "Consider updating Git to a newer version " +
+                                   "or define %HOME% to point to the place where the global .gitconfig is stored \n" +
+                                   "(it is usually %USERPROFILE% or %HOMEDRIVE%%HOMEPATH%).",
                                  "HOME Variable Is Not Defined");
         return ReturnResult.CANCEL;
       }
@@ -286,23 +290,25 @@ public class GitCheckinHandlerFactory extends VcsCheckinHandlerFactory {
       if (detachedRoot.myRebase) {
         title = "Unfinished rebase process";
         message = messageCommonStart + " <br/> has an <b>unfinished rebase</b> process. <br/>" +
-                  "You probably want to <b>continue rebase</b> instead of committing. <br/>" +
-                  "Committing during rebase may lead to the commit loss. <br/>" +
-                  readMore("http://www.kernel.org/pub/software/scm/git/docs/git-rebase.html", "Read more about Git rebase");
-      } else {
+          "You probably want to <b>continue rebase</b> instead of committing. <br/>" +
+          "Committing during rebase may lead to the commit loss. <br/>" +
+          readMore("http://www.kernel.org/pub/software/scm/git/docs/git-rebase.html", "Read more about Git rebase");
+      }
+      else {
         title = "Commit in detached HEAD may be dangerous";
         message = messageCommonStart + " is in the <b>detached HEAD</b> state. <br/>" +
-                  "You can look around, make experimental changes and commit them, but be sure to checkout a branch not to lose your work. <br/>" +
-                  "Otherwise you risk losing your changes. <br/>" +
-                  readMore("http://sitaramc.github.com/concepts/detached-head.html", "Read more about detached HEAD");
+          "You can look around, make experimental changes and commit them, but be sure to checkout a branch not to lose your work. <br/>" +
+          "Otherwise you risk losing your changes. <br/>" +
+          readMore("http://sitaramc.github.com/concepts/detached-head.html", "Read more about detached HEAD");
       }
 
       final int choice = Messages.showOkCancelDialog(myPanel.getComponent(), XmlStringUtil.wrapInHtml(message), title,
-                                                                                                      "Cancel", "Commit",
-                                                                                                      Messages.getWarningIcon());
+                                                     "Cancel", "Commit",
+                                                     Messages.getWarningIcon());
       if (choice == 1) {
         return ReturnResult.COMMIT;
-      } else {
+      }
+      else {
         return ReturnResult.CLOSE_WINDOW;
       }
     }

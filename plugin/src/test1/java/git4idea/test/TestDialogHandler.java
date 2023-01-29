@@ -15,6 +15,8 @@
  */
 package git4idea.test;
 
+import consulo.ui.ex.awt.DialogWrapper;
+
 /**
  * TestDialogHandler is invoked by {@link TestDialogManager} instead of showing a dialog on a screen (which is usually impossible for tests).
  * It's purpose is to modify dialog fields and return the dialog exit code which will be transferred to the code which has invoked the dialog.
@@ -24,7 +26,7 @@ public interface TestDialogHandler<T> {
   /**
    * Do something with dialog fields and return the exit code - as if user pressed one of exit buttons.
    * @param dialog dialog to be handled.
-   * @return DialogWrapper exit code, for example, {@link com.intellij.openapi.ui.DialogWrapper#OK_EXIT_CODE}.
+   * @return DialogWrapper exit code, for example, {@link DialogWrapper#OK_EXIT_CODE}.
    */
   int handleDialog(T dialog);
 }
