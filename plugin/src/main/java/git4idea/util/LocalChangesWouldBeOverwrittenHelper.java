@@ -15,11 +15,11 @@
  */
 package git4idea.util;
 
-import consulo.ide.impl.idea.openapi.ui.ex.MultiLineLabel;
 import consulo.project.Project;
 import consulo.project.ui.notification.Notification;
 import consulo.project.ui.notification.event.NotificationListener;
 import consulo.ui.ex.awt.DialogBuilder;
+import consulo.ui.ex.awt.MultiLineLabel;
 import consulo.util.lang.StringUtil;
 import consulo.versionControlSystem.VcsNotifier;
 import consulo.versionControlSystem.change.Change;
