@@ -23,8 +23,9 @@ import consulo.execution.ExecutableValidator;
 import consulo.logging.Logger;
 import consulo.process.ExecutionException;
 import consulo.process.cmd.GeneralCommandLine;
-import consulo.process.local.CapturingProcessHandler;
+import consulo.process.local.ExecUtil;
 import consulo.process.local.ProcessOutput;
+import consulo.ui.UIAccess;
 import consulo.util.io.CharsetToolkit;
 import consulo.util.lang.StringUtil;
 
@@ -153,13 +154,13 @@ public final class GitVersion implements Comparable<GitVersion> {
   @Nonnull
   public static GitVersion identifyVersion(@Nonnull String gitExecutable,
                                            @Nullable ProgressIndicator indicator) throws TimeoutException, ExecutionException, ParseException {
+    UIAccess.assetIsNotUIThread();
+    
     GeneralCommandLine commandLine = new GeneralCommandLine();
     commandLine.setExePath(gitExecutable);
     commandLine.addParameter("--version");
     commandLine.setCharset(CharsetToolkit.getDefaultSystemCharset());
-    CapturingProcessHandler handler = new CapturingProcessHandler(commandLine);
-    ProcessOutput result =
-      indicator == null ? handler.runProcess(ExecutableValidator.TIMEOUT_MS) : handler.runProcessWithProgressIndicator(indicator);
+    ProcessOutput result = ExecUtil.execAndGetOutput(commandLine, ExecutableValidator.TIMEOUT_MS);
     if (result.isTimeout()) {
       throw new TimeoutException("Couldn't identify the version of Git - stopped by timeout.");
     }
