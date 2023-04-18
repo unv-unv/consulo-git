@@ -24,6 +24,7 @@ import git4idea.GitUtil;
 import git4idea.branch.GitBranchUtil;
 import git4idea.config.GitVcsSettings;
 import git4idea.repo.GitRepository;
+import git4idea.repo.GitRepositoryChangeListener;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -39,7 +40,7 @@ public class GitBranchWidget extends DvcsStatusWidget<GitRepository> {
   public GitBranchWidget(@Nonnull Project project) {
     super(project, "Git");
     mySettings = GitVcsSettings.getInstance(project);
-    project.getMessageBus().connect().subscribe(GitRepository.GIT_REPO_CHANGE, repository -> updateLater());
+    project.getMessageBus().connect().subscribe(GitRepositoryChangeListener.class, repository -> updateLater());
   }
 
   @Override

@@ -158,7 +158,7 @@ final class GitRepositoryUpdater implements Disposable, BulkFileListener
 		}
 		else if(tagChanged)
 		{
-			myRepository.getProject().getMessageBus().syncPublisher(GitRepository.GIT_REPO_CHANGE).repositoryChanged(myRepository);
+			myRepository.getProject().getMessageBus().syncPublisher(GitRepositoryChangeListener.class).repositoryChanged(myRepository);
 		}
 	}
 

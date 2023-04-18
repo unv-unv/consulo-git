@@ -41,7 +41,7 @@ public class GitRepositoryForAnnotationsListener {
     myListener = createListener();
     myVcs = GitVcs.getInstance(myProject);
     myVcsManager = ProjectLevelVcsManager.getInstance(myProject);
-    project.getMessageBus().connect().subscribe(GitRepository.GIT_REPO_CHANGE, myListener);
+    project.getMessageBus().connect().subscribe(GitRepositoryChangeListener.class, myListener);
   }
 
   private GitRepositoryChangeListener createListener() {

@@ -51,6 +51,7 @@ import git4idea.branch.GitBranchesCollection;
 import git4idea.config.GitVersionSpecialty;
 import git4idea.history.GitHistoryUtils;
 import git4idea.repo.GitRepository;
+import git4idea.repo.GitRepositoryChangeListener;
 import git4idea.repo.GitRepositoryManager;
 import jakarta.inject.Inject;
 
@@ -437,7 +438,7 @@ public class GitLogProvider implements VcsLogProvider {
   @Override
   public Disposable subscribeToRootRefreshEvents(@Nonnull final Collection<VirtualFile> roots, @Nonnull final VcsLogRefresher refresher) {
     MessageBusConnection connection = myProject.getMessageBus().connect(myProject);
-    connection.subscribe(GitRepository.GIT_REPO_CHANGE, repository ->
+    connection.subscribe(GitRepositoryChangeListener.class, repository ->
     {
       VirtualFile root = repository.getRoot();
       if (roots.contains(root)) {
