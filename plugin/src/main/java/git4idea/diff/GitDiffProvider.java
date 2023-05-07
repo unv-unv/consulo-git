@@ -18,7 +18,6 @@ package git4idea.diff;
 import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
-import consulo.ide.impl.idea.openapi.vcs.diff.DiffMixin;
 import consulo.project.Project;
 import consulo.util.lang.Pair;
 import consulo.versionControlSystem.CommittedChangesProvider;
@@ -57,7 +56,7 @@ import java.util.Set;
 @Singleton
 @ServiceAPI(ComponentScope.PROJECT)
 @ServiceImpl
-public class GitDiffProvider implements DiffProvider, DiffMixin {
+public class GitDiffProvider implements DiffProvider {
   /**
    * The context project
    */
