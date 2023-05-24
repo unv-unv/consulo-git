@@ -123,13 +123,13 @@ public class GitCommand
 	}
 
 	@Nonnull
-	private static GitCommand read(@Nonnull String name)
+	public static GitCommand read(@Nonnull String name)
 	{
 		return new GitCommand(name, LockingPolicy.READ);
 	}
 
 	@Nonnull
-	private static GitCommand write(@Nonnull String name)
+	public static GitCommand write(@Nonnull String name)
 	{
 		return new GitCommand(name, LockingPolicy.WRITE);
 	}
