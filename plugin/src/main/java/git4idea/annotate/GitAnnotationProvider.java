@@ -21,6 +21,8 @@ import consulo.annotation.component.ServiceImpl;
 import consulo.application.ApplicationManager;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.ProgressManager;
+import consulo.git.localize.GitLocalize;
+import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.project.Project;
 import consulo.util.lang.StringUtil;
@@ -270,5 +272,11 @@ public class GitAnnotationProvider implements AnnotationProvider, VcsCacheableAn
    */
   public boolean isAnnotationValid(VcsFileRevision rev) {
     return true;
+  }
+
+  @Nonnull
+  @Override
+  public LocalizeValue getActionName() {
+    return GitLocalize.actionAnnotateWithBlameText();
   }
 }

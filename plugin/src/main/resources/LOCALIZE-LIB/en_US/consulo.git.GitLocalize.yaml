@@ -1029,6 +1029,8 @@ vcs.popup.git.github.section:
   text: GitHub
 git.status.bar.widget.name:
   text: Git Branch
+action.Annotate.with.Blame.text:
+  text: A_nnotate with Git Blame
 git.status.bar.widget.text.cherry.pick:
   text: Cherry-picking in {0}
 git.status.bar.widget.text.revert:
