@@ -15,11 +15,11 @@
  */
 package git4idea.ui.branch;
 
-import consulo.ide.impl.idea.dvcs.ui.DvcsStatusWidget;
 import consulo.project.Project;
 import consulo.project.ui.wm.StatusBarWidget;
 import consulo.ui.ex.popup.ListPopup;
 import consulo.util.lang.ObjectUtil;
+import consulo.versionControlSystem.distributed.ui.DvcsStatusWidget;
 import git4idea.GitUtil;
 import git4idea.branch.GitBranchUtil;
 import git4idea.config.GitVcsSettings;
