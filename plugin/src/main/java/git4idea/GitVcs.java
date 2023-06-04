@@ -554,11 +554,6 @@ public class GitVcs extends AbstractVcs<CommittedChangeList> {
     });
   }
 
-  @Override
-  public CheckoutProvider getCheckoutProvider() {
-    return new GitCheckoutProvider(Git.getInstance());
-  }
-
   @Nonnull
   @Override
   public LocalizeValue getShortNameWithMnemonic() {
