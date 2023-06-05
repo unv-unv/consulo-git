@@ -15,13 +15,13 @@
  */
 package git4idea.commands;
 
+import consulo.process.BaseProcessHandler;
 import consulo.process.ExecutionException;
 import consulo.process.ProcessHandler;
 import consulo.process.ProcessHandlerBuilder;
 import consulo.process.cmd.GeneralCommandLine;
 import consulo.process.event.ProcessEvent;
 import consulo.process.event.ProcessListener;
-import consulo.process.local.BaseProcessHandler;
 import consulo.project.Project;
 import consulo.util.dataholder.Key;
 import consulo.virtualFileSystem.VirtualFile;
