@@ -15,8 +15,8 @@
  */
 package git4idea.commands;
 
-import consulo.process.BaseProcessHandler;
 import consulo.process.ExecutionException;
+import consulo.process.NativeProcessHandler;
 import consulo.process.ProcessHandler;
 import consulo.process.ProcessHandlerBuilder;
 import consulo.process.cmd.GeneralCommandLine;
@@ -57,7 +57,7 @@ public abstract class GitTextHandler extends GitHandler {
       }
       final ProcessHandler processHandler = createProcess(myCommandLine);
       myHandler = processHandler;
-      return ((BaseProcessHandler<Process>)myHandler).getProcess();
+      return ((NativeProcessHandler) myHandler).getProcess();
     }
   }
 
