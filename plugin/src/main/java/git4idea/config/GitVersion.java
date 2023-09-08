@@ -23,8 +23,8 @@ import consulo.execution.ExecutableValidator;
 import consulo.logging.Logger;
 import consulo.process.ExecutionException;
 import consulo.process.cmd.GeneralCommandLine;
-import consulo.process.local.ExecUtil;
-import consulo.process.local.ProcessOutput;
+import consulo.process.util.CapturingProcessUtil;
+import consulo.process.util.ProcessOutput;
 import consulo.ui.UIAccess;
 import consulo.util.io.CharsetToolkit;
 import consulo.util.lang.StringUtil;
@@ -160,7 +160,7 @@ public final class GitVersion implements Comparable<GitVersion> {
     commandLine.setExePath(gitExecutable);
     commandLine.addParameter("--version");
     commandLine.setCharset(CharsetToolkit.getDefaultSystemCharset());
-    ProcessOutput result = ExecUtil.execAndGetOutput(commandLine, ExecutableValidator.TIMEOUT_MS);
+    ProcessOutput result = CapturingProcessUtil.execAndGetOutput(commandLine, ExecutableValidator.TIMEOUT_MS);
     if (result.isTimeout()) {
       throw new TimeoutException("Couldn't identify the version of Git - stopped by timeout.");
     }

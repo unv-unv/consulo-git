@@ -20,7 +20,8 @@ import consulo.logging.Logger;
 import consulo.process.ExecutionException;
 import consulo.process.cmd.GeneralCommandLine;
 import consulo.process.local.ExecUtil;
-import consulo.process.local.ProcessOutput;
+import consulo.process.util.CapturingProcessUtil;
+import consulo.process.util.ProcessOutput;
 import consulo.util.io.CharsetToolkit;
 import consulo.util.io.FileUtil;
 import consulo.util.lang.StringUtil;
@@ -223,7 +224,7 @@ public class GitExecutableDetector {
     commandLine.setExePath(exec);
     commandLine.setCharset(CharsetToolkit.getDefaultSystemCharset());
     try {
-      ProcessOutput result = ExecUtil.execAndGetOutput(commandLine, (int)TimeUnit.SECONDS.toMillis(5));
+      ProcessOutput result = CapturingProcessUtil.execAndGetOutput(commandLine, (int)TimeUnit.SECONDS.toMillis(5));
       return !result.isTimeout();
     }
     catch (ExecutionException e) {
