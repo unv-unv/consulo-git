@@ -33,6 +33,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Supplier;
 
 @ServiceAPI(ComponentScope.APPLICATION)
 public interface Git {
@@ -49,11 +50,11 @@ public interface Git {
    *                           make sure to supply a stateless constructor.
    */
   @Nonnull
-  GitCommandResult runCommand(@Nonnull Computable<GitLineHandler> handlerConstructor);
+  GitCommandResult runCommand(@Nonnull Supplier<GitLineHandler> handlerConstructor);
 
   /**
    * A generic method to run a Git command, when existing methods are not sufficient. <br/>
-   * Can be used instead of {@link #runCommand(Computable)} if the operation will not need to be repeated for sure
+   * Can be used instead of {@link #runCommand(Supplier)} if the operation will not need to be repeated for sure
    * (e.g. it is a completely local operation).
    */
   @Nonnull

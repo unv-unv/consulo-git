@@ -16,7 +16,6 @@
 package git4idea.commands;
 
 import consulo.annotation.component.ServiceImpl;
-import consulo.application.util.function.Computable;
 import consulo.logging.Logger;
 import consulo.project.Project;
 import consulo.util.collection.ContainerUtil;
@@ -46,6 +45,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static java.util.Collections.singleton;
 
@@ -191,7 +191,7 @@ public class GitImpl implements Git {
                                     @Nonnull final Collection<String> attributes,
                                     @Nonnull Collection<VirtualFile> files) {
     List<List<String>> listOfPaths = VcsFileUtil.chunkFiles(repository.getRoot(), files);
-    return runAll(ContainerUtil.map(listOfPaths, (Function<List<String>, Computable<GitCommandResult>>)relativePaths -> () ->
+    return runAll(ContainerUtil.map(listOfPaths, (Function<List<String>, Supplier<GitCommandResult>>)relativePaths -> () ->
     {
       final GitLineHandler h = new GitLineHandler(repository.getProject(), repository.getRoot(), GitCommand.CHECK_ATTR);
       h.addParameters(new ArrayList<>(attributes));
@@ -689,10 +689,26 @@ public class GitImpl implements Git {
     }
   }
 
-  @Nonnull
-  private static GitCommandResult run(@Nonnull Computable<GitLineHandler> handlerConstructor) {
+  private static class OutputCollector {
     final List<String> errorOutput = new ArrayList<>();
     final List<String> output = new ArrayList<>();
+
+    public void addOutput(String text) {
+      synchronized (output) {
+        output.add(text);
+      }
+    }
+
+    public void addErrorOutput(String text) {
+      synchronized (errorOutput) {
+        errorOutput.add(text);
+      }
+    }
+  }
+
+  @Nonnull
+  private static GitCommandResult run(@Nonnull Supplier<GitLineHandler> handlerFactory) {
+    OutputCollector output;
     final AtomicInteger exitCode = new AtomicInteger();
     final AtomicBoolean startFailed = new AtomicBoolean();
     final AtomicReference<Throwable> exception = new AtomicReference<>();
@@ -701,21 +717,21 @@ public class GitImpl implements Git {
     boolean authFailed;
     boolean success;
     do {
-      errorOutput.clear();
-      output.clear();
+      output = new OutputCollector();
       exitCode.set(0);
       startFailed.set(false);
       exception.set(null);
 
-      GitLineHandler handler = handlerConstructor.compute();
+      final OutputCollector tempCollector = output;
+      GitLineHandler handler = handlerFactory.get();
       handler.addLineListener(new GitLineHandlerListener() {
         @Override
         public void onLineAvailable(String line, Key outputType) {
           if (looksLikeError(line)) {
-            errorOutput.add(line);
+            tempCollector.addErrorOutput(line);
           }
           else {
-            output.add(line);
+            tempCollector.addOutput(line);
           }
         }
 
@@ -727,7 +743,7 @@ public class GitImpl implements Git {
         @Override
         public void startFailed(Throwable t) {
           startFailed.set(true);
-          errorOutput.add("Failed to start Git process");
+          tempCollector.addErrorOutput("Failed to start Git process");
           exception.set(t);
         }
       });
@@ -737,7 +753,7 @@ public class GitImpl implements Git {
       success = !startFailed.get() && (handler.isIgnoredErrorCode(exitCode.get()) || exitCode.get() == 0);
     }
     while (authFailed && authAttempt++ < 2);
-    return new GitCommandResult(success, exitCode.get(), errorOutput, output, null);
+    return new GitCommandResult(success, exitCode.get(), output.errorOutput, output.output, null);
   }
 
   /**
@@ -745,12 +761,12 @@ public class GitImpl implements Git {
    */
   @Nonnull
   private static GitCommandResult run(@Nonnull GitLineHandler handler) {
-    return run(new Computable.PredefinedValueComputable<>(handler));
+    return run(() -> handler);
   }
 
   @Override
   @Nonnull
-  public GitCommandResult runCommand(@Nonnull Computable<GitLineHandler> handlerConstructor) {
+  public GitCommandResult runCommand(@Nonnull Supplier<GitLineHandler> handlerConstructor) {
     return run(handlerConstructor);
   }
 
@@ -761,14 +777,14 @@ public class GitImpl implements Git {
   }
 
   @Nonnull
-  private static GitCommandResult runAll(@Nonnull List<Computable<GitCommandResult>> commands) {
+  private static GitCommandResult runAll(@Nonnull List<Supplier<GitCommandResult>> commands) {
     if (commands.isEmpty()) {
       LOG.error("List of commands should not be empty", new Exception());
       return GitCommandResult.error("Internal error");
     }
     GitCommandResult compoundResult = null;
-    for (Computable<GitCommandResult> command : commands) {
-      compoundResult = GitCommandResult.merge(compoundResult, command.compute());
+    for (Supplier<GitCommandResult> command : commands) {
+      compoundResult = GitCommandResult.merge(compoundResult, command.get());
     }
     return ObjectUtil.assertNotNull(compoundResult);
   }
