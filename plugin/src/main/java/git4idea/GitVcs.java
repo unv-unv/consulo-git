@@ -42,7 +42,6 @@ import consulo.versionControlSystem.*;
 import consulo.versionControlSystem.change.ChangeProvider;
 import consulo.versionControlSystem.change.CommitExecutor;
 import consulo.versionControlSystem.checkin.CheckinEnvironment;
-import consulo.versionControlSystem.checkout.CheckoutProvider;
 import consulo.versionControlSystem.diff.DiffProvider;
 import consulo.versionControlSystem.diff.RevisionSelector;
 import consulo.versionControlSystem.history.VcsHistoryProvider;
@@ -63,7 +62,6 @@ import git4idea.changes.GitCommittedChangeListProvider;
 import git4idea.changes.GitOutgoingChangesProvider;
 import git4idea.checkin.GitCheckinEnvironment;
 import git4idea.checkin.GitCommitAndPushExecutor;
-import git4idea.checkout.GitCheckoutProvider;
 import git4idea.commands.Git;
 import git4idea.config.*;
 import git4idea.diff.GitDiffProvider;
@@ -299,12 +297,14 @@ public class GitVcs extends AbstractVcs<CommittedChangeList> {
 
   @Override
   protected void activate() {
-    checkExecutableAndVersion();
+    Task.Backgroundable.queue(myProject, "Checking Git Version...", (i) -> checkExecutableAndVersion());
 
     if (myVFSListener == null) {
       myVFSListener = new GitVFSListener(myProject, this, myGit);
     }
-    ServiceManager.getService(myProject, VcsUserRegistry.class); // make sure to read the registry before opening commit dialog
+
+    // make sure to read the registry before opening commit dialog
+    myProject.getInstance(VcsUserRegistry.class);
 
     if (myRepositoryForAnnotationsListener == null) {
       myRepositoryForAnnotationsListener = new GitRepositoryForAnnotationsListener(myProject);
