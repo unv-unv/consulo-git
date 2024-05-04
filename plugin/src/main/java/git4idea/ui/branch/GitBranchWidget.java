@@ -17,10 +17,12 @@ package git4idea.ui.branch;
 
 import consulo.project.Project;
 import consulo.project.ui.wm.StatusBarWidget;
+import consulo.project.ui.wm.StatusBarWidgetFactory;
 import consulo.ui.ex.popup.ListPopup;
 import consulo.util.lang.ObjectUtil;
 import consulo.versionControlSystem.distributed.ui.DvcsStatusWidget;
 import git4idea.GitUtil;
+import git4idea.GitVcs;
 import git4idea.branch.GitBranchUtil;
 import git4idea.config.GitVcsSettings;
 import git4idea.repo.GitRepository;
@@ -33,19 +35,17 @@ import javax.annotation.Nullable;
  * Status bar widget which displays the current branch for the file currently open in the editor.
  */
 public class GitBranchWidget extends DvcsStatusWidget<GitRepository> {
-  public static final String ID = "git";
-
   private final GitVcsSettings mySettings;
 
-  public GitBranchWidget(@Nonnull Project project) {
-    super(project, "Git");
+  public GitBranchWidget(@Nonnull Project project, @Nonnull StatusBarWidgetFactory factory) {
+    super(project, factory, GitVcs.NAME);
     mySettings = GitVcsSettings.getInstance(project);
     project.getMessageBus().connect().subscribe(GitRepositoryChangeListener.class, repository -> updateLater());
   }
 
   @Override
   public StatusBarWidget copy() {
-    return new GitBranchWidget(ObjectUtil.assertNotNull(getProject()));
+    return new GitBranchWidget(ObjectUtil.assertNotNull(getProject()), myFactory);
   }
 
   @Nullable
@@ -74,11 +74,5 @@ public class GitBranchWidget extends DvcsStatusWidget<GitRepository> {
   @Override
   protected void rememberRecentRoot(@Nonnull String path) {
     mySettings.setRecentRoot(path);
-  }
-
-  @Nonnull
-  @Override
-  public String ID() {
-    return ID;
   }
 }

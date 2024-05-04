@@ -1,7 +1,6 @@
 package git4idea.ui.branch;
 
 import consulo.annotation.component.ExtensionImpl;
-import consulo.disposer.Disposer;
 import consulo.project.Project;
 import consulo.project.ui.wm.StatusBar;
 import consulo.project.ui.wm.StatusBarWidget;
@@ -12,12 +11,6 @@ import javax.annotation.Nonnull;
 
 @ExtensionImpl(id = "gitWidget", order = "after codeStyleWidget,before readOnlyWidget")
 public class GitBranchWidgetFactory implements StatusBarWidgetFactory {
-  @Override
-  @Nonnull
-  public String getId() {
-    return GitBranchWidget.ID;
-  }
-
   @Override
   @Nonnull
   public String getDisplayName() {
@@ -33,17 +26,12 @@ public class GitBranchWidgetFactory implements StatusBarWidgetFactory {
   @Override
   @Nonnull
   public StatusBarWidget createWidget(@Nonnull Project project) {
-    return new GitBranchWidget(project);
+    return new GitBranchWidget(project, this);
   }
 
   @Override
   public boolean isEnabledByDefault() {
     return true;
-  }
-
-  @Override
-  public void disposeWidget(@Nonnull StatusBarWidget widget) {
-    Disposer.dispose(widget);
   }
 
   @Override
