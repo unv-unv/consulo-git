@@ -15,9 +15,9 @@
  */
 package git4idea.branch;
 
-import consulo.ide.impl.idea.openapi.ui.MessageDialogBuilder;
 import consulo.project.Project;
 import consulo.ui.ex.awt.DialogWrapper;
+import consulo.ui.ex.awt.MessageDialogBuilder;
 import consulo.ui.ex.awt.Messages;
 import consulo.ui.ex.awt.UIUtil;
 import consulo.util.lang.Couple;
