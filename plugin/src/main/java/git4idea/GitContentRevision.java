@@ -20,7 +20,7 @@ import consulo.application.util.function.Throwable2Computable;
 import consulo.project.Project;
 import consulo.versionControlSystem.FilePath;
 import consulo.versionControlSystem.VcsException;
-import consulo.versionControlSystem.base.FilePathImpl;
+import consulo.versionControlSystem.action.VcsContextFactory;
 import consulo.versionControlSystem.change.ContentRevision;
 import consulo.versionControlSystem.change.ContentRevisionCache;
 import consulo.versionControlSystem.change.CurrentContentRevision;
@@ -149,7 +149,7 @@ public class GitContentRevision implements ContentRevision {
                                                boolean unescapePath) throws VcsException {
     final FilePath file;
     if (project.isDisposed()) {
-      file = new FilePathImpl(new File(makeAbsolutePath(vcsRoot, path, unescapePath)), false);
+      file = VcsContextFactory.getInstance().createFilePathOn(new File(makeAbsolutePath(vcsRoot, path, unescapePath)), false);
     }
     else {
       file = createPath(vcsRoot, path, isDeleted, canBeDeleted, unescapePath);
@@ -177,7 +177,7 @@ public class GitContentRevision implements ContentRevision {
     if (revisionNumber == null) {
       File file = new File(makeAbsolutePath(vcsRoot, path, unescapePath));
       VirtualFile virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file);
-      filePath = virtualFile == null ? new FilePathImpl(file, false) : new FilePathImpl(virtualFile);
+      filePath = virtualFile == null ? VcsContextFactory.getInstance().createFilePathOn(file, false) : VcsContextFactory.getInstance().createFilePathOn(virtualFile);
     }
     else {
       filePath = createPath(vcsRoot, path, false, false, unescapePath);
@@ -194,7 +194,7 @@ public class GitContentRevision implements ContentRevision {
     FilePath file = isDeleted ? VcsUtil.getFilePathForDeletedFile(absolutePath, false) : VcsUtil.getFilePath(absolutePath, false);
     if (canBeDeleted && (!SystemInfo.isFileSystemCaseSensitive) && VcsFilePathUtil.caseDiffers(file.getPath(), absolutePath)) {
       // as for deleted file
-      file = FilePathImpl.createForDeletedFile(new File(absolutePath), false);
+      file = VcsContextFactory.getInstance().createFilePathOn(new File(absolutePath), false);
     }
     return file;
   }
@@ -214,7 +214,7 @@ public class GitContentRevision implements ContentRevision {
                                                @Nullable final VcsRevisionNumber revisionNumber,
                                                @Nonnull final Project project,
                                                @Nullable final Charset charset) {
-    final FilePathImpl filePath = new FilePathImpl(file);
+    final FilePath filePath = VcsContextFactory.getInstance().createFilePathOn(file);
     return createRevision(filePath, revisionNumber, project, charset);
   }
 

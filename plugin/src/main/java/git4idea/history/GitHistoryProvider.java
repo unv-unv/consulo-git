@@ -29,7 +29,7 @@ import consulo.util.lang.StringUtil;
 import consulo.versionControlSystem.FilePath;
 import consulo.versionControlSystem.VcsConfiguration;
 import consulo.versionControlSystem.VcsException;
-import consulo.versionControlSystem.base.FilePathImpl;
+import consulo.versionControlSystem.action.VcsContextFactory;
 import consulo.versionControlSystem.change.ContentRevision;
 import consulo.versionControlSystem.history.*;
 import consulo.virtualFileSystem.VirtualFile;
@@ -201,7 +201,7 @@ public class GitHistoryProvider implements VcsHistoryProvider, VcsCacheableHisto
     if (virtualFile == null) {
       return path;
     }
-    return new FilePathImpl(virtualFile);
+    return VcsContextFactory.getInstance().createFilePathOn(virtualFile);
   }
 
   public boolean supportsHistoryForDirectories() {

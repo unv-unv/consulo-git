@@ -22,7 +22,7 @@ import consulo.util.io.FileUtil;
 import consulo.util.lang.Pair;
 import consulo.util.lang.StringUtil;
 import consulo.versionControlSystem.*;
-import consulo.versionControlSystem.base.FilePathImpl;
+import consulo.versionControlSystem.action.VcsContextFactory;
 import consulo.versionControlSystem.change.Change;
 import consulo.versionControlSystem.change.ChangesUtil;
 import consulo.versionControlSystem.change.commited.DecoratorManager;
@@ -36,7 +36,6 @@ import consulo.versionControlSystem.versionBrowser.CommittedChangeList;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
 import git4idea.*;
-import git4idea.commands.GitSimpleHandler;
 import git4idea.history.GitHistoryUtils;
 import git4idea.history.browser.GitHeavyCommit;
 import git4idea.history.browser.SymbolicRefs;
@@ -212,7 +211,7 @@ public class GitCommittedChangeListProvider implements CommittedChangesProvider<
 	@Override
 	public Pair<CommittedChangeList, FilePath> getOneList(final VirtualFile file, final VcsRevisionNumber number) throws VcsException
 	{
-		final FilePathImpl filePath = new FilePathImpl(file);
+		final FilePath filePath = VcsContextFactory.getInstance().createFilePathOn(file);
 
 		final List<GitHeavyCommit> gitCommits = GitHistoryUtils.commitsDetails(myProject, filePath, new SymbolicRefs(),
 				Collections.singletonList(number.asString()));

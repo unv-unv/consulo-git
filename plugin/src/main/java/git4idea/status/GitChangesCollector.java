@@ -21,7 +21,7 @@ import consulo.util.io.FileUtil;
 import consulo.versionControlSystem.AbstractVcs;
 import consulo.versionControlSystem.FilePath;
 import consulo.versionControlSystem.ProjectLevelVcsManager;
-import consulo.versionControlSystem.base.FilePathImpl;
+import consulo.versionControlSystem.action.VcsContextFactory;
 import consulo.versionControlSystem.change.Change;
 import consulo.versionControlSystem.change.ChangeListManager;
 import consulo.versionControlSystem.change.ContentRevision;
@@ -122,7 +122,7 @@ abstract class GitChangesCollector {
     final List<FilePath> paths = new ArrayList<FilePath>(allPaths.size());
     for (String p : allPaths) {
       final File file = new File(p);
-      paths.add(new FilePathImpl(file, file.isDirectory()));
+      paths.add(VcsContextFactory.getInstance().createFilePathOn(file, file.isDirectory()));
     }
     return paths;
   }

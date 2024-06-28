@@ -21,14 +21,13 @@ import consulo.annotation.component.ServiceImpl;
 import consulo.application.progress.ProgressIndicator;
 import consulo.document.FileDocumentManager;
 import consulo.ide.impl.idea.openapi.util.io.FileUtil;
-import consulo.ide.impl.idea.openapi.vcs.changes.VcsModifiableDirtyScope;
 import consulo.logging.Logger;
 import consulo.project.Project;
 import consulo.versionControlSystem.FilePath;
 import consulo.versionControlSystem.ProjectLevelVcsManager;
 import consulo.versionControlSystem.VcsException;
 import consulo.versionControlSystem.VcsKey;
-import consulo.versionControlSystem.base.FilePathImpl;
+import consulo.versionControlSystem.action.VcsContextFactory;
 import consulo.versionControlSystem.change.*;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
@@ -150,7 +149,7 @@ public class GitChangeProvider implements ChangeProvider {
     FileUtil.removeAncestors(inputColl, o -> o.getPath(), (parent, child) -> {
                                if (!existingInScope.contains(child) && existingInScope.contains(parent)) {
                                  debug("adding git root for check: " + child.getPath());
-                                 ((VcsModifiableDirtyScope)dirtyScope).addDirtyDirRecursively(new FilePathImpl(child));
+                                 ((VcsModifiableDirtyScope)dirtyScope).addDirtyDirRecursively(VcsContextFactory.getInstance().createFilePathOn(child));
                                }
                                return true;
                              }
@@ -210,7 +209,7 @@ public class GitChangeProvider implements ChangeProvider {
       // Populating myUnversioned in the ChangeCollector makes nulls not possible in myUnversioned,
       // so proposing that the exception was fixed.
       // More detailed analysis will be needed in case the exception appears again. 2010-12-09.
-      myDirty.remove(new FilePathImpl(vf));
+      myDirty.remove(VcsContextFactory.getInstance().createFilePathOn(vf));
     }
 
     public void feedBuilder(final ChangelistBuilder builder) throws VcsException {

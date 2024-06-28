@@ -28,8 +28,8 @@ import consulo.project.Project;
 import consulo.util.lang.StringUtil;
 import consulo.versionControlSystem.FilePath;
 import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.action.VcsContextFactory;
 import consulo.versionControlSystem.annotate.*;
-import consulo.versionControlSystem.base.FilePathImpl;
 import consulo.versionControlSystem.history.VcsAbstractHistorySession;
 import consulo.versionControlSystem.history.VcsFileRevision;
 import consulo.versionControlSystem.history.VcsRevisionNumber;
@@ -235,7 +235,7 @@ public class GitAnnotationProvider implements AnnotationProvider, VcsCacheableAn
     for (int i = 0; i < size; i++) {
       basicData.put(i, gitFileAnnotation.getLineRevisionNumber(i));
     }
-    return new VcsAnnotation(new FilePathImpl(gitFileAnnotation.getFile()), basicData, null);
+    return new VcsAnnotation(VcsContextFactory.getInstance().createFilePathOn(gitFileAnnotation.getFile()), basicData, null);
   }
 
   @Override

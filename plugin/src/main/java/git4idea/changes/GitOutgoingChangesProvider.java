@@ -22,7 +22,7 @@ import consulo.versionControlSystem.FilePath;
 import consulo.versionControlSystem.ProjectLevelVcsManager;
 import consulo.versionControlSystem.VcsException;
 import consulo.versionControlSystem.VcsOutgoingChangesProvider;
-import consulo.versionControlSystem.base.FilePathImpl;
+import consulo.versionControlSystem.action.VcsContextFactory;
 import consulo.versionControlSystem.change.Change;
 import consulo.versionControlSystem.history.VcsRevisionNumber;
 import consulo.versionControlSystem.util.ObjectsConvertor;
@@ -101,7 +101,7 @@ public class GitOutgoingChangesProvider implements VcsOutgoingChangesProvider<Co
       return new ArrayList<Change>(localChanges); // no information, better strict approach (see getOutgoingChanges() code)
     }
     final List<Pair<SHAHash, Date>> hashes = GitHistoryUtils.onlyHashesHistory(myProject,
-                                                                               new FilePathImpl(vcsRoot),
+                                                                               VcsContextFactory.getInstance().createFilePathOn(vcsRoot),
                                                                                vcsRoot,
                                                                                (base.asString() + "..HEAD"));
 

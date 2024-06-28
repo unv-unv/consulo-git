@@ -23,7 +23,7 @@ import consulo.ui.ex.action.ActionToolbar;
 import consulo.ui.ex.action.DefaultActionGroup;
 import consulo.util.collection.ContainerUtil;
 import consulo.versionControlSystem.FilePath;
-import consulo.versionControlSystem.base.FilePathImpl;
+import consulo.versionControlSystem.action.VcsContextFactory;
 
 import javax.annotation.Nonnull;
 import javax.swing.*;
@@ -31,7 +31,6 @@ import java.awt.*;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Function;
 
 public class GitSimplePathsBrowser extends JPanel
 {
@@ -65,6 +64,7 @@ public class GitSimplePathsBrowser extends JPanel
 	@Nonnull
 	private static List<FilePath> toFilePaths(@Nonnull Collection<String> absolutePaths)
 	{
-		return ContainerUtil.map(absolutePaths, path -> new FilePathImpl(new File(path), false));
+		VcsContextFactory vcsContextFactory = VcsContextFactory.getInstance();
+		return ContainerUtil.map(absolutePaths, path -> vcsContextFactory.createFilePathOn(new File(path), false));
 	}
 }
