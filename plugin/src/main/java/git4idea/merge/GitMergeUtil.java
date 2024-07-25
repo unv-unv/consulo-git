@@ -15,9 +15,6 @@
  */
 package git4idea.merge;
 
-import consulo.ide.impl.idea.openapi.vcs.ex.ProjectLevelVcsManagerEx;
-import consulo.ide.impl.idea.openapi.vcs.update.UpdateInfoTree;
-import consulo.ide.impl.idea.vcs.ViewUpdateInfoNotification;
 import consulo.localHistory.Label;
 import consulo.localHistory.LocalHistory;
 import consulo.project.Project;
@@ -26,6 +23,8 @@ import consulo.ui.ex.awt.UIUtil;
 import consulo.versionControlSystem.AbstractVcsHelper;
 import consulo.versionControlSystem.ProjectLevelVcsManager;
 import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.ui.UpdateInfoTree;
+import consulo.versionControlSystem.ui.ViewUpdateInfoNotification;
 import consulo.versionControlSystem.update.ActionInfo;
 import consulo.versionControlSystem.update.FileGroup;
 import consulo.versionControlSystem.update.UpdatedFiles;
@@ -45,154 +44,136 @@ import java.util.List;
 /**
  * Utilities for merge
  */
-public class GitMergeUtil
-{
-	/**
-	 * The item representing default strategy
-	 */
-	public static final String DEFAULT_STRATEGY = GitBundle.message("merge.default.strategy");
+public class GitMergeUtil {
+    /**
+     * The item representing default strategy
+     */
+    public static final String DEFAULT_STRATEGY = GitBundle.message("merge.default.strategy");
 
-	/**
-	 * A private constructor for utility class
-	 */
-	private GitMergeUtil()
-	{
-	}
+    /**
+     * A private constructor for utility class
+     */
+    private GitMergeUtil() {
+    }
 
 
-	/**
-	 * Get a list of merge strategies for the specified branch count
-	 *
-	 * @param branchCount a number of branches to merge
-	 * @return an array of strategy names
-	 */
-	@NonNls
-	public static String[] getMergeStrategies(int branchCount)
-	{
-		if(branchCount < 0)
-		{
-			throw new IllegalArgumentException("Branch count must be non-negative: " + branchCount);
-		}
-		switch(branchCount)
-		{
-			case 0:
-				return new String[]{DEFAULT_STRATEGY};
-			case 1:
-				return new String[]{
-						DEFAULT_STRATEGY,
-						"resolve",
-						"recursive",
-						"octopus",
-						"ours",
-						"subtree"
-				};
-			default:
-				return new String[]{
-						DEFAULT_STRATEGY,
-						"octopus",
-						"ours"
-				};
-		}
-	}
+    /**
+     * Get a list of merge strategies for the specified branch count
+     *
+     * @param branchCount a number of branches to merge
+     * @return an array of strategy names
+     */
+    @NonNls
+    public static String[] getMergeStrategies(int branchCount) {
+        if (branchCount < 0) {
+            throw new IllegalArgumentException("Branch count must be non-negative: " + branchCount);
+        }
+        switch (branchCount) {
+            case 0:
+                return new String[]{DEFAULT_STRATEGY};
+            case 1:
+                return new String[]{
+                    DEFAULT_STRATEGY,
+                    "resolve",
+                    "recursive",
+                    "octopus",
+                    "ours",
+                    "subtree"
+                };
+            default:
+                return new String[]{
+                    DEFAULT_STRATEGY,
+                    "octopus",
+                    "ours"
+                };
+        }
+    }
 
-	/**
-	 * Setup strategies combobox. The set of strategies changes according to amount of selected elements in branchChooser.
-	 *
-	 * @param branchChooser a branch chooser
-	 * @param strategy      a strategy selector
-	 */
-	public static void setupStrategies(final ElementsChooser<String> branchChooser, final JComboBox strategy)
-	{
-		final ElementsChooser.ElementsMarkListener<String> listener = new ElementsChooser.ElementsMarkListener<String>()
-		{
-			private void updateStrategies(final List<String> elements)
-			{
-				strategy.removeAllItems();
-				for(String s : getMergeStrategies(elements.size()))
-				{
-					strategy.addItem(s);
-				}
-				strategy.setSelectedItem(DEFAULT_STRATEGY);
-			}
+    /**
+     * Setup strategies combobox. The set of strategies changes according to amount of selected elements in branchChooser.
+     *
+     * @param branchChooser a branch chooser
+     * @param strategy      a strategy selector
+     */
+    public static void setupStrategies(final ElementsChooser<String> branchChooser, final JComboBox strategy) {
+        final ElementsChooser.ElementsMarkListener<String> listener = new ElementsChooser.ElementsMarkListener<String>() {
+            private void updateStrategies(final List<String> elements) {
+                strategy.removeAllItems();
+                for (String s : getMergeStrategies(elements.size())) {
+                    strategy.addItem(s);
+                }
+                strategy.setSelectedItem(DEFAULT_STRATEGY);
+            }
 
-			public void elementMarkChanged(final String element, final boolean isMarked)
-			{
-				final List<String> elements = branchChooser.getMarkedElements();
-				if(elements.size() == 0)
-				{
-					strategy.setEnabled(false);
-					updateStrategies(elements);
-				}
-				else
-				{
-					strategy.setEnabled(true);
-					updateStrategies(elements);
-				}
-			}
-		};
-		listener.elementMarkChanged(null, true);
-		branchChooser.addElementsMarkListener(listener);
-	}
+            public void elementMarkChanged(final String element, final boolean isMarked) {
+                final List<String> elements = branchChooser.getMarkedElements();
+                if (elements.size() == 0) {
+                    strategy.setEnabled(false);
+                    updateStrategies(elements);
+                }
+                else {
+                    strategy.setEnabled(true);
+                    updateStrategies(elements);
+                }
+            }
+        };
+        listener.elementMarkChanged(null, true);
+        branchChooser.addElementsMarkListener(listener);
+    }
 
-	/**
-	 * Show updates caused by git operation
-	 *
-	 * @param project     the context project
-	 * @param exceptions  the exception list
-	 * @param root        the git root
-	 * @param currentRev  the revision before update
-	 * @param beforeLabel the local history label before update
-	 * @param actionName  the action name
-	 * @param actionInfo  the information about the action
-	 */
-	public static void showUpdates(GitRepositoryAction action,
-			final Project project,
-			final List<VcsException> exceptions,
-			final VirtualFile root,
-			final GitRevisionNumber currentRev,
-			final Label beforeLabel,
-			final String actionName,
-			final ActionInfo actionInfo)
-	{
-		final UpdatedFiles files = UpdatedFiles.create();
-		MergeChangeCollector collector = new MergeChangeCollector(project, root, currentRev);
-		collector.collect(files, exceptions);
-		if(exceptions.size() != 0)
-		{
-			return;
-		}
-		action.delayTask(exceptionList -> UIUtil.invokeLaterIfNeeded(() ->
-		{
-			ProjectLevelVcsManagerEx manager = (ProjectLevelVcsManagerEx) ProjectLevelVcsManager.getInstance(project);
-			UpdateInfoTree tree = manager.showUpdateProjectInfo(files, actionName, actionInfo, false);
-			tree.setBefore(beforeLabel);
-			tree.setAfter(LocalHistory.getInstance().putSystemLabel(project, "After update"));
-			ViewUpdateInfoNotification.focusUpdateInfoTree(project, tree);
-		}));
-		final Collection<String> unmergedNames = files.getGroupById(FileGroup.MERGED_WITH_CONFLICT_ID).getFiles();
-		if(!unmergedNames.isEmpty())
-		{
-			action.delayTask(exceptionList ->
-			{
-				LocalFileSystem lfs = LocalFileSystem.getInstance();
-				final ArrayList<VirtualFile> unmerged = new ArrayList<>();
-				for(String fileName : unmergedNames)
-				{
-					VirtualFile f = lfs.findFileByPath(fileName);
-					if(f != null)
-					{
-						unmerged.add(f);
-					}
-				}
-				UIUtil.invokeLaterIfNeeded(() ->
-				{
-					GitVcs vcs = GitVcs.getInstance(project);
-					if(vcs != null)
-					{
-						AbstractVcsHelper.getInstance(project).showMergeDialog(unmerged, vcs.getMergeProvider());
-					}
-				});
-			});
-		}
-	}
+    /**
+     * Show updates caused by git operation
+     *
+     * @param project     the context project
+     * @param exceptions  the exception list
+     * @param root        the git root
+     * @param currentRev  the revision before update
+     * @param beforeLabel the local history label before update
+     * @param actionName  the action name
+     * @param actionInfo  the information about the action
+     */
+    public static void showUpdates(GitRepositoryAction action,
+                                   final Project project,
+                                   final List<VcsException> exceptions,
+                                   final VirtualFile root,
+                                   final GitRevisionNumber currentRev,
+                                   final Label beforeLabel,
+                                   final String actionName,
+                                   final ActionInfo actionInfo) {
+        final UpdatedFiles files = UpdatedFiles.create();
+        MergeChangeCollector collector = new MergeChangeCollector(project, root, currentRev);
+        collector.collect(files, exceptions);
+        if (exceptions.size() != 0) {
+            return;
+        }
+        action.delayTask(exceptionList -> UIUtil.invokeLaterIfNeeded(() ->
+        {
+            ProjectLevelVcsManager manager = ProjectLevelVcsManager.getInstance(project);
+            UpdateInfoTree tree = manager.showUpdateProjectInfo(files, actionName, actionInfo, false);
+            tree.setBefore(beforeLabel);
+            tree.setAfter(LocalHistory.getInstance().putSystemLabel(project, "After update"));
+            ViewUpdateInfoNotification.focusUpdateInfoTree(project, tree);
+        }));
+        final Collection<String> unmergedNames = files.getGroupById(FileGroup.MERGED_WITH_CONFLICT_ID).getFiles();
+        if (!unmergedNames.isEmpty()) {
+            action.delayTask(exceptionList ->
+            {
+                LocalFileSystem lfs = LocalFileSystem.getInstance();
+                final ArrayList<VirtualFile> unmerged = new ArrayList<>();
+                for (String fileName : unmergedNames) {
+                    VirtualFile f = lfs.findFileByPath(fileName);
+                    if (f != null) {
+                        unmerged.add(f);
+                    }
+                }
+                UIUtil.invokeLaterIfNeeded(() ->
+                {
+                    GitVcs vcs = GitVcs.getInstance(project);
+                    if (vcs != null) {
+                        AbstractVcsHelper.getInstance(project).showMergeDialog(unmerged, vcs.getMergeProvider());
+                    }
+                });
+            });
+        }
+    }
 }
