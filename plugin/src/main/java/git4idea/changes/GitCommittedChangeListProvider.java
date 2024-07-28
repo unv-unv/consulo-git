@@ -31,7 +31,6 @@ import consulo.versionControlSystem.change.commited.VcsCommittedViewAuxiliary;
 import consulo.versionControlSystem.history.VcsFileRevision;
 import consulo.versionControlSystem.history.VcsRevisionNumber;
 import consulo.versionControlSystem.versionBrowser.ChangeBrowserSettings;
-import consulo.versionControlSystem.versionBrowser.ChangesBrowserSettingsEditor;
 import consulo.versionControlSystem.versionBrowser.CommittedChangeList;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
@@ -62,17 +61,14 @@ public class GitCommittedChangeListProvider implements CommittedChangesProvider<
 		myProject = project;
 	}
 
+	@Override
 	@Nonnull
 	public ChangeBrowserSettings createDefaultSettings()
 	{
 		return new ChangeBrowserSettings();
 	}
 
-	public ChangesBrowserSettingsEditor<ChangeBrowserSettings> createFilterUI(boolean showDateFilter)
-	{
-		return new GitVersionFilterComponent(showDateFilter);
-	}
-
+	@Override
 	public RepositoryLocation getLocationFor(@Nonnull FilePath root)
 	{
 		VirtualFile gitRoot = GitUtil.getGitRootOrNull(root);
@@ -100,21 +96,24 @@ public class GitCommittedChangeListProvider implements CommittedChangesProvider<
 		return new GitRepositoryLocation(trackedBranch.getRemote().getFirstUrl(), rootFile);
 	}
 
+	@Override
 	public RepositoryLocation getLocationFor(FilePath root, String repositoryPath)
 	{
 		return getLocationFor(root);
 	}
 
+	@Override
 	@Nullable
 	public VcsCommittedListsZipper getZipper()
 	{
 		return null;
 	}
 
+	@Override
 	public void loadCommittedChanges(ChangeBrowserSettings settings,
-			RepositoryLocation location,
-			int maxCount,
-			final AsynchConsumer<CommittedChangeList> consumer) throws VcsException
+									 RepositoryLocation location,
+									 int maxCount,
+									 final AsynchConsumer<CommittedChangeList> consumer) throws VcsException
 	{
 		try
 		{
@@ -126,9 +125,10 @@ public class GitCommittedChangeListProvider implements CommittedChangesProvider<
 		}
 	}
 
+	@Override
 	public List<CommittedChangeList> getCommittedChanges(ChangeBrowserSettings settings,
-                                                                                                     RepositoryLocation location,
-                                                                                                     final int maxCount) throws VcsException
+														 RepositoryLocation location,
+														 final int maxCount) throws VcsException
 	{
 
 		final List<CommittedChangeList> result = new ArrayList<CommittedChangeList>();
@@ -188,6 +188,7 @@ public class GitCommittedChangeListProvider implements CommittedChangesProvider<
 		}, consumer, false);
 	}
 
+	@Override
 	public ChangeListColumn[] getColumns()
 	{
 		return new ChangeListColumn[]{
@@ -198,11 +199,13 @@ public class GitCommittedChangeListProvider implements CommittedChangesProvider<
 		};
 	}
 
+	@Override
 	public VcsCommittedViewAuxiliary createActions(DecoratorManager manager, RepositoryLocation location)
 	{
 		return null;
 	}
 
+	@Override
 	public int getUnlimitedCountValue()
 	{
 		return -1;

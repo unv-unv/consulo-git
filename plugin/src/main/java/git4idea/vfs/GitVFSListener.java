@@ -32,7 +32,6 @@ import consulo.versionControlSystem.util.ObjectsConvertor;
 import consulo.versionControlSystem.util.VcsFileUtil;
 import consulo.versionControlSystem.util.VcsUtil;
 import consulo.virtualFileSystem.VirtualFile;
-import consulo.virtualFileSystem.event.VirtualFileEvent;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
 import git4idea.commands.Git;
@@ -46,15 +45,10 @@ import git4idea.util.GitVcsConsoleWriter;
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static consulo.util.collection.ContainerUtil.map2Map;
 
 public class GitVFSListener extends VcsVFSListener {
-  /**
-   * More than zero if events are suppressed
-   */
-  private final AtomicInteger myEventsSuppressLevel = new AtomicInteger(0);
   private final Git myGit;
 
   public GitVFSListener(final Project project, final GitVcs vcs, Git git) {
@@ -62,34 +56,17 @@ public class GitVFSListener extends VcsVFSListener {
     myGit = git;
   }
 
-  /**
-   * Set events suppressed, the events should be unsuppressed later
-   *
-   * @param value true if events should be suppressed, false otherwise
-   */
-  public void setEventsSuppressed(boolean value) {
-    if (value) {
-      myEventsSuppressLevel.incrementAndGet();
-    }
-    else {
-      int v = myEventsSuppressLevel.decrementAndGet();
-      assert v >= 0;
-    }
-  }
-
   @Override
-  protected boolean isEventIgnored(VirtualFileEvent event, boolean putInDirty) {
-    return super.isEventIgnored(event, putInDirty) || myEventsSuppressLevel.get() != 0;
-  }
-
   protected String getAddTitle() {
     return GitBundle.message("vfs.listener.add.title");
   }
 
+  @Override
   protected String getSingleFileAddTitle() {
     return GitBundle.message("vfs.listener.add.single.title");
   }
 
+  @Override
   protected String getSingleFileAddPromptTemplate() {
     return GitBundle.message("vfs.listener.add.single.prompt");
   }
@@ -137,6 +114,7 @@ public class GitVFSListener extends VcsVFSListener {
     super.executeAdd(addedFiles, copiedFiles);
   }
 
+  @Override
   protected void performAdding(final Collection<VirtualFile> addedFiles, final Map<VirtualFile, VirtualFile> copyFromMap) {
     // copied files (copyFromMap) are ignored, because they are included into added files.
     performAdding(ObjectsConvertor.vf2fp(new ArrayList<>(addedFiles)));
@@ -162,22 +140,27 @@ public class GitVFSListener extends VcsVFSListener {
     });
   }
 
+  @Override
   protected String getDeleteTitle() {
     return GitBundle.message("vfs.listener.delete.title");
   }
 
+  @Override
   protected String getSingleFileDeleteTitle() {
     return GitBundle.message("vfs.listener.delete.single.title");
   }
 
+  @Override
   protected String getSingleFileDeletePromptTemplate() {
     return GitBundle.message("vfs.listener.delete.single.prompt");
   }
 
+  @Override
   protected void performDeletion(final List<FilePath> filesToDelete) {
     performBackgroundOperation(filesToDelete, GitBundle.message("remove.removing"), new LongOperationPerRootExecutor() {
       HashSet<File> filesToRefresh = new HashSet<>();
 
+      @Override
       public void execute(@Nonnull VirtualFile root, @Nonnull List<FilePath> files) throws VcsException {
         GitFileUtils.delete(myProject, root, files, "--ignore-unmatch", "--cached");
         if (!myProject.isDisposed()) {
@@ -191,12 +174,14 @@ public class GitVFSListener extends VcsVFSListener {
         }
       }
 
+      @Override
       public Collection<File> getFilesToRefresh() {
         return filesToRefresh;
       }
     });
   }
 
+  @Override
   protected void performMoveRename(final List<MovedFileInfo> movedFiles) {
     List<FilePath> toAdd = ContainerUtil.newArrayList();
     List<FilePath> toRemove = ContainerUtil.newArrayList();
@@ -240,12 +225,19 @@ public class GitVFSListener extends VcsVFSListener {
     });
   }
 
-  protected boolean isDirectoryVersioningSupported() {
-    return false;
+  @Override
+  protected boolean isRecursiveDeleteSupported() {
+    return true;
   }
 
   @Override
-  protected Collection<FilePath> selectFilePathsToDelete(final List<FilePath> deletedFiles) {
+  protected boolean isFileCopyingFromTrackingSupported() {
+    return false;
+  }
+
+  @Nonnull
+  @Override
+  protected List<FilePath> selectFilePathsToDelete(final List<FilePath> deletedFiles) {
     // For git asking about vcs delete does not make much sense. The result is practically identical.
     return deletedFiles;
   }
@@ -263,6 +255,7 @@ public class GitVFSListener extends VcsVFSListener {
     }
 
     GitVcs.runInBackground(new Task.Backgroundable(myProject, operationTitle) {
+      @Override
       public void run(@Nonnull ProgressIndicator indicator) {
         for (Map.Entry<VirtualFile, List<FilePath>> e : sortedFiles.entrySet()) {
           try {
