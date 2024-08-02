@@ -33,15 +33,14 @@ import consulo.util.io.FileUtil;
 import consulo.util.lang.ObjectUtil;
 import consulo.util.lang.StringUtil;
 import consulo.util.lang.function.Condition;
-import consulo.versionControlSystem.AbstractVcsHelper;
-import consulo.versionControlSystem.FilePath;
-import consulo.versionControlSystem.ProjectLevelVcsManager;
-import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.*;
 import consulo.versionControlSystem.change.Change;
 import consulo.versionControlSystem.change.ChangeListManager;
 import consulo.versionControlSystem.change.ContentRevision;
 import consulo.versionControlSystem.distributed.DvcsUtil;
 import consulo.versionControlSystem.distributed.repository.Repository;
+import consulo.versionControlSystem.distributed.repository.VcsRepositoryManager;
+import consulo.versionControlSystem.root.VcsRoot;
 import consulo.versionControlSystem.util.VcsFileUtil;
 import consulo.versionControlSystem.util.VcsUtil;
 import consulo.versionControlSystem.versionBrowser.CommittedChangeList;
@@ -60,6 +59,7 @@ import git4idea.repo.GitRepositoryManager;
 import git4idea.util.GitSimplePathsBrowser;
 import git4idea.util.GitUIUtil;
 import git4idea.util.StringScanner;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -70,6 +70,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 
 import static consulo.util.lang.ObjectUtil.assertNotNull;
 import static consulo.versionControlSystem.distributed.DvcsUtil.getShortRepositoryName;
@@ -79,16 +80,22 @@ import static consulo.versionControlSystem.distributed.DvcsUtil.joinShortNames;
  * Git utility/helper methods
  */
 public class GitUtil {
+  private static final class GitRepositoryNotFoundException extends VcsException {
+
+    private GitRepositoryNotFoundException(@NotNull VirtualFile file) {
+      super(GitBundle.message("repository.not.found.error", file.getPresentableUrl()));
+    }
+
+    private GitRepositoryNotFoundException(@NotNull FilePath filePath) {
+      super(GitBundle.message("repository.not.found.error", filePath.getPresentableUrl()));
+    }
+  }
+
   public static final String DOT_GIT = ".git";
 
   public static final String ORIGIN_HEAD = "origin/HEAD";
 
-  public static final Function<GitRepository, VirtualFile> REPOSITORY_TO_ROOT = new Function<GitRepository, VirtualFile>() {
-    @Override
-    public VirtualFile apply(@Nonnull GitRepository repository) {
-      return repository.getRoot();
-    }
-  };
+  public static final Function<GitRepository, VirtualFile> REPOSITORY_TO_ROOT = repository -> repository.getRoot();
 
   public static final String HEAD = "HEAD";
   public static final String CHERRY_PICK_HEAD = "CHERRY_PICK_HEAD";
@@ -97,6 +104,8 @@ public class GitUtil {
   private static final String SUBMODULE_REPO_PATH_PREFIX = "gitdir:";
   private final static Logger LOG = Logger.getInstance(GitUtil.class);
   private static final String HEAD_FILE = "HEAD";
+
+  private static final Pattern HASH_STRING_PATTERN = Pattern.compile("[a-fA-F0-9]{40}");
 
   /**
    * A private constructor to suppress instance creation
@@ -762,6 +771,23 @@ public class GitUtil {
     return ContainerUtil.map(repositories, REPOSITORY_TO_ROOT);
   }
 
+  @NotNull
+  public static VirtualFile getRootForFile(@NotNull Project project, @NotNull FilePath filePath) throws VcsException {
+    VcsRoot root = ProjectLevelVcsManager.getInstance(project).getVcsRootObjectFor(filePath);
+    if (isGitVcsRoot(root)) return root.getPath();
+
+    Repository repository = VcsRepositoryManager.getInstance(project).getExternalRepositoryForFile(filePath);
+    if (repository instanceof GitRepository) return repository.getRoot();
+    throw new GitRepositoryNotFoundException(filePath);
+  }
+
+  private static boolean isGitVcsRoot(@Nullable VcsRoot root) {
+    if (root == null) return false;
+    AbstractVcs vcs = root.getVcs();
+    if (vcs == null) return false;
+    return GitVcs.getKey().equals(vcs.getKeyInstanceMethod());
+  }
+
   @Nonnull
   public static Collection<GitRepository> getRepositoriesFromRoots(@Nonnull GitRepositoryManager repositoryManager,
                                                                    @Nonnull Collection<VirtualFile> roots) {
@@ -1117,5 +1143,9 @@ public class GitUtil {
     allChanges.internAll(changeListManager.getAllChanges());
 
     return ContainerUtil.mapNotNull(originalChanges, allChanges::get);
+  }
+
+  public static boolean isHashString(@Nonnull String revision) {
+    return HASH_STRING_PATTERN.matcher(revision).matches();
   }
 }
