@@ -17,7 +17,7 @@ package git4idea.repo;
 
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 /**
  * @author Kirill Likhodedov

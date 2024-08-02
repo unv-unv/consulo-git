@@ -20,8 +20,8 @@ import consulo.util.lang.StringUtil;
 import java.util.Collection;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 class GitSuccessfulRebase extends GitRebaseStatus
 {

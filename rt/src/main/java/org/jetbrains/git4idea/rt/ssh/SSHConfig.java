@@ -15,8 +15,8 @@
  */
 package org.jetbrains.git4idea.rt.ssh;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.UnknownHostException;

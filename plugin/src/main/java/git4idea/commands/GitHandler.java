@@ -52,8 +52,8 @@ import org.jetbrains.git4idea.rt.http.GitAskPassXmlRpcHandler;
 import org.jetbrains.git4idea.rt.ssh.GitSSHHandler;
 import org.jetbrains.git4idea.ssh.GitXmlRpcSshService;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;

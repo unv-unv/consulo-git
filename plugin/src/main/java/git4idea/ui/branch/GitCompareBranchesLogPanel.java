@@ -28,7 +28,7 @@ import git4idea.ui.GitCommitListPanel;
 import git4idea.ui.GitRepositoryComboboxListCellRenderer;
 import git4idea.util.GitCommitCompareInfo;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -52,7 +52,7 @@ class GitCompareBranchesLogPanel extends JPanel {
 	private GitCommitListPanel myBranchToHeadListPanel;
 
 	GitCompareBranchesLogPanel(@Nonnull Project project, @Nonnull String branchName, @Nonnull String currentBranchName,
-							   @Nonnull GitCommitCompareInfo compareInfo, @Nonnull GitRepository initialRepo) {
+                               @Nonnull GitCommitCompareInfo compareInfo, @Nonnull GitRepository initialRepo) {
 		super(new BorderLayout(UIUtil.DEFAULT_HGAP, UIUtil.DEFAULT_VGAP));
 		myProject = project;
 		myBranchName = branchName;

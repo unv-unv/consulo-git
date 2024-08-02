@@ -26,7 +26,7 @@ import git4idea.i18n.GitBundle;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.util.Collections;
 
 /**

@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import consulo.application.progress.ProgressIndicator;
 import consulo.component.ProcessCanceledException;
@@ -40,7 +40,7 @@ import consulo.virtualFileSystem.VirtualFile;
 import git4idea.config.GitVcsSettings;
 import git4idea.repo.GitRepositoryManager;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 public class GitUpdateEnvironment implements UpdateEnvironment
 {

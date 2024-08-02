@@ -23,6 +23,7 @@ import consulo.logging.Logger;
 import consulo.project.Project;
 import consulo.util.collection.ContainerUtil;
 import consulo.versionControlSystem.change.VirtualFileHierarchicalComparator;
+import consulo.versionControlSystem.distributed.DvcsUtil;
 import consulo.versionControlSystem.distributed.branch.DvcsSyncSettings;
 import consulo.versionControlSystem.distributed.repository.AbstractRepositoryManager;
 import consulo.versionControlSystem.distributed.repository.VcsRepositoryManager;
@@ -35,8 +36,8 @@ import git4idea.ui.branch.GitMultiRootBranchConfig;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -113,7 +114,7 @@ public class GitRepositoryManager extends AbstractRepositoryManager<GitRepositor
    * <p>Sorts repositories "by dependency",
    * which means that if one repository "depends" on the other, it should be updated or pushed first.</p>
    * <p>Currently submodule-dependency is the only one which is taken into account.</p>
-   * <p>If repositories are independent of each other, they are sorted {@link consulo.versionControlSystem.distributed.DvcsUtil#REPOSITORY_COMPARATOR by path}.</p>
+   * <p>If repositories are independent of each other, they are sorted {@link DvcsUtil#REPOSITORY_COMPARATOR by path}.</p>
    */
   @Nonnull
   public List<GitRepository> sortByDependency(@Nonnull Collection<GitRepository> repositories) {

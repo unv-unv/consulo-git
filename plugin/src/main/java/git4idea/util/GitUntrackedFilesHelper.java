@@ -35,8 +35,8 @@ import consulo.virtualFileSystem.VirtualFile;
 import git4idea.DialogManager;
 import git4idea.GitUtil;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.HyperlinkEvent;

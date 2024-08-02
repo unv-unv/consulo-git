@@ -17,8 +17,7 @@ package git4idea.update;
 
 import consulo.versionControlSystem.VcsException;
 import consulo.versionControlSystem.update.UpdateSession;
-
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import java.util.Collections;
 import java.util.List;

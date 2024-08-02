@@ -31,7 +31,7 @@ import git4idea.merge.GitMergeDialog;
 import git4idea.merge.GitMergeUtil;
 import git4idea.repo.GitRepositoryManager;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;

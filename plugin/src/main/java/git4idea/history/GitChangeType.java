@@ -16,7 +16,7 @@
 package git4idea.history;
 
 import git4idea.GitFormatException;
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 /**
  * @author Kirill Likhodedov

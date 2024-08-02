@@ -36,9 +36,9 @@ import git4idea.repo.GitRepository;
 import git4idea.reset.GitResetMode;
 import git4idea.stash.GitChangesSaver;
 import git4idea.util.GitFreezingProcess;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 

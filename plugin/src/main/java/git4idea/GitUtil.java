@@ -59,10 +59,9 @@ import git4idea.repo.GitRepositoryManager;
 import git4idea.util.GitSimplePathsBrowser;
 import git4idea.util.GitUIUtil;
 import git4idea.util.StringScanner;
-import org.jetbrains.annotations.NotNull;
+import jakarta.annotation.Nonnull;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -82,11 +81,11 @@ import static consulo.versionControlSystem.distributed.DvcsUtil.joinShortNames;
 public class GitUtil {
   private static final class GitRepositoryNotFoundException extends VcsException {
 
-    private GitRepositoryNotFoundException(@NotNull VirtualFile file) {
+    private GitRepositoryNotFoundException(@Nonnull VirtualFile file) {
       super(GitBundle.message("repository.not.found.error", file.getPresentableUrl()));
     }
 
-    private GitRepositoryNotFoundException(@NotNull FilePath filePath) {
+    private GitRepositoryNotFoundException(@Nonnull FilePath filePath) {
       super(GitBundle.message("repository.not.found.error", filePath.getPresentableUrl()));
     }
   }
@@ -771,8 +770,8 @@ public class GitUtil {
     return ContainerUtil.map(repositories, REPOSITORY_TO_ROOT);
   }
 
-  @NotNull
-  public static VirtualFile getRootForFile(@NotNull Project project, @NotNull FilePath filePath) throws VcsException {
+  @Nonnull
+  public static VirtualFile getRootForFile(@Nonnull Project project, @Nonnull FilePath filePath) throws VcsException {
     VcsRoot root = ProjectLevelVcsManager.getInstance(project).getVcsRootObjectFor(filePath);
     if (isGitVcsRoot(root)) return root.getPath();
 

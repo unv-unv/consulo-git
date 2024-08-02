@@ -37,8 +37,8 @@ import git4idea.repo.GitRepositoryManager;
 import git4idea.ui.GitReferenceValidator;
 import git4idea.util.GitUIUtil;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import java.awt.event.ActionEvent;

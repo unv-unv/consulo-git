@@ -17,7 +17,7 @@ package git4idea.commands;
 
 import consulo.application.util.registry.Registry;
 import org.jetbrains.annotations.NonNls;
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.lang.Runnable;
 
 /**

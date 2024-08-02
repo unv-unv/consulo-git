@@ -40,8 +40,8 @@ import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitUtil;
 import git4idea.i18n.GitBundle;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;

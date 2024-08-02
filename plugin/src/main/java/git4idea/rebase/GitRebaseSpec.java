@@ -33,8 +33,8 @@ import git4idea.repo.GitRepository;
 import git4idea.stash.GitChangesSaver;
 import git4idea.stash.GitStashChangesSaver;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.util.*;
 
 import static consulo.versionControlSystem.distributed.DvcsUtil.getShortNames;

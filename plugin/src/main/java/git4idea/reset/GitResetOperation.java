@@ -42,7 +42,7 @@ import git4idea.config.GitVcsSettings;
 import git4idea.repo.GitRepository;
 import git4idea.util.GitPreservingProcess;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.util.*;
 
 import static git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector.Operation.RESET;

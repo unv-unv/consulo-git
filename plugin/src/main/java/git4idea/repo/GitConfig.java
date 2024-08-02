@@ -27,8 +27,8 @@ import git4idea.branch.GitBranchUtil;
 import org.ini4j.Ini;
 import org.ini4j.Profile;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;

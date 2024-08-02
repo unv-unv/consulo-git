@@ -24,8 +24,8 @@ import git4idea.GitReference;
 import git4idea.GitRemoteBranch;
 import git4idea.repo.GitRepositoryReader;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;

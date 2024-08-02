@@ -25,7 +25,7 @@ import consulo.util.collection.ContainerUtil;
 import consulo.versionControlSystem.FilePath;
 import consulo.versionControlSystem.action.VcsContextFactory;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;

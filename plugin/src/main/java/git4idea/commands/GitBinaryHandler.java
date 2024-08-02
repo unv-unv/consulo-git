@@ -22,13 +22,13 @@ import java.nio.charset.Charset;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.annotation.Nonnull;
 import consulo.process.ExecutionException;
 import consulo.ide.IdeBundle;
 import consulo.project.Project;
 import consulo.versionControlSystem.VcsException;
 import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitVcs;
+import jakarta.annotation.Nonnull;
 
 /**
  * The handler that allows consuming binary data as byte array

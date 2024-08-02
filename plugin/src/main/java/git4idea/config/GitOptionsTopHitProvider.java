@@ -25,9 +25,9 @@ import consulo.versionControlSystem.ProjectLevelVcsManager;
 import consulo.versionControlSystem.VcsDescriptor;
 import consulo.versionControlSystem.distributed.branch.DvcsSyncSettings;
 import git4idea.repo.GitRepositoryManager;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;

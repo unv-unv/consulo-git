@@ -15,7 +15,7 @@
  */
 package git4idea.checkin;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 /**
  * Corrects some simple but popular mistakes on the author format.<p/>

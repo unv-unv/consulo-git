@@ -17,14 +17,14 @@ package git4idea.repo;
 
 import java.util.Map;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import consulo.versionControlSystem.distributed.repository.Repository;
 import consulo.versionControlSystem.log.Hash;
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 class GitBranchState
 {

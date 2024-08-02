@@ -37,8 +37,9 @@ import git4idea.commands.GitMessageWithFilesDetector;
 import git4idea.config.GitVcsSettings;
 import git4idea.repo.GitRepository;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+
 import java.util.*;
 
 import static consulo.util.lang.ObjectUtil.chooseNotNull;

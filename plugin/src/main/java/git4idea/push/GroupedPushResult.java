@@ -17,7 +17,7 @@ package git4idea.push;
 
 import git4idea.repo.GitRepository;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 

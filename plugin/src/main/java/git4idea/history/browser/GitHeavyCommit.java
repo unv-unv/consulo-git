@@ -22,7 +22,7 @@ import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitCommit;
 import git4idea.history.wholeTree.AbstractHash;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.util.*;
 
 /**

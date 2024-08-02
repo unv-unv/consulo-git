@@ -38,8 +38,9 @@ import git4idea.ui.ChangesBrowserWithRollback;
 import git4idea.util.GitSimplePathsBrowser;
 import git4idea.util.GitUntrackedFilesHelper;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+
 import javax.swing.*;
 import javax.swing.event.HyperlinkEvent;
 import java.util.Collection;

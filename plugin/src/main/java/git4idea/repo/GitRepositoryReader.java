@@ -30,8 +30,8 @@ import git4idea.branch.GitBranchUtil;
 import git4idea.validators.GitRefNameValidator;
 import org.jetbrains.annotations.NonNls;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.*;

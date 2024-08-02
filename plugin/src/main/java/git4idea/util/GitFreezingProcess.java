@@ -18,7 +18,7 @@ package git4idea.util;
 import consulo.project.Project;
 import consulo.versionControlSystem.change.VcsFreezingProcess;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 /**
  * Executes an action surrounding it with freezing-unfreezing of the ChangeListManager

@@ -16,9 +16,9 @@
 package git4idea.repo;
 
 import consulo.util.collection.ContainerUtil;
+import jakarta.annotation.Nonnull;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
@@ -89,7 +89,7 @@ public final class GitRemote implements Comparable<GitRemote>
 	private final Collection<String> myPuttyKeyFiles;
 
 	GitRemote(@Nonnull String name, @Nonnull List<String> urls, @Nonnull Collection<String> pushUrls, @Nonnull List<String> fetchRefSpecs,
-			  @Nonnull List<String> pushRefSpecs, @Nonnull Collection<String> puttyKeyFiles)
+              @Nonnull List<String> pushRefSpecs, @Nonnull Collection<String> puttyKeyFiles)
 	{
 		myName = name;
 		myUrls = urls;

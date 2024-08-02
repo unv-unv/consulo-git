@@ -19,8 +19,8 @@ import consulo.versionControlSystem.log.Hash;
 import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRemote;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 public class GitStandardRemoteBranch extends GitRemoteBranch
 {

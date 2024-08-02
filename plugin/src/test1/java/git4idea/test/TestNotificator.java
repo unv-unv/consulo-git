@@ -15,7 +15,7 @@
  */
 package git4idea.test;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import consulo.project.Project;
 import consulo.project.ui.notification.Notification;
@@ -25,7 +25,7 @@ import jakarta.inject.Singleton;
 
 import consulo.project.ui.notification.event.NotificationListener;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /**
  * @author Kirill Likhodedov

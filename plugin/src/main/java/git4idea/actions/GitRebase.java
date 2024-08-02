@@ -29,7 +29,7 @@ import git4idea.rebase.GitRebaseDialog;
 import git4idea.rebase.GitRebaseUtils;
 import git4idea.repo.GitRepository;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 

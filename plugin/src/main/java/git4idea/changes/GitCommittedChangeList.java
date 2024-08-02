@@ -21,7 +21,7 @@ import consulo.versionControlSystem.versionBrowser.CommittedChangeListForRevisio
 import git4idea.GitRevisionNumber;
 import git4idea.GitVcs;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.util.Collection;
 import java.util.Date;
 

@@ -51,7 +51,7 @@ import git4idea.stash.GitStashUtils;
 import git4idea.util.GitUIUtil;
 import git4idea.validators.GitBranchNameValidator;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.HyperlinkEvent;

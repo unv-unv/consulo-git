@@ -19,7 +19,7 @@ import consulo.util.nodep.Pair;
 import consulo.util.nodep.text.StringUtilRt;
 import org.jetbrains.git4idea.rt.GitExternalApp;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 /**
  * <p>This is a program that would be called by Git when an HTTP connection is needed, that requires authorization,

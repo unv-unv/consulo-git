@@ -18,7 +18,7 @@ package org.jetbrains.git4idea.rt.http;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import java.net.MalformedURLException;
 import java.net.URL;

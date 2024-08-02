@@ -31,10 +31,9 @@ import consulo.versionControlSystem.util.VcsUtil;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
 import git4idea.util.GitFileUtils;
-import org.jetbrains.annotations.NotNull;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -115,7 +114,7 @@ public class GitContentRevision implements ByteBackedContentRevision {
         }
     }
 
-    @NotNull
+    @Nonnull
     private byte[] loadContent() throws VcsException {
         VirtualFile root = GitUtil.getRootForFile(myProject, myFile);
         return GitFileUtils.getFileContent(myProject, root, myRevision.getRev(), VcsFileUtil.relativePath(root, myFile));

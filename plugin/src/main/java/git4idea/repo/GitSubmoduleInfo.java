@@ -1,6 +1,6 @@
 package git4idea.repo;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 /**
  * from kotlin

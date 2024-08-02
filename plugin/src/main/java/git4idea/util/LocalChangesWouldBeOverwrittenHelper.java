@@ -27,7 +27,7 @@ import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitUtil;
 import git4idea.ui.ChangesBrowserWithRollback;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import javax.swing.event.HyperlinkEvent;
 import java.util.Collection;
 import java.util.List;

@@ -19,8 +19,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
 
 import consulo.versionControlSystem.FilePath;
 import consulo.virtualFileSystem.status.FileStatus;
@@ -33,6 +32,7 @@ import consulo.project.Project;
 import git4idea.GitContentRevision;
 import git4idea.GitRevisionNumber;
 import git4idea.history.wholeTree.AbstractHash;
+import jakarta.annotation.Nullable;
 
 public class GitChangesParser
 {

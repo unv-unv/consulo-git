@@ -40,7 +40,7 @@ import git4idea.GitVcs;
 import git4idea.config.*;
 import git4idea.repo.GitRepositoryManager;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.util.List;
 
 /**

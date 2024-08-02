@@ -31,7 +31,7 @@ import org.apache.xmlrpc.client.XmlRpcClient;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.git4idea.util.ScriptGenerator;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;

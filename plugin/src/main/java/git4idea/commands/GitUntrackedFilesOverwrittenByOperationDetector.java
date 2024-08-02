@@ -17,8 +17,7 @@ package git4idea.commands;
 
 import consulo.util.dataholder.Key;
 import consulo.virtualFileSystem.VirtualFile;
-
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

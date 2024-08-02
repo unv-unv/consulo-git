@@ -43,7 +43,7 @@ import git4idea.repo.GitRepository;
 import git4idea.util.GitUIUtil;
 import git4idea.util.GitUntrackedFilesHelper;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.io.File;
 import java.util.*;
 

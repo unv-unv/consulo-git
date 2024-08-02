@@ -25,8 +25,8 @@ import git4idea.commands.GitCommand;
 import git4idea.commands.GitSimpleHandler;
 import org.jetbrains.annotations.NonNls;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.nio.charset.Charset;
 import java.util.*;
 

@@ -15,7 +15,7 @@
  */
 package git4idea.actions;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import consulo.versionControlSystem.log.Hash;
 import git4idea.history.wholeTree.GitCreateNewTag;
 import git4idea.repo.GitRepository;

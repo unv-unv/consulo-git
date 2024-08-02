@@ -15,19 +15,19 @@
  */
 package git4idea.ui;
 
-import java.util.Collection;
-import java.util.List;
-
-import javax.annotation.Nonnull;
+import consulo.ide.impl.idea.openapi.vcs.changes.actions.RollbackDialogAction;
+import consulo.ide.impl.idea.openapi.vcs.changes.ui.ChangesBrowser;
+import consulo.project.Project;
 import consulo.ui.ex.action.EmptyAction;
 import consulo.ui.ex.action.IdeActions;
-import consulo.project.Project;
 import consulo.util.collection.ContainerUtil;
 import consulo.util.lang.function.Condition;
 import consulo.versionControlSystem.change.Change;
 import consulo.versionControlSystem.change.ChangeListManager;
-import consulo.ide.impl.idea.openapi.vcs.changes.actions.RollbackDialogAction;
-import consulo.ide.impl.idea.openapi.vcs.changes.ui.ChangesBrowser;
+import jakarta.annotation.Nonnull;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * {@link ChangesBrowser} extension with Rollback/Revert action added to the toolbar.

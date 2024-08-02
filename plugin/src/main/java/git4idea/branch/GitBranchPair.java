@@ -17,8 +17,8 @@ package git4idea.branch;
 
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 /**
  * Holder for Git branch and the branch it is "connected" with. It is tracked branch or so called "matched" branch.

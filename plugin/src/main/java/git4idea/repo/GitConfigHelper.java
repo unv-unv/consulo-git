@@ -3,8 +3,8 @@ package git4idea.repo;
 import java.io.File;
 import java.io.IOException;
 
+import jakarta.annotation.Nonnull;
 import org.ini4j.Ini;
-import javax.annotation.Nonnull;
 
 import consulo.logging.Logger;
 

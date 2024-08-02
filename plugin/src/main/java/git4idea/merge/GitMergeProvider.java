@@ -40,8 +40,8 @@ import git4idea.repo.GitRepository;
 import git4idea.util.GitFileUtils;
 import git4idea.util.StringScanner;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.io.IOException;
 import java.util.*;
 

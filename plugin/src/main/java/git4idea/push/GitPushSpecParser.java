@@ -17,13 +17,13 @@ package git4idea.push;
 
 import java.util.List;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
 import consulo.logging.Logger;
 import consulo.util.lang.StringUtil;
 import git4idea.GitUtil;
 import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRepository;
+import jakarta.annotation.Nullable;
 
 class GitPushSpecParser
 {

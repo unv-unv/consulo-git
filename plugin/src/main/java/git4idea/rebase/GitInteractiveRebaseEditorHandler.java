@@ -18,7 +18,7 @@ package git4idea.rebase;
 import java.io.Closeable;
 import java.util.List;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import consulo.application.ApplicationManager;
 import consulo.application.CommonBundle;

@@ -17,14 +17,13 @@ package git4idea.actions;
 
 import java.util.Collections;
 
-import javax.annotation.Nonnull;
-
 import consulo.project.Project;
 import consulo.versionControlSystem.log.Hash;
 import consulo.ide.ServiceManager;
 import git4idea.branch.GitBranchUtil;
 import git4idea.branch.GitBrancher;
 import git4idea.repo.GitRepository;
+import jakarta.annotation.Nonnull;
 
 public class GitCreateNewBranchAction extends GitLogSingleCommitAction
 {

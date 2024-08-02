@@ -16,13 +16,13 @@
 package git4idea;
 
 import consulo.versionControlSystem.log.Hash;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.annotations.NonNls;
-import javax.annotation.Nonnull;
 
 import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRepository;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /**
  * <p>Represents a Git branch, local or remote.</p>

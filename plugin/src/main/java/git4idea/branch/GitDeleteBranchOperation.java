@@ -36,8 +36,9 @@ import git4idea.history.GitHistoryUtils;
 import git4idea.repo.GitBranchTrackInfo;
 import git4idea.repo.GitRepository;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -82,7 +83,7 @@ class GitDeleteBranchOperation extends GitBranchOperation {
     myNotifier = VcsNotifier.getInstance(myProject);
     myTrackedBranches = groupByTrackedBranchName(branchName, repositories);
     myUnmergedToBranches = new HashMap<>();
-    myDeletedBranchTips = com.google.common.collect.Maps.toMap(repositories, (GitRepository repo) -> {
+    myDeletedBranchTips = Maps.toMap(repositories, (GitRepository repo) -> {
       GitBranchesCollection branches = repo.getBranches();
       return assertNotNull(branches.getHash(assertNotNull(branches.findLocalBranch(myBranchName)))).asString();
     });

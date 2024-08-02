@@ -15,7 +15,7 @@
  */
 package org.jetbrains.git4idea.rt.ssh;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.util.List;
 import java.util.Vector;
 

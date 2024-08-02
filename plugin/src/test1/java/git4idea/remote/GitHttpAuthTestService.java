@@ -15,17 +15,15 @@
  */
 package git4idea.remote;
 
-import javax.annotation.Nonnull;
-
 import consulo.project.Project;
 import consulo.ui.ModalityState;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import jakarta.inject.Singleton;
 
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitHttpAuthService;
 import git4idea.commands.GitHttpAuthenticator;
-
-import javax.annotation.Nullable;
 
 /**
  * @author Kirill Likhodedov

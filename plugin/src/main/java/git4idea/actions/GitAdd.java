@@ -19,7 +19,7 @@ import consulo.ide.impl.idea.openapi.vcs.changes.actions.ScheduleForAdditionActi
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.virtualFileSystem.status.FileStatus;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 public class GitAdd extends ScheduleForAdditionAction {
 

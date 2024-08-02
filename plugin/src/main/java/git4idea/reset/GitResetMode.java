@@ -15,7 +15,7 @@
  */
 package git4idea.reset;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 public enum GitResetMode
 {

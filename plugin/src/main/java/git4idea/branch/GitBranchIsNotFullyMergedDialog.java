@@ -27,7 +27,7 @@ import git4idea.repo.GitRepository;
 import git4idea.ui.GitCommitListWithDiffPanel;
 import git4idea.ui.GitRepositoryComboboxListCellRenderer;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;

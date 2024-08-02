@@ -15,8 +15,8 @@
  */
 package git4idea.push;
 
-import javax.annotation.Nonnull;
 import git4idea.config.UpdateMethod;
+import jakarta.annotation.Nonnull;
 
 // holds settings chosen in GitRejectedPushUpdate dialog to reuse if the next push is rejected again.
 class PushUpdateSettings

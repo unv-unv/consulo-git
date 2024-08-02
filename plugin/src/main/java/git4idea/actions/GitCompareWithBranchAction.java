@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import consulo.ide.impl.idea.dvcs.actions.DvcsCompareWithBranchAction;
 import consulo.project.Project;
 import consulo.util.collection.ContainerUtil;

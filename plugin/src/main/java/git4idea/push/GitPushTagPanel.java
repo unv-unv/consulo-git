@@ -19,16 +19,16 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.annotation.Nonnull;
 import javax.swing.JList;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import consulo.ui.ex.awt.JBCheckBox;
 import consulo.ui.ex.awt.ListCellRendererWrapper;
 import consulo.versionControlSystem.distributed.push.VcsPushOptionValue;
 import consulo.versionControlSystem.distributed.push.VcsPushOptionsPanel;
 import consulo.ui.ex.awt.ComboBox;
+import jakarta.annotation.Nonnull;
 
 @Deprecated
 public class GitPushTagPanel extends VcsPushOptionsPanel

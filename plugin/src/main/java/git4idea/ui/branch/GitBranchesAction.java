@@ -22,8 +22,7 @@ import consulo.ui.ex.action.DumbAwareAction;
 import consulo.virtualFileSystem.VirtualFile;
 import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRepository;
-
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 /**
  * <p>

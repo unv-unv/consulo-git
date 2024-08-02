@@ -20,12 +20,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import javax.swing.Box;
 import javax.swing.JComponent;
 import javax.swing.JList;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import consulo.ui.ex.awt.*;
 import consulo.versionControlSystem.distributed.push.VcsPushOptionValue;

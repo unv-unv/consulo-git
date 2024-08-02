@@ -29,7 +29,7 @@ import consulo.virtualFileSystem.VirtualFileSystem;
 import git4idea.history.wholeTree.*;
 import junit.framework.Assert;
 import junit.framework.TestCase;
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import java.io.IOException;
 import java.io.InputStream;

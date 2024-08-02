@@ -32,7 +32,7 @@ import consulo.versionControlSystem.log.util.VcsLogUtil;
 import consulo.virtualFileSystem.VirtualFile;
 import git4idea.repo.GitRepositoryManager;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.util.Collection;

@@ -21,8 +21,8 @@ import consulo.component.extension.ExtensionPointName;
 import consulo.credentialStorage.AuthData;
 import git4idea.commands.GitHttpAuthenticator;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 /**
  * Provides authentication information to the {@link GitHttpAuthenticator} on attempt to connect an HTTP remote.

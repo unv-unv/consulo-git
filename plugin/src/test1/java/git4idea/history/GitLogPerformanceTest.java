@@ -28,7 +28,7 @@ import git4idea.test.GitTest;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;

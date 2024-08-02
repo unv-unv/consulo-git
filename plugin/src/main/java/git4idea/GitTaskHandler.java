@@ -26,8 +26,8 @@ import git4idea.repo.GitRepositoryManager;
 import git4idea.validators.GitRefNameValidator;
 import jakarta.inject.Inject;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;

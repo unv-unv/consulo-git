@@ -30,7 +30,7 @@ import git4idea.commands.Git;
 import git4idea.i18n.GitBundle;
 import git4idea.rollback.GitRollbackEnvironment;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.util.*;
 
 public class GitShelveChangesSaver extends GitChangesSaver {

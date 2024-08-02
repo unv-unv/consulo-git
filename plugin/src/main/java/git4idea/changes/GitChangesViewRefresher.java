@@ -21,7 +21,7 @@ import consulo.versionControlSystem.change.ChangesViewRefresher;
 import consulo.ide.ServiceManager;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 /**
  * Untracked files in Git are not queried within the normal refresh procedure - they are watched separately.

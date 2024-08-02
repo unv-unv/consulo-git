@@ -15,7 +15,7 @@
  */
 package git4idea.commands;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /**
 * @author Kirill Likhodedov

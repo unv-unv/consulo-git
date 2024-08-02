@@ -30,8 +30,8 @@ import git4idea.commands.GitLineHandlerListener;
 import git4idea.history.browser.GitCommit;
 import git4idea.push.GitPushSpec;
 import git4idea.repo.GitRepository;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -72,9 +72,9 @@ public class GitTestImpl implements Git {
   @Nonnull
   @Override
   public GitCommandResult clone(@Nonnull Project project,
-								@Nonnull File parentDirectory,
-								@Nonnull String url,
-								@Nonnull String clonedDirectoryName, @Nonnull GitLineHandlerListener... progressListeners) {
+                                @Nonnull File parentDirectory,
+                                @Nonnull String url,
+                                @Nonnull String clonedDirectoryName, @Nonnull GitLineHandlerListener... progressListeners) {
     throw new UnsupportedOperationException();
   }
 
@@ -97,7 +97,7 @@ public class GitTestImpl implements Git {
   @Nonnull
   @Override
   public GitCommandResult checkAttr(@Nonnull final GitRepository repository, @Nonnull Collection<String> attributes,
-									@Nonnull Collection<VirtualFile> files) {
+                                    @Nonnull Collection<VirtualFile> files) {
     cd(repository);
     Collection<String> relativePaths = Collections2.transform(files, new Function<VirtualFile, String>() {
       @Override
@@ -130,7 +130,7 @@ public class GitTestImpl implements Git {
   @Nonnull
   @Override
   public GitCommandResult merge(@Nonnull GitRepository repository, @Nonnull String branchToMerge, @Nullable List<String> additionalParams,
-								@Nonnull GitLineHandlerListener... listeners) {
+                                @Nonnull GitLineHandlerListener... listeners) {
     String addParams = additionalParams == null ? "" : join(additionalParams, " ");
     return execute(repository, format("merge %s %s", addParams, branchToMerge), listeners);
   }
@@ -138,7 +138,7 @@ public class GitTestImpl implements Git {
   @Nonnull
   @Override
   public GitCommandResult checkout(@Nonnull GitRepository repository, @Nonnull String reference, @Nullable String newBranch, boolean force,
-								   @Nonnull GitLineHandlerListener... listeners) {
+                                   @Nonnull GitLineHandlerListener... listeners) {
     return execute(repository, format("checkout %s %s %s",
                                       force ? "--force" : "",
                                       newBranch != null ? " -b " + newBranch : "", reference), listeners);
@@ -154,7 +154,7 @@ public class GitTestImpl implements Git {
   @Nonnull
   @Override
   public GitCommandResult branchDelete(@Nonnull GitRepository repository, @Nonnull String branchName, boolean force,
-									   @Nonnull GitLineHandlerListener... listeners) {
+                                       @Nonnull GitLineHandlerListener... listeners) {
     return execute(repository, format("branch %s %s", force ? "-D" : "-d", branchName), listeners);
   }
 
@@ -191,14 +191,14 @@ public class GitTestImpl implements Git {
   @Nonnull
   @Override
   public GitCommandResult push(@Nonnull GitRepository repository, @Nonnull String remote, @Nonnull String url, @Nonnull String spec,
-							   @Nonnull GitLineHandlerListener... listeners) {
+                               @Nonnull GitLineHandlerListener... listeners) {
     throw new UnsupportedOperationException();
   }
 
   @Nonnull
   @Override
   public GitCommandResult push(@Nonnull GitRepository repository,
-							   @Nonnull GitPushSpec spec, @Nonnull String url, @Nonnull GitLineHandlerListener... listeners) {
+                               @Nonnull GitPushSpec spec, @Nonnull String url, @Nonnull GitLineHandlerListener... listeners) {
     throw new UnsupportedOperationException();
   }
 

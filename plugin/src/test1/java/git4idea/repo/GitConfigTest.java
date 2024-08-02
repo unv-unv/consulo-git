@@ -24,7 +24,7 @@ import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
 import git4idea.GitStandardRemoteBranch;
 import git4idea.test.GitTestUtil;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 

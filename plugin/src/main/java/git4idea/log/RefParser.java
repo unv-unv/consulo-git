@@ -6,9 +6,9 @@ import consulo.versionControlSystem.log.VcsRef;
 import consulo.versionControlSystem.log.base.HashImpl;
 import consulo.virtualFileSystem.VirtualFile;
 import git4idea.repo.GitRepositoryReader;
+import jakarta.annotation.Nonnull;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

@@ -15,7 +15,7 @@
  */
 package git4idea.update;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 /**
  * @author Kirill Likhodedov

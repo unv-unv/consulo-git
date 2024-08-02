@@ -37,7 +37,7 @@ import git4idea.GitVcs;
 import git4idea.repo.GitRepository;
 import git4idea.test.GitTest;
 import org.jetbrains.annotations.NonNls;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;

@@ -15,7 +15,7 @@
  */
 package git4idea.util;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 /**
  * A parser of strings that is oriented to scanning typical git outputs

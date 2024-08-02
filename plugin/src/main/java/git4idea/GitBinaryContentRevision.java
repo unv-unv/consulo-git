@@ -23,7 +23,7 @@ import consulo.versionControlSystem.util.VcsFileUtil;
 import consulo.virtualFileSystem.VirtualFile;
 import git4idea.util.GitFileUtils;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 /**
  * @author irengrig

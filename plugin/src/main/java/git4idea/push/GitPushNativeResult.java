@@ -15,8 +15,8 @@
  */
 package git4idea.push;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 /**
  * Push result as reported by {@code git push} command.

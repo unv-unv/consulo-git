@@ -31,8 +31,9 @@ import git4idea.GitUtil;
 import git4idea.commands.Git;
 import git4idea.status.GitNewChangesCollector;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+
 import java.util.*;
 
 /**

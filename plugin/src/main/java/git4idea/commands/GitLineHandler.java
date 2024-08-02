@@ -23,7 +23,7 @@ import consulo.util.lang.StringUtil;
 import consulo.versionControlSystem.util.LineHandlerHelper;
 import consulo.virtualFileSystem.VirtualFile;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.io.File;
 import java.util.Iterator;
 

@@ -61,8 +61,8 @@ import git4idea.i18n.GitBundle;
 import git4idea.log.GitLogProvider;
 import git4idea.log.GitRefManager;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;

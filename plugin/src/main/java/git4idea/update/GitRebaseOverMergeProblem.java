@@ -29,7 +29,7 @@ import consulo.virtualFileSystem.VirtualFile;
 import git4idea.DialogManager;
 import git4idea.history.GitHistoryUtils;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.function.Consumer;
 

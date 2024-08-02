@@ -24,7 +24,7 @@ import consulo.virtualFileSystem.status.FileStatus;
 import consulo.versionControlSystem.change.Change;
 import consulo.versionControlSystem.checkin.CheckinHandler;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 /**
  * Checks if there are unresolved conflicts selected to commit.

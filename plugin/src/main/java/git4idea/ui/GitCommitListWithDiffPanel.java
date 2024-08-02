@@ -21,7 +21,7 @@ import consulo.ui.ex.awt.Splitter;
 import consulo.versionControlSystem.change.Change;
 import git4idea.GitCommit;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Collections;

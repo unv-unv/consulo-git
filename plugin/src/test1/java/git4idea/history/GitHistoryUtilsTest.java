@@ -35,7 +35,7 @@ import git4idea.history.browser.SHAHash;
 import git4idea.history.wholeTree.AbstractHash;
 import git4idea.history.wholeTree.CommitHashPlusParents;
 import git4idea.test.GitTest;
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import org.junit.Before;
 
 import java.io.File;

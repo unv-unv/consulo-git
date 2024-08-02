@@ -20,10 +20,10 @@ import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
 import consulo.component.persist.*;
 import consulo.ide.ServiceManager;
+import jakarta.annotation.Nonnull;
 import jakarta.inject.Singleton;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /**
  * The application wide settings for the git

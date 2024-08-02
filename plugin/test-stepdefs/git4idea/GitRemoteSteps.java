@@ -20,7 +20,7 @@ import cucumber.annotation.en.Then;
 import cucumber.annotation.en.When;
 import git4idea.checkout.GitCheckoutProvider;
 import git4idea.commands.GitHttpAuthenticator;
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import java.io.File;
 import java.util.concurrent.CountDownLatch;

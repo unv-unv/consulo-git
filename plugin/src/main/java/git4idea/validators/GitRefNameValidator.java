@@ -18,7 +18,7 @@ package git4idea.validators;
 import consulo.ui.ex.InputValidator;
 import consulo.util.lang.StringUtil;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.util.regex.Pattern;
 
 /**

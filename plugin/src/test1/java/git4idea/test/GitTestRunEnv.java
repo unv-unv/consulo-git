@@ -17,8 +17,7 @@ package git4idea.test;
 
 import com.intellij.dvcs.test.Executor;
 import consulo.util.lang.StringUtil;
-
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import java.io.File;
 import java.io.IOException;

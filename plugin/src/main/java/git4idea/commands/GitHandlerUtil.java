@@ -24,9 +24,9 @@ import consulo.versionControlSystem.VcsException;
 import consulo.virtualFileSystem.VirtualFile;
 import git4idea.i18n.GitBundle;
 import git4idea.util.GitUIUtil;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.annotations.NonNls;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import java.awt.EventQueue;
 import java.util.Collection;

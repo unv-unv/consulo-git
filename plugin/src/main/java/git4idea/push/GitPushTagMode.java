@@ -16,8 +16,7 @@
 package git4idea.push;
 
 import consulo.versionControlSystem.distributed.push.VcsPushOptionValue;
-
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 /**
  *

@@ -38,7 +38,7 @@ import git4idea.repo.GitRepository;
 import git4idea.reset.GitResetMode;
 import git4idea.util.GitPreservingProcess;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import javax.swing.event.HyperlinkEvent;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;

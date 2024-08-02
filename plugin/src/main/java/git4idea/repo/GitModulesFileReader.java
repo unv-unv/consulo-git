@@ -10,9 +10,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import jakarta.annotation.Nonnull;
 import org.ini4j.Ini;
 import org.ini4j.Profile;
-import javax.annotation.Nonnull;
 
 import consulo.logging.Logger;
 

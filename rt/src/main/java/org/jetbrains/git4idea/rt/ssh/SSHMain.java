@@ -19,9 +19,9 @@ import com.trilead.ssh2.*;
 import com.trilead.ssh2.crypto.PEMDecoder;
 import consulo.util.nodep.ArrayUtilRt;
 import consulo.util.nodep.io.FileUtilRt;
+import jakarta.annotation.Nullable;
 import org.jetbrains.git4idea.rt.GitExternalApp;
 
-import javax.annotation.Nullable;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.Semaphore;

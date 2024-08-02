@@ -30,8 +30,8 @@ import git4idea.branch.GitRebaseParams;
 import git4idea.repo.GitRepository;
 import git4idea.stash.GitChangesSaver;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;

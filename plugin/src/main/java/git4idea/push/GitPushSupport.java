@@ -31,8 +31,8 @@ import git4idea.config.GitVersionSpecialty;
 import git4idea.repo.*;
 import jakarta.inject.Inject;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.util.Collection;
 
 @ExtensionImpl

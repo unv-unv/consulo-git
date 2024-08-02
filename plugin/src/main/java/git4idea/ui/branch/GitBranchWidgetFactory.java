@@ -7,7 +7,7 @@ import consulo.project.ui.wm.StatusBarWidget;
 import consulo.project.ui.wm.StatusBarWidgetFactory;
 import git4idea.i18n.GitBundle;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 @ExtensionImpl(id = "gitWidget", order = "after codeStyleWidget,before readOnlyWidget")
 public class GitBranchWidgetFactory implements StatusBarWidgetFactory {

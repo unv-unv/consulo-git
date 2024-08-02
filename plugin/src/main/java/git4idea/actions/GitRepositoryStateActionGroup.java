@@ -9,7 +9,7 @@ import consulo.ui.ex.action.Presentation;
 import consulo.versionControlSystem.distributed.repository.Repository;
 import git4idea.GitUtil;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 // from kotlin
 public class GitRepositoryStateActionGroup extends DefaultActionGroup implements DumbAware {

@@ -28,8 +28,8 @@ import consulo.versionControlSystem.util.VcsFileUtil;
 import consulo.virtualFileSystem.VirtualFile;
 import git4idea.util.GitFileUtils;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;

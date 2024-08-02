@@ -25,8 +25,8 @@ import consulo.virtualFileSystem.VirtualFile;
 import consulo.util.collection.ContainerUtil;
 import git4idea.GitUtil;
 import git4idea.test.GitTest;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;

@@ -15,7 +15,7 @@
  */
 package git4idea.actions;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import consulo.application.progress.ProgressIndicator;
 import consulo.project.Project;

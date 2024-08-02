@@ -20,7 +20,7 @@ import consulo.ide.impl.idea.util.text.FilePathHashingStrategy;
 import consulo.util.collection.HashingStrategy;
 import consulo.util.lang.StringUtil;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 /**
  * The base class for named git references, like branches and tags.

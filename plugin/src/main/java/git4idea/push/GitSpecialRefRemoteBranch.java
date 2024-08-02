@@ -15,7 +15,7 @@
  */
 package git4idea.push;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import git4idea.GitRemoteBranch;
 import git4idea.repo.GitRemote;
 

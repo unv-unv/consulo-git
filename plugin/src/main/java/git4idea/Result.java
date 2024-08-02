@@ -15,7 +15,7 @@
  */
 package git4idea;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /**
  * Result of some operation.
@@ -28,7 +28,8 @@ public class Result {
   public static final Result SUCCESS = new Result(null);
   public static final Result CANCEL = new Result("Cancelled by user");
 
-  @Nullable private final String myErrorDetails;
+  @Nullable
+  private final String myErrorDetails;
 
   public Result(@Nullable String errorDetails) {
     myErrorDetails = errorDetails;

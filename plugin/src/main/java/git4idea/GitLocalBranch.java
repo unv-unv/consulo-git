@@ -15,10 +15,10 @@
  */
 package git4idea;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
 import git4idea.repo.GitBranchTrackInfo;
 import git4idea.repo.GitRepository;
+import jakarta.annotation.Nullable;
 
 /**
  * @author Kirill Likhodedov

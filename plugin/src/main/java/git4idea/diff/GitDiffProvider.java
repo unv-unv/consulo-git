@@ -40,11 +40,12 @@ import git4idea.GitUtil;
 import git4idea.GitVcs;
 import git4idea.history.GitHistoryUtils;
 import git4idea.i18n.GitBundle;
+import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;

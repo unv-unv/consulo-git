@@ -35,8 +35,8 @@ import git4idea.GitUtil;
 import git4idea.history.GitHistoryUtils;
 import git4idea.history.browser.SHAHash;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.util.*;
 
 public class GitOutgoingChangesProvider implements VcsOutgoingChangesProvider<CommittedChangeList> {

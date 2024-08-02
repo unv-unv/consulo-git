@@ -22,9 +22,8 @@ import consulo.component.persist.PersistentStateComponent;
 import consulo.component.persist.State;
 import consulo.component.persist.Storage;
 import consulo.component.persist.StoragePathMacros;
+import jakarta.annotation.Nullable;
 import jakarta.inject.Singleton;
-
-import javax.annotation.Nullable;
 
 @State(name = "Git.Rebase.Settings", storages = {@Storage(file = StoragePathMacros.WORKSPACE_FILE)})
 @Singleton

@@ -24,7 +24,7 @@ import git4idea.commands.GitCompoundResult;
 import git4idea.commands.GitSimpleEventDetector;
 import git4idea.repo.GitRepository;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.util.Collection;
 
 import static git4idea.util.GitUIUtil.code;

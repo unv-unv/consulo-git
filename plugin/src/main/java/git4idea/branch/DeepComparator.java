@@ -38,8 +38,8 @@ import git4idea.commands.GitLineHandlerAdapter;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;

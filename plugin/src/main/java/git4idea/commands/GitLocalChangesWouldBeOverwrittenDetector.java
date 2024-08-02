@@ -18,9 +18,9 @@ package git4idea.commands;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.annotation.Nonnull;
 import consulo.util.dataholder.Key;
 import consulo.virtualFileSystem.VirtualFile;
+import jakarta.annotation.Nonnull;
 
 /**
  * <p>Detects the error which happens, when some untracked working tree files prevent merge or checkout.</p>

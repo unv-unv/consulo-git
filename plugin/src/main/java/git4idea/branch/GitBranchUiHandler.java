@@ -21,8 +21,8 @@ import java.util.Map;
 
 import consulo.application.progress.ProgressIndicator;
 import org.intellij.lang.annotations.MagicConstant;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 import consulo.project.Project;
 import consulo.versionControlSystem.change.Change;

@@ -18,7 +18,7 @@ package git4idea.commands;
 import consulo.project.Project;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import java.util.HashMap;
 import java.util.Map;

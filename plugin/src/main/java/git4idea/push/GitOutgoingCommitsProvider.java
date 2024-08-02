@@ -18,7 +18,7 @@ package git4idea.push;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import consulo.versionControlSystem.VcsException;
 import consulo.versionControlSystem.distributed.push.OutgoingCommitsProvider;

@@ -23,8 +23,8 @@ import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitBranchTrackInfo;
 import git4idea.repo.GitRepository;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;

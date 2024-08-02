@@ -30,7 +30,7 @@ import git4idea.repo.GitRepository;
 import git4idea.test.GitExecutor;
 import git4idea.test.GitTestInitUtil;
 import git4idea.test.TestNotificator;
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.ide.BuiltInServerManager;
 import org.jetbrains.ide.BuiltInServerManagerImpl;
 import org.junit.Assert;

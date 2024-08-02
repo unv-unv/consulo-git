@@ -17,8 +17,8 @@ package git4idea.checkin;
 
 import consulo.versionControlSystem.change.CommitExecutor;
 import consulo.versionControlSystem.change.CommitSession;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.annotations.Nls;
-import javax.annotation.Nonnull;
 
 /**
  * @author yole

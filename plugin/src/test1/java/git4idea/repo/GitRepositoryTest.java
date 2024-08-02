@@ -21,8 +21,8 @@ import git4idea.GitBranch;
 import git4idea.GitPlatformFacade;
 import git4idea.test.GitLightTest;
 import git4idea.test.GitTest;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
+import jakarta.annotation.Nonnull;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 

@@ -35,7 +35,7 @@ import consulo.virtualFileSystem.util.VirtualFileVisitor;
 import git4idea.GitVcs;
 import git4idea.util.GitUIUtil;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

@@ -21,9 +21,8 @@ import consulo.language.plain.PlainTextFileType;
 import consulo.virtualFileSystem.fileType.FileNameMatcherFactory;
 import consulo.virtualFileSystem.fileType.FileTypeConsumer;
 import consulo.virtualFileSystem.fileType.FileTypeFactory;
+import jakarta.annotation.Nonnull;
 import jakarta.inject.Inject;
-
-import javax.annotation.Nonnull;
 
 /**
  * The file type factory that declares types of git files

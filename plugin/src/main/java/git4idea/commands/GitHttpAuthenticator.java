@@ -15,7 +15,7 @@
  */
 package git4idea.commands;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 /**
  * Performs HTTP authentication, i. e. handles "ask username" and "ask password" requests from Git:

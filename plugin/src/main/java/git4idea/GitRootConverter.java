@@ -18,8 +18,8 @@ package git4idea;
 
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.versionControlSystem.AbstractVcs;
+import jakarta.annotation.Nonnull;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;

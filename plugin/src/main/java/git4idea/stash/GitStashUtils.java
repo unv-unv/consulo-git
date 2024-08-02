@@ -29,7 +29,7 @@ import git4idea.ui.StashInfo;
 import git4idea.util.GitUIUtil;
 import git4idea.util.StringScanner;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.nio.charset.Charset;
 import java.util.function.Consumer;
 
@@ -57,7 +57,7 @@ public class GitStashUtils
 	}
 
 	public static void loadStashStack(@Nonnull Project project, @Nonnull VirtualFile root, final Charset charset,
-									  final Consumer<StashInfo> consumer)
+                                      final Consumer<StashInfo> consumer)
 	{
 		GitSimpleHandler h = new GitSimpleHandler(project, root, GitCommand.STASH.readLockingCommand());
 		h.setSilent(true);

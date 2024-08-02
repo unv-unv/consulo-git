@@ -29,8 +29,8 @@ import consulo.util.lang.StringUtil;
 import consulo.versionControlSystem.VcsException;
 import git4idea.GitVcs;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;

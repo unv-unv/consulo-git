@@ -54,8 +54,8 @@ import git4idea.update.GitUpdateProcess;
 import git4idea.update.GitUpdateResult;
 import git4idea.update.GitUpdater;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 

@@ -22,7 +22,7 @@ import java.text.ParseException;
 import java.util.Collection;
 import java.util.List;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import consulo.versionControlSystem.distributed.push.PushTarget;
 import org.jetbrains.annotations.TestOnly;
@@ -38,7 +38,7 @@ import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import git4idea.validators.GitRefNameValidator;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 public class GitPushTarget implements PushTarget
 {

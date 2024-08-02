@@ -15,10 +15,10 @@
  */
 package git4idea.rebase;
 
+import jakarta.annotation.Nonnull;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 import org.jetbrains.annotations.NonNls;
-import javax.annotation.Nonnull;
 
 import java.io.File;
 import java.net.URL;

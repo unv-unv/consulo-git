@@ -18,7 +18,7 @@ package git4idea.branch;
 import java.util.Collection;
 import java.util.List;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import consulo.application.ApplicationManager;
 import consulo.logging.Logger;

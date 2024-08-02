@@ -25,9 +25,9 @@ import consulo.versionControlSystem.AbstractVcs;
 import consulo.versionControlSystem.action.VcsQuickListContentProvider;
 import git4idea.GitVcs;
 import git4idea.i18n.GitBundle;
+import jakarta.annotation.Nonnull;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

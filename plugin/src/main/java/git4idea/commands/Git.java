@@ -17,7 +17,6 @@ package git4idea.commands;
 
 import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
-import consulo.application.util.function.Computable;
 import consulo.ide.ServiceManager;
 import consulo.project.Project;
 import consulo.versionControlSystem.VcsException;
@@ -27,8 +26,8 @@ import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import git4idea.reset.GitResetMode;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;

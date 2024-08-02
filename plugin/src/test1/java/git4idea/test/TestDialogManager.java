@@ -17,7 +17,7 @@ package git4idea.test;
 
 import consulo.ui.ex.awt.DialogWrapper;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;

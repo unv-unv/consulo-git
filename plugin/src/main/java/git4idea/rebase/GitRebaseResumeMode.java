@@ -15,7 +15,7 @@
  */
 package git4idea.rebase;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 public enum GitRebaseResumeMode
 {

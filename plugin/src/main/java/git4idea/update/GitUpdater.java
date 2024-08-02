@@ -21,7 +21,7 @@ import static git4idea.config.UpdateMethod.REBASE;
 
 import java.util.ArrayList;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import consulo.logging.Logger;
 import consulo.application.progress.ProgressIndicator;
 import consulo.project.Project;

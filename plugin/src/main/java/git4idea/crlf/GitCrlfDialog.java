@@ -22,10 +22,9 @@ import consulo.ui.ex.awt.UIUtil;
 import consulo.project.Project;
 import consulo.ui.ex.awt.DialogWrapper;
 import consulo.ui.ex.awt.JBLabel;
+import jakarta.annotation.Nonnull;
 
-import javax.annotation.Nonnull;
-
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import javax.swing.*;
 import java.awt.*;
 

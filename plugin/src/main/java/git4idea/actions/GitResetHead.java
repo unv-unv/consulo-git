@@ -24,7 +24,7 @@ import git4idea.commands.GitLineHandler;
 import git4idea.i18n.GitBundle;
 import git4idea.repo.GitRepositoryManager;
 import git4idea.ui.GitResetDialog;
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import java.util.List;
 import java.util.Set;

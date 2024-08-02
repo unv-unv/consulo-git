@@ -37,8 +37,8 @@ import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import git4idea.util.GitUIUtil;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -356,7 +356,7 @@ public class GitFetcher
 	 * @return true if all fetches were successful, false if at least one fetch failed.
 	 */
 	public boolean fetchRootsAndNotify(
-			@Nonnull Collection<GitRepository> roots, @Nullable String errorNotificationTitle, boolean notifySuccess)
+        @Nonnull Collection<GitRepository> roots, @Nullable String errorNotificationTitle, boolean notifySuccess)
 	{
 		Map<VirtualFile, String> additionalInfo = new HashMap<VirtualFile, String>();
 		for(GitRepository repository : roots)

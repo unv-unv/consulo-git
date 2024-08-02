@@ -28,7 +28,7 @@ import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 import git4idea.util.GitCommitCompareInfo;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import javax.swing.*;
 
 /**

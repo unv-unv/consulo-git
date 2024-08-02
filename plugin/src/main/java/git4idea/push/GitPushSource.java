@@ -19,7 +19,7 @@ import consulo.versionControlSystem.distributed.DvcsUtil;
 import consulo.versionControlSystem.distributed.push.PushSource;
 import git4idea.GitLocalBranch;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 abstract class GitPushSource implements PushSource {
 

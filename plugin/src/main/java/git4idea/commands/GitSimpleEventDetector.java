@@ -15,7 +15,7 @@
  */
 package git4idea.commands;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import consulo.util.dataholder.Key;
 import consulo.util.lang.StringUtil;
 

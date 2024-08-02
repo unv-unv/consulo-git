@@ -27,7 +27,7 @@ import consulo.virtualFileSystem.VirtualFile;
 import git4idea.history.GitChangesParser;
 import git4idea.history.GitLogStatusInfo;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;

@@ -20,6 +20,7 @@ import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
 import git4idea.commands.GitSSHGUIHandler;
+import jakarta.annotation.Nonnull;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.jetbrains.git4idea.rt.ssh.GitSSHHandler;
@@ -27,7 +28,6 @@ import org.jetbrains.git4idea.rt.ssh.SSHMain;
 import org.jetbrains.git4idea.rt.ssh.SSHMainBundle;
 import org.jetbrains.git4idea.util.ScriptGenerator;
 
-import javax.annotation.Nonnull;
 import java.util.UUID;
 import java.util.Vector;
 

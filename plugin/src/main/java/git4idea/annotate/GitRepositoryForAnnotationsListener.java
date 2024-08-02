@@ -21,8 +21,7 @@ import consulo.versionControlSystem.change.VcsAnnotationRefresher;
 import git4idea.GitVcs;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
-
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 /**
  * Created with IntelliJ IDEA.

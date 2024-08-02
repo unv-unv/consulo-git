@@ -15,7 +15,7 @@
  */
 package org.jetbrains.git4idea.rt.http;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 /**
  * This handler is called via XML RPC from {@link GitAskPassApp} when Git requests user credentials.

@@ -24,7 +24,7 @@ import git4idea.GitVcs;
 import git4idea.commands.Git;
 import git4idea.commands.GitCommandResult;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 public class GitIntegrationEnabler extends VcsIntegrationEnabler<GitVcs>
 {

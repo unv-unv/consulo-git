@@ -16,7 +16,7 @@
 package git4idea.update;
 
 import git4idea.config.GitVcsSettings;
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import javax.swing.*;
 

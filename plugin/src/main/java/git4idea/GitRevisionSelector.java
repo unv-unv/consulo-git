@@ -18,9 +18,8 @@ package git4idea;
 import consulo.versionControlSystem.history.VcsRevisionNumber;
 import consulo.versionControlSystem.diff.RevisionSelector;
 import consulo.virtualFileSystem.VirtualFile;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 /**
  * Git revision selector class.

@@ -25,8 +25,8 @@ import consulo.component.persist.StoragePathMacros;
 import consulo.util.collection.ContainerUtil;
 import jakarta.inject.Singleton;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
