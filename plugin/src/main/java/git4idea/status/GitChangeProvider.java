@@ -38,12 +38,10 @@ import git4idea.GitUtil;
 import git4idea.GitVcs;
 import git4idea.changes.GitChangeUtils;
 import git4idea.commands.Git;
-import git4idea.config.GitVersion;
-import git4idea.config.GitVersionSpecialty;
+import jakarta.annotation.Nonnull;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
-import jakarta.annotation.Nonnull;
 import java.util.*;
 
 /**
@@ -98,11 +96,8 @@ public class GitChangeProvider implements ChangeProvider {
                                                                myFileDocumentManager, myVcsManager);
       for (VirtualFile root : roots) {
         debug("checking root: " + root.getPath());
-        GitChangesCollector collector = isNewGitChangeProviderAvailable()
-          ? GitNewChangesCollector.collect(myProject, myGit, myChangeListManager, myVcsManager,
-                                           vcs, dirtyScope, root)
-          : GitOldChangesCollector.collect(myProject, myChangeListManager, myVcsManager,
-                                           vcs, dirtyScope, root);
+        GitChangesCollector collector = GitNewChangesCollector.collect(myProject, myGit, myChangeListManager, myVcsManager,
+            vcs, dirtyScope, root);
         final Collection<Change> changes = collector.getChanges();
         holder.changed(changes);
         for (Change file : changes) {
@@ -156,15 +151,6 @@ public class GitChangeProvider implements ChangeProvider {
     );
   }
 
-  private boolean isNewGitChangeProviderAvailable() {
-    GitVcs vcs = GitVcs.getInstance(myProject);
-    if (vcs == null) {
-      return false;
-    }
-    final GitVersion version = vcs.getVersion();
-    return GitVersionSpecialty.KNOWS_STATUS_PORCELAIN.existsIn(version);
-  }
-
   /**
    * Common debug logging method for all Git status related operations.
    * Primarily used for measuring performance and tracking calls to heavy methods.
@@ -185,7 +171,7 @@ public class GitChangeProvider implements ChangeProvider {
                                final ChangeListManagerGate addGate,
                                FileDocumentManager fileDocumentManager, ProjectLevelVcsManager vcsManager) {
       myProject = project;
-      myDirty = dirty;
+      myDirty = new HashSet<>(dirty);
       myAddGate = addGate;
       myFileDocumentManager = fileDocumentManager;
       myVcsManager = vcsManager;
@@ -231,10 +217,12 @@ public class GitChangeProvider implements ChangeProvider {
     }
   }
 
+  @Override
   public boolean isModifiedDocumentTrackingRequired() {
     return true;
   }
 
+  @Override
   public void doCleanup(final List<VirtualFile> files) {
   }
 }

@@ -35,8 +35,7 @@ import java.util.*;
 
 /**
  * Common
- * Serves as a container of common utility functions to collect dirty paths for both {@link GitNewChangesCollector} and
- * {@link GitOldChangesCollector}.
+ * Serves as a container of common utility functions to collect dirty paths for {@link GitNewChangesCollector}.
  *
  * @author Kirill Likhodedov
  */
