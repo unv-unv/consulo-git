@@ -41,6 +41,7 @@ import consulo.ui.image.Image;
 import consulo.versionControlSystem.*;
 import consulo.versionControlSystem.change.ChangeProvider;
 import consulo.versionControlSystem.change.CommitExecutor;
+import consulo.versionControlSystem.change.VcsDirtyScopeBuilder;
 import consulo.versionControlSystem.checkin.CheckinEnvironment;
 import consulo.versionControlSystem.diff.DiffProvider;
 import consulo.versionControlSystem.diff.RevisionSelector;
@@ -75,11 +76,11 @@ import git4idea.status.GitChangeProvider;
 import git4idea.update.GitUpdateEnvironment;
 import git4idea.util.GitVcsConsoleWriter;
 import git4idea.vfs.GitVFSListener;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 import javax.swing.event.HyperlinkEvent;
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -563,5 +564,16 @@ public class GitVcs extends AbstractVcs<CommittedChangeList> {
   @Override
   public boolean isWithCustomMenu() {
     return true;
+  }
+
+  @Override
+  public boolean needsCaseSensitiveDirtyScope() {
+    return true;
+  }
+
+  @Override
+  @Nonnull
+  public VcsDirtyScopeBuilder createDirtyScope() {
+    return new GitVcsDirtyScope(this, myProject);
   }
 }
