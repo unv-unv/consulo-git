@@ -19,6 +19,7 @@ import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
 import consulo.application.progress.ProgressIndicator;
+import consulo.document.Document;
 import consulo.document.FileDocumentManager;
 import consulo.ide.impl.idea.openapi.util.io.FileUtil;
 import consulo.logging.Logger;
@@ -29,15 +30,17 @@ import consulo.versionControlSystem.VcsException;
 import consulo.versionControlSystem.VcsKey;
 import consulo.versionControlSystem.action.VcsContextFactory;
 import consulo.versionControlSystem.change.*;
+import consulo.versionControlSystem.history.VcsRevisionNumber;
+import consulo.versionControlSystem.util.VcsUtil;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.status.FileStatus;
 import git4idea.GitContentRevision;
-import git4idea.GitRevisionNumber;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
-import git4idea.changes.GitChangeUtils;
 import git4idea.commands.Git;
+import git4idea.repo.GitRepository;
+import git4idea.repo.GitRepositoryManager;
 import jakarta.annotation.Nonnull;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -52,7 +55,7 @@ import java.util.*;
 @ServiceImpl
 public class GitChangeProvider implements ChangeProvider {
 
-    private static final Logger PROFILE_LOG = Logger.getInstance("#GitStatus");
+    private static final Logger LOG = Logger.getInstance("#GitStatus");
 
     @Nonnull
     private final Project myProject;
@@ -92,27 +95,32 @@ public class GitChangeProvider implements ChangeProvider {
         Collection<VirtualFile> roots = GitUtil.gitRootsForPaths(affected);
 
         try {
-            final NonChangedHolder holder = new NonChangedHolder(myProject, dirtyScope.getDirtyFilesNoExpand(), addGate,
-                myFileDocumentManager, myVcsManager);
+            final NonChangedHolder holder = new NonChangedHolder(myProject, addGate,
+                myFileDocumentManager);
             for (VirtualFile root : roots) {
                 debug("checking root: " + root.getPath());
-                GitChangesCollector collector = GitNewChangesCollector.collect(myProject, myGit, myChangeListManager, myVcsManager,
+                GitNewChangesCollector collector = GitNewChangesCollector.collect(myProject, myGit, myChangeListManager, myVcsManager,
                     vcs, dirtyScope, root);
                 final Collection<Change> changes = collector.getChanges();
-                holder.changed(changes);
+                holder.markHeadRevision(root, collector.getHead());
+
                 for (Change file : changes) {
-                    debug("process change: " + ChangesUtil.getFilePath(file).getPath());
+                    FilePath filePath = ChangesUtil.getFilePath(file);
+                    debug("process change: " + filePath.getPath());
                     builder.processChange(file, GitVcs.getKey());
+
+                    holder.markPathProcessed(filePath);
                 }
+
                 for (VirtualFile f : collector.getUnversionedFiles()) {
                     builder.processUnversionedFile(f);
-                    holder.unversioned(f);
                 }
-                holder.feedBuilder(builder);
+
+                holder.feedBuilder(dirtyScope, builder);
             }
         }
         catch (VcsException e) {
-            PROFILE_LOG.info(e);
+            LOG.info(e);
             // most probably the error happened because git is not configured
             vcs.getExecutableValidator().showNotificationOrThrow(e);
         }
@@ -156,63 +164,80 @@ public class GitChangeProvider implements ChangeProvider {
      * Primarily used for measuring performance and tracking calls to heavy methods.
      */
     public static void debug(String message) {
-        PROFILE_LOG.debug(message);
+        LOG.debug(message);
     }
 
     private static class NonChangedHolder {
         private final Project myProject;
-        private final Set<FilePath> myDirty;
         private final ChangeListManagerGate myAddGate;
         private FileDocumentManager myFileDocumentManager;
-        private ProjectLevelVcsManager myVcsManager;
 
-        private NonChangedHolder(final Project project,
-                                 final Set<FilePath> dirty,
-                                 final ChangeListManagerGate addGate,
-                                 FileDocumentManager fileDocumentManager, ProjectLevelVcsManager vcsManager) {
+        private final Set<FilePath> myProcessedPaths = new HashSet<>();
+        private final Map<VirtualFile, VcsRevisionNumber> myHeadRevisions = new HashMap<>();
+
+        private NonChangedHolder(Project project,
+                                 ChangeListManagerGate addGate,
+                                 FileDocumentManager fileDocumentManager) {
             myProject = project;
-            myDirty = new HashSet<>(dirty);
             myAddGate = addGate;
             myFileDocumentManager = fileDocumentManager;
-            myVcsManager = vcsManager;
         }
 
-        public void changed(final Collection<Change> changes) {
-            for (Change change : changes) {
-                final FilePath beforePath = ChangesUtil.getBeforePath(change);
-                if (beforePath != null) {
-                    myDirty.remove(beforePath);
-                }
-                final FilePath afterPath = ChangesUtil.getBeforePath(change);
-                if (afterPath != null) {
-                    myDirty.remove(afterPath);
-                }
-            }
+        public void markPathProcessed(@Nonnull FilePath path) {
+            myProcessedPaths.add(path);
         }
 
-        public void unversioned(final VirtualFile vf) {
-            // NB: There was an exception that happened several times: vf == null.
-            // Populating myUnversioned in the ChangeCollector makes nulls not possible in myUnversioned,
-            // so proposing that the exception was fixed.
-            // More detailed analysis will be needed in case the exception appears again. 2010-12-09.
-            myDirty.remove(VcsContextFactory.getInstance().createFilePathOn(vf));
+        public void markHeadRevision(@Nonnull VirtualFile root, @Nonnull VcsRevisionNumber revision) {
+            myHeadRevisions.put(root, revision);
         }
 
-        public void feedBuilder(final ChangelistBuilder builder) throws VcsException {
+        public void feedBuilder(@Nonnull VcsDirtyScope dirtyScope, final ChangelistBuilder builder) throws VcsException {
             final VcsKey gitKey = GitVcs.getKey();
 
-            for (FilePath filePath : myDirty) {
-                final VirtualFile vf = filePath.getVirtualFile();
-                if (vf != null) {
-                    if ((myAddGate.getStatus(vf) == null) && myFileDocumentManager.isFileModified(vf)) {
-                        final VirtualFile root = myVcsManager.getVcsRootFor(vf);
-                        if (root != null) {
-                            final GitRevisionNumber beforeRevisionNumber = GitChangeUtils.resolveReference(myProject, root, "HEAD");
-                            builder.processChange(new Change(GitContentRevision.createRevision(vf, beforeRevisionNumber, myProject),
-                                GitContentRevision.createRevision(vf, null, myProject), FileStatus.MODIFIED), gitKey);
-                        }
-                    }
+            for (Document document : myFileDocumentManager.getUnsavedDocuments()) {
+                VirtualFile vf = myFileDocumentManager.getFile(document);
+                if (vf == null || !vf.isValid()) {
+                    continue;
                 }
+                if (!myFileDocumentManager.isFileModified(vf)) {
+                    continue;
+                }
+                if (myAddGate.getStatus(vf) != null) {
+                    continue;
+                }
+
+                VirtualFile vcsFile = vf;// TODO VcsUtil.resolveSymlinkIfNeeded(myProject, vf);
+                FilePath filePath = VcsUtil.getFilePath(vcsFile);
+                if (myProcessedPaths.contains(filePath)) {
+                    continue;
+                }
+                if (!dirtyScope.belongsTo(filePath)) {
+                    continue;
+                }
+
+                GitRepository repository = GitRepositoryManager.getInstance(myProject).getRepositoryForFile(vcsFile);
+                if (repository == null) {
+                    continue;
+                }
+                if (repository.getUntrackedFilesHolder().containsUntrackedFile(vf)) {
+                    continue;
+                }
+                if (repository.getUntrackedFilesHolder().containsIgnoredFile(vf)) {
+                    continue;
+                }
+
+                VirtualFile root = repository.getRoot();
+                VcsRevisionNumber beforeRevisionNumber = myHeadRevisions.get(root);
+                if (beforeRevisionNumber == null) {
+                    beforeRevisionNumber = GitNewChangesCollector.getHead(repository);
+                    myHeadRevisions.put(root, beforeRevisionNumber);
+                }
+
+                Change change = new Change(GitContentRevision.createRevision(vf, beforeRevisionNumber, myProject),
+                    GitContentRevision.createRevision(vf, null, myProject), FileStatus.MODIFIED);
+
+                LOG.debug("process in-memory change ", change);
+                builder.processChange(change, gitKey);
             }
         }
     }
