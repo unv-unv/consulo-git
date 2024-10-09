@@ -24,30 +24,31 @@ import jakarta.annotation.Nonnull;
 
 /**
  * Common class for most git actions.
+ *
  * @author Kirill Likhodedov
  */
 public abstract class GitAction extends DumbAwareAction {
+    @Override
+    public void update(@Nonnull AnActionEvent e) {
+        Presentation presentation = e.getPresentation();
+        Project project = e.getData(CommonDataKeys.PROJECT);
+        if (project == null || project.isDisposed()) {
+            presentation.setEnabled(false);
+            presentation.setVisible(false);
+            return;
+        }
 
-  @Override
-  public void update(@Nonnull AnActionEvent e) {
-    Presentation presentation = e.getPresentation();
-    Project project = e.getData(CommonDataKeys.PROJECT);
-    if (project == null || project.isDisposed()) {
-      presentation.setEnabled(false);
-      presentation.setVisible(false);
-      return;
+        presentation.setEnabled(isEnabled(e));
     }
 
-    presentation.setEnabled(isEnabled(e));
-  }
-
-  /**
-   * Checks if this action should be enabled.
-   * Called in {@link #update(AnActionEvent)}, so don't execute long tasks here.
-   * @return true if the action is enabled.
-   */
-  protected boolean isEnabled(@Nonnull AnActionEvent event) {
-    return true;
-  }
+    /**
+     * Checks if this action should be enabled.
+     * Called in {@link #update(AnActionEvent)}, so don't execute long tasks here.
+     *
+     * @return true if the action is enabled.
+     */
+    protected boolean isEnabled(@Nonnull AnActionEvent event) {
+        return true;
+    }
 
 }

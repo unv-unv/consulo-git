@@ -32,6 +32,7 @@ import git4idea.merge.GitMergeUtil;
 import git4idea.repo.GitRepositoryManager;
 
 import jakarta.annotation.Nonnull;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -40,58 +41,63 @@ import java.util.Set;
  * Git "merge" action
  */
 public class GitMerge extends GitRepositoryAction {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Nonnull
+    protected String getActionName() {
+        return GitBundle.message("merge.action.name");
+    }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  @Nonnull
-  protected String getActionName() {
-    return GitBundle.message("merge.action.name");
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  protected void perform(@Nonnull final Project project,
-                         @Nonnull final List<VirtualFile> gitRoots,
-                         @Nonnull final VirtualFile defaultRoot,
-                         final Set<VirtualFile> affectedRoots,
-                         final List<VcsException> exceptions) throws VcsException {
-    GitVcs vcs = GitVcs.getInstance(project);
-    if (vcs == null) {
-      return;
+    /**
+     * {@inheritDoc}
+     */
+    protected void perform(
+        @Nonnull final Project project,
+        @Nonnull final List<VirtualFile> gitRoots,
+        @Nonnull final VirtualFile defaultRoot,
+        final Set<VirtualFile> affectedRoots,
+        final List<VcsException> exceptions
+    ) throws VcsException {
+        GitVcs vcs = GitVcs.getInstance(project);
+        if (vcs == null) {
+            return;
+        }
+        GitMergeDialog dialog = new GitMergeDialog(project, gitRoots, defaultRoot);
+        try {
+            dialog.updateBranches();
+        }
+        catch (VcsException e) {
+            if (vcs.getExecutableValidator().checkExecutableAndShowMessageIfNeeded(null)) {
+                vcs.showErrors(Collections.singletonList(e), GitBundle.message("merge.retrieving.branches"));
+            }
+            return;
+        }
+        dialog.show();
+        if (!dialog.isOK()) {
+            return;
+        }
+        Label beforeLabel = LocalHistory.getInstance().putSystemLabel(project, "Before update");
+        GitLineHandler h = dialog.handler();
+        final VirtualFile root = dialog.getSelectedRoot();
+        affectedRoots.add(root);
+        GitRevisionNumber currentRev = GitRevisionNumber.resolve(project, root, "HEAD");
+        try {
+            GitHandlerUtil.doSynchronously(
+                h,
+                GitBundle.message("merging.title", dialog.getSelectedRoot().getPath()),
+                h.printableCommandLine()
+            );
+        }
+        finally {
+            exceptions.addAll(h.errors());
+            GitRepositoryManager manager = GitUtil.getRepositoryManager(project);
+            manager.updateRepository(root);
+        }
+        if (exceptions.size() != 0) {
+            return;
+        }
+        GitMergeUtil.showUpdates(this, project, exceptions, root, currentRev, beforeLabel, getActionName(), ActionInfo.INTEGRATE);
     }
-    GitMergeDialog dialog = new GitMergeDialog(project, gitRoots, defaultRoot);
-    try {
-      dialog.updateBranches();
-    }
-    catch (VcsException e) {
-      if (vcs.getExecutableValidator().checkExecutableAndShowMessageIfNeeded(null)) {
-        vcs.showErrors(Collections.singletonList(e), GitBundle.message("merge.retrieving.branches"));
-      }
-      return;
-    }
-    dialog.show();
-    if (!dialog.isOK()) {
-      return;
-    }
-    Label beforeLabel = LocalHistory.getInstance().putSystemLabel(project, "Before update");
-    GitLineHandler h = dialog.handler();
-    final VirtualFile root = dialog.getSelectedRoot();
-    affectedRoots.add(root);
-    GitRevisionNumber currentRev = GitRevisionNumber.resolve(project, root, "HEAD");
-    try {
-      GitHandlerUtil.doSynchronously(h, GitBundle.message("merging.title", dialog.getSelectedRoot().getPath()), h.printableCommandLine());
-    }
-    finally {
-      exceptions.addAll(h.errors());
-      GitRepositoryManager manager = GitUtil.getRepositoryManager(project);
-      manager.updateRepository(root);
-    }
-    if (exceptions.size() != 0) {
-      return;
-    }
-    GitMergeUtil.showUpdates(this, project, exceptions, root, currentRev, beforeLabel, getActionName(), ActionInfo.INTEGRATE);
-  }
 }

@@ -33,31 +33,33 @@ import java.util.Set;
  * The reset action
  */
 public class GitResetHead extends GitRepositoryAction {
-  /**
-   * {@inheritDoc}
-   */
-  @Nonnull
-  protected String getActionName() {
-    return GitBundle.message("reset.action.name");
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  protected void perform(@Nonnull Project project,
-                         @Nonnull List<VirtualFile> gitRoots,
-                         @Nonnull VirtualFile defaultRoot,
-                         Set<VirtualFile> affectedRoots,
-                         List<VcsException> exceptions) throws VcsException {
-    GitResetDialog d = new GitResetDialog(project, gitRoots, defaultRoot);
-    d.show();
-    if (!d.isOK()) {
-      return;
+    /**
+     * {@inheritDoc}
+     */
+    @Nonnull
+    protected String getActionName() {
+        return GitBundle.message("reset.action.name");
     }
-    GitLineHandler h = d.handler();
-    affectedRoots.add(d.getGitRoot());
-    GitHandlerUtil.doSynchronously(h, GitBundle.message("resetting.title"), h.printableCommandLine());
-    GitRepositoryManager manager = GitUtil.getRepositoryManager(project);
-    manager.updateRepository(d.getGitRoot());
-  }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected void perform(
+        @Nonnull Project project,
+        @Nonnull List<VirtualFile> gitRoots,
+        @Nonnull VirtualFile defaultRoot,
+        Set<VirtualFile> affectedRoots,
+        List<VcsException> exceptions
+    ) throws VcsException {
+        GitResetDialog d = new GitResetDialog(project, gitRoots, defaultRoot);
+        d.show();
+        if (!d.isOK()) {
+            return;
+        }
+        GitLineHandler h = d.handler();
+        affectedRoots.add(d.getGitRoot());
+        GitHandlerUtil.doSynchronously(h, GitBundle.message("resetting.title"), h.printableCommandLine());
+        GitRepositoryManager manager = GitUtil.getRepositoryManager(project);
+        manager.updateRepository(d.getGitRoot());
+    }
 }

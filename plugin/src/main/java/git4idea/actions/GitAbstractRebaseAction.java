@@ -38,86 +38,73 @@ import static consulo.util.collection.ContainerUtil.newArrayList;
 import static consulo.util.lang.ObjectUtil.assertNotNull;
 import static git4idea.GitUtil.*;
 
-abstract class GitAbstractRebaseAction extends DumbAwareAction
-{
+abstract class GitAbstractRebaseAction extends DumbAwareAction {
+    @Override
+    public void update(@Nonnull AnActionEvent e) {
+        super.update(e);
+        Project project = e.getData(Project.KEY);
+        if (project == null || !hasGitRepositories(project)) {
+            e.getPresentation().setEnabledAndVisible(false);
+        }
+        else {
+            e.getPresentation().setEnabledAndVisible(hasRebaseInProgress(project));
+        }
+    }
 
-	@Override
-	public void update(@Nonnull AnActionEvent e)
-	{
-		super.update(e);
-		Project project = e.getData(Project.KEY);
-		if(project == null || !hasGitRepositories(project))
-		{
-			e.getPresentation().setEnabledAndVisible(false);
-		}
-		else
-		{
-			e.getPresentation().setEnabledAndVisible(hasRebaseInProgress(project));
-		}
-	}
+    @Override
+    public final void actionPerformed(AnActionEvent e) {
+        final Project project = e.getRequiredData(CommonDataKeys.PROJECT);
+        ProgressManager progressManager = ProgressManager.getInstance();
+        String progressTitle = getProgressTitle();
+        if (getRepositoryManager(project).hasOngoingRebase()) {
+            progressManager.run(new Task.Backgroundable(project, progressTitle) {
+                @Override
+                public void run(@Nonnull ProgressIndicator indicator) {
+                    performActionForProject(project, indicator);
+                }
+            });
+        }
+        else {
+            final GitRepository repositoryToOperate = chooseRepository(project, GitRebaseUtils.getRebasingRepositories(project));
+            if (repositoryToOperate != null) {
+                progressManager.run(new Task.Backgroundable(project, progressTitle) {
+                    @Override
+                    public void run(@Nonnull ProgressIndicator indicator) {
+                        performActionForRepository(project, repositoryToOperate, indicator);
+                    }
+                });
+            }
+        }
+    }
 
-	@Override
-	public final void actionPerformed(AnActionEvent e)
-	{
-		final Project project = e.getRequiredData(CommonDataKeys.PROJECT);
-		ProgressManager progressManager = ProgressManager.getInstance();
-		String progressTitle = getProgressTitle();
-		if(getRepositoryManager(project).hasOngoingRebase())
-		{
-			progressManager.run(new Task.Backgroundable(project, progressTitle)
-			{
-				@Override
-				public void run(@Nonnull ProgressIndicator indicator)
-				{
-					performActionForProject(project, indicator);
-				}
-			});
-		}
-		else
-		{
-			final GitRepository repositoryToOperate = chooseRepository(project, GitRebaseUtils.getRebasingRepositories(project));
-			if(repositoryToOperate != null)
-			{
-				progressManager.run(new Task.Backgroundable(project, progressTitle)
-				{
-					@Override
-					public void run(@Nonnull ProgressIndicator indicator)
-					{
-						performActionForRepository(project, repositoryToOperate, indicator);
-					}
-				});
-			}
-		}
-	}
+    @Nonnull
+    protected abstract String getProgressTitle();
 
-	@Nonnull
-	protected abstract String getProgressTitle();
+    protected abstract void performActionForProject(@Nonnull Project project, @Nonnull ProgressIndicator indicator);
 
-	protected abstract void performActionForProject(@Nonnull Project project, @Nonnull ProgressIndicator indicator);
+    protected abstract void performActionForRepository(
+        @Nonnull Project project,
+        @Nonnull GitRepository repository,
+        @Nonnull ProgressIndicator indicator
+    );
 
-	protected abstract void performActionForRepository(@Nonnull Project project, @Nonnull GitRepository repository, @Nonnull ProgressIndicator indicator);
+    private static boolean hasRebaseInProgress(@Nonnull Project project) {
+        return !GitRebaseUtils.getRebasingRepositories(project).isEmpty();
+    }
 
-	private static boolean hasRebaseInProgress(@Nonnull Project project)
-	{
-		return !GitRebaseUtils.getRebasingRepositories(project).isEmpty();
-	}
-
-	@Nullable
-	private GitRepository chooseRepository(@Nonnull Project project, @Nonnull Collection<GitRepository> repositories)
-	{
-		GitRepository firstRepo = assertNotNull(ContainerUtil.getFirstItem(repositories));
-		if(repositories.size() == 1)
-		{
-			return firstRepo;
-		}
-		ArrayList<VirtualFile> roots = newArrayList(getRootsFromRepositories(repositories));
-		GitRebaseActionDialog dialog = new GitRebaseActionDialog(project, getTemplatePresentation().getText(), roots, firstRepo.getRoot());
-		dialog.show();
-		VirtualFile root = dialog.selectRoot();
-		if(root == null)
-		{
-			return null;
-		}
-		return getRepositoryManager(project).getRepositoryForRootQuick(root); // TODO avoid root <-> GitRepository double conversion
-	}
+    @Nullable
+    private GitRepository chooseRepository(@Nonnull Project project, @Nonnull Collection<GitRepository> repositories) {
+        GitRepository firstRepo = assertNotNull(ContainerUtil.getFirstItem(repositories));
+        if (repositories.size() == 1) {
+            return firstRepo;
+        }
+        ArrayList<VirtualFile> roots = newArrayList(getRootsFromRepositories(repositories));
+        GitRebaseActionDialog dialog = new GitRebaseActionDialog(project, getTemplatePresentation().getText(), roots, firstRepo.getRoot());
+        dialog.show();
+        VirtualFile root = dialog.selectRoot();
+        if (root == null) {
+            return null;
+        }
+        return getRepositoryManager(project).getRepositoryForRootQuick(root); // TODO avoid root <-> GitRepository double conversion
+    }
 }

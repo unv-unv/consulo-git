@@ -24,13 +24,13 @@ import git4idea.GitVcs;
  * Git VCS menu
  */
 public class GitMenu extends StandardVcsGroup {
-  @Override
-  public AbstractVcs getVcs(Project project) {
-    return GitVcs.getInstance(project);
-  }
+    @Override
+    public AbstractVcs getVcs(Project project) {
+        return GitVcs.getInstance(project);
+    }
 
-  @Override
-  public String getVcsName(final Project project) {
-    return GitVcs.NAME;
-  }
+    @Override
+    public String getVcsName(final Project project) {
+        return GitVcs.NAME;
+    }
 }

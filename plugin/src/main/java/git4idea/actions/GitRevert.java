@@ -30,6 +30,7 @@ import git4idea.i18n.GitBundle;
 import git4idea.repo.GitRepository;
 
 import jakarta.annotation.Nonnull;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,42 +39,45 @@ import java.util.List;
  * Git "revert" action
  */
 public class GitRevert extends BasicAction {
-
-  @Override
-  public boolean perform(@Nonnull final Project project,
-                         GitVcs vcs,
-                         @Nonnull final List<VcsException> exceptions,
-                         @Nonnull VirtualFile[] affectedFiles) {
-    final ChangeListManager changeListManager = ChangeListManager.getInstance(project);
-    if (changeListManager.isFreezedWithNotification("Can not revert now")) return true;
-    final List<Change> changes = new ArrayList<Change>(affectedFiles.length);
-    for (VirtualFile f : affectedFiles) {
-      Change ch = changeListManager.getChange(f);
-      if (ch != null) {
-        changes.add(ch);
-      }
+    @Override
+    public boolean perform(
+        @Nonnull final Project project,
+        GitVcs vcs,
+        @Nonnull final List<VcsException> exceptions,
+        @Nonnull VirtualFile[] affectedFiles
+    ) {
+        final ChangeListManager changeListManager = ChangeListManager.getInstance(project);
+        if (changeListManager.isFreezedWithNotification("Can not revert now")) {
+            return true;
+        }
+        final List<Change> changes = new ArrayList<>(affectedFiles.length);
+        for (VirtualFile f : affectedFiles) {
+            Change ch = changeListManager.getChange(f);
+            if (ch != null) {
+                changes.add(ch);
+            }
+        }
+        RollbackChangesDialog.rollbackChanges(project, changes);
+        for (GitRepository repository : GitUtil.getRepositoriesForFiles(project, Arrays.asList(affectedFiles))) {
+            repository.update();
+        }
+        return false;
     }
-    RollbackChangesDialog.rollbackChanges(project, changes);
-    for (GitRepository repository : GitUtil.getRepositoriesForFiles(project, Arrays.asList(affectedFiles))) {
-      repository.update();
-    }
-    return false;
-  }
 
-  @Override
-  @Nonnull
-  protected String getActionName() {
-    return UIUtil.removeMnemonic(GitBundle.message("revert.action.name"));
-  }
-
-  @Override
-  protected boolean isEnabled(@Nonnull Project project, @Nonnull GitVcs vcs, @Nonnull VirtualFile... vFiles) {
-    for (VirtualFile file : vFiles) {
-      FileStatus fileStatus = FileStatusManager.getInstance(project).getStatus(file);
-      if (file.isDirectory() || (fileStatus != FileStatus.NOT_CHANGED && fileStatus != FileStatus.UNKNOWN)) {
-        return true;
-      }
+    @Override
+    @Nonnull
+    protected String getActionName() {
+        return UIUtil.removeMnemonic(GitBundle.message("revert.action.name"));
     }
-    return false;
-  }
+
+    @Override
+    protected boolean isEnabled(@Nonnull Project project, @Nonnull GitVcs vcs, @Nonnull VirtualFile... vFiles) {
+        for (VirtualFile file : vFiles) {
+            FileStatus fileStatus = FileStatusManager.getInstance(project).getStatus(file);
+            if (file.isDirectory() || (fileStatus != FileStatus.NOT_CHANGED && fileStatus != FileStatus.UNKNOWN)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

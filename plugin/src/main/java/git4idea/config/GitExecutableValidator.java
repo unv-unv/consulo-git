@@ -27,6 +27,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 import jakarta.annotation.Nonnull;
+
 import java.util.Collections;
 
 /**
@@ -39,38 +40,41 @@ import java.util.Collections;
 @ServiceAPI(ComponentScope.PROJECT)
 @ServiceImpl
 public class GitExecutableValidator extends ExecutableValidator {
-
-  @Inject
-  public GitExecutableValidator(@Nonnull Project project) {
-    super(project, GitBundle.message("git.executable.notification.title"), GitBundle.message("git.executable.notification.description"));
-  }
-
-  @Override
-  protected String getCurrentExecutable() {
-    return GitExecutableManager.getInstance().getPathToGit(myProject);
-  }
-
-  @Override
-  protected void showSettings() {
-    ShowSettingsUtil.getInstance().showSettingsDialog(null, GitVcsConfigurable.class);
-  }
-
-  @Override
-  public boolean isExecutableValid(@Nonnull String executable) {
-    return doCheckExecutable(executable, Collections.singletonList("--version"));
-  }
-
-  /**
-   * Checks if git executable is valid. If not (which is a common case for low-level vcs exceptions), shows the
-   * notification. Otherwise throws the exception.
-   * This is to be used in catch-clauses
-   *
-   * @param e exception which was thrown.
-   * @throws VcsException if git executable is valid.
-   */
-  public void showNotificationOrThrow(VcsException e) throws VcsException {
-    if (checkExecutableAndNotifyIfNeeded()) {
-      throw e;
+    @Inject
+    public GitExecutableValidator(@Nonnull Project project) {
+        super(
+            project,
+            GitBundle.message("git.executable.notification.title"),
+            GitBundle.message("git.executable.notification.description")
+        );
     }
-  }
+
+    @Override
+    protected String getCurrentExecutable() {
+        return GitExecutableManager.getInstance().getPathToGit(myProject);
+    }
+
+    @Override
+    protected void showSettings() {
+        ShowSettingsUtil.getInstance().showSettingsDialog(null, GitVcsConfigurable.class);
+    }
+
+    @Override
+    public boolean isExecutableValid(@Nonnull String executable) {
+        return doCheckExecutable(executable, Collections.singletonList("--version"));
+    }
+
+    /**
+     * Checks if git executable is valid. If not (which is a common case for low-level vcs exceptions), shows the
+     * notification. Otherwise throws the exception.
+     * This is to be used in catch-clauses
+     *
+     * @param e exception which was thrown.
+     * @throws VcsException if git executable is valid.
+     */
+    public void showNotificationOrThrow(VcsException e) throws VcsException {
+        if (checkExecutableAndNotifyIfNeeded()) {
+            throw e;
+        }
+    }
 }

@@ -25,19 +25,16 @@ import git4idea.branch.GitBrancher;
 import git4idea.repo.GitRepository;
 import jakarta.annotation.Nonnull;
 
-public class GitCreateNewBranchAction extends GitLogSingleCommitAction
-{
-
-	@Override
-	protected void actionPerformed(@Nonnull GitRepository repository, @Nonnull Hash commit)
-	{
-		Project project = repository.getProject();
-		String reference = commit.asString();
-		final String name = GitBranchUtil.getNewBranchNameFromUser(project, Collections.singleton(repository), "Checkout New Branch From " + reference);
-		if(name != null)
-		{
-			GitBrancher brancher = ServiceManager.getService(project, GitBrancher.class);
-			brancher.checkoutNewBranchStartingFrom(name, reference, Collections.singletonList(repository), null);
-		}
-	}
+public class GitCreateNewBranchAction extends GitLogSingleCommitAction {
+    @Override
+    protected void actionPerformed(@Nonnull GitRepository repository, @Nonnull Hash commit) {
+        Project project = repository.getProject();
+        String reference = commit.asString();
+        final String name =
+            GitBranchUtil.getNewBranchNameFromUser(project, Collections.singleton(repository), "Checkout New Branch From " + reference);
+        if (name != null) {
+            GitBrancher brancher = ServiceManager.getService(project, GitBrancher.class);
+            brancher.checkoutNewBranchStartingFrom(name, reference, Collections.singletonList(repository), null);
+        }
+    }
 }

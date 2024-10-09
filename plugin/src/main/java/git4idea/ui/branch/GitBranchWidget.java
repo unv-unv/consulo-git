@@ -35,44 +35,44 @@ import jakarta.annotation.Nullable;
  * Status bar widget which displays the current branch for the file currently open in the editor.
  */
 public class GitBranchWidget extends DvcsStatusWidget<GitRepository> {
-  private final GitVcsSettings mySettings;
+    private final GitVcsSettings mySettings;
 
-  public GitBranchWidget(@Nonnull Project project, @Nonnull StatusBarWidgetFactory factory) {
-    super(project, factory, GitVcs.NAME);
-    mySettings = GitVcsSettings.getInstance(project);
-    project.getMessageBus().connect().subscribe(GitRepositoryChangeListener.class, repository -> updateLater());
-  }
+    public GitBranchWidget(@Nonnull Project project, @Nonnull StatusBarWidgetFactory factory) {
+        super(project, factory, GitVcs.NAME);
+        mySettings = GitVcsSettings.getInstance(project);
+        project.getMessageBus().connect().subscribe(GitRepositoryChangeListener.class, repository -> updateLater());
+    }
 
-  @Override
-  public StatusBarWidget copy() {
-    return new GitBranchWidget(ObjectUtil.assertNotNull(getProject()), myFactory);
-  }
+    @Override
+    public StatusBarWidget copy() {
+        return new GitBranchWidget(ObjectUtil.assertNotNull(getProject()), myFactory);
+    }
 
-  @Nullable
-  @Override
-  protected GitRepository guessCurrentRepository(@Nonnull Project project)  {
-    return GitBranchUtil.getCurrentRepository(project);
-  }
+    @Nullable
+    @Override
+    protected GitRepository guessCurrentRepository(@Nonnull Project project) {
+        return GitBranchUtil.getCurrentRepository(project);
+    }
 
-  @Nonnull
-  @Override
-  protected String getFullBranchName(@Nonnull GitRepository repository) {
-    return GitBranchUtil.getDisplayableBranchText(repository);
-  }
+    @Nonnull
+    @Override
+    protected String getFullBranchName(@Nonnull GitRepository repository) {
+        return GitBranchUtil.getDisplayableBranchText(repository);
+    }
 
-  @Override
-  protected boolean isMultiRoot(@Nonnull Project project) {
-    return !GitUtil.justOneGitRepository(project);
-  }
+    @Override
+    protected boolean isMultiRoot(@Nonnull Project project) {
+        return !GitUtil.justOneGitRepository(project);
+    }
 
-  @Nonnull
-  @Override
-  protected ListPopup getPopup(@Nonnull Project project, @Nonnull GitRepository repository) {
-    return GitBranchPopup.getInstance(project, repository).asListPopup();
-  }
+    @Nonnull
+    @Override
+    protected ListPopup getPopup(@Nonnull Project project, @Nonnull GitRepository repository) {
+        return GitBranchPopup.getInstance(project, repository).asListPopup();
+    }
 
-  @Override
-  protected void rememberRecentRoot(@Nonnull String path) {
-    mySettings.setRecentRoot(path);
-  }
+    @Override
+    protected void rememberRecentRoot(@Nonnull String path) {
+        mySettings.setRecentRoot(path);
+    }
 }

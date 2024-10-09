@@ -26,19 +26,16 @@ import git4idea.repo.GitRepositoryManager;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
-public abstract class GitLogSingleCommitAction extends VcsLogSingleCommitAction<GitRepository>
-{
-	@Nonnull
-	@Override
-	protected AbstractRepositoryManager<GitRepository> getRepositoryManager(@Nonnull Project project)
-	{
-		return ServiceManager.getService(project, GitRepositoryManager.class);
-	}
+public abstract class GitLogSingleCommitAction extends VcsLogSingleCommitAction<GitRepository> {
+    @Nonnull
+    @Override
+    protected AbstractRepositoryManager<GitRepository> getRepositoryManager(@Nonnull Project project) {
+        return ServiceManager.getService(project, GitRepositoryManager.class);
+    }
 
-	@Override
-	@Nullable
-	protected GitRepository getRepositoryForRoot(@Nonnull Project project, @Nonnull VirtualFile root)
-	{
-		return getRepositoryManager(project).getRepositoryForRoot(root);
-	}
+    @Override
+    @Nullable
+    protected GitRepository getRepositoryForRoot(@Nonnull Project project, @Nonnull VirtualFile root) {
+        return getRepositoryManager(project).getRepositoryForRoot(root);
+    }
 }

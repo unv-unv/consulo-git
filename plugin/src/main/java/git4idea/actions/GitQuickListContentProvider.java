@@ -28,6 +28,7 @@ import git4idea.i18n.GitBundle;
 import jakarta.annotation.Nonnull;
 
 import jakarta.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -37,65 +38,67 @@ import java.util.List;
  */
 @ExtensionImpl
 public class GitQuickListContentProvider implements VcsQuickListContentProvider {
-  public List<AnAction> getVcsActions(@Nullable Project project, @Nullable AbstractVcs activeVcs,
-                                      @Nullable DataContext dataContext) {
+    public List<AnAction> getVcsActions(
+        @Nullable Project project,
+        @Nullable AbstractVcs activeVcs,
+        @Nullable DataContext dataContext
+    ) {
+        if (activeVcs == null || !GitVcs.NAME.equals(activeVcs.getName())) {
+            return null;
+        }
 
-    if (activeVcs == null || !GitVcs.NAME.equals(activeVcs.getName())) {
-      return null;
+        final ActionManager manager = ActionManager.getInstance();
+        final List<AnAction> actions = new ArrayList<>();
+
+        actions.add(new AnSeparator(activeVcs.getDisplayName()));
+        add("CheckinProject", manager, actions);
+        add("CheckinFiles", manager, actions);
+        add("ChangesView.Revert", manager, actions);
+
+        addSeparator(actions);
+        add("Vcs.ShowTabbedFileHistory", manager, actions);
+        add("Annotate", manager, actions);
+        add("Compare.SameVersion", manager, actions);
+
+        addSeparator(actions);
+        add("Git.Branches", manager, actions);
+        add("Vcs.Push", manager, actions);
+        add("Git.Stash", manager, actions);
+        add("Git.Unstash", manager, actions);
+
+        add("ChangesView.AddUnversioned", manager, actions);
+        add("Git.ResolveConflicts", manager, actions);
+
+        // Github
+        addSeparator(actions);
+        final AnAction githubRebase = manager.getAction("Github.Rebase");
+        if (githubRebase != null) {
+            actions.add(new AnSeparator(GitBundle.message("vcs.popup.git.github.section")));
+            actions.add(githubRebase);
+        }
+
+        return actions;
     }
 
-    final ActionManager manager = ActionManager.getInstance();
-    final List<AnAction> actions = new ArrayList<AnAction>();
-
-    actions.add(new AnSeparator(activeVcs.getDisplayName()));
-    add("CheckinProject", manager, actions);
-    add("CheckinFiles", manager, actions);
-    add("ChangesView.Revert", manager, actions);
-
-    addSeparator(actions);
-    add("Vcs.ShowTabbedFileHistory", manager, actions);
-    add("Annotate", manager, actions);
-    add("Compare.SameVersion", manager, actions);
-
-    addSeparator(actions);
-    add("Git.Branches", manager, actions);
-    add("Vcs.Push", manager, actions);
-    add("Git.Stash", manager, actions);
-    add("Git.Unstash", manager, actions);
-
-    add("ChangesView.AddUnversioned", manager, actions);
-    add("Git.ResolveConflicts", manager, actions);
-
-    // Github
-    addSeparator(actions);
-    final AnAction githubRebase = manager.getAction("Github.Rebase");
-    if (githubRebase != null) {
-      actions.add(new AnSeparator(GitBundle.message("vcs.popup.git.github.section")));
-      actions.add(githubRebase);
+    public List<AnAction> getNotInVcsActions(@Nullable Project project, @Nullable DataContext dataContext) {
+        final AnAction action = ActionManager.getInstance().getAction("Git.Init");
+        return Collections.singletonList(action);
     }
 
-    return actions;
-  }
-
-  public List<AnAction> getNotInVcsActions(@Nullable Project project, @Nullable DataContext dataContext) {
-    final AnAction action = ActionManager.getInstance().getAction("Git.Init");
-    return Collections.singletonList(action);
-  }
-
-  public boolean replaceVcsActionsFor(@Nonnull AbstractVcs activeVcs, @Nullable DataContext dataContext) {
-    if (!GitVcs.NAME.equals(activeVcs.getName())) {
-      return false;
+    public boolean replaceVcsActionsFor(@Nonnull AbstractVcs activeVcs, @Nullable DataContext dataContext) {
+        if (!GitVcs.NAME.equals(activeVcs.getName())) {
+            return false;
+        }
+        return true;
     }
-    return true;
-  }
 
-  private static void addSeparator(@Nonnull final List<AnAction> actions) {
-    actions.add(new AnSeparator());
-  }
+    private static void addSeparator(@Nonnull final List<AnAction> actions) {
+        actions.add(new AnSeparator());
+    }
 
-  private static void add(String actionName, ActionManager manager, List<AnAction> actions) {
-    final AnAction action = manager.getAction(actionName);
-    assert action != null;
-    actions.add(action);
-  }
+    private static void add(String actionName, ActionManager manager, List<AnAction> actions) {
+        final AnAction action = manager.getAction(actionName);
+        assert action != null;
+        actions.add(action);
+    }
 }

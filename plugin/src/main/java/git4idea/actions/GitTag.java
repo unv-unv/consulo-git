@@ -29,29 +29,30 @@ import java.util.Set;
  * Git "tag" action
  */
 public class GitTag extends GitRepositoryAction {
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  @Nonnull
-  protected String getActionName() {
-    return GitBundle.message("tag.action.name");
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  protected void perform(@Nonnull final Project project,
-                         @Nonnull final List<VirtualFile> gitRoots,
-                         @Nonnull final VirtualFile defaultRoot,
-                         final Set<VirtualFile> affectedRoots,
-                         final List<VcsException> exceptions) throws VcsException {
-    GitTagDialog d = new GitTagDialog(project, gitRoots, defaultRoot);
-    d.show();
-    if (!d.isOK()) {
-      return;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Nonnull
+    protected String getActionName() {
+        return GitBundle.message("tag.action.name");
     }
-    d.runAction(exceptions);
-  }
 
+    /**
+     * {@inheritDoc}
+     */
+    protected void perform(
+        @Nonnull final Project project,
+        @Nonnull final List<VirtualFile> gitRoots,
+        @Nonnull final VirtualFile defaultRoot,
+        final Set<VirtualFile> affectedRoots,
+        final List<VcsException> exceptions
+    ) throws VcsException {
+        GitTagDialog d = new GitTagDialog(project, gitRoots, defaultRoot);
+        d.show();
+        if (!d.isOK()) {
+            return;
+        }
+        d.runAction(exceptions);
+    }
 }

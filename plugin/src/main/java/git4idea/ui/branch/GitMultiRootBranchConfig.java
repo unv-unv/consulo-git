@@ -25,6 +25,7 @@ import git4idea.repo.GitRepository;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -32,107 +33,90 @@ import java.util.Collections;
 /**
  * @author Kirill Likhodedov
  */
-public class GitMultiRootBranchConfig extends DvcsMultiRootBranchConfig<GitRepository>
-{
+public class GitMultiRootBranchConfig extends DvcsMultiRootBranchConfig<GitRepository> {
+    public GitMultiRootBranchConfig(@Nonnull Collection<GitRepository> repositories) {
+        super(repositories);
+    }
 
-	public GitMultiRootBranchConfig(@Nonnull Collection<GitRepository> repositories)
-	{
-		super(repositories);
-	}
+    @Override
+    @Nonnull
+    public Collection<String> getLocalBranchNames() {
+        return GitBranchUtil.getCommonBranches(myRepositories, true);
+    }
 
-	@Override
-	@Nonnull
-	public Collection<String> getLocalBranchNames()
-	{
-		return GitBranchUtil.getCommonBranches(myRepositories, true);
-	}
+    @Nonnull
+    Collection<String> getRemoteBranches() {
+        return GitBranchUtil.getCommonBranches(myRepositories, false);
+    }
 
-	@Nonnull
-	Collection<String> getRemoteBranches()
-	{
-		return GitBranchUtil.getCommonBranches(myRepositories, false);
-	}
+    /**
+     * If there is a common remote branch which is commonly tracked by the given branch in all repositories,
+     * returns the name of this remote branch. Otherwise returns null. <br/>
+     * For one repository just returns the tracked branch or null if there is no tracked branch.
+     */
+    @Nullable
+    public String getTrackedBranch(@Nonnull String branch) {
+        String trackedName = null;
+        for (GitRepository repository : myRepositories) {
+            GitRemoteBranch tracked = getTrackedBranch(repository, branch);
+            if (tracked == null) {
+                return null;
+            }
+            if (trackedName == null) {
+                trackedName = tracked.getNameForLocalOperations();
+            }
+            else if (!trackedName.equals(tracked.getNameForLocalOperations())) {
+                return null;
+            }
+        }
+        return trackedName;
+    }
 
-	/**
-	 * If there is a common remote branch which is commonly tracked by the given branch in all repositories,
-	 * returns the name of this remote branch. Otherwise returns null. <br/>
-	 * For one repository just returns the tracked branch or null if there is no tracked branch.
-	 */
-	@Nullable
-	public String getTrackedBranch(@Nonnull String branch)
-	{
-		String trackedName = null;
-		for(GitRepository repository : myRepositories)
-		{
-			GitRemoteBranch tracked = getTrackedBranch(repository, branch);
-			if(tracked == null)
-			{
-				return null;
-			}
-			if(trackedName == null)
-			{
-				trackedName = tracked.getNameForLocalOperations();
-			}
-			else if(!trackedName.equals(tracked.getNameForLocalOperations()))
-			{
-				return null;
-			}
-		}
-		return trackedName;
-	}
+    /**
+     * Returns local branches which track the given remote branch. Usually there is 0 or 1 such branches.
+     */
+    @Nonnull
+    public Collection<String> getTrackingBranches(@Nonnull String remoteBranch) {
+        Collection<String> trackingBranches = null;
+        for (GitRepository repository : myRepositories) {
+            Collection<String> tb = getTrackingBranches(repository, remoteBranch);
+            if (trackingBranches == null) {
+                trackingBranches = tb;
+            }
+            else {
+                trackingBranches = ContainerUtil.intersection(trackingBranches, tb);
+            }
+        }
+        return trackingBranches == null ? Collections.<String>emptyList() : trackingBranches;
+    }
 
-	/**
-	 * Returns local branches which track the given remote branch. Usually there is 0 or 1 such branches.
-	 */
-	@Nonnull
-	public Collection<String> getTrackingBranches(@Nonnull String remoteBranch)
-	{
-		Collection<String> trackingBranches = null;
-		for(GitRepository repository : myRepositories)
-		{
-			Collection<String> tb = getTrackingBranches(repository, remoteBranch);
-			if(trackingBranches == null)
-			{
-				trackingBranches = tb;
-			}
-			else
-			{
-				trackingBranches = ContainerUtil.intersection(trackingBranches, tb);
-			}
-		}
-		return trackingBranches == null ? Collections.<String>emptyList() : trackingBranches;
-	}
+    @Nonnull
+    public static Collection<String> getTrackingBranches(@Nonnull GitRepository repository, @Nonnull String remoteBranch) {
+        Collection<String> trackingBranches = new ArrayList<>(1);
+        for (GitBranchTrackInfo trackInfo : repository.getBranchTrackInfos()) {
+            if (remoteBranch.equals(trackInfo.getRemote().getName() + "/" + trackInfo.getRemoteBranch())) {
+                trackingBranches.add(trackInfo.getLocalBranch().getName());
+            }
+        }
+        return trackingBranches;
+    }
 
-	@Nonnull
-	public static Collection<String> getTrackingBranches(@Nonnull GitRepository repository, @Nonnull String remoteBranch)
-	{
-		Collection<String> trackingBranches = new ArrayList<String>(1);
-		for(GitBranchTrackInfo trackInfo : repository.getBranchTrackInfos())
-		{
-			if(remoteBranch.equals(trackInfo.getRemote().getName() + "/" + trackInfo.getRemoteBranch()))
-			{
-				trackingBranches.add(trackInfo.getLocalBranch().getName());
-			}
-		}
-		return trackingBranches;
-	}
+    @Nullable
+    private static GitRemoteBranch getTrackedBranch(@Nonnull GitRepository repository, @Nonnull String branchName) {
+        GitLocalBranch branch = repository.getBranches().findLocalBranch(branchName);
+        return branch == null ? null : branch.findTrackedBranch(repository);
+    }
 
-	@Nullable
-	private static GitRemoteBranch getTrackedBranch(@Nonnull GitRepository repository, @Nonnull String branchName)
-	{
-		GitLocalBranch branch = repository.getBranches().findLocalBranch(branchName);
-		return branch == null ? null : branch.findTrackedBranch(repository);
-	}
-
-	@Override
-	public String toString()
-	{
-		StringBuilder sb = new StringBuilder();
-		for(GitRepository repository : myRepositories)
-		{
-			sb.append(repository.getPresentableUrl()).append(":").append(repository.getCurrentBranch()).append(":").append(repository.getState());
-		}
-		return sb.toString();
-	}
-
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (GitRepository repository : myRepositories) {
+            sb.append(repository.getPresentableUrl())
+                .append(":")
+                .append(repository.getCurrentBranch())
+                .append(":")
+                .append(repository.getState());
+        }
+        return sb.toString();
+    }
 }

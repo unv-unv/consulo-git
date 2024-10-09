@@ -96,484 +96,492 @@ import java.util.function.Function;
 @ServiceImpl
 @Singleton
 public class GitVcs extends AbstractVcs<CommittedChangeList> {
+    public static final String NAME = "Git";
+    public static final String ID = "git";
 
-  public static final String NAME = "Git";
-  public static final String ID = "git";
+    private static final Logger log = Logger.getInstance(GitVcs.class);
+    private static final VcsKey ourKey = createKey(NAME);
 
-  private static final Logger log = Logger.getInstance(GitVcs.class);
-  private static final VcsKey ourKey = createKey(NAME);
+    @Nullable
+    private final ChangeProvider myChangeProvider;
+    @Nullable
+    private final GitCheckinEnvironment myCheckinEnvironment;
+    private final RollbackEnvironment myRollbackEnvironment;
+    private final GitUpdateEnvironment myUpdateEnvironment;
+    private final GitAnnotationProvider myAnnotationProvider;
+    private final DiffProvider myDiffProvider;
+    private final VcsHistoryProvider myHistoryProvider;
+    @Nonnull
+    private final Git myGit;
+    private final GitVcsApplicationSettings myAppSettings;
+    private final RevisionSelector myRevSelector;
+    private final GitCommittedChangeListProvider myCommittedChangeListProvider;
 
-  @Nullable
-  private final ChangeProvider myChangeProvider;
-  @Nullable
-  private final GitCheckinEnvironment myCheckinEnvironment;
-  private final RollbackEnvironment myRollbackEnvironment;
-  private final GitUpdateEnvironment myUpdateEnvironment;
-  private final GitAnnotationProvider myAnnotationProvider;
-  private final DiffProvider myDiffProvider;
-  private final VcsHistoryProvider myHistoryProvider;
-  @Nonnull
-  private final Git myGit;
-  private final GitVcsApplicationSettings myAppSettings;
-  private final RevisionSelector myRevSelector;
-  private final GitCommittedChangeListProvider myCommittedChangeListProvider;
+    private GitVFSListener myVFSListener; // a VFS listener that tracks file addition, deletion, and renaming.
 
-  private GitVFSListener myVFSListener; // a VFS listener that tracks file addition, deletion, and renaming.
+    private final ReadWriteLock myCommandLock = new ReentrantReadWriteLock(true); // The command read/write lock
+    private final TreeDiffProvider myTreeDiffProvider;
+    @Nullable
+    private final GitCommitAndPushExecutor myCommitAndPushExecutor;
+    private final GitExecutableValidator myExecutableValidator;
 
-  private final ReadWriteLock myCommandLock = new ReentrantReadWriteLock(true); // The command read/write lock
-  private final TreeDiffProvider myTreeDiffProvider;
-  @Nullable
-  private final GitCommitAndPushExecutor myCommitAndPushExecutor;
-  private final GitExecutableValidator myExecutableValidator;
+    private GitVersion myVersion = GitVersion.NULL; // version of Git which this plugin uses.
+    private GitRepositoryForAnnotationsListener myRepositoryForAnnotationsListener;
+    private final GitExecutableManager myGitExecutableManager;
 
-  private GitVersion myVersion = GitVersion.NULL; // version of Git which this plugin uses.
-  private GitRepositoryForAnnotationsListener myRepositoryForAnnotationsListener;
-  private final GitExecutableManager myGitExecutableManager;
-
-  @Nullable
-  public static GitVcs getInstance(Project project) {
-    if (project == null || project.isDisposed()) {
-      return null;
-    }
-    return (GitVcs)ProjectLevelVcsManager.getInstance(project).findVcsByName(NAME);
-  }
-
-  @Inject
-  public GitVcs(@Nonnull Project project,
-                @Nonnull Git git,
-                @Nonnull final GitAnnotationProvider gitAnnotationProvider,
-                @Nonnull final GitDiffProvider gitDiffProvider,
-                @Nonnull final GitHistoryProvider gitHistoryProvider,
-                @Nonnull final GitRollbackEnvironment gitRollbackEnvironment,
-                @Nonnull final GitVcsApplicationSettings gitSettings,
-                @Nonnull final GitVcsSettings gitProjectSettings,
-                @Nonnull GitExecutableManager gitExecutableManager) {
-    super(project, NAME);
-    myGit = git;
-    myAppSettings = gitSettings;
-    myChangeProvider = project.isDefault() ? null : project.getInstance(GitChangeProvider.class);
-    myCheckinEnvironment = project.isDefault() ? null : project.getInstance(GitCheckinEnvironment.class);
-    myAnnotationProvider = gitAnnotationProvider;
-    myDiffProvider = gitDiffProvider;
-    myHistoryProvider = gitHistoryProvider;
-    myRollbackEnvironment = gitRollbackEnvironment;
-    myGitExecutableManager = gitExecutableManager;
-    myRevSelector = new GitRevisionSelector();
-    myUpdateEnvironment = new GitUpdateEnvironment(myProject, gitProjectSettings);
-    myCommittedChangeListProvider = new GitCommittedChangeListProvider(myProject);
-    myOutgoingChangesProvider = new GitOutgoingChangesProvider(myProject);
-    myTreeDiffProvider = new GitTreeDiffProvider(myProject);
-    myCommitAndPushExecutor = myCheckinEnvironment != null ? new GitCommitAndPushExecutor(myCheckinEnvironment) : null;
-    myExecutableValidator = new GitExecutableValidator(myProject);
-  }
-
-
-  public ReadWriteLock getCommandLock() {
-    return myCommandLock;
-  }
-
-  /**
-   * Run task in background using the common queue (per project)
-   *
-   * @param task the task to run
-   */
-  public static void runInBackground(Task.Backgroundable task) {
-    task.queue();
-  }
-
-  @Override
-  public CommittedChangesProvider getCommittedChangesProvider() {
-    return myCommittedChangeListProvider;
-  }
-
-  @Override
-  public String getRevisionPattern() {
-    // return the full commit hash pattern, possibly other revision formats should be supported as well
-    return "[0-9a-fA-F]+";
-  }
-
-  @Override
-  @Nullable
-  public CheckinEnvironment createCheckinEnvironment() {
-    return myCheckinEnvironment;
-  }
-
-  @Nonnull
-  @Override
-  public MergeProvider getMergeProvider() {
-    return GitMergeProvider.detect(myProject);
-  }
-
-  @Override
-  @Nonnull
-  public RollbackEnvironment createRollbackEnvironment() {
-    return myRollbackEnvironment;
-  }
-
-  @Override
-  @Nonnull
-  public VcsHistoryProvider getVcsHistoryProvider() {
-    return myHistoryProvider;
-  }
-
-  @Override
-  public VcsHistoryProvider getVcsBlockHistoryProvider() {
-    return myHistoryProvider;
-  }
-
-  @Override
-  @Nonnull
-  public String getDisplayName() {
-    return NAME;
-  }
-
-  @Override
-  @Nullable
-  public UpdateEnvironment createUpdateEnvironment() {
-    return myUpdateEnvironment;
-  }
-
-  @Override
-  @Nonnull
-  public GitAnnotationProvider getAnnotationProvider() {
-    return myAnnotationProvider;
-  }
-
-  @Override
-  @Nonnull
-  public DiffProvider getDiffProvider() {
-    return myDiffProvider;
-  }
-
-  @Override
-  @Nullable
-  public RevisionSelector getRevisionSelector() {
-    return myRevSelector;
-  }
-
-  @Override
-  @Nullable
-  public VcsRevisionNumber parseRevisionNumber(@Nullable String revision, @Nullable FilePath path) throws VcsException {
-    if (revision == null || revision.length() == 0) {
-      return null;
-    }
-    if (revision.length() > 40) {    // date & revision-id encoded string
-      String dateString = revision.substring(0, revision.indexOf("["));
-      String rev = revision.substring(revision.indexOf("[") + 1, 40);
-      Date d = new Date(Date.parse(dateString));
-      return new GitRevisionNumber(rev, d);
-    }
-    if (path != null) {
-      try {
-        VirtualFile root = GitUtil.getGitRoot(path);
-        return GitRevisionNumber.resolve(myProject, root, revision);
-      }
-      catch (VcsException e) {
-        log.info("Unexpected problem with resolving the git revision number: ", e);
-        throw e;
-      }
-    }
-    return new GitRevisionNumber(revision);
-
-  }
-
-  @Override
-  @Nullable
-  public VcsRevisionNumber parseRevisionNumber(@Nullable String revision) throws VcsException {
-    return parseRevisionNumber(revision, null);
-  }
-
-  @Override
-  public boolean isVersionedDirectory(VirtualFile dir) {
-    return dir.isDirectory() && GitUtil.gitRootOrNull(dir) != null;
-  }
-
-  @Override
-  protected void start() throws VcsException {
-  }
-
-  @Override
-  protected void shutdown() throws VcsException {
-  }
-
-  @Override
-  protected void activate() {
-    Task.Backgroundable.queue(myProject, "Checking Git Version...", (i) -> checkExecutableAndVersion());
-
-    if (myVFSListener == null) {
-      myVFSListener = new GitVFSListener(myProject, this, myGit);
-    }
-
-    // make sure to read the registry before opening commit dialog
-    myProject.getInstance(VcsUserRegistry.class);
-
-    if (myRepositoryForAnnotationsListener == null) {
-      myRepositoryForAnnotationsListener = new GitRepositoryForAnnotationsListener(myProject);
-    }
-    GitUserRegistry.getInstance(myProject).activate();
-  }
-
-  private void checkExecutableAndVersion() {
-    boolean executableIsAlreadyCheckedAndFine = false;
-    String pathToGit = myGitExecutableManager.getPathToGit(myProject);
-    if (!pathToGit.contains(File.separator)) { // no path, just sole executable, with a hope that it is in path
-      // subject to redetect the path if executable validator fails
-      if (!myExecutableValidator.isExecutableValid()) {
-        myAppSettings.setPathToGit(new GitExecutableDetector().detect());
-      }
-      else {
-        executableIsAlreadyCheckedAndFine = true; // not to check it twice
-      }
-    }
-
-    if (executableIsAlreadyCheckedAndFine || myExecutableValidator.checkExecutableAndNotifyIfNeeded()) {
-      checkVersion();
-    }
-  }
-
-  @Override
-  protected void deactivate() {
-    if (myVFSListener != null) {
-      Disposer.dispose(myVFSListener);
-      myVFSListener = null;
-    }
-  }
-
-  @Nullable
-  @Override
-  public Configurable getConfigurable() {
-    return null;
-  }
-
-  @Nullable
-  public ChangeProvider getChangeProvider() {
-    return myChangeProvider;
-  }
-
-  /**
-   * Show errors as popup and as messages in vcs view.
-   *
-   * @param list   a list of errors
-   * @param action an action
-   */
-  public void showErrors(@Nonnull List<VcsException> list, @Nonnull String action) {
-    if (list.size() > 0) {
-      StringBuilder buffer = new StringBuilder();
-      buffer.append("\n");
-      buffer.append(GitBundle.message("error.list.title", action));
-      for (final VcsException exception : list) {
-        buffer.append("\n");
-        buffer.append(exception.getMessage());
-      }
-      final String msg = buffer.toString();
-      UIUtil.invokeLaterIfNeeded(new Runnable() {
-        @Override
-        public void run() {
-          Messages.showErrorDialog(myProject, msg, GitBundle.message("error.dialog.title"));
+    @Nullable
+    public static GitVcs getInstance(Project project) {
+        if (project == null || project.isDisposed()) {
+            return null;
         }
-      });
+        return (GitVcs)ProjectLevelVcsManager.getInstance(project).findVcsByName(NAME);
     }
-  }
 
-  /**
-   * Shows a plain message in the Version Control Console.
-   */
-  public void showMessages(@Nonnull String message) {
-    if (message.length() == 0) {
-      return;
+    @Inject
+    public GitVcs(
+        @Nonnull Project project,
+        @Nonnull Git git,
+        @Nonnull final GitAnnotationProvider gitAnnotationProvider,
+        @Nonnull final GitDiffProvider gitDiffProvider,
+        @Nonnull final GitHistoryProvider gitHistoryProvider,
+        @Nonnull final GitRollbackEnvironment gitRollbackEnvironment,
+        @Nonnull final GitVcsApplicationSettings gitSettings,
+        @Nonnull final GitVcsSettings gitProjectSettings,
+        @Nonnull GitExecutableManager gitExecutableManager
+    ) {
+        super(project, NAME);
+        myGit = git;
+        myAppSettings = gitSettings;
+        myChangeProvider = project.isDefault() ? null : project.getInstance(GitChangeProvider.class);
+        myCheckinEnvironment = project.isDefault() ? null : project.getInstance(GitCheckinEnvironment.class);
+        myAnnotationProvider = gitAnnotationProvider;
+        myDiffProvider = gitDiffProvider;
+        myHistoryProvider = gitHistoryProvider;
+        myRollbackEnvironment = gitRollbackEnvironment;
+        myGitExecutableManager = gitExecutableManager;
+        myRevSelector = new GitRevisionSelector();
+        myUpdateEnvironment = new GitUpdateEnvironment(myProject, gitProjectSettings);
+        myCommittedChangeListProvider = new GitCommittedChangeListProvider(myProject);
+        myOutgoingChangesProvider = new GitOutgoingChangesProvider(myProject);
+        myTreeDiffProvider = new GitTreeDiffProvider(myProject);
+        myCommitAndPushExecutor = myCheckinEnvironment != null ? new GitCommitAndPushExecutor(myCheckinEnvironment) : null;
+        myExecutableValidator = new GitExecutableValidator(myProject);
     }
-    showMessage(message, ConsoleViewContentType.NORMAL_OUTPUT);
-  }
 
-  /**
-   * Show message in the Version Control Console
-   *
-   * @param message     a message to show
-   * @param contentType a style to use
-   */
-  private void showMessage(@Nonnull String message, @Nonnull ConsoleViewContentType contentType) {
-    GitVcsConsoleWriter.getInstance(myProject).showMessage(message, contentType);
-  }
 
-  /**
-   * Checks Git version and updates the myVersion variable.
-   * In the case of exception or unsupported version reports the problem.
-   * Note that unsupported version is also applied - some functionality might not work (we warn about that), but no need to disable at all.
-   */
-  public void checkVersion() {
-    final String executable = myGitExecutableManager.getPathToGit(myProject);
-    try {
-      myVersion = GitVersion.identifyVersion(executable);
-      if (!myVersion.isSupported()) {
-        log.info("Unsupported Git version: " + myVersion);
-        final String SETTINGS_LINK = "settings";
-        final String UPDATE_LINK = "update";
-        String message =
-          String.format("The <a href='" + SETTINGS_LINK + "'>configured</a> version of Git is not supported: %s.<br/> " + "The minimal supported version is %s. Please <a " +
-                          "href='" + UPDATE_LINK + "'>update</a>.", myVersion, GitVersion.MIN);
-        VcsNotifier.getInstance(myProject).notifyError("Unsupported Git version", message, new NotificationListener.Adapter() {
-          @Override
-          protected void hyperlinkActivated(@Nonnull Notification notification, @Nonnull HyperlinkEvent e) {
-            if (SETTINGS_LINK.equals(e.getDescription())) {
-              ShowSettingsUtil.getInstance().showSettingsDialog(myProject, getConfigurable().getDisplayName());
+    public ReadWriteLock getCommandLock() {
+        return myCommandLock;
+    }
+
+    /**
+     * Run task in background using the common queue (per project)
+     *
+     * @param task the task to run
+     */
+    public static void runInBackground(Task.Backgroundable task) {
+        task.queue();
+    }
+
+    @Override
+    public CommittedChangesProvider getCommittedChangesProvider() {
+        return myCommittedChangeListProvider;
+    }
+
+    @Override
+    public String getRevisionPattern() {
+        // return the full commit hash pattern, possibly other revision formats should be supported as well
+        return "[0-9a-fA-F]+";
+    }
+
+    @Override
+    @Nullable
+    public CheckinEnvironment createCheckinEnvironment() {
+        return myCheckinEnvironment;
+    }
+
+    @Nonnull
+    @Override
+    public MergeProvider getMergeProvider() {
+        return GitMergeProvider.detect(myProject);
+    }
+
+    @Override
+    @Nonnull
+    public RollbackEnvironment createRollbackEnvironment() {
+        return myRollbackEnvironment;
+    }
+
+    @Override
+    @Nonnull
+    public VcsHistoryProvider getVcsHistoryProvider() {
+        return myHistoryProvider;
+    }
+
+    @Override
+    public VcsHistoryProvider getVcsBlockHistoryProvider() {
+        return myHistoryProvider;
+    }
+
+    @Override
+    @Nonnull
+    public String getDisplayName() {
+        return NAME;
+    }
+
+    @Override
+    @Nullable
+    public UpdateEnvironment createUpdateEnvironment() {
+        return myUpdateEnvironment;
+    }
+
+    @Override
+    @Nonnull
+    public GitAnnotationProvider getAnnotationProvider() {
+        return myAnnotationProvider;
+    }
+
+    @Override
+    @Nonnull
+    public DiffProvider getDiffProvider() {
+        return myDiffProvider;
+    }
+
+    @Override
+    @Nullable
+    public RevisionSelector getRevisionSelector() {
+        return myRevSelector;
+    }
+
+    @Override
+    @Nullable
+    public VcsRevisionNumber parseRevisionNumber(@Nullable String revision, @Nullable FilePath path) throws VcsException {
+        if (revision == null || revision.length() == 0) {
+            return null;
+        }
+        if (revision.length() > 40) {    // date & revision-id encoded string
+            String dateString = revision.substring(0, revision.indexOf("["));
+            String rev = revision.substring(revision.indexOf("[") + 1, 40);
+            Date d = new Date(Date.parse(dateString));
+            return new GitRevisionNumber(rev, d);
+        }
+        if (path != null) {
+            try {
+                VirtualFile root = GitUtil.getGitRoot(path);
+                return GitRevisionNumber.resolve(myProject, root, revision);
             }
-            else if (UPDATE_LINK.equals(e.getDescription())) {
-              Platform.current().openInBrowser("http://git-scm.com");
+            catch (VcsException e) {
+                log.info("Unexpected problem with resolving the git revision number: ", e);
+                throw e;
             }
-          }
+        }
+        return new GitRevisionNumber(revision);
+
+    }
+
+    @Override
+    @Nullable
+    public VcsRevisionNumber parseRevisionNumber(@Nullable String revision) throws VcsException {
+        return parseRevisionNumber(revision, null);
+    }
+
+    @Override
+    public boolean isVersionedDirectory(VirtualFile dir) {
+        return dir.isDirectory() && GitUtil.gitRootOrNull(dir) != null;
+    }
+
+    @Override
+    protected void start() throws VcsException {
+    }
+
+    @Override
+    protected void shutdown() throws VcsException {
+    }
+
+    @Override
+    protected void activate() {
+        Task.Backgroundable.queue(myProject, "Checking Git Version...", (i) -> checkExecutableAndVersion());
+
+        if (myVFSListener == null) {
+            myVFSListener = new GitVFSListener(myProject, this, myGit);
+        }
+
+        // make sure to read the registry before opening commit dialog
+        myProject.getInstance(VcsUserRegistry.class);
+
+        if (myRepositoryForAnnotationsListener == null) {
+            myRepositoryForAnnotationsListener = new GitRepositoryForAnnotationsListener(myProject);
+        }
+        GitUserRegistry.getInstance(myProject).activate();
+    }
+
+    private void checkExecutableAndVersion() {
+        boolean executableIsAlreadyCheckedAndFine = false;
+        String pathToGit = myGitExecutableManager.getPathToGit(myProject);
+        if (!pathToGit.contains(File.separator)) { // no path, just sole executable, with a hope that it is in path
+            // subject to redetect the path if executable validator fails
+            if (!myExecutableValidator.isExecutableValid()) {
+                myAppSettings.setPathToGit(new GitExecutableDetector().detect());
+            }
+            else {
+                executableIsAlreadyCheckedAndFine = true; // not to check it twice
+            }
+        }
+
+        if (executableIsAlreadyCheckedAndFine || myExecutableValidator.checkExecutableAndNotifyIfNeeded()) {
+            checkVersion();
+        }
+    }
+
+    @Override
+    protected void deactivate() {
+        if (myVFSListener != null) {
+            Disposer.dispose(myVFSListener);
+            myVFSListener = null;
+        }
+    }
+
+    @Nullable
+    @Override
+    public Configurable getConfigurable() {
+        return null;
+    }
+
+    @Nullable
+    public ChangeProvider getChangeProvider() {
+        return myChangeProvider;
+    }
+
+    /**
+     * Show errors as popup and as messages in vcs view.
+     *
+     * @param list   a list of errors
+     * @param action an action
+     */
+    public void showErrors(@Nonnull List<VcsException> list, @Nonnull String action) {
+        if (list.size() > 0) {
+            StringBuilder buffer = new StringBuilder();
+            buffer.append("\n");
+            buffer.append(GitBundle.message("error.list.title", action));
+            for (final VcsException exception : list) {
+                buffer.append("\n");
+                buffer.append(exception.getMessage());
+            }
+            final String msg = buffer.toString();
+            UIUtil.invokeLaterIfNeeded(new Runnable() {
+                @Override
+                public void run() {
+                    Messages.showErrorDialog(myProject, msg, GitBundle.message("error.dialog.title"));
+                }
+            });
+        }
+    }
+
+    /**
+     * Shows a plain message in the Version Control Console.
+     */
+    public void showMessages(@Nonnull String message) {
+        if (message.length() == 0) {
+            return;
+        }
+        showMessage(message, ConsoleViewContentType.NORMAL_OUTPUT);
+    }
+
+    /**
+     * Show message in the Version Control Console
+     *
+     * @param message     a message to show
+     * @param contentType a style to use
+     */
+    private void showMessage(@Nonnull String message, @Nonnull ConsoleViewContentType contentType) {
+        GitVcsConsoleWriter.getInstance(myProject).showMessage(message, contentType);
+    }
+
+    /**
+     * Checks Git version and updates the myVersion variable.
+     * In the case of exception or unsupported version reports the problem.
+     * Note that unsupported version is also applied - some functionality might not work (we warn about that), but no need to disable at all.
+     */
+    public void checkVersion() {
+        final String executable = myGitExecutableManager.getPathToGit(myProject);
+        try {
+            myVersion = GitVersion.identifyVersion(executable);
+            if (!myVersion.isSupported()) {
+                log.info("Unsupported Git version: " + myVersion);
+                final String SETTINGS_LINK = "settings";
+                final String UPDATE_LINK = "update";
+                String message = String.format(
+                    "The <a href='" + SETTINGS_LINK + "'>configured</a> version of Git is not supported: %s.<br/> " +
+                        "The minimal supported version is %s. Please <a href='" + UPDATE_LINK + "'>update</a>.",
+                    myVersion,
+                    GitVersion.MIN
+                );
+                VcsNotifier.getInstance(myProject).notifyError(
+                    "Unsupported Git version",
+                    message,
+                    new NotificationListener.Adapter() {
+                        @Override
+                        protected void hyperlinkActivated(@Nonnull Notification notification, @Nonnull HyperlinkEvent e) {
+                            if (SETTINGS_LINK.equals(e.getDescription())) {
+                                ShowSettingsUtil.getInstance().showSettingsDialog(myProject, getConfigurable().getDisplayName());
+                            }
+                            else if (UPDATE_LINK.equals(e.getDescription())) {
+                                Platform.current().openInBrowser("http://git-scm.com");
+                            }
+                        }
+                    }
+                );
+            }
+        }
+        catch (Exception e) {
+            if (getExecutableValidator().checkExecutableAndNotifyIfNeeded()) { // check executable before notifying error
+                final String reason = (e.getCause() != null ? e.getCause() : e).getMessage();
+                String message = GitBundle.message("vcs.unable.to.run.git", executable, reason);
+                if (!myProject.isDefault()) {
+                    showMessage(message, ConsoleViewContentType.SYSTEM_OUTPUT);
+                }
+                VcsBalloonProblemNotifier.showOverVersionControlView(myProject, message, NotificationType.ERROR);
+            }
+        }
+    }
+
+    @Nonnull
+    @Override
+    public Image getIcon() {
+        return GitIconGroup.git();
+    }
+
+    /**
+     * @return the version number of Git, which is used by IDEA. Or {@link GitVersion#NULL} if version info is unavailable yet.
+     */
+    @Nonnull
+    public GitVersion getVersion() {
+        return myVersion;
+    }
+
+    /**
+     * Shows a command line message in the Version Control Console
+     */
+    public void showCommandLine(final String cmdLine) {
+        SimpleDateFormat f = new SimpleDateFormat("HH:mm:ss.SSS");
+        showMessage(f.format(new Date()) + ": " + cmdLine, ConsoleViewContentType.SYSTEM_OUTPUT);
+    }
+
+    /**
+     * Shows error message in the Version Control Console
+     */
+    public void showErrorMessages(final String line) {
+        showMessage(line, ConsoleViewContentType.ERROR_OUTPUT);
+    }
+
+    @Override
+    public boolean allowsNestedRoots() {
+        return true;
+    }
+
+    @Nonnull
+    @Override
+    public <S> List<S> filterUniqueRoots(@Nonnull List<S> in, @Nonnull Function<S, VirtualFile> convertor) {
+        Collections.sort(in, Comparator.comparing(convertor, FilePathComparator.getInstance()));
+
+        for (int i = 1; i < in.size(); i++) {
+            final S sChild = in.get(i);
+            final VirtualFile child = convertor.apply(sChild);
+            final VirtualFile childRoot = GitUtil.gitRootOrNull(child);
+            if (childRoot == null) {
+                // non-git file actually, skip it
+                continue;
+            }
+            for (int j = i - 1; j >= 0; --j) {
+                final S sParent = in.get(j);
+                final VirtualFile parent = convertor.apply(sParent);
+                // the method check both that parent is an ancestor of the child and that they share common git root
+                if (VirtualFileUtil.isAncestor(parent, child, false) && VirtualFileUtil.isAncestor(childRoot, parent, false)) {
+                    in.remove(i);
+                    //noinspection AssignmentToForLoopParameter
+                    --i;
+                    break;
+                }
+            }
+        }
+        return in;
+    }
+
+    @Override
+    public RootsConvertor getCustomConvertor() {
+        return GitRootConverter.INSTANCE;
+    }
+
+    public static VcsKey getKey() {
+        return ourKey;
+    }
+
+    @Override
+    public VcsType getType() {
+        return VcsType.distributed;
+    }
+
+    private final VcsOutgoingChangesProvider<CommittedChangeList> myOutgoingChangesProvider;
+
+    @Override
+    protected VcsOutgoingChangesProvider<CommittedChangeList> getOutgoingProviderImpl() {
+        return myOutgoingChangesProvider;
+    }
+
+    @Override
+    public RemoteDifferenceStrategy getRemoteDifferenceStrategy() {
+        return RemoteDifferenceStrategy.ASK_TREE_PROVIDER;
+    }
+
+    @Override
+    protected TreeDiffProvider getTreeDiffProviderImpl() {
+        return myTreeDiffProvider;
+    }
+
+    @Override
+    public List<CommitExecutor> getCommitExecutors() {
+        return myCommitAndPushExecutor != null ? Collections.<CommitExecutor>singletonList(myCommitAndPushExecutor) : Collections.<CommitExecutor>emptyList();
+    }
+
+    @Nonnull
+    public GitExecutableValidator getExecutableValidator() {
+        return myExecutableValidator;
+    }
+
+    @Override
+    public boolean fileListenerIsSynchronous() {
+        return false;
+    }
+
+    @Override
+    @RequiredUIAccess
+    public void enableIntegration() {
+        ApplicationManager.getApplication().executeOnPooledThread(new Runnable() {
+            public void run() {
+                Collection<VcsRoot> roots = ServiceManager.getService(myProject, VcsRootDetector.class).detect();
+                new GitIntegrationEnabler(GitVcs.this, myGit).enable(roots);
+            }
         });
-      }
     }
-    catch (Exception e) {
-      if (getExecutableValidator().checkExecutableAndNotifyIfNeeded()) { // check executable before notifying error
-        final String reason = (e.getCause() != null ? e.getCause() : e).getMessage();
-        String message = GitBundle.message("vcs.unable.to.run.git", executable, reason);
-        if (!myProject.isDefault()) {
-          showMessage(message, ConsoleViewContentType.SYSTEM_OUTPUT);
-        }
-        VcsBalloonProblemNotifier.showOverVersionControlView(myProject, message, NotificationType.ERROR);
-      }
+
+    @Nonnull
+    @Override
+    public LocalizeValue getShortNameWithMnemonic() {
+        return GitLocalize.vcsNameWithMnemonic();
     }
-  }
 
-  @Nonnull
-  @Override
-  public Image getIcon() {
-    return GitIconGroup.git();
-  }
-
-  /**
-   * @return the version number of Git, which is used by IDEA. Or {@link GitVersion#NULL} if version info is unavailable yet.
-   */
-  @Nonnull
-  public GitVersion getVersion() {
-    return myVersion;
-  }
-
-  /**
-   * Shows a command line message in the Version Control Console
-   */
-  public void showCommandLine(final String cmdLine) {
-    SimpleDateFormat f = new SimpleDateFormat("HH:mm:ss.SSS");
-    showMessage(f.format(new Date()) + ": " + cmdLine, ConsoleViewContentType.SYSTEM_OUTPUT);
-  }
-
-  /**
-   * Shows error message in the Version Control Console
-   */
-  public void showErrorMessages(final String line) {
-    showMessage(line, ConsoleViewContentType.ERROR_OUTPUT);
-  }
-
-  @Override
-  public boolean allowsNestedRoots() {
-    return true;
-  }
-
-  @Nonnull
-  @Override
-  public <S> List<S> filterUniqueRoots(@Nonnull List<S> in, @Nonnull Function<S, VirtualFile> convertor) {
-    Collections.sort(in, Comparator.comparing(convertor, FilePathComparator.getInstance()));
-
-    for (int i = 1; i < in.size(); i++) {
-      final S sChild = in.get(i);
-      final VirtualFile child = convertor.apply(sChild);
-      final VirtualFile childRoot = GitUtil.gitRootOrNull(child);
-      if (childRoot == null) {
-        // non-git file actually, skip it
-        continue;
-      }
-      for (int j = i - 1; j >= 0; --j) {
-        final S sParent = in.get(j);
-        final VirtualFile parent = convertor.apply(sParent);
-        // the method check both that parent is an ancestor of the child and that they share common git root
-        if (VirtualFileUtil.isAncestor(parent, child, false) && VirtualFileUtil.isAncestor(childRoot, parent, false)) {
-          in.remove(i);
-          //noinspection AssignmentToForLoopParameter
-          --i;
-          break;
-        }
-      }
+    @Override
+    public boolean isWithCustomMenu() {
+        return true;
     }
-    return in;
-  }
 
-  @Override
-  public RootsConvertor getCustomConvertor() {
-    return GitRootConverter.INSTANCE;
-  }
+    @Override
+    public boolean needsCaseSensitiveDirtyScope() {
+        return true;
+    }
 
-  public static VcsKey getKey() {
-    return ourKey;
-  }
-
-  @Override
-  public VcsType getType() {
-    return VcsType.distributed;
-  }
-
-  private final VcsOutgoingChangesProvider<CommittedChangeList> myOutgoingChangesProvider;
-
-  @Override
-  protected VcsOutgoingChangesProvider<CommittedChangeList> getOutgoingProviderImpl() {
-    return myOutgoingChangesProvider;
-  }
-
-  @Override
-  public RemoteDifferenceStrategy getRemoteDifferenceStrategy() {
-    return RemoteDifferenceStrategy.ASK_TREE_PROVIDER;
-  }
-
-  @Override
-  protected TreeDiffProvider getTreeDiffProviderImpl() {
-    return myTreeDiffProvider;
-  }
-
-  @Override
-  public List<CommitExecutor> getCommitExecutors() {
-    return myCommitAndPushExecutor != null ? Collections.<CommitExecutor>singletonList(myCommitAndPushExecutor) : Collections.<CommitExecutor>emptyList();
-  }
-
-  @Nonnull
-  public GitExecutableValidator getExecutableValidator() {
-    return myExecutableValidator;
-  }
-
-  @Override
-  public boolean fileListenerIsSynchronous() {
-    return false;
-  }
-
-  @Override
-  @RequiredUIAccess
-  public void enableIntegration() {
-    ApplicationManager.getApplication().executeOnPooledThread(new Runnable() {
-      public void run() {
-        Collection<VcsRoot> roots = ServiceManager.getService(myProject, VcsRootDetector.class).detect();
-        new GitIntegrationEnabler(GitVcs.this, myGit).enable(roots);
-      }
-    });
-  }
-
-  @Nonnull
-  @Override
-  public LocalizeValue getShortNameWithMnemonic() {
-    return GitLocalize.vcsNameWithMnemonic();
-  }
-
-  @Override
-  public boolean isWithCustomMenu() {
-    return true;
-  }
-
-  @Override
-  public boolean needsCaseSensitiveDirtyScope() {
-    return true;
-  }
-
-  @Override
-  @Nonnull
-  public VcsDirtyScopeBuilder createDirtyScope() {
-    return new GitVcsDirtyScope(this, myProject);
-  }
+    @Override
+    @Nonnull
+    public VcsDirtyScopeBuilder createDirtyScope() {
+        return new GitVcsDirtyScope(this, myProject);
+    }
 }

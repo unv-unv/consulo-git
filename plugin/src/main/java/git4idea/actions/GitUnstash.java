@@ -30,30 +30,33 @@ import java.util.Set;
  * Git unstash action
  */
 public class GitUnstash extends GitRepositoryAction {
+    /**
+     * {@inheritDoc}
+     */
+    @Nonnull
+    protected String getActionName() {
+        return GitBundle.message("unstash.action.name");
+    }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Nonnull
-  protected String getActionName() {
-    return GitBundle.message("unstash.action.name");
-  }
+    /**
+     * {@inheritDoc}
+     */
+    protected void perform(
+        @Nonnull final Project project,
+        @Nonnull final List<VirtualFile> gitRoots,
+        @Nonnull final VirtualFile defaultRoot,
+        final Set<VirtualFile> affectedRoots,
+        final List<VcsException> exceptions
+    ) throws VcsException {
+        final ChangeListManager changeListManager = ChangeListManager.getInstance(project);
+        if (changeListManager.isFreezedWithNotification("Can not unstash changes now")) {
+            return;
+        }
+        GitUnstashDialog.showUnstashDialog(project, gitRoots, defaultRoot);
+    }
 
-  /**
-   * {@inheritDoc}
-   */
-  protected void perform(@Nonnull final Project project,
-                         @Nonnull final List<VirtualFile> gitRoots,
-                         @Nonnull final VirtualFile defaultRoot,
-                         final Set<VirtualFile> affectedRoots,
-                         final List<VcsException> exceptions) throws VcsException {
-    final ChangeListManager changeListManager = ChangeListManager.getInstance(project);
-    if (changeListManager.isFreezedWithNotification("Can not unstash changes now")) return;
-    GitUnstashDialog.showUnstashDialog(project, gitRoots, defaultRoot);
-  }
-
-  @Override
-  protected boolean executeFinalTasksSynchronously() {
-    return false;
-  }
+    @Override
+    protected boolean executeFinalTasksSynchronously() {
+        return false;
+    }
 }

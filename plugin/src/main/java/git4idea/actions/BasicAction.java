@@ -36,6 +36,7 @@ import git4idea.GitVcs;
 import git4idea.util.GitUIUtil;
 
 import jakarta.annotation.Nonnull;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -46,210 +47,187 @@ import static consulo.virtualFileSystem.util.VirtualFileVisitor.SKIP_ROOT;
 /**
  * Basic abstract action handler for all Git actions to extend.
  */
-public abstract class BasicAction extends DumbAwareAction
-{
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void actionPerformed(@Nonnull AnActionEvent event)
-	{
-		final Project project = event.getData(CommonDataKeys.PROJECT);
-		ApplicationManager.getApplication().runWriteAction(new Runnable()
-		{
-			public void run()
-			{
-				FileDocumentManager.getInstance().saveAllDocuments();
-			}
-		});
-		final VirtualFile[] vFiles = event.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY);
-		assert vFiles != null : "The action is only available when files are selected";
+public abstract class BasicAction extends DumbAwareAction {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void actionPerformed(@Nonnull AnActionEvent event) {
+        final Project project = event.getData(CommonDataKeys.PROJECT);
+        ApplicationManager.getApplication().runWriteAction(new Runnable() {
+            public void run() {
+                FileDocumentManager.getInstance().saveAllDocuments();
+            }
+        });
+        final VirtualFile[] vFiles = event.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY);
+        assert vFiles != null : "The action is only available when files are selected";
 
-		assert project != null;
-		final GitVcs vcs = GitVcs.getInstance(project);
-		if(!ProjectLevelVcsManager.getInstance(project).checkAllFilesAreUnder(vcs, vFiles))
-		{
-			return;
-		}
-		final String actionName = getActionName();
+        assert project != null;
+        final GitVcs vcs = GitVcs.getInstance(project);
+        if (!ProjectLevelVcsManager.getInstance(project).checkAllFilesAreUnder(vcs, vFiles)) {
+            return;
+        }
+        final String actionName = getActionName();
 
-		final VirtualFile[] affectedFiles = collectAffectedFiles(project, vFiles);
-		final List<VcsException> exceptions = new ArrayList<>();
-		final boolean background = perform(project, vcs, exceptions, affectedFiles);
-		if(!background)
-		{
-			GitVcs.runInBackground(new Task.Backgroundable(project, getActionName())
-			{
-				public void run(@Nonnull ProgressIndicator indicator)
-				{
-					VirtualFileUtil.markDirtyAndRefresh(false, true, false, affectedFiles);
-					VcsFileUtil.markFilesDirty(project, Arrays.asList(affectedFiles));
-					UIUtil.invokeLaterIfNeeded(() -> GitUIUtil.showOperationErrors(project, exceptions, actionName));
-				}
-			});
-		}
-	}
+        final VirtualFile[] affectedFiles = collectAffectedFiles(project, vFiles);
+        final List<VcsException> exceptions = new ArrayList<>();
+        final boolean background = perform(project, vcs, exceptions, affectedFiles);
+        if (!background) {
+            GitVcs.runInBackground(new Task.Backgroundable(project, getActionName()) {
+                public void run(@Nonnull ProgressIndicator indicator) {
+                    VirtualFileUtil.markDirtyAndRefresh(false, true, false, affectedFiles);
+                    VcsFileUtil.markFilesDirty(project, Arrays.asList(affectedFiles));
+                    UIUtil.invokeLaterIfNeeded(() -> GitUIUtil.showOperationErrors(project, exceptions, actionName));
+                }
+            });
+        }
+    }
 
+    /**
+     * Perform the action over set of files
+     *
+     * @param project       the context project
+     * @param mksVcs        the vcs instance
+     * @param exceptions    the list of exceptions to be collected.
+     * @param affectedFiles the files to be affected by the operation
+     * @return true if the operation scheduled a background job, or cleanup is not needed
+     */
+    protected abstract boolean perform(
+        @Nonnull Project project,
+        GitVcs mksVcs,
+        @Nonnull List<VcsException> exceptions,
+        @Nonnull VirtualFile[] affectedFiles
+    );
 
-	/**
-	 * Perform the action over set of files
-	 *
-	 * @param project       the context project
-	 * @param mksVcs        the vcs instance
-	 * @param exceptions    the list of exceptions to be collected.
-	 * @param affectedFiles the files to be affected by the operation
-	 * @return true if the operation scheduled a background job, or cleanup is not needed
-	 */
-	protected abstract boolean perform(@Nonnull Project project, GitVcs mksVcs, @Nonnull List<VcsException> exceptions, @Nonnull VirtualFile[] affectedFiles);
+    /**
+     * given a list of action-target files, returns ALL the files that should be
+     * subject to the action Does not keep directories, but recursively adds
+     * directory contents
+     *
+     * @param project the project subject of the action
+     * @param files   the root selection
+     * @return the complete set of files this action should apply to
+     */
+    @Nonnull
+    protected VirtualFile[] collectAffectedFiles(@Nonnull Project project, @Nonnull VirtualFile[] files) {
+        List<VirtualFile> affectedFiles = new ArrayList<>(files.length);
+        ProjectLevelVcsManager projectLevelVcsManager = ProjectLevelVcsManager.getInstance(project);
+        for (VirtualFile file : files) {
+            if (!file.isDirectory() && projectLevelVcsManager.getVcsFor(file) instanceof GitVcs) {
+                affectedFiles.add(file);
+            }
+            else if (file.isDirectory() && isRecursive()) {
+                addChildren(project, affectedFiles, file);
+            }
 
-	/**
-	 * given a list of action-target files, returns ALL the files that should be
-	 * subject to the action Does not keep directories, but recursively adds
-	 * directory contents
-	 *
-	 * @param project the project subject of the action
-	 * @param files   the root selection
-	 * @return the complete set of files this action should apply to
-	 */
-	@Nonnull
-	protected VirtualFile[] collectAffectedFiles(@Nonnull Project project, @Nonnull VirtualFile[] files)
-	{
-		List<VirtualFile> affectedFiles = new ArrayList<>(files.length);
-		ProjectLevelVcsManager projectLevelVcsManager = ProjectLevelVcsManager.getInstance(project);
-		for(VirtualFile file : files)
-		{
-			if(!file.isDirectory() && projectLevelVcsManager.getVcsFor(file) instanceof GitVcs)
-			{
-				affectedFiles.add(file);
-			}
-			else if(file.isDirectory() && isRecursive())
-			{
-				addChildren(project, affectedFiles, file);
-			}
+        }
+        return VirtualFileUtil.toVirtualFileArray(affectedFiles);
+    }
 
-		}
-		return VirtualFileUtil.toVirtualFileArray(affectedFiles);
-	}
+    /**
+     * recursively adds all the children of file to the files list, for which
+     * this action makes sense ({@link #appliesTo(Project, VirtualFile)}
+     * returns true)
+     *
+     * @param project the project subject of the action
+     * @param files   result list
+     * @param file    the file whose children should be added to the result list
+     *                (recursively)
+     */
+    private void addChildren(@Nonnull final Project project, @Nonnull final List<VirtualFile> files, @Nonnull VirtualFile file) {
+        VirtualFileUtil.visitChildrenRecursively(file, new VirtualFileVisitor(SKIP_ROOT, (isRecursive() ? null : ONE_LEVEL_DEEP)) {
+            @Override
+            public boolean visitFile(@Nonnull VirtualFile file) {
+                if (!file.isDirectory() && appliesTo(project, file)) {
+                    files.add(file);
+                }
+                return true;
+            }
+        });
+    }
 
-	/**
-	 * recursively adds all the children of file to the files list, for which
-	 * this action makes sense ({@link #appliesTo(Project, VirtualFile)}
-	 * returns true)
-	 *
-	 * @param project the project subject of the action
-	 * @param files   result list
-	 * @param file    the file whose children should be added to the result list
-	 *                (recursively)
-	 */
-	private void addChildren(@Nonnull final Project project, @Nonnull final List<VirtualFile> files, @Nonnull VirtualFile file)
-	{
-		VirtualFileUtil.visitChildrenRecursively(file, new VirtualFileVisitor(SKIP_ROOT, (isRecursive() ? null : ONE_LEVEL_DEEP))
-		{
-			@Override
-			public boolean visitFile(@Nonnull VirtualFile file)
-			{
-				if(!file.isDirectory() && appliesTo(project, file))
-				{
-					files.add(file);
-				}
-				return true;
-			}
-		});
-	}
+    /**
+     * @return the name of action (it is used in a number of ui elements)
+     */
+    @Nonnull
+    protected abstract String getActionName();
 
-	/**
-	 * @return the name of action (it is used in a number of ui elements)
-	 */
-	@Nonnull
-	protected abstract String getActionName();
+    /**
+     * @return true if the action could be applied recursively
+     */
+    @SuppressWarnings({"MethodMayBeStatic"})
+    protected boolean isRecursive() {
+        return true;
+    }
 
+    /**
+     * Check if the action is applicable to the file. The default checks if the file is a directory
+     *
+     * @param project the context project
+     * @param file    the file to check
+     * @return true if the action is applicable to the virtual file
+     */
+    @SuppressWarnings({
+        "MethodMayBeStatic",
+        "UnusedDeclaration"
+    })
+    protected boolean appliesTo(@Nonnull Project project, @Nonnull VirtualFile file) {
+        return !file.isDirectory();
+    }
 
-	/**
-	 * @return true if the action could be applied recursively
-	 */
-	@SuppressWarnings({"MethodMayBeStatic"})
-	protected boolean isRecursive()
-	{
-		return true;
-	}
+    /**
+     * Disable the action if the event does not apply in this context.
+     *
+     * @param e The update event
+     */
+    @Override
+    public void update(@Nonnull AnActionEvent e) {
+        super.update(e);
+        Presentation presentation = e.getPresentation();
+        Project project = e.getData(CommonDataKeys.PROJECT);
+        if (project == null) {
+            presentation.setEnabled(false);
+            presentation.setVisible(false);
+            return;
+        }
 
-	/**
-	 * Check if the action is applicable to the file. The default checks if the file is a directory
-	 *
-	 * @param project the context project
-	 * @param file    the file to check
-	 * @return true if the action is applicable to the virtual file
-	 */
-	@SuppressWarnings({
-			"MethodMayBeStatic",
-			"UnusedDeclaration"
-	})
-	protected boolean appliesTo(@Nonnull Project project, @Nonnull VirtualFile file)
-	{
-		return !file.isDirectory();
-	}
+        VirtualFile[] vFiles = e.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY);
+        if (vFiles == null || vFiles.length == 0) {
+            presentation.setEnabled(false);
+            presentation.setVisible(true);
+            return;
+        }
+        GitVcs vcs = GitVcs.getInstance(project);
+        boolean enabled = ProjectLevelVcsManager.getInstance(project).checkAllFilesAreUnder(vcs, vFiles) && isEnabled(project, vcs, vFiles);
+        // only enable action if all the targets are under the vcs and the action supports all of them
 
-	/**
-	 * Disable the action if the event does not apply in this context.
-	 *
-	 * @param e The update event
-	 */
-	@Override
-	public void update(@Nonnull AnActionEvent e)
-	{
-		super.update(e);
-		Presentation presentation = e.getPresentation();
-		Project project = e.getData(CommonDataKeys.PROJECT);
-		if(project == null)
-		{
-			presentation.setEnabled(false);
-			presentation.setVisible(false);
-			return;
-		}
+        presentation.setEnabled(enabled);
+        if (ActionPlaces.isPopupPlace(e.getPlace())) {
+            presentation.setVisible(enabled);
+        }
+        else {
+            presentation.setVisible(true);
+        }
+    }
 
-		VirtualFile[] vFiles = e.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY);
-		if(vFiles == null || vFiles.length == 0)
-		{
-			presentation.setEnabled(false);
-			presentation.setVisible(true);
-			return;
-		}
-		GitVcs vcs = GitVcs.getInstance(project);
-		boolean enabled = ProjectLevelVcsManager.getInstance(project).checkAllFilesAreUnder(vcs, vFiles) && isEnabled(project, vcs, vFiles);
-		// only enable action if all the targets are under the vcs and the action supports all of them
+    /**
+     * Check if the action should be enabled for the set of the files
+     *
+     * @param project the context project
+     * @param vcs     the vcs to use
+     * @param vFiles  the set of files
+     * @return true if the action should be enabled
+     */
+    protected abstract boolean isEnabled(@Nonnull Project project, @Nonnull GitVcs vcs, @Nonnull VirtualFile... vFiles);
 
-		presentation.setEnabled(enabled);
-		if(ActionPlaces.isPopupPlace(e.getPlace()))
-		{
-			presentation.setVisible(enabled);
-		}
-		else
-		{
-			presentation.setVisible(true);
-		}
-	}
-
-	/**
-	 * Check if the action should be enabled for the set of the files
-	 *
-	 * @param project the context project
-	 * @param vcs     the vcs to use
-	 * @param vFiles  the set of files
-	 * @return true if the action should be enabled
-	 */
-	protected abstract boolean isEnabled(@Nonnull Project project, @Nonnull GitVcs vcs, @Nonnull VirtualFile... vFiles);
-
-	/**
-	 * Save all files in the application (the operation creates write action)
-	 */
-	public static void saveAll()
-	{
-		ApplicationManager.getApplication().runWriteAction(new Runnable()
-		{
-			public void run()
-			{
-				FileDocumentManager.getInstance().saveAllDocuments();
-			}
-		});
-	}
+    /**
+     * Save all files in the application (the operation creates write action)
+     */
+    public static void saveAll() {
+        ApplicationManager.getApplication().runWriteAction(new Runnable() {
+            public void run() {
+                FileDocumentManager.getInstance().saveAllDocuments();
+            }
+        });
+    }
 }

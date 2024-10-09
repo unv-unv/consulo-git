@@ -27,67 +27,68 @@ import javax.swing.*;
  * Configurable for the update session
  */
 public class GitUpdateConfigurable implements Configurable {
-  /** The vcs settings for the configurable */
-  private final GitVcsSettings mySettings;
-  /** The options panel */
-  private GitUpdateOptionsPanel myPanel;
+    /** The vcs settings for the configurable */
+    private final GitVcsSettings mySettings;
+    /** The options panel */
+    private GitUpdateOptionsPanel myPanel;
 
-  /**
-   * The constructor
-   * @param settings the settings object
-   */
-  public GitUpdateConfigurable(GitVcsSettings settings) {
-    mySettings = settings;
-  }
+    /**
+     * The constructor
+     *
+     * @param settings the settings object
+     */
+    public GitUpdateConfigurable(GitVcsSettings settings) {
+        mySettings = settings;
+    }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Nls
-  public String getDisplayName() {
-    return GitBundle.message("update.options.display.name");
-  }
+    /**
+     * {@inheritDoc}
+     */
+    @Nls
+    public String getDisplayName() {
+        return GitBundle.message("update.options.display.name");
+    }
 
-  /**
-   * {@inheritDoc}
-   */
-  public String getHelpTopic() {
-    return "reference.VersionControl.Git.UpdateProject";
-  }
+    /**
+     * {@inheritDoc}
+     */
+    public String getHelpTopic() {
+        return "reference.VersionControl.Git.UpdateProject";
+    }
 
-  /**
-   * {@inheritDoc}
-   */
-  public JComponent createComponent() {
-    myPanel = new GitUpdateOptionsPanel();
-    return myPanel.getPanel();  //To change body of implemented methods use File | Settings | File Templates.
-  }
+    /**
+     * {@inheritDoc}
+     */
+    public JComponent createComponent() {
+        myPanel = new GitUpdateOptionsPanel();
+        return myPanel.getPanel();  //To change body of implemented methods use File | Settings | File Templates.
+    }
 
-  /**
-   * {@inheritDoc}
-   */
-  public boolean isModified() {
-    return myPanel.isModified(mySettings);
-  }
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isModified() {
+        return myPanel.isModified(mySettings);
+    }
 
-  /**
-   * {@inheritDoc}
-   */
-  public void apply() throws ConfigurationException {
-    myPanel.applyTo(mySettings);
-  }
+    /**
+     * {@inheritDoc}
+     */
+    public void apply() throws ConfigurationException {
+        myPanel.applyTo(mySettings);
+    }
 
-  /**
-   * {@inheritDoc}
-   */
-  public void reset() {
-    myPanel.updateFrom(mySettings);
-  }
+    /**
+     * {@inheritDoc}
+     */
+    public void reset() {
+        myPanel.updateFrom(mySettings);
+    }
 
-  /**
-   * {@inheritDoc}
-   */
-  public void disposeUIResources() {
-    myPanel = null;
-  }
+    /**
+     * {@inheritDoc}
+     */
+    public void disposeUIResources() {
+        myPanel = null;
+    }
 }

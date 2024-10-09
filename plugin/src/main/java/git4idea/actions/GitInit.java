@@ -41,76 +41,73 @@ import git4idea.commands.GitCommandResult;
 import git4idea.i18n.GitBundle;
 
 import jakarta.annotation.Nonnull;
+
 import java.util.function.Consumer;
 
 /**
  * Initialize git repository action
  */
-public class GitInit extends DumbAwareAction
-{
-	@Override
-	public void actionPerformed(final AnActionEvent e)
-	{
-		Project project = e.getData(CommonDataKeys.PROJECT);
-		if(project == null)
-		{
-			project = ProjectManager.getInstance().getDefaultProject();
-		}
-		FileChooserDescriptor fcd = FileChooserDescriptorFactory.createSingleFolderDescriptor();
-		fcd.setShowFileSystemRoots(true);
-		fcd.setTitle(GitBundle.message("init.destination.directory.title"));
-		fcd.setDescription(GitBundle.message("init.destination.directory.description"));
-		fcd.setHideIgnored(false);
-		VirtualFile baseDir = e.getData(CommonDataKeys.VIRTUAL_FILE);
-		if(baseDir == null)
-		{
-			baseDir = project.getBaseDir();
-		}
-		doInit(project, fcd, baseDir, baseDir);
-	}
+public class GitInit extends DumbAwareAction {
+    @Override
+    public void actionPerformed(final AnActionEvent e) {
+        Project project = e.getData(CommonDataKeys.PROJECT);
+        if (project == null) {
+            project = ProjectManager.getInstance().getDefaultProject();
+        }
+        FileChooserDescriptor fcd = FileChooserDescriptorFactory.createSingleFolderDescriptor();
+        fcd.setShowFileSystemRoots(true);
+        fcd.setTitle(GitBundle.message("init.destination.directory.title"));
+        fcd.setDescription(GitBundle.message("init.destination.directory.description"));
+        fcd.setHideIgnored(false);
+        VirtualFile baseDir = e.getData(CommonDataKeys.VIRTUAL_FILE);
+        if (baseDir == null) {
+            baseDir = project.getBaseDir();
+        }
+        doInit(project, fcd, baseDir, baseDir);
+    }
 
-	private static void doInit(final Project project, FileChooserDescriptor fcd, VirtualFile baseDir, final VirtualFile finalBaseDir)
-	{
-		IdeaFileChooser.chooseFile(fcd, project, baseDir, (Consumer<VirtualFile>) root ->
-		{
-			if(GitUtil.isUnderGit(root) && Messages.showYesNoDialog(project, GitBundle.message("init.warning.already.under.git", StringUtil.escapeXml(root.getPresentableUrl())),
-					GitBundle.message("init.warning.title"), Messages.getWarningIcon()) != Messages.YES)
-			{
-				return;
-			}
+    private static void doInit(final Project project, FileChooserDescriptor fcd, VirtualFile baseDir, final VirtualFile finalBaseDir) {
+        IdeaFileChooser.chooseFile(
+            fcd,
+            project,
+            baseDir,
+            (Consumer<VirtualFile>)root -> {
+                if (GitUtil.isUnderGit(root) && Messages.showYesNoDialog(
+                    project,
+                    GitBundle.message("init.warning.already.under.git", StringUtil.escapeXml(root.getPresentableUrl())),
+                    GitBundle.message("init.warning.title"),
+                    Messages.getWarningIcon()
+                ) != Messages.YES) {
+                    return;
+                }
 
-			GitCommandResult result = ServiceManager.getService(Git.class).init(project, root);
-			if(!result.success())
-			{
-				GitVcs vcs = GitVcs.getInstance(project);
-				if(vcs != null && vcs.getExecutableValidator().checkExecutableAndNotifyIfNeeded())
-				{
-					VcsNotifier.getInstance(project).notifyError("Git init failed", result.getErrorOutputAsHtmlString());
-				}
-				return;
-			}
+                GitCommandResult result = ServiceManager.getService(Git.class).init(project, root);
+                if (!result.success()) {
+                    GitVcs vcs = GitVcs.getInstance(project);
+                    if (vcs != null && vcs.getExecutableValidator().checkExecutableAndNotifyIfNeeded()) {
+                        VcsNotifier.getInstance(project).notifyError("Git init failed", result.getErrorOutputAsHtmlString());
+                    }
+                    return;
+                }
 
-			if(project.isDefault())
-			{
-				return;
-			}
-			final String path = root.equals(finalBaseDir) ? "" : root.getPath();
-			GitVcs.runInBackground(new Task.Backgroundable(project, GitBundle.message("common.refreshing"))
-			{
-				@Override
-				public void run(@Nonnull ProgressIndicator indicator)
-				{
-					refreshAndConfigureVcsMappings(project, root, path);
-				}
-			});
-		});
-	}
+                if (project.isDefault()) {
+                    return;
+                }
+                final String path = root.equals(finalBaseDir) ? "" : root.getPath();
+                GitVcs.runInBackground(new Task.Backgroundable(project, GitBundle.message("common.refreshing")) {
+                    @Override
+                    public void run(@Nonnull ProgressIndicator indicator) {
+                        refreshAndConfigureVcsMappings(project, root, path);
+                    }
+                });
+            }
+        );
+    }
 
-	public static void refreshAndConfigureVcsMappings(final Project project, final VirtualFile root, final String path)
-	{
-		VirtualFileUtil.markDirtyAndRefresh(false, true, false, root);
-		ProjectLevelVcsManager manager = ProjectLevelVcsManager.getInstance(project);
-		manager.setDirectoryMappings(VcsUtil.addMapping(manager.getDirectoryMappings(), path, GitVcs.NAME));
-		VcsDirtyScopeManager.getInstance(project).dirDirtyRecursively(root);
-	}
+    public static void refreshAndConfigureVcsMappings(final Project project, final VirtualFile root, final String path) {
+        VirtualFileUtil.markDirtyAndRefresh(false, true, false, root);
+        ProjectLevelVcsManager manager = ProjectLevelVcsManager.getInstance(project);
+        manager.setDirectoryMappings(VcsUtil.addMapping(manager.getDirectoryMappings(), path, GitVcs.NAME));
+        VcsDirtyScopeManager.getInstance(project).dirDirtyRecursively(root);
+    }
 }

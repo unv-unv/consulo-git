@@ -30,21 +30,21 @@ import jakarta.annotation.Nonnull;
  * </p>
  */
 public class GitBranchesAction extends DumbAwareAction {
-
-  @Override
-  public void actionPerformed(@Nonnull AnActionEvent e) {
-    Project project = e.getRequiredData(CommonDataKeys.PROJECT);
-    VirtualFile file = e.getData(CommonDataKeys.VIRTUAL_FILE);
-    GitRepository repository =
-      file == null ? GitBranchUtil.getCurrentRepository(project) : GitBranchUtil.getRepositoryOrGuess(project, file);
-    if (repository != null) {
-      GitBranchPopup.getInstance(project, repository).asListPopup().showCenteredInCurrentWindow(project);
+    @Override
+    public void actionPerformed(@Nonnull AnActionEvent e) {
+        Project project = e.getRequiredData(CommonDataKeys.PROJECT);
+        VirtualFile file = e.getData(CommonDataKeys.VIRTUAL_FILE);
+        GitRepository repository = file == null
+            ? GitBranchUtil.getCurrentRepository(project)
+            : GitBranchUtil.getRepositoryOrGuess(project, file);
+        if (repository != null) {
+            GitBranchPopup.getInstance(project, repository).asListPopup().showCenteredInCurrentWindow(project);
+        }
     }
-  }
 
-  @Override
-  public void update(@Nonnull AnActionEvent e) {
-    Project project = e.getData(Project.KEY);
-    e.getPresentation().setEnabledAndVisible(project != null && !project.isDisposed());
-  }
+    @Override
+    public void update(@Nonnull AnActionEvent e) {
+        Project project = e.getData(Project.KEY);
+        e.getPresentation().setEnabledAndVisible(project != null && !project.isDisposed());
+    }
 }

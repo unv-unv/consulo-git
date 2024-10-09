@@ -21,24 +21,24 @@ import consulo.project.Project;
 import git4idea.rebase.GitRebaseUtils;
 import git4idea.repo.GitRepository;
 
-public class GitRebaseContinue extends GitAbstractRebaseAction
-{
-	@Nonnull
-	@Override
-	protected String getProgressTitle()
-	{
-		return GitRebaseUtils.CONTINUE_PROGRESS_TITLE;
-	}
+public class GitRebaseContinue extends GitAbstractRebaseAction {
+    @Nonnull
+    @Override
+    protected String getProgressTitle() {
+        return GitRebaseUtils.CONTINUE_PROGRESS_TITLE;
+    }
 
-	@Override
-	protected void performActionForProject(@Nonnull Project project, @Nonnull ProgressIndicator indicator)
-	{
-		GitRebaseUtils.continueRebase(project);
-	}
+    @Override
+    protected void performActionForProject(@Nonnull Project project, @Nonnull ProgressIndicator indicator) {
+        GitRebaseUtils.continueRebase(project);
+    }
 
-	@Override
-	protected void performActionForRepository(@Nonnull Project project, @Nonnull GitRepository repository, @Nonnull ProgressIndicator indicator)
-	{
-		GitRebaseUtils.continueRebase(project, repository, indicator);
-	}
+    @Override
+    protected void performActionForRepository(
+        @Nonnull Project project,
+        @Nonnull GitRepository repository,
+        @Nonnull ProgressIndicator indicator
+    ) {
+        GitRebaseUtils.continueRebase(project, repository, indicator);
+    }
 }

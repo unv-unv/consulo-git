@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package git4idea.vfs;
 
 import consulo.annotation.component.ExtensionImpl;
@@ -29,15 +28,18 @@ import jakarta.inject.Inject;
  */
 @ExtensionImpl
 public class GitFileTypeFactory extends FileTypeFactory {
-  private final FileNameMatcherFactory myFileNameMatcherFactory;
+    private final FileNameMatcherFactory myFileNameMatcherFactory;
 
-  @Inject
-  public GitFileTypeFactory(FileNameMatcherFactory fileNameMatcherFactory) {
-    myFileNameMatcherFactory = fileNameMatcherFactory;
-  }
+    @Inject
+    public GitFileTypeFactory(FileNameMatcherFactory fileNameMatcherFactory) {
+        myFileNameMatcherFactory = fileNameMatcherFactory;
+    }
 
-  public void createFileTypes(@Nonnull FileTypeConsumer consumer) {
-    consumer.consume(PlainTextFileType.INSTANCE, myFileNameMatcherFactory.createExactFileNameMatcher(".gitignore"),
-                     myFileNameMatcherFactory.createExactFileNameMatcher(".gitmodules"));
-  }
+    public void createFileTypes(@Nonnull FileTypeConsumer consumer) {
+        consumer.consume(
+            PlainTextFileType.INSTANCE,
+            myFileNameMatcherFactory.createExactFileNameMatcher(".gitignore"),
+            myFileNameMatcherFactory.createExactFileNameMatcher(".gitmodules")
+        );
+    }
 }

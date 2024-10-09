@@ -24,11 +24,9 @@ import jakarta.annotation.Nonnull;
 import java.util.Collections;
 
 public class GitCheckoutRevisionAction extends GitLogSingleCommitAction {
-
-	@Override
-	protected void actionPerformed(@Nonnull GitRepository repository, @Nonnull Hash commit) {
-		GitBrancher brancher = ServiceManager.getService(repository.getProject(), GitBrancher.class);
-		brancher.checkout(commit.asString(), false, Collections.singletonList(repository), null);
-	}
-
+    @Override
+    protected void actionPerformed(@Nonnull GitRepository repository, @Nonnull Hash commit) {
+        GitBrancher brancher = ServiceManager.getService(repository.getProject(), GitBrancher.class);
+        brancher.checkout(commit.asString(), false, Collections.singletonList(repository), null);
+    }
 }

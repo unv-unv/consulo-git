@@ -30,6 +30,7 @@ import git4idea.rebase.GitRebaseUtils;
 import git4idea.repo.GitRepository;
 
 import jakarta.annotation.Nonnull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,43 +39,34 @@ import static git4idea.GitUtil.*;
 import static git4idea.rebase.GitRebaseUtils.getRebasingRepositories;
 import static java.util.Collections.singletonList;
 
-public class GitRebase extends DumbAwareAction
-{
+public class GitRebase extends DumbAwareAction {
+    @Override
+    public void update(@Nonnull AnActionEvent e) {
+        super.update(e);
+        Project project = e.getData(Project.KEY);
+        if (project == null || !hasGitRepositories(project)) {
+            e.getPresentation().setEnabledAndVisible(false);
+        }
+        else {
+            e.getPresentation().setVisible(true);
+            e.getPresentation().setEnabled(getRebasingRepositories(project).size() < getRepositories(project).size());
+        }
+    }
 
-	@Override
-	public void update(@Nonnull AnActionEvent e)
-	{
-		super.update(e);
-		Project project = e.getData(Project.KEY);
-		if(project == null || !hasGitRepositories(project))
-		{
-			e.getPresentation().setEnabledAndVisible(false);
-		}
-		else
-		{
-			e.getPresentation().setVisible(true);
-			e.getPresentation().setEnabled(getRebasingRepositories(project).size() < getRepositories(project).size());
-		}
-	}
-
-	@Override
-	public void actionPerformed(@Nonnull AnActionEvent e)
-	{
-		final Project project = e.getRequiredData(CommonDataKeys.PROJECT);
-		ArrayList<GitRepository> repositories = ContainerUtil.newArrayList(getRepositories(project));
-		repositories.removeAll(getRebasingRepositories(project));
-		List<VirtualFile> roots = ContainerUtil.newArrayList(getRootsFromRepositories(sortRepositories(repositories)));
-		VirtualFile defaultRoot = DvcsUtil.guessVcsRoot(project, e.getData(CommonDataKeys.VIRTUAL_FILE));
-		final GitRebaseDialog dialog = new GitRebaseDialog(project, roots, defaultRoot);
-		if(dialog.showAndGet())
-		{
-			ProgressManager.getInstance().run(new Task.Backgroundable(project, "Rebasing...")
-			{
-				public void run(@Nonnull ProgressIndicator indicator)
-				{
-					GitRebaseUtils.rebase(project, singletonList(dialog.getSelectedRepository()), dialog.getSelectedParams(), indicator);
-				}
-			});
-		}
-	}
+    @Override
+    public void actionPerformed(@Nonnull AnActionEvent e) {
+        final Project project = e.getRequiredData(CommonDataKeys.PROJECT);
+        ArrayList<GitRepository> repositories = ContainerUtil.newArrayList(getRepositories(project));
+        repositories.removeAll(getRebasingRepositories(project));
+        List<VirtualFile> roots = ContainerUtil.newArrayList(getRootsFromRepositories(sortRepositories(repositories)));
+        VirtualFile defaultRoot = DvcsUtil.guessVcsRoot(project, e.getData(CommonDataKeys.VIRTUAL_FILE));
+        final GitRebaseDialog dialog = new GitRebaseDialog(project, roots, defaultRoot);
+        if (dialog.showAndGet()) {
+            ProgressManager.getInstance().run(new Task.Backgroundable(project, "Rebasing...") {
+                public void run(@Nonnull ProgressIndicator indicator) {
+                    GitRebaseUtils.rebase(project, singletonList(dialog.getSelectedRepository()), dialog.getSelectedParams(), indicator);
+                }
+            });
+        }
+    }
 }

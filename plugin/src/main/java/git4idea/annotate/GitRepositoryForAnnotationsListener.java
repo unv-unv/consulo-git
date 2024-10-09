@@ -30,27 +30,27 @@ import jakarta.annotation.Nonnull;
  * Time: 2:11 PM
  */
 public class GitRepositoryForAnnotationsListener {
-  private final Project myProject;
-  private final GitRepositoryChangeListener myListener;
-  private ProjectLevelVcsManager myVcsManager;
-  private GitVcs myVcs;
+    private final Project myProject;
+    private final GitRepositoryChangeListener myListener;
+    private ProjectLevelVcsManager myVcsManager;
+    private GitVcs myVcs;
 
-  public GitRepositoryForAnnotationsListener(Project project) {
-    myProject = project;
-    myListener = createListener();
-    myVcs = GitVcs.getInstance(myProject);
-    myVcsManager = ProjectLevelVcsManager.getInstance(myProject);
-    project.getMessageBus().connect().subscribe(GitRepositoryChangeListener.class, myListener);
-  }
+    public GitRepositoryForAnnotationsListener(Project project) {
+        myProject = project;
+        myListener = createListener();
+        myVcs = GitVcs.getInstance(myProject);
+        myVcsManager = ProjectLevelVcsManager.getInstance(myProject);
+        project.getMessageBus().connect().subscribe(GitRepositoryChangeListener.class, myListener);
+    }
 
-  private GitRepositoryChangeListener createListener() {
-    return new GitRepositoryChangeListener() {
-      @Override
-      public void repositoryChanged(@Nonnull GitRepository repository) {
-        final VcsAnnotationRefresher refresher =
-          myProject.getMessageBus().syncPublisher(VcsAnnotationRefresher.class);
-        refresher.dirtyUnder(repository.getRoot());
-      }
-    };
-  }
+    private GitRepositoryChangeListener createListener() {
+        return new GitRepositoryChangeListener() {
+            @Override
+            public void repositoryChanged(@Nonnull GitRepository repository) {
+                final VcsAnnotationRefresher refresher =
+                    myProject.getMessageBus().syncPublisher(VcsAnnotationRefresher.class);
+                refresher.dirtyUnder(repository.getRoot());
+            }
+        };
+    }
 }

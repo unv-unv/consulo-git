@@ -34,29 +34,34 @@ import java.util.Set;
  * Git "fetch" action
  */
 public class GitFetch extends GitRepositoryAction {
-  @Override
-  @Nonnull
-  protected String getActionName() {
-    return GitBundle.message("fetch.action.name");
-  }
+    @Override
+    @Nonnull
+    protected String getActionName() {
+        return GitBundle.message("fetch.action.name");
+    }
 
-  protected void perform(@Nonnull final Project project,
-                         @Nonnull final List<VirtualFile> gitRoots,
-                         @Nonnull final VirtualFile defaultRoot,
-                         final Set<VirtualFile> affectedRoots,
-                         final List<VcsException> exceptions) throws VcsException {
-    GitVcs.runInBackground(new Task.Backgroundable(project, "Fetching...", false) {
-      @Override
-      public void run(@Nonnull ProgressIndicator indicator) {
-        GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager(project);
-        new GitFetcher(project, indicator, true).fetchRootsAndNotify(GitUtil.getRepositoriesFromRoots(repositoryManager, gitRoots),
-                                                                     null, true);
-      }
-    });
-  }
+    protected void perform(
+        @Nonnull final Project project,
+        @Nonnull final List<VirtualFile> gitRoots,
+        @Nonnull final VirtualFile defaultRoot,
+        final Set<VirtualFile> affectedRoots,
+        final List<VcsException> exceptions
+    ) throws VcsException {
+        GitVcs.runInBackground(new Task.Backgroundable(project, "Fetching...", false) {
+            @Override
+            public void run(@Nonnull ProgressIndicator indicator) {
+                GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager(project);
+                new GitFetcher(project, indicator, true).fetchRootsAndNotify(
+                    GitUtil.getRepositoriesFromRoots(repositoryManager, gitRoots),
+                    null,
+                    true
+                );
+            }
+        });
+    }
 
-  @Override
-  protected boolean executeFinalTasksSynchronously() {
-    return false;
-  }
+    @Override
+    protected boolean executeFinalTasksSynchronously() {
+        return false;
+    }
 }
