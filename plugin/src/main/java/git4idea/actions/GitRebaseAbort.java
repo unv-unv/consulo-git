@@ -21,24 +21,24 @@ import git4idea.rebase.GitRebaseUtils;
 import git4idea.repo.GitRepository;
 import jakarta.annotation.Nonnull;
 
-public class GitRebaseAbort extends GitAbstractRebaseAction
-{
-	@Nonnull
-	@Override
-	protected String getProgressTitle()
-	{
-		return "Aborting Rebase Process...";
-	}
+public class GitRebaseAbort extends GitAbstractRebaseAction {
+    @Nonnull
+    @Override
+    protected String getProgressTitle() {
+        return "Aborting Rebase Process...";
+    }
 
-	@Override
-	protected void performActionForProject(@Nonnull Project project, @Nonnull ProgressIndicator indicator)
-	{
-		GitRebaseUtils.abort(project, indicator);
-	}
+    @Override
+    protected void performActionForProject(@Nonnull Project project, @Nonnull ProgressIndicator indicator) {
+        GitRebaseUtils.abort(project, indicator);
+    }
 
-	@Override
-	protected void performActionForRepository(@Nonnull Project project, @Nonnull GitRepository repository, @Nonnull ProgressIndicator indicator)
-	{
-		GitRebaseUtils.abort(project, repository, indicator);
-	}
+    @Override
+    protected void performActionForRepository(
+        @Nonnull Project project,
+        @Nonnull GitRepository repository,
+        @Nonnull ProgressIndicator indicator
+    ) {
+        GitRebaseUtils.abort(project, repository, indicator);
+    }
 }

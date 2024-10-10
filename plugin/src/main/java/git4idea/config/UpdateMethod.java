@@ -19,16 +19,16 @@ package git4idea.config;
  * The type of update to perform
  */
 public enum UpdateMethod {
-  /**
-   * Use default specified in the config file for the branch
-   */
-  BRANCH_DEFAULT,
-  /**
-   * Merge fetched commits with local branch
-   */
-  MERGE,
-  /**
-   * Rebase local commits upon the fetched branch
-   */
-  REBASE
+    /**
+     * Use default specified in the config file for the branch
+     */
+    BRANCH_DEFAULT,
+    /**
+     * Merge fetched commits with local branch
+     */
+    MERGE,
+    /**
+     * Rebase local commits upon the fetched branch
+     */
+    REBASE
 }

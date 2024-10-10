@@ -17,12 +17,13 @@ package git4idea.actions;
 
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.Task;
+import consulo.git.localize.GitLocalize;
+import consulo.localize.LocalizeValue;
 import consulo.versionControlSystem.VcsException;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.project.Project;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
-import git4idea.i18n.GitBundle;
 import git4idea.repo.GitRepositoryManager;
 import git4idea.update.GitFetcher;
 import jakarta.annotation.Nonnull;
@@ -34,29 +35,35 @@ import java.util.Set;
  * Git "fetch" action
  */
 public class GitFetch extends GitRepositoryAction {
-  @Override
-  @Nonnull
-  protected String getActionName() {
-    return GitBundle.message("fetch.action.name");
-  }
+    @Override
+    @Nonnull
+    protected LocalizeValue getActionName() {
+        return GitLocalize.fetchActionName();
+    }
 
-  protected void perform(@Nonnull final Project project,
-                         @Nonnull final List<VirtualFile> gitRoots,
-                         @Nonnull final VirtualFile defaultRoot,
-                         final Set<VirtualFile> affectedRoots,
-                         final List<VcsException> exceptions) throws VcsException {
-    GitVcs.runInBackground(new Task.Backgroundable(project, "Fetching...", false) {
-      @Override
-      public void run(@Nonnull ProgressIndicator indicator) {
-        GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager(project);
-        new GitFetcher(project, indicator, true).fetchRootsAndNotify(GitUtil.getRepositoriesFromRoots(repositoryManager, gitRoots),
-                                                                     null, true);
-      }
-    });
-  }
+    @Override
+    protected void perform(
+        @Nonnull final Project project,
+        @Nonnull final List<VirtualFile> gitRoots,
+        @Nonnull final VirtualFile defaultRoot,
+        final Set<VirtualFile> affectedRoots,
+        final List<VcsException> exceptions
+    ) throws VcsException {
+        GitVcs.runInBackground(new Task.Backgroundable(project, "Fetching...", false) {
+            @Override
+            public void run(@Nonnull ProgressIndicator indicator) {
+                GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager(project);
+                new GitFetcher(project, indicator, true).fetchRootsAndNotify(
+                    GitUtil.getRepositoriesFromRoots(repositoryManager, gitRoots),
+                    null,
+                    true
+                );
+            }
+        });
+    }
 
-  @Override
-  protected boolean executeFinalTasksSynchronously() {
-    return false;
-  }
+    @Override
+    protected boolean executeFinalTasksSynchronously() {
+        return false;
+    }
 }

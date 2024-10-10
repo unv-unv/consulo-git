@@ -26,78 +26,80 @@ import javax.swing.*;
  * Update options panel
  */
 public class GitUpdateOptionsPanel {
-  private JPanel myPanel;
-  private JRadioButton myBranchDefaultRadioButton;
-  private JRadioButton myForceRebaseRadioButton;
-  private JRadioButton myForceMergeRadioButton;
-  private JRadioButton myStashRadioButton;
-  private JRadioButton myShelveRadioButton;
+    private JPanel myPanel;
+    private JRadioButton myBranchDefaultRadioButton;
+    private JRadioButton myForceRebaseRadioButton;
+    private JRadioButton myForceMergeRadioButton;
+    private JRadioButton myStashRadioButton;
+    private JRadioButton myShelveRadioButton;
 
-  public JComponent getPanel() {
-    return myPanel;
-  }
-
-  public boolean isModified(GitVcsSettings settings) {
-    UpdateMethod type = getUpdateType();
-    return type != settings.getUpdateType() || updateSaveFilesPolicy() != settings.updateChangesPolicy();
-  }
-
-  /**
-   * @return get policy value from selected radio buttons
-   */
-  private GitVcsSettings.UpdateChangesPolicy updateSaveFilesPolicy() {
-    return UpdatePolicyUtils.getUpdatePolicy(myStashRadioButton, myShelveRadioButton);
-  }
-
-  /**
-   * @return get the currently selected update type
-   */
-  private UpdateMethod getUpdateType() {
-    UpdateMethod type = null;
-    if (myForceRebaseRadioButton.isSelected()) {
-      type = UpdateMethod.REBASE;
+    public JComponent getPanel() {
+        return myPanel;
     }
-    else if (myForceMergeRadioButton.isSelected()) {
-      type = UpdateMethod.MERGE;
-    }
-    else if (myBranchDefaultRadioButton.isSelected()) {
-      type = UpdateMethod.BRANCH_DEFAULT;
-    }
-    assert type != null;
-    return type;
-  }
 
-  /**
-   * Save configuration to settings object
-   */
-  public void applyTo(GitVcsSettings settings) {
-    settings.setUpdateType(getUpdateType());
-    settings.setUpdateChangesPolicy(updateSaveFilesPolicy());
-  }
-
-  /**
-   * Update panel according to settings
-   */
-  public void updateFrom(GitVcsSettings settings) {
-    switch (settings.getUpdateType()) {
-      case REBASE:
-        myForceRebaseRadioButton.setSelected(true);
-        break;
-      case MERGE:
-        myForceMergeRadioButton.setSelected(true);
-        break;
-      case BRANCH_DEFAULT:
-        myBranchDefaultRadioButton.setSelected(true);
-        break;
-      default:
-        assert false : "Unknown value of update type: " + settings.getUpdateType();
+    public boolean isModified(GitVcsSettings settings) {
+        UpdateMethod type = getUpdateType();
+        return type != settings.getUpdateType() || updateSaveFilesPolicy() != settings.updateChangesPolicy();
     }
-    UpdatePolicyUtils.updatePolicyItem(settings.updateChangesPolicy(), myStashRadioButton, myShelveRadioButton);
-  }
 
-  private void createUIComponents() {
-    myShelveRadioButton = new JRadioButton(GitBundle.message("update.options.save.shelve"));
-    myShelveRadioButton.setToolTipText(GitBundle.message("update.options.save.shelve.tooltip",
-                                                         Application.get().getName().get()));
-  }
+    /**
+     * @return get policy value from selected radio buttons
+     */
+    private GitVcsSettings.UpdateChangesPolicy updateSaveFilesPolicy() {
+        return UpdatePolicyUtils.getUpdatePolicy(myStashRadioButton, myShelveRadioButton);
+    }
+
+    /**
+     * @return get the currently selected update type
+     */
+    private UpdateMethod getUpdateType() {
+        UpdateMethod type = null;
+        if (myForceRebaseRadioButton.isSelected()) {
+            type = UpdateMethod.REBASE;
+        }
+        else if (myForceMergeRadioButton.isSelected()) {
+            type = UpdateMethod.MERGE;
+        }
+        else if (myBranchDefaultRadioButton.isSelected()) {
+            type = UpdateMethod.BRANCH_DEFAULT;
+        }
+        assert type != null;
+        return type;
+    }
+
+    /**
+     * Save configuration to settings object
+     */
+    public void applyTo(GitVcsSettings settings) {
+        settings.setUpdateType(getUpdateType());
+        settings.setUpdateChangesPolicy(updateSaveFilesPolicy());
+    }
+
+    /**
+     * Update panel according to settings
+     */
+    public void updateFrom(GitVcsSettings settings) {
+        switch (settings.getUpdateType()) {
+            case REBASE:
+                myForceRebaseRadioButton.setSelected(true);
+                break;
+            case MERGE:
+                myForceMergeRadioButton.setSelected(true);
+                break;
+            case BRANCH_DEFAULT:
+                myBranchDefaultRadioButton.setSelected(true);
+                break;
+            default:
+                assert false : "Unknown value of update type: " + settings.getUpdateType();
+        }
+        UpdatePolicyUtils.updatePolicyItem(settings.updateChangesPolicy(), myStashRadioButton, myShelveRadioButton);
+    }
+
+    private void createUIComponents() {
+        myShelveRadioButton = new JRadioButton(GitBundle.message("update.options.save.shelve"));
+        myShelveRadioButton.setToolTipText(GitBundle.message(
+            "update.options.save.shelve.tooltip",
+            Application.get().getName().get()
+        ));
+    }
 }

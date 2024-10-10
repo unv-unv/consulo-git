@@ -22,6 +22,7 @@ import consulo.application.progress.ProgressManager;
 import consulo.application.progress.Task;
 import consulo.disposer.Disposable;
 import consulo.disposer.Disposer;
+import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.project.Project;
 import consulo.util.dataholder.Key;
@@ -57,11 +58,11 @@ public class GitTask {
 
   private final Project myProject;
   private final GitHandler myHandler;
-  private final String myTitle;
+  private final LocalizeValue myTitle;
   private GitProgressAnalyzer myProgressAnalyzer;
   private ProgressIndicator myProgressIndicator;
 
-  public GitTask(Project project, GitHandler handler, String title) {
+  public GitTask(Project project, GitHandler handler, LocalizeValue title) {
     myProject = project;
     myHandler = handler;
     myTitle = title;
@@ -282,8 +283,8 @@ public class GitTask {
   private abstract class BackgroundableTask extends Task.Backgroundable implements TaskExecution {
     private GitTaskDelegate myDelegate;
 
-    public BackgroundableTask(@Nullable final Project project, @Nonnull GitHandler handler, @Nonnull final String processTitle) {
-      super(project, processTitle, true);
+    public BackgroundableTask(@Nullable final Project project, @Nonnull GitHandler handler, @Nonnull final LocalizeValue processTitle) {
+      super(project, processTitle.get(), true);
       myDelegate = new GitTaskDelegate(project, handler, this);
     }
 
@@ -322,7 +323,12 @@ public class GitTask {
     @Override
     public void execute(ProgressIndicator indicator) {
       addListeners(this, indicator);
-      GitHandlerUtil.runInCurrentThread(myHandler, indicator, false, myTitle);
+      GitHandlerUtil.runInCurrentThread(
+        myHandler,
+        indicator,
+        false,
+        myTitle == null ? LocalizeValue.empty() : LocalizeValue.localizeTODO(myTitle)
+      );
     }
 
     @Override
@@ -334,8 +340,8 @@ public class GitTask {
   private abstract class ModalTask extends Task.Modal implements TaskExecution {
     private GitTaskDelegate myDelegate;
 
-    public ModalTask(@Nullable final Project project, @Nonnull GitHandler handler, @Nonnull final String processTitle) {
-      super(project, processTitle, true);
+    public ModalTask(@Nullable final Project project, @Nonnull GitHandler handler, @Nonnull final LocalizeValue processTitle) {
+      super(project, processTitle.get(), true);
       myDelegate = new GitTaskDelegate(project, handler, this);
     }
 
@@ -347,7 +353,7 @@ public class GitTask {
     @Override
     public void execute(ProgressIndicator indicator) {
       addListeners(this, indicator);
-      GitHandlerUtil.runInCurrentThread(myHandler, indicator, false, myTitle);
+      GitHandlerUtil.runInCurrentThread(myHandler, indicator, false, myTitle == null ? LocalizeValue.empty() : LocalizeValue.localizeTODO(myTitle));
     }
 
     @Override

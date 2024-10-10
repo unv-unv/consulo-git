@@ -36,94 +36,100 @@ import java.util.TreeMap;
  */
 @Singleton
 @State(
-  name = "SSHConnectionSettings",
-  storages = {@Storage(
-    file = StoragePathMacros.APP_CONFIG + "/security.xml")})
+    name = "SSHConnectionSettings",
+    storages = {@Storage(file = StoragePathMacros.APP_CONFIG + "/security.xml")}
+)
 @ServiceAPI(ComponentScope.APPLICATION)
 @ServiceImpl
 public class SSHConnectionSettings implements PersistentStateComponent<SSHConnectionSettings.State> {
-  /**
-   * The last successful hosts, the entries are sorted to save on efforts on sorting during saving and loading
-   */
-  Map<String, String> myLastSuccessful = new HashMap<String, String>();
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public State getState() {
-    State s = new State();
-    s.setLastSuccessful(new TreeMap<String, String>(myLastSuccessful));
-    return s;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void loadState(State state) {
-    myLastSuccessful.clear();
-    myLastSuccessful.putAll(state.getLastSuccessful());
-  }
-
-  /**
-   * Get last successful authentication method
-   *
-   * @param userName the key in format user@host
-   * @return the last successful stored authentication method or null
-   */
-  public String getLastSuccessful(String userName) {
-    return myLastSuccessful.get(userName);
-  }
-
-  /**
-   * Get last successful authentication method
-   *
-   * @param userName the key in format user@host
-   * @param method   the last successful stored authentication method (null or empty string if entry should be dropped)
-   */
-  public void setLastSuccessful(String userName, String method) {
-    if (null == method || method.length() == 0) {
-      myLastSuccessful.remove(userName);
-    }
-    else {
-      myLastSuccessful.put(userName, method);
-    }
-  }
-
-  /**
-   * @return the service instance
-   */
-  public static SSHConnectionSettings getInstance() {
-    return ServiceManager.getService(SSHConnectionSettings.class);
-  }
-
-  /**
-   * The state for the settings
-   */
-  public static class State {
     /**
-     * The last successful authentications
+     * The last successful hosts, the entries are sorted to save on efforts on sorting during saving and loading
      */
-    private Map<String, String> myLastSuccessful = new TreeMap<String, String>();
+    Map<String, String> myLastSuccessful = new HashMap<>();
 
     /**
-     * @return the last successful authentications
+     * {@inheritDoc}
      */
-    @Property(surroundWithTag = false)
-    @MapAnnotation(surroundKeyWithTag = false, surroundValueWithTag = false, surroundWithTag = false,
-      entryTagName = "successfulAuthentication", keyAttributeName = "user", valueAttributeName = "method")
-    public Map<String, String> getLastSuccessful() {
-      return myLastSuccessful;
+    @Override
+    public State getState() {
+        State s = new State();
+        s.setLastSuccessful(new TreeMap<>(myLastSuccessful));
+        return s;
     }
 
     /**
-     * Set last successful authentications
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadState(State state) {
+        myLastSuccessful.clear();
+        myLastSuccessful.putAll(state.getLastSuccessful());
+    }
+
+    /**
+     * Get last successful authentication method
      *
-     * @param map from user hosts to methods
+     * @param userName the key in format user@host
+     * @return the last successful stored authentication method or null
      */
-    public void setLastSuccessful(Map<String, String> map) {
-      myLastSuccessful = map;
+    public String getLastSuccessful(String userName) {
+        return myLastSuccessful.get(userName);
     }
-  }
+
+    /**
+     * Get last successful authentication method
+     *
+     * @param userName the key in format user@host
+     * @param method   the last successful stored authentication method (null or empty string if entry should be dropped)
+     */
+    public void setLastSuccessful(String userName, String method) {
+        if (null == method || method.length() == 0) {
+            myLastSuccessful.remove(userName);
+        }
+        else {
+            myLastSuccessful.put(userName, method);
+        }
+    }
+
+    /**
+     * @return the service instance
+     */
+    public static SSHConnectionSettings getInstance() {
+        return ServiceManager.getService(SSHConnectionSettings.class);
+    }
+
+    /**
+     * The state for the settings
+     */
+    public static class State {
+        /**
+         * The last successful authentications
+         */
+        private Map<String, String> myLastSuccessful = new TreeMap<>();
+
+        /**
+         * @return the last successful authentications
+         */
+        @Property(surroundWithTag = false)
+        @MapAnnotation(
+            surroundKeyWithTag = false,
+            surroundValueWithTag = false,
+            surroundWithTag = false,
+            entryTagName = "successfulAuthentication",
+            keyAttributeName = "user",
+            valueAttributeName = "method"
+        )
+        public Map<String, String> getLastSuccessful() {
+            return myLastSuccessful;
+        }
+
+        /**
+         * Set last successful authentications
+         *
+         * @param map from user hosts to methods
+         */
+        public void setLastSuccessful(Map<String, String> map) {
+            myLastSuccessful = map;
+        }
+    }
 }

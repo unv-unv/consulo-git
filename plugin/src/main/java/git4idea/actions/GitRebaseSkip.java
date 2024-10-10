@@ -22,24 +22,24 @@ import consulo.project.Project;
 import git4idea.rebase.GitRebaseUtils;
 import git4idea.repo.GitRepository;
 
-public class GitRebaseSkip extends GitAbstractRebaseAction
-{
-	@Nonnull
-	@Override
-	protected String getProgressTitle()
-	{
-		return "Skip Commit during Rebase...";
-	}
+public class GitRebaseSkip extends GitAbstractRebaseAction {
+    @Nonnull
+    @Override
+    protected String getProgressTitle() {
+        return "Skip Commit during Rebase...";
+    }
 
-	@Override
-	protected void performActionForProject(@Nonnull Project project, @Nonnull ProgressIndicator indicator)
-	{
-		GitRebaseUtils.skipRebase(project);
-	}
+    @Override
+    protected void performActionForProject(@Nonnull Project project, @Nonnull ProgressIndicator indicator) {
+        GitRebaseUtils.skipRebase(project);
+    }
 
-	@Override
-	protected void performActionForRepository(@Nonnull Project project, @Nonnull GitRepository repository, @Nonnull ProgressIndicator indicator)
-	{
-		GitRebaseUtils.skipRebase(project, repository, indicator);
-	}
+    @Override
+    protected void performActionForRepository(
+        @Nonnull Project project,
+        @Nonnull GitRepository repository,
+        @Nonnull ProgressIndicator indicator
+    ) {
+        GitRebaseUtils.skipRebase(project, repository, indicator);
+    }
 }

@@ -15,6 +15,7 @@
  */
 package git4idea.ui;
 
+import consulo.git.localize.GitLocalize;
 import consulo.project.Project;
 import consulo.ui.ex.awt.DialogWrapper;
 import consulo.ui.ex.awt.Messages;
@@ -199,7 +200,7 @@ public class GitTagDialog extends DialogWrapper {
         h.addParameters(object);
       }
       try {
-        GitHandlerUtil.doSynchronously(h, GitBundle.message("tagging.title"), h.printableCommandLine());
+        GitHandlerUtil.doSynchronously(h, GitLocalize.taggingTitle(), h.printableCommandLine());
         VcsNotifier.getInstance(myProject).notifySuccess(myTagNameTextField.getText(), "Created tag " + myTagNameTextField.getText() + " " +
           "successfully.");
       }
@@ -255,7 +256,7 @@ public class GitTagDialog extends DialogWrapper {
     myExistingTags.clear();
     GitSimpleHandler h = new GitSimpleHandler(myProject, getGitRoot(), GitCommand.TAG);
     h.setSilent(true);
-    String output = GitHandlerUtil.doSynchronously(h, GitBundle.message("tag.getting.existing.tags"), h.printableCommandLine());
+    String output = GitHandlerUtil.doSynchronously(h, GitLocalize.tagGettingExistingTags(), h.printableCommandLine());
     for (StringScanner s = new StringScanner(output); s.hasMoreData(); ) {
       String line = s.line();
       if (line.length() == 0) {

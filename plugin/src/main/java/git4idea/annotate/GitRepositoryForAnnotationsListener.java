@@ -19,38 +19,30 @@ import consulo.project.Project;
 import consulo.versionControlSystem.ProjectLevelVcsManager;
 import consulo.versionControlSystem.change.VcsAnnotationRefresher;
 import git4idea.GitVcs;
-import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
-import jakarta.annotation.Nonnull;
 
 /**
- * Created with IntelliJ IDEA.
- * User: Irina.Chernushina
- * Date: 11/26/12
- * Time: 2:11 PM
+ * @author Irina.Chernushina
+ * @since 2022-11-26
  */
 public class GitRepositoryForAnnotationsListener {
-  private final Project myProject;
-  private final GitRepositoryChangeListener myListener;
-  private ProjectLevelVcsManager myVcsManager;
-  private GitVcs myVcs;
+    private final Project myProject;
+    private final GitRepositoryChangeListener myListener;
+    private ProjectLevelVcsManager myVcsManager;
+    private GitVcs myVcs;
 
-  public GitRepositoryForAnnotationsListener(Project project) {
-    myProject = project;
-    myListener = createListener();
-    myVcs = GitVcs.getInstance(myProject);
-    myVcsManager = ProjectLevelVcsManager.getInstance(myProject);
-    project.getMessageBus().connect().subscribe(GitRepositoryChangeListener.class, myListener);
-  }
+    public GitRepositoryForAnnotationsListener(Project project) {
+        myProject = project;
+        myListener = createListener();
+        myVcs = GitVcs.getInstance(myProject);
+        myVcsManager = ProjectLevelVcsManager.getInstance(myProject);
+        project.getMessageBus().connect().subscribe(GitRepositoryChangeListener.class, myListener);
+    }
 
-  private GitRepositoryChangeListener createListener() {
-    return new GitRepositoryChangeListener() {
-      @Override
-      public void repositoryChanged(@Nonnull GitRepository repository) {
-        final VcsAnnotationRefresher refresher =
-          myProject.getMessageBus().syncPublisher(VcsAnnotationRefresher.class);
-        refresher.dirtyUnder(repository.getRoot());
-      }
-    };
-  }
+    private GitRepositoryChangeListener createListener() {
+        return repository -> {
+            final VcsAnnotationRefresher refresher = myProject.getMessageBus().syncPublisher(VcsAnnotationRefresher.class);
+            refresher.dirtyUnder(repository.getRoot());
+        };
+    }
 }

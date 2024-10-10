@@ -15,39 +15,40 @@
  */
 package git4idea.actions;
 
-import consulo.language.editor.CommonDataKeys;
+import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.action.DumbAwareAction;
 import consulo.ui.ex.action.Presentation;
-import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 
 /**
  * Common class for most git actions.
+ *
  * @author Kirill Likhodedov
  */
 public abstract class GitAction extends DumbAwareAction {
+    @Override
+    @RequiredUIAccess
+    public void update(@Nonnull AnActionEvent e) {
+        Presentation presentation = e.getPresentation();
+        Project project = e.getData(Project.KEY);
+        if (project == null || project.isDisposed()) {
+            presentation.setEnabled(false);
+            presentation.setVisible(false);
+            return;
+        }
 
-  @Override
-  public void update(@Nonnull AnActionEvent e) {
-    Presentation presentation = e.getPresentation();
-    Project project = e.getData(CommonDataKeys.PROJECT);
-    if (project == null || project.isDisposed()) {
-      presentation.setEnabled(false);
-      presentation.setVisible(false);
-      return;
+        presentation.setEnabled(isEnabled(e));
     }
 
-    presentation.setEnabled(isEnabled(e));
-  }
-
-  /**
-   * Checks if this action should be enabled.
-   * Called in {@link #update(AnActionEvent)}, so don't execute long tasks here.
-   * @return true if the action is enabled.
-   */
-  protected boolean isEnabled(@Nonnull AnActionEvent event) {
-    return true;
-  }
-
+    /**
+     * Checks if this action should be enabled.
+     * Called in {@link #update(AnActionEvent)}, so don't execute long tasks here.
+     *
+     * @return true if the action is enabled.
+     */
+    protected boolean isEnabled(@Nonnull AnActionEvent event) {
+        return true;
+    }
 }

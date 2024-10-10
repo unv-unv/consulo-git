@@ -15,378 +15,401 @@
  */
 package git4idea.commands;
 
-import consulo.logging.Logger;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.ProgressManager;
 import consulo.application.progress.Task;
+import consulo.git.localize.GitLocalize;
+import consulo.localize.LocalizeValue;
+import consulo.logging.Logger;
 import consulo.util.dataholder.Key;
+import consulo.util.lang.StringUtil;
 import consulo.versionControlSystem.VcsException;
 import consulo.virtualFileSystem.VirtualFile;
-import git4idea.i18n.GitBundle;
 import git4idea.util.GitUIUtil;
 import jakarta.annotation.Nonnull;
-import org.jetbrains.annotations.NonNls;
 import jakarta.annotation.Nullable;
 
-import java.awt.EventQueue;
+import java.awt.*;
 import java.util.Collection;
 
 /**
  * Handler utilities that allow running handlers with progress indicators
  */
 public class GitHandlerUtil {
-  /**
-   * The logger instance
-   */
-  private static final Logger LOG = Logger.getInstance(GitHandlerUtil.class.getName());
+    /**
+     * The logger instance
+     */
+    private static final Logger LOG = Logger.getInstance(GitHandlerUtil.class);
 
-  /**
-   * a private constructor for utility class
-   */
-  private GitHandlerUtil() {
-  }
-
-  /**
-   * Execute simple process synchronously with progress
-   *
-   * @param handler        a handler
-   * @param operationTitle an operation title shown in progress dialog
-   * @param operationName  an operation name shown in failure dialog
-   * @return A stdout content or null if there was error (exit code != 0 or exception during start).
-   */
-  @Nullable
-  public static String doSynchronously(final GitSimpleHandler handler, String operationTitle, @NonNls final String operationName) {
-    handler.addListener(new GitHandlerListenerBase(handler, operationName) {
-      protected String getErrorText() {
-        String text = handler.getStderr();
-        if (text.length() == 0) {
-          text = handler.getStdout();
-        }
-        return text;
-      }
-    });
-    runHandlerSynchronously(handler, operationTitle, ProgressManager.getInstance(), true);
-    if (!handler.isStarted() || handler.getExitCode() != 0) {
-      return null;
+    /**
+     * a private constructor for utility class
+     */
+    private GitHandlerUtil() {
     }
-    return handler.getStdout();
-  }
-
-  /**
-   * Execute simple process synchronously with progress
-   *
-   * @param handler        a handler
-   * @param operationTitle an operation title shown in progress dialog
-   * @param operationName  an operation name shown in failure dialog
-   * @return An exit code
-   */
-  public static int doSynchronously(final GitLineHandler handler, String operationTitle, @NonNls final String operationName) {
-    return doSynchronously(handler, operationTitle, operationName, true);
-  }
-
-  /**
-   * Execute simple process synchronously with progress
-   *
-   * @param handler        a handler
-   * @param operationTitle an operation title shown in progress dialog
-   * @param operationName  an operation name shown in failure dialog
-   * @param showErrors     if true, the errors are shown when process is terminated
-   * @return An exit code
-   */
-  public static int doSynchronously(final GitLineHandler handler,
-                                    String operationTitle,
-                                    @NonNls final String operationName,
-                                    boolean showErrors) {
-    return doSynchronously(handler, operationTitle, operationName, showErrors, true);
-  }
-
-
-  /**
-   * Execute simple process synchronously with progress
-   *
-   * @param handler              a handler
-   * @param operationTitle       an operation title shown in progress dialog
-   * @param operationName        an operation name shown in failure dialog
-   * @param showErrors           if true, the errors are shown when process is terminated
-   * @param setIndeterminateFlag a flag indicating that progress should be configured as indeterminate
-   * @return An exit code
-   */
-  public static int doSynchronously(final GitLineHandler handler,
-                                    final String operationTitle,
-                                    @NonNls final String operationName,
-                                    final boolean showErrors,
-                                    final boolean setIndeterminateFlag) {
-    final ProgressManager manager = ProgressManager.getInstance();
-    manager.run(new Task.Modal(handler.project(), operationTitle, false) {
-      public void run(@Nonnull final ProgressIndicator indicator) {
-        handler.addLineListener(new GitLineHandlerListenerProgress(indicator, handler, operationName, showErrors));
-        runInCurrentThread(handler, indicator, setIndeterminateFlag, operationTitle);
-      }
-    });
-    if (!handler.isStarted()) {
-      return -1;
-    }
-    return handler.getExitCode();
-  }
-
-
-  /**
-   * Run handler synchronously. The method assumes that all listeners are set up.
-   *
-   * @param handler              a handler to run
-   * @param operationTitle       operation title
-   * @param manager              a progress manager
-   * @param setIndeterminateFlag if true handler is configured as indeterminate
-   */
-  private static void runHandlerSynchronously(final GitHandler handler,
-                                              final String operationTitle,
-                                              final ProgressManager manager,
-                                              final boolean setIndeterminateFlag) {
-    manager.runProcessWithProgressSynchronously(new Runnable() {
-      public void run() {
-        runInCurrentThread(handler, manager.getProgressIndicator(), setIndeterminateFlag,
-                           operationTitle);
-      }
-    }, operationTitle, false, handler.project());
-  }
-
-  /**
-   * Run handler in the current thread
-   *
-   * @param handler              a handler to run
-   * @param indicator            a progress manager
-   * @param setIndeterminateFlag if true handler is configured as indeterminate
-   * @param operationName
-   */
-  public static void runInCurrentThread(final GitHandler handler,
-                                        final ProgressIndicator indicator,
-                                        final boolean setIndeterminateFlag,
-                                        @Nullable final String operationName) {
-    runInCurrentThread(handler, new Runnable() {
-      public void run() {
-        if (indicator != null) {
-          indicator.setText(operationName == null ? GitBundle.message("git.running", handler.printableCommandLine()) : operationName);
-          indicator.setText2("");
-          if (setIndeterminateFlag) {
-            indicator.setIndeterminate(true);
-          }
-        }
-      }
-    });
-  }
-
-  /**
-   * Run handler in the current thread
-   *
-   * @param handler         a handler to run
-   * @param postStartAction an action that is executed
-   */
-  public static void runInCurrentThread(final GitHandler handler, @Nullable final Runnable postStartAction) {
-    handler.runInCurrentThread(postStartAction);
-  }
-
-  /**
-   * Run synchronously using progress indicator, but collect exceptions instead of showing error dialog
-   *
-   * @param handler a handler to use
-   * @return the collection of exception collected during operation
-   */
-  public static Collection<VcsException> doSynchronouslyWithExceptions(final GitLineHandler handler) {
-    final ProgressIndicator progressIndicator = ProgressManager.getInstance().getProgressIndicator();
-    return doSynchronouslyWithExceptions(handler, progressIndicator, null);
-  }
-
-  /**
-   * Run synchronously using progress indicator, but collect exception instead of showing error dialog
-   *
-   * @param handler           a handler to use
-   * @param progressIndicator a progress indicator
-   * @param operationName
-   * @return the collection of exception collected during operation
-   */
-  public static Collection<VcsException> doSynchronouslyWithExceptions(final GitLineHandler handler,
-                                                                       final ProgressIndicator progressIndicator,
-                                                                       @Nullable String operationName) {
-    handler.addLineListener(new GitLineHandlerListenerProgress(progressIndicator, handler, operationName, false));
-    runInCurrentThread(handler, progressIndicator, false, operationName);
-    return handler.errors();
-  }
-
-  public static String formatOperationName(String operation, @Nonnull VirtualFile root) {
-    return operation + " '" + root.getName() + "'...";
-  }
-
-  /**
-   * A base class for handler listener that implements error handling logic
-   */
-  private abstract static class GitHandlerListenerBase implements GitHandlerListener {
-    /**
-     * a handler
-     */
-    protected final GitHandler myHandler;
-    /**
-     * a operation name for the handler
-     */
-    protected final String myOperationName;
-    /**
-     * if true, the errors are shown when process is terminated
-     */
-    protected boolean myShowErrors;
 
     /**
-     * A constructor
+     * Execute simple process synchronously with progress
      *
-     * @param handler       a handler instance
-     * @param operationName an operation name
+     * @param handler        a handler
+     * @param operationTitle an operation title shown in progress dialog
+     * @param operationName  an operation name shown in failure dialog
+     * @return A stdout content or null if there was error (exit code != 0 or exception during start).
      */
-    public GitHandlerListenerBase(final GitHandler handler, final String operationName) {
-      this(handler, operationName, true);
-    }
-
-    /**
-     * A constructor
-     *
-     * @param handler       a handler instance
-     * @param operationName an operation name
-     * @param showErrors    if true, the errors are shown when process is terminated
-     */
-    public GitHandlerListenerBase(final GitHandler handler, final String operationName, boolean showErrors) {
-      myHandler = handler;
-      myOperationName = operationName;
-      myShowErrors = showErrors;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void processTerminated(final int exitCode) {
-      if (exitCode != 0 && !myHandler.isIgnoredErrorCode(exitCode)) {
-        ensureError(exitCode);
-        if (myShowErrors) {
-          EventQueue.invokeLater(new Runnable() {
-            public void run() {
-              GitUIUtil.showOperationErrors(myHandler.project(), myHandler.errors(), myOperationName);
+    @Nullable
+    public static String doSynchronously(final GitSimpleHandler handler, @Nonnull LocalizeValue operationTitle, final String operationName) {
+        handler.addListener(new GitHandlerListenerBase(handler, operationName) {
+            @Override
+            protected String getErrorText() {
+                String stderr = handler.getStderr();
+                return stderr.isEmpty() ? handler.getStdout() : stderr;
             }
-          });
-        }
-      }
-    }
-
-    /**
-     * Ensure that at least one error is available in case if the process exited with non-zero exit code
-     *
-     * @param exitCode the exit code of the process
-     */
-    protected void ensureError(final int exitCode) {
-      if (myHandler.errors().isEmpty()) {
-        String text = getErrorText();
-        if ((text == null || text.length() == 0) && myHandler.errors().isEmpty()) {
-          //noinspection ThrowableInstanceNeverThrown
-          myHandler.addError(new VcsException(GitBundle.message("git.error.exit", exitCode)));
-        }
-        else {
-          //noinspection ThrowableInstanceNeverThrown
-          myHandler.addError(new VcsException(text));
-        }
-      }
-    }
-
-    /**
-     * @return error text for the handler, if null or empty string a default message is used.
-     */
-    protected abstract String getErrorText();
-
-    /**
-     * {@inheritDoc}
-     */
-    public void startFailed(final Throwable exception) {
-      //noinspection ThrowableInstanceNeverThrown
-      myHandler.addError(new VcsException("Git start failed: " + exception.getMessage(), exception));
-      if (myShowErrors) {
-        EventQueue.invokeLater(new Runnable() {
-          public void run() {
-            GitUIUtil.showOperationError(myHandler.project(), myOperationName, exception.getMessage());
-          }
         });
-      }
+        runHandlerSynchronously(handler, operationTitle, ProgressManager.getInstance(), true);
+        return handler.isStarted() && handler.getExitCode() == 0 ? handler.getStdout() : null;
     }
-  }
 
-  /**
-   * A base class for line handler listeners
-   */
-  private abstract static class GitLineHandlerListenerBase extends GitHandlerListenerBase implements GitLineHandlerListener {
     /**
-     * A constructor
+     * Execute simple process synchronously with progress
      *
-     * @param handler       a handler instance
-     * @param operationName an operation name
-     * @param showErrors    if true, the errors are shown when process is terminated
+     * @param handler        a handler
+     * @param operationTitle an operation title shown in progress dialog
+     * @param operationName  an operation name shown in failure dialog
+     * @return An exit code
      */
-    public GitLineHandlerListenerBase(GitHandler handler, String operationName, boolean showErrors) {
-      super(handler, operationName, showErrors);
+    public static int doSynchronously(final GitLineHandler handler, @Nonnull LocalizeValue operationTitle, final String operationName) {
+        return doSynchronously(handler, operationTitle, operationName, true);
     }
 
-  }
-
-  /**
-   * A base class for line handler listeners
-   */
-  public static class GitLineHandlerListenerProgress extends GitLineHandlerListenerBase {
     /**
-     * a progress manager to use
-     */
-    private final ProgressIndicator myProgressIndicator;
-
-    /**
-     * A constructor
+     * Execute simple process synchronously with progress
      *
-     * @param manager       the project manager
-     * @param handler       a handler instance
-     * @param operationName an operation name
-     * @param showErrors    if true, the errors are shown when process is terminated
+     * @param handler        a handler
+     * @param operationTitle an operation title shown in progress dialog
+     * @param operationName  an operation name shown in failure dialog
+     * @param showErrors     if true, the errors are shown when process is terminated
+     * @return An exit code
      */
-    public GitLineHandlerListenerProgress(final ProgressIndicator manager, GitHandler handler, String operationName, boolean showErrors) {
-      super(handler, operationName, showErrors);    //To change body of overridden methods use File | Settings | File Templates.
-      myProgressIndicator = manager;
+    public static int doSynchronously(
+        GitLineHandler handler,
+        @Nonnull LocalizeValue operationTitle,
+        String operationName,
+        boolean showErrors
+    ) {
+        return doSynchronously(handler, operationTitle, operationName, showErrors, true);
     }
 
     /**
-     * {@inheritDoc}
+     * Execute simple process synchronously with progress
+     *
+     * @param handler              a handler
+     * @param operationTitle       an operation title shown in progress dialog
+     * @param operationName        an operation name shown in failure dialog
+     * @param showErrors           if true, the errors are shown when process is terminated
+     * @param setIndeterminateFlag a flag indicating that progress should be configured as indeterminate
+     * @return An exit code
      */
-    protected String getErrorText() {
-      // all lines are already calculated as errors
-      return "";
+    public static int doSynchronously(
+        final GitLineHandler handler,
+        @Nonnull final LocalizeValue operationTitle,
+        final String operationName,
+        final boolean showErrors,
+        final boolean setIndeterminateFlag
+    ) {
+        final ProgressManager manager = ProgressManager.getInstance();
+        manager.run(new Task.Modal(handler.project(), operationTitle.get(), false) {
+            @Override
+            public void run(@Nonnull final ProgressIndicator indicator) {
+                handler.addLineListener(new GitLineHandlerListenerProgress(indicator, handler, operationName, showErrors));
+                runInCurrentThread(handler, indicator, setIndeterminateFlag, operationTitle);
+            }
+        });
+        return handler.isStarted() ? handler.getExitCode() : -1;
     }
 
     /**
-     * {@inheritDoc}
+     * Run handler synchronously. The method assumes that all listeners are set up.
+     *
+     * @param handler              a handler to run
+     * @param operationTitle       operation title
+     * @param manager              a progress manager
+     * @param setIndeterminateFlag if true handler is configured as indeterminate
      */
-    public void onLineAvailable(final String line, final Key outputType) {
-      if (isErrorLine(line.trim())) {
-        //noinspection ThrowableInstanceNeverThrown
-        myHandler.addError(new VcsException(line));
-      }
-      if (myProgressIndicator != null) {
-        myProgressIndicator.setText2(line);
-      }
+    private static void runHandlerSynchronously(
+        GitHandler handler,
+        @Nonnull LocalizeValue operationTitle,
+        ProgressManager manager,
+        boolean setIndeterminateFlag
+    ) {
+        manager.runProcessWithProgressSynchronously(
+            () -> runInCurrentThread(handler, manager.getProgressIndicator(), setIndeterminateFlag, operationTitle),
+            operationTitle.get(),
+            false,
+            handler.project()
+        );
     }
-  }
 
-  /**
-   * Check if the line is an error line
-   *
-   * @param text a line to check
-   * @return true if the error line
-   */
-  protected static boolean isErrorLine(String text) {
-    for (String prefix : GitImpl.ERROR_INDICATORS) {
-      if (text.startsWith(prefix)) {
-        return true;
-      }
+    /**
+     * Run handler in the current thread
+     *
+     * @param handler              a handler to run
+     * @param indicator            a progress manager
+     * @param setIndeterminateFlag if true handler is configured as indeterminate
+     * @param operationName
+     */
+    public static void runInCurrentThread(
+        final GitHandler handler,
+        final ProgressIndicator indicator,
+        final boolean setIndeterminateFlag,
+        @Nonnull final LocalizeValue operationName
+    ) {
+        runInCurrentThread(
+            handler,
+            () -> {
+                if (indicator != null) {
+                    indicator.setTextValue(
+                        operationName.get().isEmpty()
+                            ? GitLocalize.gitRunning(handler.printableCommandLine())
+                            : operationName
+                    );
+                    indicator.setText2Value(LocalizeValue.empty());
+                    if (setIndeterminateFlag) {
+                        indicator.setIndeterminate(true);
+                    }
+                }
+            }
+        );
     }
-    return false;
-  }
 
+    /**
+     * Run handler in the current thread
+     *
+     * @param handler         a handler to run
+     * @param postStartAction an action that is executed
+     */
+    public static void runInCurrentThread(final GitHandler handler, @Nullable final Runnable postStartAction) {
+        handler.runInCurrentThread(postStartAction);
+    }
 
+    /**
+     * Run synchronously using progress indicator, but collect exceptions instead of showing error dialog
+     *
+     * @param handler a handler to use
+     * @return the collection of exception collected during operation
+     */
+    public static Collection<VcsException> doSynchronouslyWithExceptions(final GitLineHandler handler) {
+        final ProgressIndicator progressIndicator = ProgressManager.getInstance().getProgressIndicator();
+        return doSynchronouslyWithExceptions(handler, progressIndicator, LocalizeValue.empty());
+    }
+
+    /**
+     * Run synchronously using progress indicator, but collect exception instead of showing error dialog
+     *
+     * @param handler           a handler to use
+     * @param progressIndicator a progress indicator
+     * @param operationName
+     * @return the collection of exception collected during operation
+     */
+    public static Collection<VcsException> doSynchronouslyWithExceptions(
+        final GitLineHandler handler,
+        final ProgressIndicator progressIndicator,
+        @Nonnull LocalizeValue operationName
+    ) {
+        handler.addLineListener(new GitLineHandlerListenerProgress(progressIndicator, handler, operationName, false));
+        runInCurrentThread(handler, progressIndicator, false, operationName);
+        return handler.errors();
+    }
+
+    public static String formatOperationName(String operation, @Nonnull VirtualFile root) {
+        return operation + " '" + root.getName() + "'...";
+    }
+
+    /**
+     * A base class for handler listener that implements error handling logic
+     */
+    private abstract static class GitHandlerListenerBase implements GitHandlerListener {
+        /**
+         * a handler
+         */
+        protected final GitHandler myHandler;
+        /**
+         * a operation name for the handler
+         */
+        protected final String myOperationName;
+        /**
+         * if true, the errors are shown when process is terminated
+         */
+        protected boolean myShowErrors;
+
+        /**
+         * A constructor
+         *
+         * @param handler       a handler instance
+         * @param operationName an operation name
+         */
+        public GitHandlerListenerBase(final GitHandler handler, final String operationName) {
+            this(handler, operationName, true);
+        }
+
+        /**
+         * A constructor
+         *
+         * @param handler       a handler instance
+         * @param operationName an operation name
+         * @param showErrors    if true, the errors are shown when process is terminated
+         */
+        public GitHandlerListenerBase(final GitHandler handler, final String operationName, boolean showErrors) {
+            myHandler = handler;
+            myOperationName = operationName;
+            myShowErrors = showErrors;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void processTerminated(final int exitCode) {
+            if (exitCode != 0 && !myHandler.isIgnoredErrorCode(exitCode)) {
+                ensureError(exitCode);
+                if (myShowErrors) {
+                    EventQueue.invokeLater(() -> GitUIUtil.showOperationErrors(myHandler.project(), myHandler.errors(), myOperationName));
+                }
+            }
+        }
+
+        /**
+         * Ensure that at least one error is available in case if the process exited with non-zero exit code
+         *
+         * @param exitCode the exit code of the process
+         */
+        protected void ensureError(final int exitCode) {
+            if (myHandler.errors().isEmpty()) {
+                String text = getErrorText();
+                if (StringUtil.isEmpty(text) && myHandler.errors().isEmpty()) {
+                    //noinspection ThrowableInstanceNeverThrown
+                    myHandler.addError(new VcsException(GitLocalize.gitErrorExit(exitCode).get()));
+                }
+                else {
+                    //noinspection ThrowableInstanceNeverThrown
+                    myHandler.addError(new VcsException(text));
+                }
+            }
+        }
+
+        /**
+         * @return error text for the handler, if null or empty string a default message is used.
+         */
+        protected abstract String getErrorText();
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void startFailed(final Throwable exception) {
+            //noinspection ThrowableInstanceNeverThrown
+            myHandler.addError(new VcsException("Git start failed: " + exception.getMessage(), exception));
+            if (myShowErrors) {
+                EventQueue.invokeLater(() -> GitUIUtil.showOperationError(myHandler.project(), myOperationName, exception.getMessage()));
+            }
+        }
+    }
+
+    /**
+     * A base class for line handler listeners
+     */
+    private abstract static class GitLineHandlerListenerBase extends GitHandlerListenerBase implements GitLineHandlerListener {
+        /**
+         * A constructor
+         *
+         * @param handler       a handler instance
+         * @param operationName an operation name
+         * @param showErrors    if true, the errors are shown when process is terminated
+         */
+        public GitLineHandlerListenerBase(GitHandler handler, String operationName, boolean showErrors) {
+            super(handler, operationName, showErrors);
+        }
+    }
+
+    /**
+     * A base class for line handler listeners
+     */
+    public static class GitLineHandlerListenerProgress extends GitLineHandlerListenerBase {
+        /**
+         * a progress manager to use
+         */
+        private final ProgressIndicator myProgressIndicator;
+
+        /**
+         * A constructor
+         *
+         * @param manager       the project manager
+         * @param handler       a handler instance
+         * @param operationName an operation name
+         * @param showErrors    if true, the errors are shown when process is terminated
+         */
+        public GitLineHandlerListenerProgress(
+            final ProgressIndicator manager,
+            GitHandler handler,
+            String operationName,
+            boolean showErrors
+        ) {
+            super(handler, operationName, showErrors);
+            myProgressIndicator = manager;
+        }
+
+        /**
+         * A constructor
+         *
+         * @param manager       the project manager
+         * @param handler       a handler instance
+         * @param operationName an operation name
+         * @param showErrors    if true, the errors are shown when process is terminated
+         */
+        public GitLineHandlerListenerProgress(
+            final ProgressIndicator manager,
+            GitHandler handler,
+            @Nonnull LocalizeValue operationName,
+            boolean showErrors
+        ) {
+            super(handler, operationName.get(), showErrors);
+            myProgressIndicator = manager;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        protected String getErrorText() {
+            // all lines are already calculated as errors
+            return "";
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void onLineAvailable(final String line, final Key outputType) {
+            if (isErrorLine(line.trim())) {
+                //noinspection ThrowableInstanceNeverThrown
+                myHandler.addError(new VcsException(line));
+            }
+            if (myProgressIndicator != null) {
+                myProgressIndicator.setText2(line);
+            }
+        }
+    }
+
+    /**
+     * Check if the line is an error line
+     *
+     * @param text a line to check
+     * @return true if the error line
+     */
+    protected static boolean isErrorLine(String text) {
+        for (String prefix : GitImpl.ERROR_INDICATORS) {
+            if (text.startsWith(prefix)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

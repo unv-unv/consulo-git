@@ -18,7 +18,9 @@ package git4idea.checkout;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.Task;
+import consulo.git.localize.GitLocalize;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.versionControlSystem.VcsNotifier;
 import consulo.versionControlSystem.change.VcsDirtyScopeManager;
 import consulo.versionControlSystem.checkout.CheckoutProvider;
@@ -30,11 +32,9 @@ import git4idea.commands.Git;
 import git4idea.commands.GitCommandResult;
 import git4idea.commands.GitLineHandlerListener;
 import git4idea.commands.GitStandardProgressAnalyzer;
-import git4idea.i18n.GitBundle;
+import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
-
-import jakarta.annotation.Nonnull;
 
 import java.io.File;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -44,97 +44,112 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @ExtensionImpl
 public class GitCheckoutProvider implements CheckoutProvider {
-  private final Git myGit;
+    private final Git myGit;
 
-  @Inject
-  public GitCheckoutProvider(@Nonnull Git git) {
-    myGit = git;
-  }
-
-  public String getVcsName() {
-    return "_Git";
-  }
-
-  public void doCheckout(@Nonnull final Project project, @Nullable final Listener listener) {
-    BasicAction.saveAll();
-    GitCloneDialog dialog = new GitCloneDialog(project);
-    dialog.show();
-    if (!dialog.isOK()) {
-      return;
+    @Inject
+    public GitCheckoutProvider(@Nonnull Git git) {
+        myGit = git;
     }
-    dialog.rememberSettings();
-    final LocalFileSystem lfs = LocalFileSystem.getInstance();
-    final File parent = new File(dialog.getParentDirectory());
-    VirtualFile destinationParent = lfs.findFileByIoFile(parent);
-    if (destinationParent == null) {
-      destinationParent = lfs.refreshAndFindFileByIoFile(parent);
+
+    @Override
+    public String getVcsName() {
+        return "_Git";
     }
-    if (destinationParent == null) {
-      return;
-    }
-    final String sourceRepositoryURL = dialog.getSourceRepositoryURL();
-    final String directoryName = dialog.getDirectoryName();
-    final String parentDirectory = dialog.getParentDirectory();
-    final String puttyKey = dialog.getPuttyKeyFile();
-    clone(project, myGit, listener, destinationParent, sourceRepositoryURL, directoryName, parentDirectory, puttyKey);
-  }
 
-  public static void clone(final Project project,
-                           @Nonnull final Git git,
-                           final Listener listener,
-                           final VirtualFile destinationParent,
-                           final String sourceRepositoryURL,
-                           final String directoryName,
-                           final String parentDirectory,
-                           final String puttyKey) {
-
-    final AtomicBoolean cloneResult = new AtomicBoolean();
-    new Task.Backgroundable(project, GitBundle.message("cloning.repository", sourceRepositoryURL)) {
-      @Override
-      public void run(@Nonnull ProgressIndicator indicator) {
-        cloneResult.set(doClone(project, indicator, git, directoryName, parentDirectory, sourceRepositoryURL, puttyKey));
-      }
-
-      @Override
-      public void onSuccess() {
-        if (!cloneResult.get()) {
-          return;
+    @Override
+    @RequiredUIAccess
+    public void doCheckout(@Nonnull final Project project, @Nullable final Listener listener) {
+        BasicAction.saveAll();
+        GitCloneDialog dialog = new GitCloneDialog(project);
+        dialog.show();
+        if (!dialog.isOK()) {
+            return;
         }
-
-        destinationParent.refresh(true, true, new Runnable() {
-          public void run() {
-            if (project.isOpen() && (!project.isDisposed()) && (!project.isDefault())) {
-              final VcsDirtyScopeManager mgr = VcsDirtyScopeManager.getInstance(project);
-              mgr.fileDirty(destinationParent);
-            }
-          }
-        });
-        listener.directoryCheckedOut(new File(parentDirectory, directoryName), GitVcs.getKey());
-        listener.checkoutCompleted();
-      }
-    }.queue();
-  }
-
-  public static boolean doClone(@Nonnull Project project,
-                                @Nonnull ProgressIndicator indicator,
-                                @Nonnull Git git,
-                                @Nonnull String directoryName,
-                                @Nonnull String parentDirectory,
-                                @Nonnull String sourceRepositoryURL,
-                                String puttyKey) {
-    return cloneNatively(project, indicator, git, new File(parentDirectory), sourceRepositoryURL, directoryName, puttyKey);
-  }
-
-  private static boolean cloneNatively(@Nonnull Project project, @Nonnull final ProgressIndicator indicator, @Nonnull Git git,
-                                       @Nonnull File directory, @Nonnull String url, @Nonnull String cloneDirectoryName, String puttyKey) {
-    indicator.setIndeterminate(false);
-    GitLineHandlerListener progressListener = GitStandardProgressAnalyzer.createListener(indicator);
-    GitCommandResult result = git.clone(project, directory, url, puttyKey, cloneDirectoryName, progressListener);
-    if (result.success()) {
-      return true;
+        dialog.rememberSettings();
+        final LocalFileSystem lfs = LocalFileSystem.getInstance();
+        final File parent = new File(dialog.getParentDirectory());
+        VirtualFile destinationParent = lfs.findFileByIoFile(parent);
+        if (destinationParent == null) {
+            destinationParent = lfs.refreshAndFindFileByIoFile(parent);
+        }
+        if (destinationParent == null) {
+            return;
+        }
+        final String sourceRepositoryURL = dialog.getSourceRepositoryURL();
+        final String directoryName = dialog.getDirectoryName();
+        final String parentDirectory = dialog.getParentDirectory();
+        final String puttyKey = dialog.getPuttyKeyFile();
+        clone(project, myGit, listener, destinationParent, sourceRepositoryURL, directoryName, parentDirectory, puttyKey);
     }
-    VcsNotifier.getInstance(project).notifyError("Clone failed", result.getErrorOutputAsHtmlString());
-    return false;
-  }
 
+    public static void clone(
+        final Project project,
+        @Nonnull final Git git,
+        final Listener listener,
+        final VirtualFile destinationParent,
+        final String sourceRepositoryURL,
+        final String directoryName,
+        final String parentDirectory,
+        final String puttyKey
+    ) {
+        final AtomicBoolean cloneResult = new AtomicBoolean();
+        new Task.Backgroundable(project, GitLocalize.cloningRepository(sourceRepositoryURL).get()) {
+            @Override
+            public void run(@Nonnull ProgressIndicator indicator) {
+                cloneResult.set(doClone(project, indicator, git, directoryName, parentDirectory, sourceRepositoryURL, puttyKey));
+            }
+
+            @Override
+            @RequiredUIAccess
+            public void onSuccess() {
+                if (!cloneResult.get()) {
+                    return;
+                }
+
+                destinationParent.refresh(
+                    true,
+                    true,
+                    () -> {
+                        if (project.isOpen() && (!project.isDisposed()) && (!project.isDefault())) {
+                            final VcsDirtyScopeManager mgr = VcsDirtyScopeManager.getInstance(project);
+                            mgr.fileDirty(destinationParent);
+                        }
+                    }
+                );
+                listener.directoryCheckedOut(new File(parentDirectory, directoryName), GitVcs.getKey());
+                listener.checkoutCompleted();
+            }
+        }.queue();
+    }
+
+    public static boolean doClone(
+        @Nonnull Project project,
+        @Nonnull ProgressIndicator indicator,
+        @Nonnull Git git,
+        @Nonnull String directoryName,
+        @Nonnull String parentDirectory,
+        @Nonnull String sourceRepositoryURL,
+        String puttyKey
+    ) {
+        return cloneNatively(project, indicator, git, new File(parentDirectory), sourceRepositoryURL, directoryName, puttyKey);
+    }
+
+    private static boolean cloneNatively(
+        @Nonnull Project project,
+        @Nonnull final ProgressIndicator indicator,
+        @Nonnull Git git,
+        @Nonnull File directory,
+        @Nonnull String url,
+        @Nonnull String cloneDirectoryName,
+        String puttyKey
+    ) {
+        indicator.setIndeterminate(false);
+        GitLineHandlerListener progressListener = GitStandardProgressAnalyzer.createListener(indicator);
+        GitCommandResult result = git.clone(project, directory, url, puttyKey, cloneDirectoryName, progressListener);
+        if (result.success()) {
+            return true;
+        }
+        VcsNotifier.getInstance(project).notifyError("Clone failed", result.getErrorOutputAsHtmlString());
+        return false;
+    }
 }

@@ -21,35 +21,35 @@ import jakarta.annotation.Nonnull;
 @ServiceAPI(ComponentScope.APPLICATION)
 @ServiceImpl
 public class GitExecutableManager {
-  public static GitExecutableManager getInstance() {
-    return ServiceManager.getService(GitExecutableManager.class);
-  }
+    public static GitExecutableManager getInstance() {
+        return ServiceManager.getService(GitExecutableManager.class);
+    }
 
-  @Nonnull
-  private final GitVcsApplicationSettings myApplicationSettings;
-  @Nonnull
-  private final AtomicNotNullLazyValue<String> myDetectedExecutable;
+    @Nonnull
+    private final GitVcsApplicationSettings myApplicationSettings;
+    @Nonnull
+    private final AtomicNotNullLazyValue<String> myDetectedExecutable;
 
-  @Inject
-  public GitExecutableManager(@Nonnull GitVcsApplicationSettings applicationSettings) {
-    myApplicationSettings = applicationSettings;
-    myDetectedExecutable = AtomicNotNullLazyValue.createValue(new GitExecutableDetector()::detect);
-  }
+    @Inject
+    public GitExecutableManager(@Nonnull GitVcsApplicationSettings applicationSettings) {
+        myApplicationSettings = applicationSettings;
+        myDetectedExecutable = AtomicNotNullLazyValue.createValue(new GitExecutableDetector()::detect);
+    }
 
-  @Nonnull
-  public String getPathToGit() {
-    String path = myApplicationSettings.getSavedPathToGit();
-    return path == null ? getDetectedExecutable() : path;
-  }
+    @Nonnull
+    public String getPathToGit() {
+        String path = myApplicationSettings.getSavedPathToGit();
+        return path == null ? getDetectedExecutable() : path;
+    }
 
-  @Nonnull
-  public String getPathToGit(@Nonnull Project project) {
-    String path = GitVcsSettings.getInstance(project).getPathToGit();
-    return path == null ? getPathToGit() : path;
-  }
+    @Nonnull
+    public String getPathToGit(@Nonnull Project project) {
+        String path = GitVcsSettings.getInstance(project).getPathToGit();
+        return path == null ? getPathToGit() : path;
+    }
 
-  @Nonnull
-  public String getDetectedExecutable() {
-    return myDetectedExecutable.getValue();
-  }
+    @Nonnull
+    public String getDetectedExecutable() {
+        return myDetectedExecutable.getValue();
+    }
 }

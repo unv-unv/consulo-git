@@ -15,6 +15,7 @@
  */
 package git4idea.merge;
 
+import consulo.git.localize.GitLocalize;
 import consulo.project.Project;
 import consulo.ui.ex.awt.DialogWrapper;
 import consulo.ui.ex.awt.ElementsChooser;
@@ -24,15 +25,13 @@ import git4idea.GitVcs;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitLineHandler;
 import git4idea.commands.GitSimpleHandler;
-import git4idea.i18n.GitBundle;
 import git4idea.util.GitUIUtil;
-
 import jakarta.annotation.Nonnull;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -99,12 +98,12 @@ public class GitMergeDialog extends DialogWrapper {
    */
   public GitMergeDialog(@Nonnull Project project, List<VirtualFile> roots, VirtualFile defaultRoot) {
     super(project, true);
-    setTitle(GitBundle.message("merge.branch.title"));
+    setTitle(GitLocalize.mergeBranchTitle());
     myProject = project;
     myVcs = GitVcs.getInstance(project);
     initBranchChooser();
     setOKActionEnabled(false);
-    setOKButtonText(GitBundle.message("merge.branch.button"));
+    setOKButtonText(GitLocalize.mergeBranchButton().get());
     GitUIUtil.setupRootChooser(myProject, roots, defaultRoot, myGitRoot, myCurrentBranchText);
     GitUIUtil.imply(mySquashCommitCheckBox, true, myNoCommitCheckBox, true);
     GitUIUtil.imply(mySquashCommitCheckBox, true, myAddLogInformationCheckBox, false);
@@ -117,7 +116,7 @@ public class GitMergeDialog extends DialogWrapper {
         }
         catch (VcsException ex) {
           if (myVcs.getExecutableValidator().checkExecutableAndShowMessageIfNeeded(getRootPane())) {
-            myVcs.showErrors(Collections.singletonList(ex), GitBundle.message("merge.retrieving.branches"));
+            myVcs.showErrors(List.of(ex), GitLocalize.mergeRetrievingBranches());
           }
         }
       }
@@ -130,7 +129,7 @@ public class GitMergeDialog extends DialogWrapper {
    */
   private void initBranchChooser() {
     myBranchChooser = new ElementsChooser<String>(true);
-    myBranchChooser.setToolTipText(GitBundle.message("merge.branches.tooltip"));
+    myBranchChooser.setToolTipText(GitLocalize.mergeBranchesTooltip().get());
     GridBagConstraints c = new GridBagConstraints();
     c.insets = new Insets(0, 0, 0, 0);
     c.gridx = 0;

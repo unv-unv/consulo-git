@@ -15,23 +15,23 @@ import java.util.Objects;
 
 // from kotlin
 public class GitMainMenuActionGroup extends DefaultActionGroup implements DumbAware {
-  @RequiredUIAccess
-  @Override
-  public void update(@Nonnull AnActionEvent e) {
-    Presentation presentation = e.getPresentation();
+    @RequiredUIAccess
+    @Override
+    public void update(@Nonnull AnActionEvent e) {
+        Presentation presentation = e.getPresentation();
 
-    presentation.setEnabledAndVisible(false);
+        presentation.setEnabledAndVisible(false);
 
-    Project project = e.getData(Project.KEY);
-    if (project == null) {
-      return;
+        Project project = e.getData(Project.KEY);
+        if (project == null) {
+            return;
+        }
+
+        AbstractVcs vcs = ProjectLevelVcsManager.getInstance(project).getSingleVCS();
+        if (vcs == null) {
+            return;
+        }
+
+        presentation.setEnabledAndVisible(Objects.equals(vcs.getKeyInstanceMethod(), GitVcs.getKey()));
     }
-
-    AbstractVcs vcs = ProjectLevelVcsManager.getInstance(project).getSingleVCS();
-    if (vcs == null) {
-      return;
-    }
-
-    presentation.setEnabledAndVisible(Objects.equals(vcs.getKeyInstanceMethod(), GitVcs.getKey()));
-  }
 }

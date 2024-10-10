@@ -30,65 +30,65 @@ import jakarta.inject.Singleton;
 @ServiceAPI(ComponentScope.PROJECT)
 @ServiceImpl
 public class GitRebaseSettings implements PersistentStateComponent<GitRebaseSettings.State> {
-  private State myState = new State();
+    private State myState = new State();
 
-  public static class State {
-    public boolean INTERACTIVE = true;
-    public boolean PRESERVE_MERGES = false;
-    public boolean SHOW_TAGS = false;
-    public boolean SHOW_REMOTE_BRANCHES = false;
-    public String ONTO = null;
-  }
+    public static class State {
+        public boolean INTERACTIVE = true;
+        public boolean PRESERVE_MERGES = false;
+        public boolean SHOW_TAGS = false;
+        public boolean SHOW_REMOTE_BRANCHES = false;
+        public String ONTO = null;
+    }
 
-  @Nullable
-  @Override
-  public State getState() {
-    return myState;
-  }
+    @Nullable
+    @Override
+    public State getState() {
+        return myState;
+    }
 
-  @Override
-  public void loadState(State state) {
-    myState = state;
-  }
+    @Override
+    public void loadState(State state) {
+        myState = state;
+    }
 
-  public boolean isInteractive() {
-    return myState.INTERACTIVE;
-  }
+    public boolean isInteractive() {
+        return myState.INTERACTIVE;
+    }
 
-  public void setInteractive(boolean interactive) {
-    myState.INTERACTIVE = interactive;
-  }
+    public void setInteractive(boolean interactive) {
+        myState.INTERACTIVE = interactive;
+    }
 
-  public boolean isPreserveMerges() {
-    return myState.PRESERVE_MERGES;
-  }
+    public boolean isPreserveMerges() {
+        return myState.PRESERVE_MERGES;
+    }
 
-  public void setPreserveMerges(boolean preserveMerges) {
-    myState.PRESERVE_MERGES = preserveMerges;
-  }
+    public void setPreserveMerges(boolean preserveMerges) {
+        myState.PRESERVE_MERGES = preserveMerges;
+    }
 
-  public boolean showTags() {
-    return myState.SHOW_TAGS;
-  }
+    public boolean showTags() {
+        return myState.SHOW_TAGS;
+    }
 
-  public void setShowTags(boolean showTags) {
-    myState.SHOW_TAGS = showTags;
-  }
+    public void setShowTags(boolean showTags) {
+        myState.SHOW_TAGS = showTags;
+    }
 
-  public boolean showRemoteBranches() {
-    return myState.SHOW_REMOTE_BRANCHES;
-  }
+    public boolean showRemoteBranches() {
+        return myState.SHOW_REMOTE_BRANCHES;
+    }
 
-  public void setShowRemoteBranches(boolean showRemoteBranches) {
-    myState.SHOW_REMOTE_BRANCHES = showRemoteBranches;
-  }
+    public void setShowRemoteBranches(boolean showRemoteBranches) {
+        myState.SHOW_REMOTE_BRANCHES = showRemoteBranches;
+    }
 
-  @Nullable
-  public String getOnto() {
-    return myState.ONTO;
-  }
+    @Nullable
+    public String getOnto() {
+        return myState.ONTO;
+    }
 
-  public void setOnto(@Nullable String onto) {
-    myState.ONTO = onto;
-  }
+    public void setOnto(@Nullable String onto) {
+        myState.ONTO = onto;
+    }
 }

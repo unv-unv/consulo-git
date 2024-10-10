@@ -15,11 +15,13 @@
  */
 package git4idea.actions;
 
+import consulo.git.localize.GitLocalize;
+import consulo.localize.LocalizeValue;
+import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.versionControlSystem.VcsException;
 import consulo.versionControlSystem.change.ChangeListManager;
-import consulo.project.Project;
 import consulo.virtualFileSystem.VirtualFile;
-import git4idea.i18n.GitBundle;
 import git4idea.ui.GitUnstashDialog;
 import jakarta.annotation.Nonnull;
 
@@ -30,30 +32,36 @@ import java.util.Set;
  * Git unstash action
  */
 public class GitUnstash extends GitRepositoryAction {
+    /**
+     * {@inheritDoc}
+     */
+    @Nonnull
+    @Override
+    protected LocalizeValue getActionName() {
+        return GitLocalize.unstashActionName();
+    }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Nonnull
-  protected String getActionName() {
-    return GitBundle.message("unstash.action.name");
-  }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @RequiredUIAccess
+    protected void perform(
+        @Nonnull final Project project,
+        @Nonnull final List<VirtualFile> gitRoots,
+        @Nonnull final VirtualFile defaultRoot,
+        final Set<VirtualFile> affectedRoots,
+        final List<VcsException> exceptions
+    ) throws VcsException {
+        final ChangeListManager changeListManager = ChangeListManager.getInstance(project);
+        if (changeListManager.isFreezedWithNotification("Can not unstash changes now")) {
+            return;
+        }
+        GitUnstashDialog.showUnstashDialog(project, gitRoots, defaultRoot);
+    }
 
-  /**
-   * {@inheritDoc}
-   */
-  protected void perform(@Nonnull final Project project,
-                         @Nonnull final List<VirtualFile> gitRoots,
-                         @Nonnull final VirtualFile defaultRoot,
-                         final Set<VirtualFile> affectedRoots,
-                         final List<VcsException> exceptions) throws VcsException {
-    final ChangeListManager changeListManager = ChangeListManager.getInstance(project);
-    if (changeListManager.isFreezedWithNotification("Can not unstash changes now")) return;
-    GitUnstashDialog.showUnstashDialog(project, gitRoots, defaultRoot);
-  }
-
-  @Override
-  protected boolean executeFinalTasksSynchronously() {
-    return false;
-  }
+    @Override
+    protected boolean executeFinalTasksSynchronously() {
+        return false;
+    }
 }

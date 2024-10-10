@@ -22,17 +22,16 @@ import consulo.virtualFileSystem.status.FileStatus;
 import jakarta.annotation.Nonnull;
 
 public class GitAdd extends ScheduleForAdditionAction {
+    @Override
+    protected boolean isStatusForAddition(FileStatus status) {
+        return status == FileStatus.UNKNOWN
+            || status == FileStatus.MODIFIED
+            || status == FileStatus.MERGED_WITH_CONFLICTS
+            || status == FileStatus.ADDED;
+    }
 
-  @Override
-  protected boolean isStatusForAddition(FileStatus status) {
-    return status == FileStatus.UNKNOWN ||
-      status == FileStatus.MODIFIED ||
-      status == FileStatus.MERGED_WITH_CONFLICTS ||
-      status == FileStatus.ADDED;
-  }
-
-  @Override
-  protected boolean checkVirtualFiles(@Nonnull AnActionEvent e) {
-    return true;
-  }
+    @Override
+    protected boolean checkVirtualFiles(@Nonnull AnActionEvent e) {
+        return true;
+    }
 }

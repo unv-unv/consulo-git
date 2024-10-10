@@ -36,38 +36,41 @@ import java.util.Collections;
 import java.util.List;
 
 public class GitTreeDiffProvider implements TreeDiffProvider {
-  private final static Logger LOG = Logger.getInstance(GitTreeDiffProvider.class);
-  private final Project myProject;
+    private final static Logger LOG = Logger.getInstance(GitTreeDiffProvider.class);
+    private final Project myProject;
 
-  public GitTreeDiffProvider(final Project project) {
-    myProject = project;
-  }
+    public GitTreeDiffProvider(final Project project) {
+        myProject = project;
+    }
 
-  public Collection<String> getRemotelyChanged(final VirtualFile vcsRoot, final Collection<String> paths) {
-    try {
-      final GitBranchesSearcher searcher = new GitBranchesSearcher(myProject, vcsRoot, true);
-      if (searcher.getLocal() == null || searcher.getRemote() == null) return Collections.emptyList();
-      ArrayList<String> rc = new ArrayList<String>();
-      final Collection<FilePath> files = new ArrayList<FilePath>(paths.size());
-      for (String path : paths) {
-        files.add(VcsUtil.getFilePath(path));
-      }
-      for (List<String> pathList : VcsFileUtil.chunkPaths(vcsRoot, files)) {
-        GitSimpleHandler handler = new GitSimpleHandler(myProject, vcsRoot, GitCommand.DIFF);
-        handler.addParameters("--name-status", "--diff-filter=ADCRUX", "-M", "HEAD..." + searcher.getRemote().getFullName());
-        handler.setSilent(true);
-        handler.setStdoutSuppressed(true);
-        handler.endOptions();
-        handler.addParameters(pathList);
-        String output = handler.run();
-        Collection<String> pathCollection = GitChangeUtils.parseDiffForPaths(vcsRoot.getPath(), new StringScanner(output));
-        rc.addAll(pathCollection);
-      }
-      return rc;
+    @Override
+    public Collection<String> getRemotelyChanged(final VirtualFile vcsRoot, final Collection<String> paths) {
+        try {
+            final GitBranchesSearcher searcher = new GitBranchesSearcher(myProject, vcsRoot, true);
+            if (searcher.getLocal() == null || searcher.getRemote() == null) {
+                return Collections.emptyList();
+            }
+            ArrayList<String> rc = new ArrayList<>();
+            final Collection<FilePath> files = new ArrayList<>(paths.size());
+            for (String path : paths) {
+                files.add(VcsUtil.getFilePath(path));
+            }
+            for (List<String> pathList : VcsFileUtil.chunkPaths(vcsRoot, files)) {
+                GitSimpleHandler handler = new GitSimpleHandler(myProject, vcsRoot, GitCommand.DIFF);
+                handler.addParameters("--name-status", "--diff-filter=ADCRUX", "-M", "HEAD..." + searcher.getRemote().getFullName());
+                handler.setSilent(true);
+                handler.setStdoutSuppressed(true);
+                handler.endOptions();
+                handler.addParameters(pathList);
+                String output = handler.run();
+                Collection<String> pathCollection = GitChangeUtils.parseDiffForPaths(vcsRoot.getPath(), new StringScanner(output));
+                rc.addAll(pathCollection);
+            }
+            return rc;
+        }
+        catch (VcsException e) {
+            LOG.info(e);
+            return Collections.emptyList();
+        }
     }
-    catch (VcsException e) {
-      LOG.info(e);
-      return Collections.emptyList();
-    }
-  }
 }

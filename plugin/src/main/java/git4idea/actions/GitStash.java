@@ -15,6 +15,9 @@
  */
 package git4idea.actions;
 
+import consulo.git.localize.GitLocalize;
+import consulo.localize.LocalizeValue;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.versionControlSystem.change.ChangeListManager;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.project.Project;
@@ -22,10 +25,10 @@ import consulo.versionControlSystem.VcsException;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
 import git4idea.commands.GitHandlerUtil;
 import git4idea.commands.GitLineHandler;
-import git4idea.i18n.GitBundle;
 import git4idea.ui.GitStashDialog;
 
 import jakarta.annotation.Nonnull;
+
 import java.util.List;
 import java.util.Set;
 
@@ -33,34 +36,40 @@ import java.util.Set;
  * Git stash action
  */
 public class GitStash extends GitRepositoryAction {
-
-  /**
-   * {@inheritDoc}
-   */
-  protected void perform(@Nonnull final Project project,
-                         @Nonnull final List<VirtualFile> gitRoots,
-                         @Nonnull final VirtualFile defaultRoot,
-                         final Set<VirtualFile> affectedRoots,
-                         final List<VcsException> exceptions) throws VcsException {
-    final ChangeListManager changeListManager = ChangeListManager.getInstance(project);
-    if (changeListManager.isFreezedWithNotification("Can not stash changes now")) return;
-    GitStashDialog d = new GitStashDialog(project, gitRoots, defaultRoot);
-    d.show();
-    if (!d.isOK()) {
-      return;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @RequiredUIAccess
+    protected void perform(
+        @Nonnull final Project project,
+        @Nonnull final List<VirtualFile> gitRoots,
+        @Nonnull final VirtualFile defaultRoot,
+        final Set<VirtualFile> affectedRoots,
+        final List<VcsException> exceptions
+    ) throws VcsException {
+        final ChangeListManager changeListManager = ChangeListManager.getInstance(project);
+        if (changeListManager.isFreezedWithNotification("Can not stash changes now")) {
+            return;
+        }
+        GitStashDialog d = new GitStashDialog(project, gitRoots, defaultRoot);
+        d.show();
+        if (!d.isOK()) {
+            return;
+        }
+        VirtualFile root = d.getGitRoot();
+        affectedRoots.add(root);
+        final GitLineHandler h = d.handler();
+        GitHandlerUtil.doSynchronously(h, GitLocalize.stashingTitle(), h.printableCommandLine());
+        VirtualFileUtil.markDirtyAndRefresh(true, true, false, root);
     }
-    VirtualFile root = d.getGitRoot();
-    affectedRoots.add(root);
-    final GitLineHandler h = d.handler();
-    GitHandlerUtil.doSynchronously(h, GitBundle.message("stashing.title"), h.printableCommandLine());
-    VirtualFileUtil.markDirtyAndRefresh(true, true, false, root);
-  }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Nonnull
-  protected String getActionName() {
-    return GitBundle.message("stash.action.name");
-  }
+    /**
+     * {@inheritDoc}
+     */
+    @Nonnull
+    @Override
+    protected LocalizeValue getActionName() {
+        return GitLocalize.stashActionName();
+    }
 }

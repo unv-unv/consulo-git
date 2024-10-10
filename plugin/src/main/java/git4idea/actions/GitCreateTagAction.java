@@ -20,14 +20,10 @@ import consulo.versionControlSystem.log.Hash;
 import git4idea.history.wholeTree.GitCreateNewTag;
 import git4idea.repo.GitRepository;
 
-public class GitCreateTagAction extends GitLogSingleCommitAction
-{
-
-	@Override
-	protected void actionPerformed(@Nonnull GitRepository repository, @Nonnull Hash commit)
-	{
-		String reference = commit.asString();
-		new GitCreateNewTag(repository.getProject(), repository, reference, null).execute();
-	}
-
+public class GitCreateTagAction extends GitLogSingleCommitAction {
+    @Override
+    protected void actionPerformed(@Nonnull GitRepository repository, @Nonnull Hash commit) {
+        String reference = commit.asString();
+        new GitCreateNewTag(repository.getProject(), repository, reference, null).execute();
+    }
 }

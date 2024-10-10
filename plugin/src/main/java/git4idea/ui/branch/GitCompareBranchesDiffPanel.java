@@ -30,37 +30,50 @@ import java.util.List;
  * @author Kirill Likhodedov
  */
 class GitCompareBranchesDiffPanel extends JPanel {
+    private final Project myProject;
+    private final String myBranchName;
+    private final String myCurrentBranchName;
+    private final GitCommitCompareInfo myCompareInfo;
 
-  private final Project myProject;
-  private final String myBranchName;
-  private final String myCurrentBranchName;
-  private final GitCommitCompareInfo myCompareInfo;
+    public GitCompareBranchesDiffPanel(Project project, String branchName, String currentBranchName, GitCommitCompareInfo compareInfo) {
+        super();
 
-  public GitCompareBranchesDiffPanel(Project project, String branchName, String currentBranchName, GitCommitCompareInfo compareInfo) {
-    super();
+        myProject = project;
+        myCurrentBranchName = currentBranchName;
+        myCompareInfo = compareInfo;
+        myBranchName = branchName;
 
-    myProject = project;
-    myCurrentBranchName = currentBranchName;
-    myCompareInfo = compareInfo;
-    myBranchName = branchName;
+        setLayout(new BorderLayout(UIUtil.DEFAULT_VGAP, UIUtil.DEFAULT_HGAP));
+        add(createNorthPanel(), BorderLayout.NORTH);
+        add(createCenterPanel());
+    }
 
-    setLayout(new BorderLayout(UIUtil.DEFAULT_VGAP, UIUtil.DEFAULT_HGAP));
-    add(createNorthPanel(), BorderLayout.NORTH);
-    add(createCenterPanel());
-  }
+    private JComponent createNorthPanel() {
+        return new JBLabel(
+            String.format(
+                "<html>Difference between current working tree on <b><code>%s</code></b>" +
+                    " and files in <b><code>%s</code></b>:</html>",
+                myCurrentBranchName,
+                myBranchName
+            ),
+            UIUtil.ComponentStyle.REGULAR
+        );
+    }
 
-  private JComponent createNorthPanel() {
-    return new JBLabel(String.format("<html>Difference between current working tree on <b><code>%s</code></b> " +
-                                       "and files in <b><code>%s</code></b>:</html>", myCurrentBranchName, myBranchName),
-                       UIUtil.ComponentStyle.REGULAR);
-  }
-
-  private JComponent createCenterPanel() {
-    List<Change> diff = myCompareInfo.getTotalDiff();
-    final ChangesBrowser changesBrowser = new ChangesBrowser(myProject, null, diff, null, false, true,
-                                                             null, ChangesBrowser.MyUseCase.COMMITTED_CHANGES, null);
-    changesBrowser.setChangesToDisplay(diff);
-    return changesBrowser;
-  }
-
+    private JComponent createCenterPanel() {
+        List<Change> diff = myCompareInfo.getTotalDiff();
+        final ChangesBrowser changesBrowser = new ChangesBrowser(
+            myProject,
+            null,
+            diff,
+            null,
+            false,
+            true,
+            null,
+            ChangesBrowser.MyUseCase.COMMITTED_CHANGES,
+            null
+        );
+        changesBrowser.setChangesToDisplay(diff);
+        return changesBrowser;
+    }
 }

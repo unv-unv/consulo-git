@@ -19,7 +19,7 @@ package git4idea.ui.branch;
  * @author Kirill Likhodedov
  */
 public enum GitBranchSyncSetting {
-  SYNC,
-  DONT,
-  NOT_DECIDED
+    SYNC,
+    DONT,
+    NOT_DECIDED
 }

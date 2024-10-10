@@ -16,6 +16,7 @@
 package git4idea.update;
 
 import consulo.application.progress.ProgressIndicator;
+import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.project.Project;
 import consulo.util.dataholder.Key;
@@ -238,7 +239,7 @@ public class GitFetcher
 			h.addParameters(getFetchSpecForBranch(branch, remoteName));
 		}
 
-		final GitTask fetchTask = new GitTask(myProject, h, "Fetching " + remote.getFirstUrl());
+		final GitTask fetchTask = new GitTask(myProject, h, LocalizeValue.localizeTODO("Fetching " + remote.getFirstUrl()));
 		fetchTask.setProgressIndicator(myProgressIndicator);
 		fetchTask.setProgressAnalyzer(new GitStandardProgressAnalyzer());
 

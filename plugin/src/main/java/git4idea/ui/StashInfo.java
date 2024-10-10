@@ -22,37 +22,41 @@ import git4idea.i18n.GitBundle;
  * Information about one stash.
  */
 public class StashInfo {
-  private final String myStash; // stash codename (stash@{1})
-  private final String myBranch;
-  private final String myMessage;
-  private final String myText; // The formatted text representation
+    private final String myStash; // stash codename (stash@{1})
+    private final String myBranch;
+    private final String myMessage;
+    private final String myText; // The formatted text representation
 
-  public StashInfo(final String stash, final String branch, final String message) {
-    myStash = stash;
-    myBranch = branch;
-    myMessage = message;
-    myText =
-      GitBundle.message("unstash.stashes.item", StringUtil.escapeXml(stash), StringUtil.escapeXml(branch), StringUtil.escapeXml(message));
-  }
+    public StashInfo(final String stash, final String branch, final String message) {
+        myStash = stash;
+        myBranch = branch;
+        myMessage = message;
+        myText = GitBundle.message(
+            "unstash.stashes.item",
+            StringUtil.escapeXml(stash),
+            StringUtil.escapeXml(branch),
+            StringUtil.escapeXml(message)
+        );
+    }
 
-  @Override
-  public String toString() {
-    return myText;
-  }
+    @Override
+    public String toString() {
+        return myText;
+    }
 
-  public String getStash() {
-    return myStash;
-  }
+    public String getStash() {
+        return myStash;
+    }
 
-  public String getBranch() {
-    return myBranch;
-  }
+    public String getBranch() {
+        return myBranch;
+    }
 
-  public String getMessage() {
-    return myMessage;
-  }
+    public String getMessage() {
+        return myMessage;
+    }
 
-  public String getText() {
-    return myText;
-  }
+    public String getText() {
+        return myText;
+    }
 }
