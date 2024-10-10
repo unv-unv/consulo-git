@@ -17,6 +17,7 @@ package git4idea.actions;
 
 import consulo.annotation.component.ExtensionImpl;
 import consulo.dataContext.DataContext;
+import consulo.git.localize.GitLocalize;
 import consulo.project.Project;
 import consulo.ui.ex.action.ActionManager;
 import consulo.ui.ex.action.AnAction;
@@ -24,13 +25,10 @@ import consulo.ui.ex.action.AnSeparator;
 import consulo.versionControlSystem.AbstractVcs;
 import consulo.versionControlSystem.action.VcsQuickListContentProvider;
 import git4idea.GitVcs;
-import git4idea.i18n.GitBundle;
 import jakarta.annotation.Nonnull;
-
 import jakarta.annotation.Nullable;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -38,12 +36,13 @@ import java.util.List;
  */
 @ExtensionImpl
 public class GitQuickListContentProvider implements VcsQuickListContentProvider {
+    @Override
     public List<AnAction> getVcsActions(
         @Nullable Project project,
         @Nullable AbstractVcs activeVcs,
         @Nullable DataContext dataContext
     ) {
-        if (activeVcs == null || !GitVcs.NAME.equals(activeVcs.getName())) {
+        if (activeVcs == null || !GitVcs.NAME.equals(activeVcs.getId())) {
             return null;
         }
 
@@ -73,23 +72,21 @@ public class GitQuickListContentProvider implements VcsQuickListContentProvider 
         addSeparator(actions);
         final AnAction githubRebase = manager.getAction("Github.Rebase");
         if (githubRebase != null) {
-            actions.add(new AnSeparator(GitBundle.message("vcs.popup.git.github.section")));
+            actions.add(new AnSeparator(GitLocalize.vcsPopupGitGithubSection().get()));
             actions.add(githubRebase);
         }
 
         return actions;
     }
 
+    @Override
     public List<AnAction> getNotInVcsActions(@Nullable Project project, @Nullable DataContext dataContext) {
-        final AnAction action = ActionManager.getInstance().getAction("Git.Init");
-        return Collections.singletonList(action);
+        return List.of(ActionManager.getInstance().getAction("Git.Init"));
     }
 
+    @Override
     public boolean replaceVcsActionsFor(@Nonnull AbstractVcs activeVcs, @Nullable DataContext dataContext) {
-        if (!GitVcs.NAME.equals(activeVcs.getName())) {
-            return false;
-        }
-        return true;
+        return GitVcs.NAME.equals(activeVcs.getId());
     }
 
     private static void addSeparator(@Nonnull final List<AnAction> actions) {

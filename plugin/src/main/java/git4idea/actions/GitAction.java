@@ -15,11 +15,11 @@
  */
 package git4idea.actions;
 
-import consulo.language.editor.CommonDataKeys;
+import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.action.DumbAwareAction;
 import consulo.ui.ex.action.Presentation;
-import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 
 /**
@@ -29,9 +29,10 @@ import jakarta.annotation.Nonnull;
  */
 public abstract class GitAction extends DumbAwareAction {
     @Override
+    @RequiredUIAccess
     public void update(@Nonnull AnActionEvent e) {
         Presentation presentation = e.getPresentation();
-        Project project = e.getData(CommonDataKeys.PROJECT);
+        Project project = e.getData(Project.KEY);
         if (project == null || project.isDisposed()) {
             presentation.setEnabled(false);
             presentation.setVisible(false);
@@ -50,5 +51,4 @@ public abstract class GitAction extends DumbAwareAction {
     protected boolean isEnabled(@Nonnull AnActionEvent event) {
         return true;
     }
-
 }

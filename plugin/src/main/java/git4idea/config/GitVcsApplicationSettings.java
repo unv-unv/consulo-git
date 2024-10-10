@@ -20,6 +20,7 @@ import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
 import consulo.component.persist.*;
 import consulo.ide.ServiceManager;
+import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 import jakarta.inject.Singleton;
 
@@ -64,6 +65,7 @@ public class GitVcsApplicationSettings implements PersistentStateComponent<GitVc
         return myState;
     }
 
+    @Override
     public void loadState(State state) {
         myState = state;
     }

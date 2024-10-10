@@ -15,12 +15,13 @@
  */
 package git4idea.actions;
 
-import consulo.application.ApplicationManager;
+import consulo.application.Application;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.Task;
 import consulo.document.FileDocumentManager;
-import consulo.language.editor.CommonDataKeys;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.ActionPlaces;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.action.DumbAwareAction;
@@ -34,7 +35,6 @@ import consulo.virtualFileSystem.util.VirtualFileUtil;
 import consulo.virtualFileSystem.util.VirtualFileVisitor;
 import git4idea.GitVcs;
 import git4idea.util.GitUIUtil;
-
 import jakarta.annotation.Nonnull;
 
 import java.util.ArrayList;
@@ -52,14 +52,11 @@ public abstract class BasicAction extends DumbAwareAction {
      * {@inheritDoc}
      */
     @Override
+    @RequiredUIAccess
     public void actionPerformed(@Nonnull AnActionEvent event) {
-        final Project project = event.getData(CommonDataKeys.PROJECT);
-        ApplicationManager.getApplication().runWriteAction(new Runnable() {
-            public void run() {
-                FileDocumentManager.getInstance().saveAllDocuments();
-            }
-        });
-        final VirtualFile[] vFiles = event.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY);
+        final Project project = event.getData(Project.KEY);
+        Application.get().runWriteAction(() -> FileDocumentManager.getInstance().saveAllDocuments());
+        final VirtualFile[] vFiles = event.getData(VirtualFile.KEY_OF_ARRAY);
         assert vFiles != null : "The action is only available when files are selected";
 
         assert project != null;
@@ -67,17 +64,18 @@ public abstract class BasicAction extends DumbAwareAction {
         if (!ProjectLevelVcsManager.getInstance(project).checkAllFilesAreUnder(vcs, vFiles)) {
             return;
         }
-        final String actionName = getActionName();
+        final LocalizeValue actionName = getActionName();
 
         final VirtualFile[] affectedFiles = collectAffectedFiles(project, vFiles);
         final List<VcsException> exceptions = new ArrayList<>();
         final boolean background = perform(project, vcs, exceptions, affectedFiles);
         if (!background) {
-            GitVcs.runInBackground(new Task.Backgroundable(project, getActionName()) {
+            GitVcs.runInBackground(new Task.Backgroundable(project, actionName.get()) {
+                @Override
                 public void run(@Nonnull ProgressIndicator indicator) {
                     VirtualFileUtil.markDirtyAndRefresh(false, true, false, affectedFiles);
                     VcsFileUtil.markFilesDirty(project, Arrays.asList(affectedFiles));
-                    UIUtil.invokeLaterIfNeeded(() -> GitUIUtil.showOperationErrors(project, exceptions, actionName));
+                    UIUtil.invokeLaterIfNeeded(() -> GitUIUtil.showOperationErrors(project, exceptions, actionName.get()));
                 }
             });
         }
@@ -150,7 +148,7 @@ public abstract class BasicAction extends DumbAwareAction {
      * @return the name of action (it is used in a number of ui elements)
      */
     @Nonnull
-    protected abstract String getActionName();
+    protected abstract LocalizeValue getActionName();
 
     /**
      * @return true if the action could be applied recursively
@@ -167,10 +165,7 @@ public abstract class BasicAction extends DumbAwareAction {
      * @param file    the file to check
      * @return true if the action is applicable to the virtual file
      */
-    @SuppressWarnings({
-        "MethodMayBeStatic",
-        "UnusedDeclaration"
-    })
+    @SuppressWarnings({"MethodMayBeStatic", "UnusedDeclaration"})
     protected boolean appliesTo(@Nonnull Project project, @Nonnull VirtualFile file) {
         return !file.isDirectory();
     }
@@ -181,17 +176,18 @@ public abstract class BasicAction extends DumbAwareAction {
      * @param e The update event
      */
     @Override
+    @RequiredUIAccess
     public void update(@Nonnull AnActionEvent e) {
         super.update(e);
         Presentation presentation = e.getPresentation();
-        Project project = e.getData(CommonDataKeys.PROJECT);
+        Project project = e.getData(Project.KEY);
         if (project == null) {
             presentation.setEnabled(false);
             presentation.setVisible(false);
             return;
         }
 
-        VirtualFile[] vFiles = e.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY);
+        VirtualFile[] vFiles = e.getData(VirtualFile.KEY_OF_ARRAY);
         if (vFiles == null || vFiles.length == 0) {
             presentation.setEnabled(false);
             presentation.setVisible(true);
@@ -223,11 +219,8 @@ public abstract class BasicAction extends DumbAwareAction {
     /**
      * Save all files in the application (the operation creates write action)
      */
+    @RequiredUIAccess
     public static void saveAll() {
-        ApplicationManager.getApplication().runWriteAction(new Runnable() {
-            public void run() {
-                FileDocumentManager.getInstance().saveAllDocuments();
-            }
-        });
+        Application.get().runWriteAction(() -> FileDocumentManager.getInstance().saveAllDocuments());
     }
 }

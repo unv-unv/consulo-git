@@ -150,10 +150,12 @@ public class GitVcsSettings implements PersistentStateComponent<GitVcsSettings.S
         return ArrayUtil.toStringArray(myState.PREVIOUS_COMMIT_AUTHORS);
     }
 
+    @Override
     public State getState() {
         return myState;
     }
 
+    @Override
     public void loadState(State state) {
         myState = state;
     }
@@ -184,10 +186,12 @@ public class GitVcsSettings implements PersistentStateComponent<GitVcsSettings.S
     }
 
     @Nonnull
+    @Override
     public Value getSyncSetting() {
         return myState.ROOT_SYNC;
     }
 
+    @Override
     public void setSyncSetting(@Nonnull Value syncSetting) {
         myState.ROOT_SYNC = syncSetting;
     }

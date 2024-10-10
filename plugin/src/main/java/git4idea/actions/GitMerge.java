@@ -15,9 +15,12 @@
  */
 package git4idea.actions;
 
+import consulo.git.localize.GitLocalize;
 import consulo.localHistory.Label;
 import consulo.localHistory.LocalHistory;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.versionControlSystem.VcsException;
 import consulo.versionControlSystem.update.ActionInfo;
 import consulo.virtualFileSystem.VirtualFile;
@@ -26,14 +29,11 @@ import git4idea.GitUtil;
 import git4idea.GitVcs;
 import git4idea.commands.GitHandlerUtil;
 import git4idea.commands.GitLineHandler;
-import git4idea.i18n.GitBundle;
 import git4idea.merge.GitMergeDialog;
 import git4idea.merge.GitMergeUtil;
 import git4idea.repo.GitRepositoryManager;
-
 import jakarta.annotation.Nonnull;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -46,13 +46,15 @@ public class GitMerge extends GitRepositoryAction {
      */
     @Override
     @Nonnull
-    protected String getActionName() {
-        return GitBundle.message("merge.action.name");
+    protected LocalizeValue getActionName() {
+        return GitLocalize.mergeActionName();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
+    @RequiredUIAccess
     protected void perform(
         @Nonnull final Project project,
         @Nonnull final List<VirtualFile> gitRoots,
@@ -70,7 +72,7 @@ public class GitMerge extends GitRepositoryAction {
         }
         catch (VcsException e) {
             if (vcs.getExecutableValidator().checkExecutableAndShowMessageIfNeeded(null)) {
-                vcs.showErrors(Collections.singletonList(e), GitBundle.message("merge.retrieving.branches"));
+                vcs.showErrors(List.of(e), GitLocalize.mergeRetrievingBranches());
             }
             return;
         }
@@ -79,19 +81,19 @@ public class GitMerge extends GitRepositoryAction {
             return;
         }
         Label beforeLabel = LocalHistory.getInstance().putSystemLabel(project, "Before update");
-        GitLineHandler h = dialog.handler();
+        GitLineHandler lineHandler = dialog.handler();
         final VirtualFile root = dialog.getSelectedRoot();
         affectedRoots.add(root);
         GitRevisionNumber currentRev = GitRevisionNumber.resolve(project, root, "HEAD");
         try {
             GitHandlerUtil.doSynchronously(
-                h,
-                GitBundle.message("merging.title", dialog.getSelectedRoot().getPath()),
-                h.printableCommandLine()
+                lineHandler,
+                GitLocalize.mergingTitle(dialog.getSelectedRoot().getPath()),
+                lineHandler.printableCommandLine()
             );
         }
         finally {
-            exceptions.addAll(h.errors());
+            exceptions.addAll(lineHandler.errors());
             GitRepositoryManager manager = GitUtil.getRepositoryManager(project);
             manager.updateRepository(root);
         }

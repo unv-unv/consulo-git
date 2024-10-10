@@ -18,7 +18,7 @@ package git4idea;
 import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
-import consulo.application.ApplicationManager;
+import consulo.application.Application;
 import consulo.application.progress.Task;
 import consulo.configurable.Configurable;
 import consulo.disposer.Disposer;
@@ -347,6 +347,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList> {
     }
 
     @Nullable
+    @Override
     public ChangeProvider getChangeProvider() {
         return myChangeProvider;
     }
@@ -357,22 +358,17 @@ public class GitVcs extends AbstractVcs<CommittedChangeList> {
      * @param list   a list of errors
      * @param action an action
      */
-    public void showErrors(@Nonnull List<VcsException> list, @Nonnull String action) {
+    public void showErrors(@Nonnull List<VcsException> list, @Nonnull LocalizeValue action) {
         if (list.size() > 0) {
             StringBuilder buffer = new StringBuilder();
             buffer.append("\n");
-            buffer.append(GitBundle.message("error.list.title", action));
+            buffer.append(GitLocalize.errorListTitle(action));
             for (final VcsException exception : list) {
                 buffer.append("\n");
                 buffer.append(exception.getMessage());
             }
             final String msg = buffer.toString();
-            UIUtil.invokeLaterIfNeeded(new Runnable() {
-                @Override
-                public void run() {
-                    Messages.showErrorDialog(myProject, msg, GitBundle.message("error.dialog.title"));
-                }
-            });
+            UIUtil.invokeLaterIfNeeded(() -> Messages.showErrorDialog(myProject, msg, GitLocalize.errorDialogTitle().get()));
         }
     }
 
@@ -384,6 +380,16 @@ public class GitVcs extends AbstractVcs<CommittedChangeList> {
             return;
         }
         showMessage(message, ConsoleViewContentType.NORMAL_OUTPUT);
+    }
+
+    /**
+     * Show message in the Version Control Console
+     *
+     * @param message     a message to show
+     * @param contentType a style to use
+     */
+    private void showMessage(@Nonnull LocalizeValue message, @Nonnull ConsoleViewContentType contentType) {
+        GitVcsConsoleWriter.getInstance(myProject).showMessage(message.get(), contentType);
     }
 
     /**
@@ -435,11 +441,11 @@ public class GitVcs extends AbstractVcs<CommittedChangeList> {
         catch (Exception e) {
             if (getExecutableValidator().checkExecutableAndNotifyIfNeeded()) { // check executable before notifying error
                 final String reason = (e.getCause() != null ? e.getCause() : e).getMessage();
-                String message = GitBundle.message("vcs.unable.to.run.git", executable, reason);
+                LocalizeValue message = GitLocalize.vcsUnableToRunGit(executable, reason);
                 if (!myProject.isDefault()) {
-                    showMessage(message, ConsoleViewContentType.SYSTEM_OUTPUT);
+                    showMessage(message.get(), ConsoleViewContentType.SYSTEM_OUTPUT);
                 }
-                VcsBalloonProblemNotifier.showOverVersionControlView(myProject, message, NotificationType.ERROR);
+                VcsBalloonProblemNotifier.showOverVersionControlView(myProject, message.get(), NotificationType.ERROR);
             }
         }
     }
@@ -539,7 +545,9 @@ public class GitVcs extends AbstractVcs<CommittedChangeList> {
 
     @Override
     public List<CommitExecutor> getCommitExecutors() {
-        return myCommitAndPushExecutor != null ? Collections.<CommitExecutor>singletonList(myCommitAndPushExecutor) : Collections.<CommitExecutor>emptyList();
+        return myCommitAndPushExecutor != null
+            ? Collections.<CommitExecutor>singletonList(myCommitAndPushExecutor)
+            : Collections.<CommitExecutor>emptyList();
     }
 
     @Nonnull
@@ -555,11 +563,9 @@ public class GitVcs extends AbstractVcs<CommittedChangeList> {
     @Override
     @RequiredUIAccess
     public void enableIntegration() {
-        ApplicationManager.getApplication().executeOnPooledThread(new Runnable() {
-            public void run() {
-                Collection<VcsRoot> roots = ServiceManager.getService(myProject, VcsRootDetector.class).detect();
-                new GitIntegrationEnabler(GitVcs.this, myGit).enable(roots);
-            }
+        Application.get().executeOnPooledThread((Runnable)() -> {
+            Collection<VcsRoot> roots = ServiceManager.getService(myProject, VcsRootDetector.class).detect();
+            new GitIntegrationEnabler(GitVcs.this, myGit).enable(roots);
         });
     }
 

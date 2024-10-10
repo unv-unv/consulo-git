@@ -18,8 +18,10 @@ package git4idea.checkout;
 import consulo.container.boot.ContainerPathManager;
 import consulo.fileChooser.FileChooserDescriptor;
 import consulo.fileChooser.FileChooserDescriptorFactory;
+import consulo.git.localize.GitLocalize;
 import consulo.language.editor.ui.awt.EditorComboBox;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.*;
 import consulo.ui.ex.awt.event.DocumentAdapter;
 import consulo.util.collection.ArrayUtil;
@@ -31,9 +33,7 @@ import git4idea.commands.GitLineHandlerPasswordRequestAware;
 import git4idea.commands.GitTask;
 import git4idea.commands.GitTaskResult;
 import git4idea.config.GitVcsApplicationSettings;
-import git4idea.i18n.GitBundle;
 import git4idea.remote.GitRememberedInputs;
-import org.jetbrains.annotations.NonNls;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -56,10 +56,10 @@ public class GitCloneDialog extends DialogWrapper {
 
     static {
         // TODO make real URL pattern
-        @NonNls final String ch = "[\\p{ASCII}&&[\\p{Graph}]&&[^@:/]]";
-        @NonNls final String host = ch + "+(?:\\." + ch + "+)*";
-        @NonNls final String path = "/?" + ch + "+(?:/" + ch + "+)*/?";
-        @NonNls final String all = "(?:" + ch + "+@)?" + host + ":" + path;
+        final String ch = "[\\p{ASCII}&&[\\p{Graph}]&&[^@:/]]";
+        final String host = ch + "+(?:\\." + ch + "+)*";
+        final String path = "/?" + ch + "+(?:/" + ch + "+)*/?";
+        final String all = "(?:" + ch + "+@)?" + host + ":" + path;
         SSH_URL_PATTERN = Pattern.compile(all);
     }
 
@@ -79,8 +79,8 @@ public class GitCloneDialog extends DialogWrapper {
     public GitCloneDialog(Project project) {
         super(project, true);
         myProject = project;
-        setTitle(GitBundle.message("clone.title"));
-        setOKButtonText(GitBundle.message("clone.button"));
+        setTitle(GitLocalize.cloneTitle());
+        setOKButtonText(GitLocalize.cloneButton().get());
 
         myPuttyKeyChooser.setVisible(GitVcsApplicationSettings.getInstance()
             .getSshExecutableType() == GitVcsApplicationSettings.SshExecutable.PUTTY);
@@ -110,7 +110,7 @@ public class GitCloneDialog extends DialogWrapper {
      */
     private void initListeners() {
         FileChooserDescriptor singleFileDescriptor = FileChooserDescriptorFactory.createSingleFileNoJarsDescriptor();
-        myPuttyKeyChooser.addActionListener(new ComponentWithBrowseButton.BrowseFolderActionListener<JTextField>(
+        myPuttyKeyChooser.addActionListener(new ComponentWithBrowseButton.BrowseFolderActionListener<>(
             singleFileDescriptor.getTitle(),
             singleFileDescriptor.getDescription(),
             myPuttyKeyChooser,
@@ -119,13 +119,13 @@ public class GitCloneDialog extends DialogWrapper {
             TextComponentAccessor.TEXT_FIELD_WHOLE_TEXT
         ));
 
-        FileChooserDescriptor fcd = FileChooserDescriptorFactory.createSingleFolderDescriptor();
-        fcd.setShowFileSystemRoots(true);
-        fcd.setTitle(GitBundle.message("clone.destination.directory.title"));
-        fcd.setDescription(GitBundle.message("clone.destination.directory.description"));
-        fcd.setHideIgnored(false);
+        FileChooserDescriptor fcd = FileChooserDescriptorFactory.createSingleFolderDescriptor()
+            .withShowFileSystemRoots(true)
+            .withTitleValue(GitLocalize.cloneDestinationDirectoryTitle())
+            .withDescriptionValue(GitLocalize.cloneDestinationDirectoryDescription())
+            .withHideIgnored(false);
 
-        myParentDirectory.addActionListener(new ComponentWithBrowseButton.BrowseFolderActionListener<JTextField>(
+        myParentDirectory.addActionListener(new ComponentWithBrowseButton.BrowseFolderActionListener<>(
             fcd.getTitle(),
             fcd.getDescription(),
             myParentDirectory,
@@ -175,8 +175,8 @@ public class GitCloneDialog extends DialogWrapper {
         if (testResult) {
             Messages.showInfoMessage(
                 myTestButton,
-                GitBundle.message("clone.test.success.message", myTestURL),
-                GitBundle.message("clone.test.connection.title")
+                GitLocalize.cloneTestSuccessMessage(myTestURL).get(),
+                GitLocalize.cloneTestConnectionTitle().get()
             );
             myTestResult = Boolean.TRUE;
         }
@@ -197,7 +197,7 @@ public class GitCloneDialog extends DialogWrapper {
         handler.setPuttyKey(getPuttyKeyFile());
         handler.setUrl(url);
         handler.addParameters(url, "master");
-        GitTask task = new GitTask(myProject, handler, GitBundle.message("clone.testing", url));
+        GitTask task = new GitTask(myProject, handler, GitLocalize.cloneTesting(url));
         GitTaskResult result = task.executeModal();
         boolean authFailed = handler.hadAuthRequest();
         return result.isOK() || authFailed;
@@ -230,12 +230,12 @@ public class GitCloneDialog extends DialogWrapper {
         }
         File file = new File(myParentDirectory.getText(), myDirectoryName.getText());
         if (file.exists()) {
-            setErrorText(GitBundle.message("clone.destination.exists.error", file));
+            setErrorText(GitLocalize.cloneDestinationExistsError(file).get());
             setOKActionEnabled(false);
             return false;
         }
         else if (!file.getParentFile().exists()) {
-            setErrorText(GitBundle.message("clone.parent.missing.error", file.getParent()));
+            setErrorText(GitLocalize.cloneParentMissingError(file.getParent()).get());
             setOKActionEnabled(false);
             return false;
         }
@@ -255,8 +255,8 @@ public class GitCloneDialog extends DialogWrapper {
             return false;
         }
         if (myTestResult != null && repository.equals(myTestURL)) {
-            if (!myTestResult.booleanValue()) {
-                setErrorText(GitBundle.message("clone.test.failed.error"));
+            if (!myTestResult) {
+                setErrorText(GitLocalize.cloneTestFailedError().get());
                 setOKActionEnabled(false);
                 return false;
             }
@@ -280,7 +280,7 @@ public class GitCloneDialog extends DialogWrapper {
             File file = new File(repository);
             if (file.exists()) {
                 if (!file.isDirectory()) {
-                    setErrorText(GitBundle.message("clone.url.is.not.directory.error"));
+                    setErrorText(GitLocalize.cloneUrlIsNotDirectoryError().get());
                     setOKActionEnabled(false);
                 }
                 return true;
@@ -289,7 +289,7 @@ public class GitCloneDialog extends DialogWrapper {
         catch (Exception fileExp) {
             // do nothing
         }
-        setErrorText(GitBundle.message("clone.invalid.url"));
+        setErrorText(GitLocalize.cloneInvalidUrl().get());
         setOKActionEnabled(false);
         return false;
     }
@@ -355,6 +355,7 @@ public class GitCloneDialog extends DialogWrapper {
         return i >= 0 ? nonSystemName.substring(i + 1) : "";
     }
 
+    @Override
     protected JComponent createCenterPanel() {
         return myRootPanel;
     }
@@ -365,6 +366,7 @@ public class GitCloneDialog extends DialogWrapper {
     }
 
     @Override
+    @RequiredUIAccess
     public JComponent getPreferredFocusedComponent() {
         return myRepositoryURL;
     }

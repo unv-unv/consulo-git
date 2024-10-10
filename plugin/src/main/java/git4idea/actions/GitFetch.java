@@ -17,12 +17,13 @@ package git4idea.actions;
 
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.Task;
+import consulo.git.localize.GitLocalize;
+import consulo.localize.LocalizeValue;
 import consulo.versionControlSystem.VcsException;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.project.Project;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
-import git4idea.i18n.GitBundle;
 import git4idea.repo.GitRepositoryManager;
 import git4idea.update.GitFetcher;
 import jakarta.annotation.Nonnull;
@@ -36,10 +37,11 @@ import java.util.Set;
 public class GitFetch extends GitRepositoryAction {
     @Override
     @Nonnull
-    protected String getActionName() {
-        return GitBundle.message("fetch.action.name");
+    protected LocalizeValue getActionName() {
+        return GitLocalize.fetchActionName();
     }
 
+    @Override
     protected void perform(
         @Nonnull final Project project,
         @Nonnull final List<VirtualFile> gitRoots,

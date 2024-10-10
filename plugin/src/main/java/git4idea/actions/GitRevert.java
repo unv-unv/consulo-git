@@ -15,9 +15,12 @@
  */
 package git4idea.actions;
 
+import consulo.git.localize.GitLocalize;
 import consulo.ide.impl.idea.openapi.vcs.changes.ui.RollbackChangesDialog;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
-import consulo.ui.ex.awt.UIUtil;
+import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.ex.action.Presentation;
 import consulo.versionControlSystem.VcsException;
 import consulo.versionControlSystem.change.Change;
 import consulo.versionControlSystem.change.ChangeListManager;
@@ -26,9 +29,7 @@ import consulo.virtualFileSystem.status.FileStatus;
 import consulo.virtualFileSystem.status.FileStatusManager;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
-import git4idea.i18n.GitBundle;
 import git4idea.repo.GitRepository;
-
 import jakarta.annotation.Nonnull;
 
 import java.util.ArrayList;
@@ -40,6 +41,7 @@ import java.util.List;
  */
 public class GitRevert extends BasicAction {
     @Override
+    @RequiredUIAccess
     public boolean perform(
         @Nonnull final Project project,
         GitVcs vcs,
@@ -66,8 +68,8 @@ public class GitRevert extends BasicAction {
 
     @Override
     @Nonnull
-    protected String getActionName() {
-        return UIUtil.removeMnemonic(GitBundle.message("revert.action.name"));
+    protected LocalizeValue getActionName() {
+        return GitLocalize.revertActionName().map(Presentation.NO_MNEMONIC);
     }
 
     @Override

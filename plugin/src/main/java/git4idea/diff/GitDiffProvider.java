@@ -18,6 +18,7 @@ package git4idea.diff;
 import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
+import consulo.git.localize.GitLocalize;
 import consulo.project.Project;
 import consulo.util.lang.Pair;
 import consulo.versionControlSystem.CommittedChangesProvider;
@@ -39,17 +40,12 @@ import git4idea.GitFileRevision;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
 import git4idea.history.GitHistoryUtils;
-import git4idea.i18n.GitBundle;
+import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
-import jakarta.annotation.Nonnull;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Git diff provider
@@ -97,6 +93,7 @@ public class GitDiffProvider implements DiffProvider {
      * {@inheritDoc}
      */
     @Nullable
+    @Override
     public VcsRevisionNumber getCurrentRevision(VirtualFile file) {
         if (file.isDirectory()) {
             return null;
@@ -127,6 +124,7 @@ public class GitDiffProvider implements DiffProvider {
      * {@inheritDoc}
      */
     @Nullable
+    @Override
     public ItemLatestState getLastRevision(VirtualFile file) {
         if (file.isDirectory()) {
             return null;
@@ -146,6 +144,7 @@ public class GitDiffProvider implements DiffProvider {
      * {@inheritDoc}
      */
     @Nullable
+    @Override
     public ContentRevision createFileContent(VcsRevisionNumber revisionNumber, VirtualFile selectedFile) {
         if (selectedFile.isDirectory()) {
             return null;
@@ -165,7 +164,7 @@ public class GitDiffProvider implements DiffProvider {
             }
         }
         catch (VcsException e) {
-            GitVcs.getInstance(myProject).showErrors(Collections.singletonList(e), GitBundle.message("diff.find.error", path));
+            GitVcs.getInstance(myProject).showErrors(List.of(e), GitLocalize.diffFindError(path));
         }
 
         try {
@@ -186,11 +185,12 @@ public class GitDiffProvider implements DiffProvider {
             }
         }
         catch (VcsException e) {
-            GitVcs.getInstance(myProject).showErrors(Collections.singletonList(e), GitBundle.message("diff.find.error", path));
+            GitVcs.getInstance(myProject).showErrors(List.of(e), GitLocalize.diffFindError(path));
         }
         return null;
     }
 
+    @Override
     public ItemLatestState getLastRevision(FilePath filePath) {
         if (filePath.isDirectory()) {
             return null;
@@ -209,6 +209,7 @@ public class GitDiffProvider implements DiffProvider {
         }
     }
 
+    @Override
     public VcsRevisionNumber getLatestCommittedRevision(VirtualFile vcsRoot) {
         // todo
         return null;

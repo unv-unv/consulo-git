@@ -15,10 +15,10 @@
  */
 package git4idea.ui.branch;
 
-
 import consulo.application.AllIcons;
 import consulo.ide.impl.idea.ui.TabbedPaneImpl;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.DialogWrapper;
 import consulo.ui.ex.awt.TabbedPaneWrapper;
 import consulo.ui.ex.awtUnsafe.TargetAWT;
@@ -96,6 +96,7 @@ public class GitCompareBranchesDialog extends DialogWrapper {
     }
 
     @Override
+    @RequiredUIAccess
     public JComponent getPreferredFocusedComponent() {
         return myLogPanel;
     }

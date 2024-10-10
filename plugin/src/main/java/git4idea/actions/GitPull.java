@@ -17,9 +17,12 @@ package git4idea.actions;
 
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.Task;
+import consulo.git.localize.GitLocalize;
 import consulo.localHistory.Label;
 import consulo.localHistory.LocalHistory;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.versionControlSystem.VcsException;
 import consulo.versionControlSystem.update.ActionInfo;
 import consulo.virtualFileSystem.VirtualFile;
@@ -30,14 +33,12 @@ import git4idea.commands.GitLineHandler;
 import git4idea.commands.GitStandardProgressAnalyzer;
 import git4idea.commands.GitTask;
 import git4idea.commands.GitTaskResultHandlerAdapter;
-import git4idea.i18n.GitBundle;
 import git4idea.merge.GitMergeUtil;
 import git4idea.merge.GitPullDialog;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import git4idea.util.GitUIUtil;
-
 import jakarta.annotation.Nonnull;
 
 import java.util.List;
@@ -49,10 +50,12 @@ import java.util.Set;
 public class GitPull extends GitRepositoryAction {
     @Override
     @Nonnull
-    protected String getActionName() {
-        return GitBundle.message("pull.action.name");
+    protected LocalizeValue getActionName() {
+        return GitLocalize.pullActionName();
     }
 
+    @Override
+    @RequiredUIAccess
     protected void perform(
         @Nonnull final Project project,
         @Nonnull final List<VirtualFile> gitRoots,
@@ -67,7 +70,7 @@ public class GitPull extends GitRepositoryAction {
         }
         final Label beforeLabel = LocalHistory.getInstance().putSystemLabel(project, "Before update");
 
-        new Task.Backgroundable(project, GitBundle.message("pulling.title", dialog.getRemote()), true) {
+        new Task.Backgroundable(project, GitLocalize.pullingTitle(dialog.getRemote()).get(), true) {
             @Override
             public void run(@Nonnull ProgressIndicator indicator) {
                 final GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager((Project)myProject);
@@ -93,7 +96,7 @@ public class GitPull extends GitRepositoryAction {
                 }
                 final GitRevisionNumber currentRev = new GitRevisionNumber(revision);
 
-                GitTask pullTask = new GitTask(project, handler, GitBundle.message("pulling.title", dialog.getRemote()));
+                GitTask pullTask = new GitTask(project, handler, GitLocalize.pullingTitle(dialog.getRemote()));
                 pullTask.setProgressIndicator(indicator);
                 pullTask.setProgressAnalyzer(new GitStandardProgressAnalyzer());
                 pullTask.execute(true, false, new GitTaskResultHandlerAdapter() {

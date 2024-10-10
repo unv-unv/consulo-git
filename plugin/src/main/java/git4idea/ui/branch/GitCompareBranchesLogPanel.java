@@ -27,13 +27,10 @@ import git4idea.repo.GitRepository;
 import git4idea.ui.GitCommitListPanel;
 import git4idea.ui.GitRepositoryComboboxListCellRenderer;
 import git4idea.util.GitCommitCompareInfo;
-
 import jakarta.annotation.Nonnull;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -122,17 +119,15 @@ class GitCompareBranchesLogPanel extends JPanel {
     }
 
     private JComponent createNorthPanel() {
-        final JComboBox repoSelector = new JComboBox(ArrayUtil.toObjectArray(myCompareInfo.getRepositories(), GitRepository.class));
+        final JComboBox<GitRepository> repoSelector =
+            new JComboBox<>(ArrayUtil.toObjectArray(myCompareInfo.getRepositories(), GitRepository.class));
         repoSelector.setRenderer(new GitRepositoryComboboxListCellRenderer(repoSelector));
         repoSelector.setSelectedItem(myInitialRepo);
 
-        repoSelector.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                GitRepository selectedRepo = (GitRepository)repoSelector.getSelectedItem();
-                myHeadToBranchListPanel.setCommits(getHeadToBranchCommits(selectedRepo));
-                myBranchToHeadListPanel.setCommits(getBranchToHeadCommits(selectedRepo));
-            }
+        repoSelector.addActionListener(e -> {
+            GitRepository selectedRepo = (GitRepository)repoSelector.getSelectedItem();
+            myHeadToBranchListPanel.setCommits(getHeadToBranchCommits(selectedRepo));
+            myBranchToHeadListPanel.setCommits(getBranchToHeadCommits(selectedRepo));
         });
 
         JPanel repoSelectorPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));

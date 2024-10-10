@@ -15,8 +15,7 @@
  */
 package git4idea.config;
 
-import consulo.application.util.SystemInfo;
-
+import consulo.platform.Platform;
 import jakarta.annotation.Nonnull;
 
 /**
@@ -104,7 +103,7 @@ public enum GitVersionSpecialty {
     DOESNT_DEFINE_HOME_ENV_VAR {
         @Override
         public boolean existsIn(@Nonnull GitVersion version) {
-            return SystemInfo.isWindows && version.isOlderOrEqual(new GitVersion(1, 7, 0, 2));
+            return Platform.current().os().isWindows() && version.isOlderOrEqual(new GitVersion(1, 7, 0, 2));
         }
     },
 
@@ -165,7 +164,7 @@ public enum GitVersionSpecialty {
     LOG_AUTHOR_FILTER_SUPPORTS_VERTICAL_BAR {
         @Override
         public boolean existsIn(@Nonnull GitVersion version) {
-            return !SystemInfo.isMac || version.isLaterOrEqual(new GitVersion(1, 8, 3, 3));
+            return !Platform.current().os().isMac() || version.isLaterOrEqual(new GitVersion(1, 8, 3, 3));
         }
     },
 
@@ -198,7 +197,7 @@ public enum GitVersionSpecialty {
         @Override
         public boolean existsIn(@Nonnull GitVersion version) {
             // before 2.8.0 git for windows expects to have LF symbol as line separator in standard input instead of CRLF
-            return SystemInfo.isWindows && !version.isLaterOrEqual(new GitVersion(2, 8, 0, 0));
+            return Platform.current().os().isWindows() && !version.isLaterOrEqual(new GitVersion(2, 8, 0, 0));
         }
     };
 

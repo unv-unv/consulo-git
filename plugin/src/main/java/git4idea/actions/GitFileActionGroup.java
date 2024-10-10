@@ -1,7 +1,7 @@
 package git4idea.actions;
 
 import consulo.application.dumb.DumbAware;
-import consulo.language.editor.CommonDataKeys;
+import consulo.codeEditor.Editor;
 import consulo.ui.ex.action.DefaultActionGroup;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.util.collection.JBIterable;
@@ -24,14 +24,14 @@ public class GitFileActionGroup extends DefaultActionGroup implements DumbAware 
 
         presentation.setTextValue(GitLocalize.groupMainmenuVcsCurrentFileText());
 
-        VirtualFile[] data = e.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY);
+        VirtualFile[] data = e.getData(VirtualFile.KEY_OF_ARRAY);
         if (data == null) {
             return;
         }
 
         List<VirtualFile> selection = JBIterable.from(Arrays.asList(data)).take(2).toList();
 
-        if (e.getData(CommonDataKeys.EDITOR) == null && !selection.isEmpty()) {
+        if (e.getData(Editor.KEY) == null && !selection.isEmpty()) {
             if (selection.get(0).isDirectory()) {
                 presentation.setTextValue(GitLocalize.actionSelectedDirectoryText(selection.size()));
             }

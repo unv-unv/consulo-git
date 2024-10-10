@@ -1,6 +1,6 @@
 /**
  * @author VISTALL
- * @since 28/01/2023
+ * @since 2023-01-28
  */
 module com.intellij.git {
     requires consulo.ide.api;
@@ -9,11 +9,11 @@ module com.intellij.git {
     requires consulo.util.nodep;
 
     requires com.google.common;
+    requires org.apache.commons.codec;
     requires trilead.ssh2;
     requires xmlrpc.client;
     requires xmlrpc.common;
     requires ws.commons.util;
-    requires org.apache.commons.codec;
 
     // TODO remove
     requires java.desktop;

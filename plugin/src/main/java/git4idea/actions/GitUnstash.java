@@ -15,11 +15,13 @@
  */
 package git4idea.actions;
 
+import consulo.git.localize.GitLocalize;
+import consulo.localize.LocalizeValue;
+import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.versionControlSystem.VcsException;
 import consulo.versionControlSystem.change.ChangeListManager;
-import consulo.project.Project;
 import consulo.virtualFileSystem.VirtualFile;
-import git4idea.i18n.GitBundle;
 import git4idea.ui.GitUnstashDialog;
 import jakarta.annotation.Nonnull;
 
@@ -34,13 +36,16 @@ public class GitUnstash extends GitRepositoryAction {
      * {@inheritDoc}
      */
     @Nonnull
-    protected String getActionName() {
-        return GitBundle.message("unstash.action.name");
+    @Override
+    protected LocalizeValue getActionName() {
+        return GitLocalize.unstashActionName();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
+    @RequiredUIAccess
     protected void perform(
         @Nonnull final Project project,
         @Nonnull final List<VirtualFile> gitRoots,

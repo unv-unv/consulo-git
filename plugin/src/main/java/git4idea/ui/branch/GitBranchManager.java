@@ -76,10 +76,8 @@ public class GitBranchManager {
         if (mySettings.isFavorite(branchType, repository, branchName)) {
             return true;
         }
-        if (mySettings.isExcludedFromFavorites(branchType, repository, branchName)) {
-            return false;
-        }
-        return myPredefinedFavoriteBranches.contains(branchType.toString(), repository, branchName);
+        return !mySettings.isExcludedFromFavorites(branchType, repository, branchName)
+            && myPredefinedFavoriteBranches.contains(branchType.toString(), repository, branchName);
     }
 
     public void setFavorite(

@@ -28,7 +28,9 @@ package git4idea.i18n;
  */
 
 import consulo.annotation.DeprecationInfo;
+import consulo.annotation.internal.MigratedExtensionsTo;
 import consulo.component.util.localize.AbstractBundle;
+import consulo.git.localize.GitLocalize;
 import org.jetbrains.annotations.PropertyKey;
 
 /**
@@ -36,6 +38,7 @@ import org.jetbrains.annotations.PropertyKey;
  */
 @Deprecated(forRemoval = true)
 @DeprecationInfo("Use GitLocalize")
+@MigratedExtensionsTo(GitLocalize.class)
 public class GitBundle extends AbstractBundle {
     private static final String BUNDLE = "git4idea.i18n.GitBundle";
     private static final GitBundle ourInstance = new GitBundle();

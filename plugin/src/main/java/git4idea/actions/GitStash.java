@@ -15,6 +15,9 @@
  */
 package git4idea.actions;
 
+import consulo.git.localize.GitLocalize;
+import consulo.localize.LocalizeValue;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.versionControlSystem.change.ChangeListManager;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.project.Project;
@@ -22,7 +25,6 @@ import consulo.versionControlSystem.VcsException;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
 import git4idea.commands.GitHandlerUtil;
 import git4idea.commands.GitLineHandler;
-import git4idea.i18n.GitBundle;
 import git4idea.ui.GitStashDialog;
 
 import jakarta.annotation.Nonnull;
@@ -37,6 +39,8 @@ public class GitStash extends GitRepositoryAction {
     /**
      * {@inheritDoc}
      */
+    @Override
+    @RequiredUIAccess
     protected void perform(
         @Nonnull final Project project,
         @Nonnull final List<VirtualFile> gitRoots,
@@ -56,7 +60,7 @@ public class GitStash extends GitRepositoryAction {
         VirtualFile root = d.getGitRoot();
         affectedRoots.add(root);
         final GitLineHandler h = d.handler();
-        GitHandlerUtil.doSynchronously(h, GitBundle.message("stashing.title"), h.printableCommandLine());
+        GitHandlerUtil.doSynchronously(h, GitLocalize.stashingTitle(), h.printableCommandLine());
         VirtualFileUtil.markDirtyAndRefresh(true, true, false, root);
     }
 
@@ -64,7 +68,8 @@ public class GitStash extends GitRepositoryAction {
      * {@inheritDoc}
      */
     @Nonnull
-    protected String getActionName() {
-        return GitBundle.message("stash.action.name");
+    @Override
+    protected LocalizeValue getActionName() {
+        return GitLocalize.stashActionName();
     }
 }

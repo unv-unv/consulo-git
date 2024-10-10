@@ -18,8 +18,8 @@ package git4idea.actions;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.ProgressManager;
 import consulo.application.progress.Task;
-import consulo.language.editor.CommonDataKeys;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.action.DumbAwareAction;
 import consulo.util.collection.ContainerUtil;
@@ -40,6 +40,7 @@ import static git4idea.GitUtil.*;
 
 abstract class GitAbstractRebaseAction extends DumbAwareAction {
     @Override
+    @RequiredUIAccess
     public void update(@Nonnull AnActionEvent e) {
         super.update(e);
         Project project = e.getData(Project.KEY);
@@ -52,8 +53,9 @@ abstract class GitAbstractRebaseAction extends DumbAwareAction {
     }
 
     @Override
+    @RequiredUIAccess
     public final void actionPerformed(AnActionEvent e) {
-        final Project project = e.getRequiredData(CommonDataKeys.PROJECT);
+        final Project project = e.getRequiredData(Project.KEY);
         ProgressManager progressManager = ProgressManager.getInstance();
         String progressTitle = getProgressTitle();
         if (getRepositoryManager(project).hasOngoingRebase()) {
@@ -93,6 +95,7 @@ abstract class GitAbstractRebaseAction extends DumbAwareAction {
     }
 
     @Nullable
+    @RequiredUIAccess
     private GitRepository chooseRepository(@Nonnull Project project, @Nonnull Collection<GitRepository> repositories) {
         GitRepository firstRepo = assertNotNull(ContainerUtil.getFirstItem(repositories));
         if (repositories.size() == 1) {

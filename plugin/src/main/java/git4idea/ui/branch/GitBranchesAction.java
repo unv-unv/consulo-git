@@ -15,8 +15,8 @@
  */
 package git4idea.ui.branch;
 
-import consulo.language.editor.CommonDataKeys;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.action.DumbAwareAction;
 import consulo.virtualFileSystem.VirtualFile;
@@ -31,9 +31,10 @@ import jakarta.annotation.Nonnull;
  */
 public class GitBranchesAction extends DumbAwareAction {
     @Override
+    @RequiredUIAccess
     public void actionPerformed(@Nonnull AnActionEvent e) {
-        Project project = e.getRequiredData(CommonDataKeys.PROJECT);
-        VirtualFile file = e.getData(CommonDataKeys.VIRTUAL_FILE);
+        Project project = e.getRequiredData(Project.KEY);
+        VirtualFile file = e.getData(VirtualFile.KEY);
         GitRepository repository = file == null
             ? GitBranchUtil.getCurrentRepository(project)
             : GitBranchUtil.getRepositoryOrGuess(project, file);
@@ -43,6 +44,7 @@ public class GitBranchesAction extends DumbAwareAction {
     }
 
     @Override
+    @RequiredUIAccess
     public void update(@Nonnull AnActionEvent e) {
         Project project = e.getData(Project.KEY);
         e.getPresentation().setEnabledAndVisible(project != null && !project.isDisposed());

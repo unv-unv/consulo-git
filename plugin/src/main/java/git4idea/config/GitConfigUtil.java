@@ -19,12 +19,11 @@ import consulo.project.Project;
 import consulo.util.io.CharsetToolkit;
 import consulo.util.lang.Couple;
 import consulo.util.lang.Pair;
+import consulo.util.lang.StringUtil;
 import consulo.versionControlSystem.VcsException;
 import consulo.virtualFileSystem.VirtualFile;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitSimpleHandler;
-import org.jetbrains.annotations.NonNls;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
@@ -103,7 +102,7 @@ public class GitConfigUtil {
      * @return list of pairs ({@link Pair#first} is the key, {@link Pair#second} is the value)
      * @throws VcsException an exception
      */
-    public static List<Couple<String>> getAllValues(Project project, VirtualFile root, @NonNls String key) throws VcsException {
+    public static List<Couple<String>> getAllValues(Project project, VirtualFile root, String key) throws VcsException {
         List<Couple<String>> result = new ArrayList<>();
         GitSimpleHandler h = new GitSimpleHandler(project, root, GitCommand.CONFIG);
         h.setSilent(true);
@@ -130,7 +129,7 @@ public class GitConfigUtil {
      * @throws VcsException an exception
      */
     @Nullable
-    public static String getValue(Project project, VirtualFile root, @NonNls String key) throws VcsException {
+    public static String getValue(Project project, VirtualFile root, String key) throws VcsException {
         GitSimpleHandler h = new GitSimpleHandler(project, root, GitCommand.CONFIG);
         h.setSilent(true);
         h.ignoreErrorCode(1);
@@ -154,7 +153,7 @@ public class GitConfigUtil {
      */
     @SuppressWarnings({"HardCodedStringLiteral"})
     @Nullable
-    public static Boolean getBoolValue(final Project project, final VirtualFile root, @NonNls final String key) throws VcsException {
+    public static Boolean getBoolValue(final Project project, final VirtualFile root, final String key) throws VcsException {
         String value = getValue(project, root, key);
         if (value == null) {
             return null;
@@ -186,17 +185,14 @@ public class GitConfigUtil {
      * @return the commit encoding or UTF-8 if the encoding is note explicitly specified
      */
     public static String getCommitEncoding(final Project project, VirtualFile root) {
-        @NonNls String encoding = null;
+        String encoding = null;
         try {
             encoding = getValue(project, root, "i18n.commitencoding");
         }
         catch (VcsException e) {
             // ignore exception
         }
-        if (encoding == null || encoding.length() == 0) {
-            encoding = CharsetToolkit.UTF8;
-        }
-        return encoding;
+        return StringUtil.isEmpty(encoding) ? CharsetToolkit.UTF8 : encoding;
     }
 
     /**
@@ -207,17 +203,14 @@ public class GitConfigUtil {
      * @return the log output encoding, the commit encoding, or UTF-8 if the encoding is note explicitly specified
      */
     public static String getLogEncoding(final Project project, VirtualFile root) {
-        @NonNls String encoding = null;
+        String encoding = null;
         try {
             encoding = getValue(project, root, "i18n.logoutputencoding");
         }
         catch (VcsException e) {
             // ignore exception
         }
-        if (encoding == null || encoding.length() == 0) {
-            encoding = getCommitEncoding(project, root);
-        }
-        return encoding;
+        return StringUtil.isEmpty(encoding) ? getCommitEncoding(project, root) : encoding;
     }
 
     /**

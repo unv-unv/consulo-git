@@ -43,6 +43,7 @@ public class GitTreeDiffProvider implements TreeDiffProvider {
         myProject = project;
     }
 
+    @Override
     public Collection<String> getRemotelyChanged(final VirtualFile vcsRoot, final Collection<String> paths) {
         try {
             final GitBranchesSearcher searcher = new GitBranchesSearcher(myProject, vcsRoot, true);

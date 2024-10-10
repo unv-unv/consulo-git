@@ -19,6 +19,8 @@ import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.ProgressManager;
 import consulo.application.progress.Task;
 import consulo.application.util.SystemInfo;
+import consulo.git.localize.GitLocalize;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.project.ui.util.AppUIUtil;
 import consulo.util.collection.ContainerUtil;
@@ -59,12 +61,12 @@ public class GitVFSListener extends VcsVFSListener {
 
     @Override
     protected String getAddTitle() {
-        return GitBundle.message("vfs.listener.add.title");
+        return GitLocalize.vfsListenerAddTitle().get();
     }
 
     @Override
     protected String getSingleFileAddTitle() {
-        return GitBundle.message("vfs.listener.add.single.title");
+        return GitLocalize.vfsListenerAddSingleTitle().get();
     }
 
     @Override
@@ -73,7 +75,7 @@ public class GitVFSListener extends VcsVFSListener {
     }
 
     @Override
-    protected void executeAdd(final List<VirtualFile> addedFiles, final Map<VirtualFile, VirtualFile> copiedFiles) {
+    protected void executeAdd(@Nonnull final List<VirtualFile> addedFiles, @Nonnull final Map<VirtualFile, VirtualFile> copiedFiles) {
         // Filter added files before further processing
         Map<VirtualFile, List<VirtualFile>> sortedFiles;
         try {
@@ -84,11 +86,7 @@ public class GitVFSListener extends VcsVFSListener {
         }
         final HashSet<VirtualFile> retainedFiles = new HashSet<>();
         final ProgressManager progressManager = ProgressManager.getInstance();
-        progressManager.run(new Task.Backgroundable(
-            myProject,
-            GitBundle.message("vfs.listener.checking.ignored"),
-            true
-        ) {
+        progressManager.run(new Task.Backgroundable(myProject, GitLocalize.vfsListenerCheckingIgnored().get(), true) {
             @Override
             public void run(@Nonnull ProgressIndicator pi) {
                 for (Map.Entry<VirtualFile, List<VirtualFile>> e : sortedFiles.entrySet()) {
@@ -130,7 +128,7 @@ public class GitVFSListener extends VcsVFSListener {
     }
 
     private void performAdding(Collection<FilePath> filesToAdd) {
-        performBackgroundOperation(filesToAdd, GitBundle.message("add.adding"), new LongOperationPerRootExecutor() {
+        performBackgroundOperation(filesToAdd, GitLocalize.addAdding(), new LongOperationPerRootExecutor() {
             @Override
             public void execute(@Nonnull VirtualFile root, @Nonnull List<FilePath> files) throws VcsException {
                 LOG.debug("Git: adding files: " + files);
@@ -147,12 +145,12 @@ public class GitVFSListener extends VcsVFSListener {
 
     @Override
     protected String getDeleteTitle() {
-        return GitBundle.message("vfs.listener.delete.title");
+        return GitLocalize.vfsListenerDeleteTitle().get();
     }
 
     @Override
     protected String getSingleFileDeleteTitle() {
-        return GitBundle.message("vfs.listener.delete.single.title");
+        return GitLocalize.vfsListenerDeleteSingleTitle().get();
     }
 
     @Override
@@ -162,7 +160,7 @@ public class GitVFSListener extends VcsVFSListener {
 
     @Override
     protected void performDeletion(final List<FilePath> filesToDelete) {
-        performBackgroundOperation(filesToDelete, GitBundle.message("remove.removing"), new LongOperationPerRootExecutor() {
+        performBackgroundOperation(filesToDelete, GitLocalize.removeRemoving(), new LongOperationPerRootExecutor() {
             HashSet<File> filesToRefresh = new HashSet<>();
 
             @Override
@@ -210,24 +208,28 @@ public class GitVFSListener extends VcsVFSListener {
     private void performForceMove(@Nonnull List<MovedFileInfo> files) {
         Map<FilePath, MovedFileInfo> filesToMove = map2Map(files, (info) -> Pair.create(VcsUtil.getFilePath(info.myNewPath), info));
         Set<File> toRefresh = new HashSet<>();
-        performBackgroundOperation(filesToMove.keySet(), "Moving Files...", new LongOperationPerRootExecutor() {
-            @Override
-            public void execute(@Nonnull VirtualFile root, @Nonnull List<FilePath> files) throws VcsException {
-                for (FilePath file : files) {
-                    GitHandler h = new GitSimpleHandler(myProject, root, GitCommand.MV);
-                    MovedFileInfo info = filesToMove.get(file);
-                    h.addParameters("-f", info.myOldPath, info.myNewPath);
-                    h.runInCurrentThread(null);
-                    toRefresh.add(new File(info.myOldPath));
-                    toRefresh.add(new File(info.myNewPath));
+        performBackgroundOperation(
+            filesToMove.keySet(),
+            LocalizeValue.localizeTODO("Moving Files..."),
+            new LongOperationPerRootExecutor() {
+                @Override
+                public void execute(@Nonnull VirtualFile root, @Nonnull List<FilePath> files) throws VcsException {
+                    for (FilePath file : files) {
+                        GitHandler h = new GitSimpleHandler(myProject, root, GitCommand.MV);
+                        MovedFileInfo info = filesToMove.get(file);
+                        h.addParameters("-f", info.myOldPath, info.myNewPath);
+                        h.runInCurrentThread(null);
+                        toRefresh.add(new File(info.myOldPath));
+                        toRefresh.add(new File(info.myNewPath));
+                    }
+                }
+
+                @Override
+                public Collection<File> getFilesToRefresh() {
+                    return toRefresh;
                 }
             }
-
-            @Override
-            public Collection<File> getFilesToRefresh() {
-                return toRefresh;
-            }
-        });
+        );
     }
 
     @Override
@@ -249,7 +251,7 @@ public class GitVFSListener extends VcsVFSListener {
 
     private void performBackgroundOperation(
         @Nonnull Collection<FilePath> files,
-        @Nonnull String operationTitle,
+        @Nonnull LocalizeValue operationTitle,
         @Nonnull LongOperationPerRootExecutor executor
     ) {
         Map<VirtualFile, List<FilePath>> sortedFiles;
@@ -261,7 +263,7 @@ public class GitVFSListener extends VcsVFSListener {
             return;
         }
 
-        GitVcs.runInBackground(new Task.Backgroundable(myProject, operationTitle) {
+        GitVcs.runInBackground(new Task.Backgroundable(myProject, operationTitle.get()) {
             @Override
             public void run(@Nonnull ProgressIndicator indicator) {
                 for (Map.Entry<VirtualFile, List<FilePath>> e : sortedFiles.entrySet()) {

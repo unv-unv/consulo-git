@@ -20,13 +20,15 @@ import consulo.application.progress.Task;
 import consulo.fileChooser.FileChooserDescriptor;
 import consulo.fileChooser.FileChooserDescriptorFactory;
 import consulo.fileChooser.IdeaFileChooser;
+import consulo.git.localize.GitLocalize;
 import consulo.ide.ServiceManager;
-import consulo.language.editor.CommonDataKeys;
 import consulo.project.Project;
 import consulo.project.ProjectManager;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.action.DumbAwareAction;
 import consulo.ui.ex.awt.Messages;
+import consulo.ui.ex.awt.UIUtil;
 import consulo.util.lang.StringUtil;
 import consulo.versionControlSystem.ProjectLevelVcsManager;
 import consulo.versionControlSystem.VcsNotifier;
@@ -38,45 +40,44 @@ import git4idea.GitUtil;
 import git4idea.GitVcs;
 import git4idea.commands.Git;
 import git4idea.commands.GitCommandResult;
-import git4idea.i18n.GitBundle;
-
 import jakarta.annotation.Nonnull;
-
-import java.util.function.Consumer;
 
 /**
  * Initialize git repository action
  */
 public class GitInit extends DumbAwareAction {
     @Override
+    @RequiredUIAccess
     public void actionPerformed(final AnActionEvent e) {
-        Project project = e.getData(CommonDataKeys.PROJECT);
+        Project project = e.getData(Project.KEY);
         if (project == null) {
             project = ProjectManager.getInstance().getDefaultProject();
         }
-        FileChooserDescriptor fcd = FileChooserDescriptorFactory.createSingleFolderDescriptor();
-        fcd.setShowFileSystemRoots(true);
-        fcd.setTitle(GitBundle.message("init.destination.directory.title"));
-        fcd.setDescription(GitBundle.message("init.destination.directory.description"));
-        fcd.setHideIgnored(false);
-        VirtualFile baseDir = e.getData(CommonDataKeys.VIRTUAL_FILE);
+        FileChooserDescriptor fcd = FileChooserDescriptorFactory.createSingleFolderDescriptor()
+            .withShowFileSystemRoots(true)
+            .withTitleValue(GitLocalize.initDestinationDirectoryTitle())
+            .withDescriptionValue(GitLocalize.initDestinationDirectoryDescription())
+            .withHideIgnored(false);
+        VirtualFile baseDir = e.getData(VirtualFile.KEY);
         if (baseDir == null) {
             baseDir = project.getBaseDir();
         }
         doInit(project, fcd, baseDir, baseDir);
     }
 
+    @RequiredUIAccess
     private static void doInit(final Project project, FileChooserDescriptor fcd, VirtualFile baseDir, final VirtualFile finalBaseDir) {
         IdeaFileChooser.chooseFile(
             fcd,
             project,
             baseDir,
-            (Consumer<VirtualFile>)root -> {
+            root -> {
+                //noinspection RequiredXAction
                 if (GitUtil.isUnderGit(root) && Messages.showYesNoDialog(
                     project,
-                    GitBundle.message("init.warning.already.under.git", StringUtil.escapeXml(root.getPresentableUrl())),
-                    GitBundle.message("init.warning.title"),
-                    Messages.getWarningIcon()
+                    GitLocalize.initWarningAlreadyUnderGit(StringUtil.escapeXml(root.getPresentableUrl())).get(),
+                    GitLocalize.initWarningTitle().get(),
+                    UIUtil.getWarningIcon()
                 ) != Messages.YES) {
                     return;
                 }
@@ -94,7 +95,7 @@ public class GitInit extends DumbAwareAction {
                     return;
                 }
                 final String path = root.equals(finalBaseDir) ? "" : root.getPath();
-                GitVcs.runInBackground(new Task.Backgroundable(project, GitBundle.message("common.refreshing")) {
+                GitVcs.runInBackground(new Task.Backgroundable(project, GitLocalize.commonRefreshing().get()) {
                     @Override
                     public void run(@Nonnull ProgressIndicator indicator) {
                         refreshAndConfigureVcsMappings(project, root, path);

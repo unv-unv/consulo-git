@@ -16,8 +16,10 @@
 package git4idea.actions;
 
 import consulo.document.FileDocumentManager;
-import consulo.language.editor.CommonDataKeys;
+import consulo.git.localize.GitLocalize;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.ActionPlaces;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.action.DumbAwareAction;
@@ -34,10 +36,8 @@ import consulo.virtualFileSystem.util.VirtualFileUtil;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
 import git4idea.branch.GitBranchUtil;
-import git4idea.i18n.GitBundle;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
@@ -56,19 +56,20 @@ public abstract class GitRepositoryAction extends DumbAwareAction {
      */
     final List<TransactionRunnable> myDelayedTasks = new ArrayList<>();
 
+    @Override
+    @RequiredUIAccess
     public void actionPerformed(@Nonnull final AnActionEvent e) {
         myDelayedTasks.clear();
         FileDocumentManager.getInstance().saveAllDocuments();
-        final Project project = e.getRequiredData(CommonDataKeys.PROJECT);
+        final Project project = e.getRequiredData(Project.KEY);
         GitVcs vcs = GitVcs.getInstance(project);
         final List<VirtualFile> roots = getGitRoots(project, vcs);
         if (roots == null) {
             return;
         }
 
-        final VirtualFile defaultRoot = getDefaultRoot(project, roots, e.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY));
+        final VirtualFile defaultRoot = getDefaultRoot(project, roots, e.getData(VirtualFile.KEY_OF_ARRAY));
         final Set<VirtualFile> affectedRoots = new HashSet<>();
-        String actionName = getActionName();
 
         List<VcsException> exceptions = new ArrayList<>();
         try {
@@ -78,7 +79,7 @@ public abstract class GitRepositoryAction extends DumbAwareAction {
             exceptions.add(ex);
         }
         if (executeFinalTasksSynchronously()) {
-            runFinalTasks(project, vcs, affectedRoots, actionName, exceptions);
+            runFinalTasks(project, vcs, affectedRoots, getActionName(), exceptions);
         }
     }
 
@@ -100,7 +101,7 @@ public abstract class GitRepositoryAction extends DumbAwareAction {
         @Nonnull final Project project,
         @Nonnull final GitVcs vcs,
         @Nonnull final Set<VirtualFile> affectedRoots,
-        @Nonnull final String actionName,
+        @Nonnull final LocalizeValue actionName,
         @Nonnull final List<VcsException> exceptions
     ) {
         VirtualFileUtil.markDirty(true, false, ArrayUtil.toObjectArray(affectedRoots, VirtualFile.class));
@@ -108,32 +109,30 @@ public abstract class GitRepositoryAction extends DumbAwareAction {
             affectedRoots,
             true,
             true,
-            new Runnable() {
-                @Override
-                public void run() {
-                    VcsFileUtil.markFilesDirty(project, affectedRoots);
-                    for (TransactionRunnable task : myDelayedTasks) {
-                        task.run(exceptions);
-                    }
-                    myDelayedTasks.clear();
-                    vcs.showErrors(exceptions, actionName);
+            () -> {
+                VcsFileUtil.markFilesDirty(project, affectedRoots);
+                for (TransactionRunnable task : myDelayedTasks) {
+                    task.run(exceptions);
                 }
+                myDelayedTasks.clear();
+                vcs.showErrors(exceptions, actionName);
             }
         );
     }
 
     /**
      * Return true to indicate that the final tasks should be executed after the action invocation,
-     * false if the task is responsible to call the final tasks manually via {@link #runFinalTasks(Project, GitVcs, Set, String, List)}.
+     * false if the task is responsible to call the final tasks manually via
+     * {@link #runFinalTasks(Project, GitVcs, Set, LocalizeValue, List)}.
      */
     protected boolean executeFinalTasksSynchronously() {
         return true;
     }
 
     protected static boolean isRebasing(AnActionEvent e) {
-        final Project project = e.getData(CommonDataKeys.PROJECT);
+        final Project project = e.getData(Project.KEY);
         if (project != null) {
-            final VirtualFile[] files = e.getData(CommonDataKeys.VIRTUAL_FILE_ARRAY);
+            final VirtualFile[] files = e.getData(VirtualFile.KEY_OF_ARRAY);
             if (files != null) {
                 for (VirtualFile file : files) {
                     GitRepositoryManager manager = GitUtil.getRepositoryManager(project);
@@ -162,13 +161,14 @@ public abstract class GitRepositoryAction extends DumbAwareAction {
      * @return the list of the roots, or null
      */
     @Nullable
+    @RequiredUIAccess
     public static List<VirtualFile> getGitRoots(Project project, GitVcs vcs) {
         List<VirtualFile> roots;
         try {
             roots = GitUtil.getGitRoots(project, vcs);
         }
         catch (VcsException e) {
-            Messages.showErrorDialog(project, e.getMessage(), GitBundle.message("repository.action.missing.roots.title"));
+            Messages.showErrorDialog(project, e.getMessage(), GitLocalize.repositoryActionMissingRootsTitle().get());
             return null;
         }
         return roots;
@@ -189,7 +189,7 @@ public abstract class GitRepositoryAction extends DumbAwareAction {
      * @return the name of action
      */
     @Nonnull
-    protected abstract String getActionName();
+    protected abstract LocalizeValue getActionName();
 
     /**
      * Perform action for some repositories
@@ -210,7 +210,8 @@ public abstract class GitRepositoryAction extends DumbAwareAction {
     ) throws VcsException;
 
     @Override
-    public void update(final AnActionEvent e) {
+    @RequiredUIAccess
+    public void update(@Nonnull final AnActionEvent e) {
         super.update(e);
         boolean enabled = isEnabled(e);
         e.getPresentation().setEnabled(enabled);
@@ -223,15 +224,12 @@ public abstract class GitRepositoryAction extends DumbAwareAction {
     }
 
     protected boolean isEnabled(AnActionEvent e) {
-        Project project = e.getData(CommonDataKeys.PROJECT);
+        Project project = e.getData(Project.KEY);
         if (project == null) {
             return false;
         }
         GitVcs vcs = GitVcs.getInstance(project);
         final VirtualFile[] roots = ProjectLevelVcsManager.getInstance(project).getRootsUnderVcs(vcs);
-        if (roots == null || roots.length == 0) {
-            return false;
-        }
-        return true;
+        return roots != null && roots.length != 0;
     }
 }

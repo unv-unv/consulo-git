@@ -18,6 +18,7 @@ package git4idea.rebase;
 import consulo.application.AccessToken;
 import consulo.application.progress.ProgressIndicator;
 import consulo.component.ProcessCanceledException;
+import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.project.Project;
 import consulo.versionControlSystem.ProjectLevelVcsManager;
@@ -118,7 +119,7 @@ public class GitRebaser {
     final GitLineHandler rh = new GitLineHandler(myProject, root, GitCommand.REBASE);
     rh.setStdoutSuppressed(false);
     rh.addParameters("--abort");
-    GitTask task = new GitTask(myProject, rh, "Aborting rebase");
+    GitTask task = new GitTask(myProject, rh, LocalizeValue.localizeTODO("Aborting rebase"));
     task.setProgressIndicator(myProgressIndicator);
     task.executeAsync(new GitTaskResultNotificationHandler(myProject, "Rebase aborted", "Abort rebase cancelled", "Error aborting rebase"));
   }
@@ -153,7 +154,7 @@ public class GitRebaser {
 
     makeContinueRebaseInteractiveEditor(root, rh);
 
-    final GitTask rebaseTask = new GitTask(myProject, rh, "git rebase " + startOperation);
+    final GitTask rebaseTask = new GitTask(myProject, rh, LocalizeValue.localizeTODO("git rebase " + startOperation));
     rebaseTask.setProgressAnalyzer(new GitStandardProgressAnalyzer());
     rebaseTask.setProgressIndicator(myProgressIndicator);
     return executeRebaseTaskInBackground(root, rh, rebaseConflictDetector, rebaseTask);
@@ -213,7 +214,7 @@ public class GitRebaser {
       rebaseEditorNo = pushRebaseEditor.getHandlerNo();
       rebaseEditorService.configureHandler(h, rebaseEditorNo);
 
-      final GitTask rebaseTask = new GitTask(myProject, h, "Reordering commits");
+      final GitTask rebaseTask = new GitTask(myProject, h, LocalizeValue.localizeTODO("Reordering commits"));
       rebaseTask.setProgressIndicator(myProgressIndicator);
       return executeRebaseTaskInBackground(root, h, rebaseConflictDetector, rebaseTask);
     }

@@ -15,10 +15,12 @@
  */
 package git4idea.actions;
 
+import consulo.git.localize.GitLocalize;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.Messages;
-import consulo.virtualFileSystem.VirtualFile;
 import consulo.versionControlSystem.VcsException;
+import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitUtil;
 import git4idea.commands.GitLineHandler;
 import git4idea.commands.GitTask;
@@ -42,6 +44,7 @@ public abstract class GitRebaseActionBase extends GitRepositoryAction {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected void perform(
         @Nonnull final Project project,
         @Nonnull final List<VirtualFile> gitRoots,
@@ -62,11 +65,12 @@ public abstract class GitRebaseActionBase extends GitRepositoryAction {
         affectedRoots.add(root);
 
         service.configureHandler(h, editor.getHandlerNo());
-        GitTask task = new GitTask(project, h, GitBundle.message("rebasing.title"));
+        GitTask task = new GitTask(project, h, GitLocalize.rebasingTitle());
         task.executeInBackground(
             false,
             new GitTaskResultHandlerAdapter() {
                 @Override
+                @RequiredUIAccess
                 protected void run(GitTaskResult taskResult) {
                     editor.close();
                     GitRepositoryManager manager = GitUtil.getRepositoryManager(project);
@@ -78,6 +82,7 @@ public abstract class GitRebaseActionBase extends GitRepositoryAction {
         );
     }
 
+    @RequiredUIAccess
     private static void notifyAboutErrorResult(
         GitTaskResult taskResult,
         GitRebaseLineListener resultListener,

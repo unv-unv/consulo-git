@@ -15,8 +15,10 @@
  */
 package git4idea.merge;
 
+import consulo.git.localize.GitLocalize;
 import consulo.localHistory.Label;
 import consulo.localHistory.LocalHistory;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.ui.ex.awt.ElementsChooser;
 import consulo.ui.ex.awt.UIUtil;
@@ -56,7 +58,6 @@ public class GitMergeUtil {
     private GitMergeUtil() {
     }
 
-
     /**
      * Get a list of merge strategies for the specified branch count
      *
@@ -70,10 +71,10 @@ public class GitMergeUtil {
         }
         switch (branchCount) {
             case 0:
-                return new String[]{DEFAULT_STRATEGY};
+                return new String[]{GitLocalize.mergeDefaultStrategy().get()};
             case 1:
                 return new String[]{
-                    DEFAULT_STRATEGY,
+                    GitLocalize.mergeDefaultStrategy().get(),
                     "resolve",
                     "recursive",
                     "octopus",
@@ -82,7 +83,7 @@ public class GitMergeUtil {
                 };
             default:
                 return new String[]{
-                    DEFAULT_STRATEGY,
+                    GitLocalize.mergeDefaultStrategy().get(),
                     "octopus",
                     "ours"
                 };
@@ -96,15 +97,16 @@ public class GitMergeUtil {
      * @param strategy      a strategy selector
      */
     public static void setupStrategies(final ElementsChooser<String> branchChooser, final JComboBox strategy) {
-        final ElementsChooser.ElementsMarkListener<String> listener = new ElementsChooser.ElementsMarkListener<String>() {
+        final ElementsChooser.ElementsMarkListener<String> listener = new ElementsChooser.ElementsMarkListener<>() {
             private void updateStrategies(final List<String> elements) {
                 strategy.removeAllItems();
                 for (String s : getMergeStrategies(elements.size())) {
                     strategy.addItem(s);
                 }
-                strategy.setSelectedItem(DEFAULT_STRATEGY);
+                strategy.setSelectedItem(GitLocalize.mergeDefaultStrategy().get());
             }
 
+            @Override
             public void elementMarkChanged(final String element, final boolean isMarked) {
                 final List<String> elements = branchChooser.getMarkedElements();
                 if (elements.size() == 0) {
@@ -132,14 +134,16 @@ public class GitMergeUtil {
      * @param actionName  the action name
      * @param actionInfo  the information about the action
      */
-    public static void showUpdates(GitRepositoryAction action,
-                                   final Project project,
-                                   final List<VcsException> exceptions,
-                                   final VirtualFile root,
-                                   final GitRevisionNumber currentRev,
-                                   final Label beforeLabel,
-                                   final String actionName,
-                                   final ActionInfo actionInfo) {
+    public static void showUpdates(
+        GitRepositoryAction action,
+        final Project project,
+        final List<VcsException> exceptions,
+        final VirtualFile root,
+        final GitRevisionNumber currentRev,
+        final Label beforeLabel,
+        final LocalizeValue actionName,
+        final ActionInfo actionInfo
+    ) {
         final UpdatedFiles files = UpdatedFiles.create();
         MergeChangeCollector collector = new MergeChangeCollector(project, root, currentRev);
         collector.collect(files, exceptions);
@@ -149,15 +153,14 @@ public class GitMergeUtil {
         action.delayTask(exceptionList -> UIUtil.invokeLaterIfNeeded(() ->
         {
             ProjectLevelVcsManager manager = ProjectLevelVcsManager.getInstance(project);
-            UpdateInfoTree tree = manager.showUpdateProjectInfo(files, actionName, actionInfo, false);
+            UpdateInfoTree tree = manager.showUpdateProjectInfo(files, actionName.get(), actionInfo, false);
             tree.setBefore(beforeLabel);
             tree.setAfter(LocalHistory.getInstance().putSystemLabel(project, "After update"));
             ViewUpdateInfoNotification.focusUpdateInfoTree(project, tree);
         }));
         final Collection<String> unmergedNames = files.getGroupById(FileGroup.MERGED_WITH_CONFLICT_ID).getFiles();
         if (!unmergedNames.isEmpty()) {
-            action.delayTask(exceptionList ->
-            {
+            action.delayTask(exceptionList -> {
                 LocalFileSystem lfs = LocalFileSystem.getInstance();
                 final ArrayList<VirtualFile> unmerged = new ArrayList<>();
                 for (String fileName : unmergedNames) {
@@ -166,8 +169,7 @@ public class GitMergeUtil {
                         unmerged.add(f);
                     }
                 }
-                UIUtil.invokeLaterIfNeeded(() ->
-                {
+                UIUtil.invokeLaterIfNeeded(() -> {
                     GitVcs vcs = GitVcs.getInstance(project);
                     if (vcs != null) {
                         AbstractVcsHelper.getInstance(project).showMergeDialog(unmerged, vcs.getMergeProvider());

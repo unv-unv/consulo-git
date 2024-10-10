@@ -15,6 +15,7 @@
  */
 package git4idea.util;
 
+import consulo.git.localize.GitLocalize;
 import consulo.project.Project;
 import consulo.ui.ex.awt.ListCellRendererWrapper;
 import consulo.ui.ex.awt.Messages;
@@ -259,7 +260,7 @@ public class GitUIUtil {
      * @param operation the operation name
      */
     public static void showOperationError(final Project project, final String operation, final String message) {
-        Messages.showErrorDialog(project, message, GitBundle.message("error.occurred.during", operation));
+        Messages.showErrorDialog(project, message, GitLocalize.errorOccurredDuring(operation).get());
     }
 
     /**

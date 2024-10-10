@@ -15,18 +15,20 @@
  */
 package git4idea.ui.branch;
 
+import consulo.ide.ServiceManager;
 import consulo.ide.impl.idea.dvcs.ui.BranchActionGroup;
 import consulo.ide.impl.idea.dvcs.ui.LightActionGroup;
 import consulo.ide.impl.idea.dvcs.ui.NewBranchAction;
 import consulo.ide.impl.idea.dvcs.ui.PopupElementWithAdditionalInfo;
+import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.ex.action.ActionGroup;
 import consulo.ui.ex.action.AnAction;
 import consulo.ui.ex.action.AnActionEvent;
-import consulo.ide.ServiceManager;
 import consulo.ui.ex.action.DumbAwareAction;
-import consulo.project.Project;
 import consulo.ui.ex.awt.Messages;
 import consulo.util.collection.ContainerUtil;
-import consulo.ui.ex.action.ActionGroup;
+import consulo.versionControlSystem.distributed.repository.Repository;
 import git4idea.branch.GitBranchUtil;
 import git4idea.branch.GitBrancher;
 import git4idea.repo.GitRepository;
@@ -34,7 +36,6 @@ import git4idea.validators.GitNewBranchNameValidator;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
-import java.util.Collections;
 import java.util.List;
 
 import static consulo.ide.impl.idea.dvcs.ui.BranchActionGroupPopup.wrapWithMoreActionIfNeeded;
@@ -59,7 +60,7 @@ class GitBranchPopupActions {
 
     ActionGroup createActions(@Nullable LightActionGroup toInsert, @Nonnull String repoInfo, boolean firstLevelGroup) {
         LightActionGroup popupGroup = new LightActionGroup();
-        List<GitRepository> repositoryList = Collections.singletonList(myRepository);
+        List<GitRepository> repositoryList = List.of(myRepository);
 
         popupGroup.addAction(new GitNewBranchAction(myProject, repositoryList));
         popupGroup.addAction(new CheckoutRevisionActions(myProject, repositoryList));
@@ -139,7 +140,8 @@ class GitBranchPopupActions {
         }
 
         @Override
-        public void actionPerformed(AnActionEvent e) {
+        @RequiredUIAccess
+        public void actionPerformed(@Nonnull AnActionEvent e) {
             // TODO autocomplete branches, tags.
             // on type check ref validity, on OK check ref existence.
             String reference =
@@ -152,8 +154,9 @@ class GitBranchPopupActions {
         }
 
         @Override
-        public void update(AnActionEvent e) {
-            boolean isFresh = ContainerUtil.and(myRepositories, repository -> repository.isFresh());
+        @RequiredUIAccess
+        public void update(@Nonnull AnActionEvent e) {
+            boolean isFresh = ContainerUtil.and(myRepositories, Repository::isFresh);
             if (isFresh) {
                 e.getPresentation().setEnabled(false);
                 e.getPresentation().setDescription("Checkout is not possible before the first commit");
@@ -242,7 +245,8 @@ class GitBranchPopupActions {
             }
 
             @Override
-            public void actionPerformed(AnActionEvent e) {
+            @RequiredUIAccess
+            public void actionPerformed(@Nonnull AnActionEvent e) {
                 GitBrancher brancher = ServiceManager.getService(myProject, GitBrancher.class);
                 brancher.checkout(myBranchName, false, myRepositories, null);
                 reportUsage("git.branch.checkout.local");
@@ -262,7 +266,8 @@ class GitBranchPopupActions {
             }
 
             @Override
-            public void actionPerformed(AnActionEvent e) {
+            @RequiredUIAccess
+            public void actionPerformed(@Nonnull AnActionEvent e) {
                 final String name = Messages.showInputDialog(
                     myProject,
                     "New branch name:",
@@ -299,6 +304,7 @@ class GitBranchPopupActions {
             }
 
             @Override
+            @RequiredUIAccess
             public void actionPerformed(@Nonnull AnActionEvent e) {
                 String newName = Messages.showInputDialog(
                     myProject,
@@ -329,7 +335,8 @@ class GitBranchPopupActions {
             }
 
             @Override
-            public void actionPerformed(AnActionEvent e) {
+            @RequiredUIAccess
+            public void actionPerformed(@Nonnull AnActionEvent e) {
                 GitBrancher brancher = ServiceManager.getService(myProject, GitBrancher.class);
                 brancher.deleteBranch(myBranchName, myRepositories);
                 reportUsage("git.branch.delete.local");
@@ -401,7 +408,8 @@ class GitBranchPopupActions {
             }
 
             @Override
-            public void actionPerformed(AnActionEvent e) {
+            @RequiredUIAccess
+            public void actionPerformed(@Nonnull AnActionEvent e) {
                 final String name = Messages.showInputDialog(
                     myProject,
                     "New branch name:",
@@ -439,7 +447,8 @@ class GitBranchPopupActions {
             }
 
             @Override
-            public void actionPerformed(AnActionEvent e) {
+            @RequiredUIAccess
+            public void actionPerformed(@Nonnull AnActionEvent e) {
                 GitBrancher brancher = ServiceManager.getService(myProject, GitBrancher.class);
                 brancher.deleteRemoteBranch(myBranchName, myRepositories);
                 reportUsage("git.branch.delete.remote");
@@ -467,7 +476,8 @@ class GitBranchPopupActions {
         }
 
         @Override
-        public void actionPerformed(AnActionEvent e) {
+        @RequiredUIAccess
+        public void actionPerformed(@Nonnull AnActionEvent e) {
             GitBrancher brancher = ServiceManager.getService(myProject, GitBrancher.class);
             brancher.compare(myBranchName, myRepositories, mySelectedRepository);
             reportUsage("git.branch.compare");
@@ -494,7 +504,8 @@ class GitBranchPopupActions {
         }
 
         @Override
-        public void actionPerformed(AnActionEvent e) {
+        @RequiredUIAccess
+        public void actionPerformed(@Nonnull AnActionEvent e) {
             GitBrancher brancher = ServiceManager.getService(myProject, GitBrancher.class);
             brancher.merge(myBranchName, deleteOnMerge(), myRepositories);
             reportUsage("git.branch.merge");
@@ -521,7 +532,8 @@ class GitBranchPopupActions {
         }
 
         @Override
-        public void actionPerformed(AnActionEvent e) {
+        @RequiredUIAccess
+        public void actionPerformed(@Nonnull AnActionEvent e) {
             GitBrancher brancher = ServiceManager.getService(myProject, GitBrancher.class);
             brancher.rebase(myRepositories, myBranchName);
             reportUsage("git.branch.rebase");
@@ -546,7 +558,8 @@ class GitBranchPopupActions {
         }
 
         @Override
-        public void actionPerformed(AnActionEvent e) {
+        @RequiredUIAccess
+        public void actionPerformed(@Nonnull AnActionEvent e) {
             GitBrancher brancher = ServiceManager.getService(myProject, GitBrancher.class);
             brancher.rebaseOnCurrent(myRepositories, myBranchName);
             reportUsage("git.branch.checkout.with.rebase");

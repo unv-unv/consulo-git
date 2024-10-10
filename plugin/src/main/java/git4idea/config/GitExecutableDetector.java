@@ -15,8 +15,8 @@
  */
 package git4idea.config;
 
-import consulo.application.util.SystemInfo;
 import consulo.logging.Logger;
+import consulo.platform.Platform;
 import consulo.process.ExecutionException;
 import consulo.process.cmd.GeneralCommandLine;
 import consulo.process.util.CapturingProcessUtil;
@@ -24,7 +24,6 @@ import consulo.process.util.ProcessOutput;
 import consulo.util.io.CharsetToolkit;
 import consulo.util.io.FileUtil;
 import consulo.util.lang.StringUtil;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
@@ -59,7 +58,7 @@ public class GitExecutableDetector {
 
     @Nonnull
     public String detect() {
-        if (SystemInfo.isWindows) {
+        if (Platform.current().os().isWindows()) {
             return detectForWindows();
         }
         return detectForUnix();

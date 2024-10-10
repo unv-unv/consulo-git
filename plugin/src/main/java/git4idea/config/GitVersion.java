@@ -17,10 +17,10 @@ package git4idea.config;
 
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.ProgressManager;
-import consulo.application.util.SystemInfo;
 import consulo.component.ProcessCanceledException;
 import consulo.execution.ExecutableValidator;
 import consulo.logging.Logger;
+import consulo.platform.Platform;
 import consulo.process.ExecutionException;
 import consulo.process.cmd.GeneralCommandLine;
 import consulo.process.util.CapturingProcessUtil;
@@ -28,7 +28,6 @@ import consulo.process.util.ProcessOutput;
 import consulo.ui.UIAccess;
 import consulo.util.io.CharsetToolkit;
 import consulo.util.lang.StringUtil;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
@@ -79,7 +78,7 @@ public final class GitVersion implements Comparable<GitVersion> {
     private static final Pattern FORMAT =
         Pattern.compile("git version (\\d+)\\.(\\d+)(?:\\.(\\d+))?(?:\\.(\\d+))?(.*)", Pattern.CASE_INSENSITIVE);
 
-    private static final Logger LOG = Logger.getInstance(GitVersion.class.getName());
+    private static final Logger LOG = Logger.getInstance(GitVersion.class);
 
     private final int myMajor;
     private final int myMinor;
@@ -124,7 +123,7 @@ public final class GitVersion implements Comparable<GitVersion> {
         int patch = getIntGroup(m, 4);
         boolean msys = (m.groupCount() >= 5) && m.group(5) != null && m.group(5).toLowerCase().contains("msysgit");
         Type type;
-        if (SystemInfo.isWindows) {
+        if (Platform.current().os().isWindows()) {
             type = msys ? Type.MSYS : Type.CYGWIN;
         }
         else {
@@ -207,10 +206,7 @@ public final class GitVersion implements Comparable<GitVersion> {
         if (compareTo(other) != 0) {
             return false;
         }
-        if (myType == Type.UNDEFINED || other.myType == Type.UNDEFINED) {
-            return true;
-        }
-        return myType == other.myType;
+        return myType == Type.UNDEFINED || other.myType == Type.UNDEFINED || myType == other.myType;
     }
 
     /**
@@ -231,6 +227,7 @@ public final class GitVersion implements Comparable<GitVersion> {
      * <p>
      * {@link GitVersion#NULL} is less than any other not-NULL version.
      */
+    @Override
     public int compareTo(@Nonnull GitVersion o) {
         if (o.getType() == Type.NULL) {
             return (getType() == Type.NULL ? 0 : 1);

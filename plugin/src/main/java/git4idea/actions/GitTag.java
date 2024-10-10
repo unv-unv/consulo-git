@@ -15,10 +15,12 @@
  */
 package git4idea.actions;
 
+import consulo.git.localize.GitLocalize;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.versionControlSystem.VcsException;
 import consulo.virtualFileSystem.VirtualFile;
-import git4idea.i18n.GitBundle;
 import git4idea.ui.GitTagDialog;
 import jakarta.annotation.Nonnull;
 
@@ -34,13 +36,15 @@ public class GitTag extends GitRepositoryAction {
      */
     @Override
     @Nonnull
-    protected String getActionName() {
-        return GitBundle.message("tag.action.name");
+    protected LocalizeValue getActionName() {
+        return GitLocalize.tagActionName();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
+    @RequiredUIAccess
     protected void perform(
         @Nonnull final Project project,
         @Nonnull final List<VirtualFile> gitRoots,

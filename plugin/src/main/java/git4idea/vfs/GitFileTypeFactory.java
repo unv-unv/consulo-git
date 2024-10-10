@@ -35,6 +35,7 @@ public class GitFileTypeFactory extends FileTypeFactory {
         myFileNameMatcherFactory = fileNameMatcherFactory;
     }
 
+    @Override
     public void createFileTypes(@Nonnull FileTypeConsumer consumer) {
         consumer.consume(
             PlainTextFileType.INSTANCE,

@@ -18,7 +18,9 @@ package git4idea.checkout;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.Task;
+import consulo.git.localize.GitLocalize;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.versionControlSystem.VcsNotifier;
 import consulo.versionControlSystem.change.VcsDirtyScopeManager;
 import consulo.versionControlSystem.checkout.CheckoutProvider;
@@ -30,11 +32,9 @@ import git4idea.commands.Git;
 import git4idea.commands.GitCommandResult;
 import git4idea.commands.GitLineHandlerListener;
 import git4idea.commands.GitStandardProgressAnalyzer;
-import git4idea.i18n.GitBundle;
+import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
-
-import jakarta.annotation.Nonnull;
 
 import java.io.File;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -51,10 +51,13 @@ public class GitCheckoutProvider implements CheckoutProvider {
         myGit = git;
     }
 
+    @Override
     public String getVcsName() {
         return "_Git";
     }
 
+    @Override
+    @RequiredUIAccess
     public void doCheckout(@Nonnull final Project project, @Nullable final Listener listener) {
         BasicAction.saveAll();
         GitCloneDialog dialog = new GitCloneDialog(project);
@@ -89,18 +92,15 @@ public class GitCheckoutProvider implements CheckoutProvider {
         final String parentDirectory,
         final String puttyKey
     ) {
-
         final AtomicBoolean cloneResult = new AtomicBoolean();
-        new Task.Backgroundable(
-            project,
-            GitBundle.message("cloning.repository", sourceRepositoryURL)
-        ) {
+        new Task.Backgroundable(project, GitLocalize.cloningRepository(sourceRepositoryURL).get()) {
             @Override
             public void run(@Nonnull ProgressIndicator indicator) {
                 cloneResult.set(doClone(project, indicator, git, directoryName, parentDirectory, sourceRepositoryURL, puttyKey));
             }
 
             @Override
+            @RequiredUIAccess
             public void onSuccess() {
                 if (!cloneResult.get()) {
                     return;
@@ -109,12 +109,10 @@ public class GitCheckoutProvider implements CheckoutProvider {
                 destinationParent.refresh(
                     true,
                     true,
-                    new Runnable() {
-                        public void run() {
-                            if (project.isOpen() && (!project.isDisposed()) && (!project.isDefault())) {
-                                final VcsDirtyScopeManager mgr = VcsDirtyScopeManager.getInstance(project);
-                                mgr.fileDirty(destinationParent);
-                            }
+                    () -> {
+                        if (project.isOpen() && (!project.isDisposed()) && (!project.isDefault())) {
+                            final VcsDirtyScopeManager mgr = VcsDirtyScopeManager.getInstance(project);
+                            mgr.fileDirty(destinationParent);
                         }
                     }
                 );

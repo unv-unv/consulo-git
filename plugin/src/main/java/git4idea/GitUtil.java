@@ -19,6 +19,7 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.Task;
+import consulo.git.localize.GitLocalize;
 import consulo.ide.ServiceManager;
 import consulo.ide.impl.idea.openapi.vcs.vfs.AbstractVcsVirtualFile;
 import consulo.logging.Logger;
@@ -32,7 +33,6 @@ import consulo.util.interner.Interner;
 import consulo.util.io.FileUtil;
 import consulo.util.lang.ObjectUtil;
 import consulo.util.lang.StringUtil;
-import consulo.util.lang.function.Condition;
 import consulo.versionControlSystem.*;
 import consulo.versionControlSystem.change.Change;
 import consulo.versionControlSystem.change.ChangeListManager;
@@ -60,7 +60,6 @@ import git4idea.util.GitSimplePathsBrowser;
 import git4idea.util.GitUIUtil;
 import git4idea.util.StringScanner;
 import jakarta.annotation.Nonnull;
-
 import jakarta.annotation.Nullable;
 
 import java.io.File;
@@ -94,7 +93,7 @@ public class GitUtil {
 
     public static final String ORIGIN_HEAD = "origin/HEAD";
 
-    public static final Function<GitRepository, VirtualFile> REPOSITORY_TO_ROOT = repository -> repository.getRoot();
+    public static final Function<GitRepository, VirtualFile> REPOSITORY_TO_ROOT = Repository::getRoot;
 
     public static final String HEAD = "HEAD";
     public static final String CHERRY_PICK_HEAD = "CHERRY_PICK_HEAD";
@@ -473,11 +472,11 @@ public class GitUtil {
     public static List<VirtualFile> getGitRoots(Project project, GitVcs vcs) throws VcsException {
         final VirtualFile[] contentRoots = ProjectLevelVcsManager.getInstance(project).getRootsUnderVcs(vcs);
         if (contentRoots == null || contentRoots.length == 0) {
-            throw new VcsException(GitBundle.message("repository.action.missing.roots.unconfigured.message"));
+            throw new VcsException(GitLocalize.repositoryActionMissingRootsUnconfiguredMessage().get());
         }
         final List<VirtualFile> sortedRoots = DvcsUtil.sortVirtualFilesByPresentation(gitRootsForPaths(Arrays.asList(contentRoots)));
         if (sortedRoots.size() == 0) {
-            throw new VcsException(GitBundle.message("repository.action.missing.roots.misconfigured"));
+            throw new VcsException(GitLocalize.repositoryActionMissingRootsMisconfigured().get());
         }
         return sortedRoots;
     }
@@ -600,11 +599,7 @@ public class GitUtil {
     ) throws VcsException {
         final List<GitCommittedChangeList> rc = new ArrayList<>();
 
-        getLocalCommittedChanges(project, root, parametersSpecifier, new Consumer<GitCommittedChangeList>() {
-            public void accept(GitCommittedChangeList committedChangeList) {
-                rc.add(committedChangeList);
-            }
-        }, false);
+        getLocalCommittedChanges(project, root, parametersSpecifier, rc::add, false);
 
         return rc;
     }
@@ -731,15 +726,7 @@ public class GitUtil {
 
     @Nullable
     public static GitRemote findRemoteByName(Collection<GitRemote> remotes, @Nonnull final String name) {
-        return ContainerUtil.find(
-            remotes,
-            new Condition<GitRemote>() {
-                @Override
-                public boolean value(GitRemote remote) {
-                    return remote.getName().equals(name);
-                }
-            }
-        );
+        return ContainerUtil.find(remotes, remote -> remote.getName().equals(name));
     }
 
     @Nullable
@@ -750,13 +737,8 @@ public class GitUtil {
     ) {
         return ContainerUtil.find(
             repository.getBranches().getRemoteBranches(),
-            new Condition<GitRemoteBranch>() {
-                @Override
-                public boolean value(GitRemoteBranch remoteBranch) {
-                    return remoteBranch.getRemote().equals(remote)
-                        && remoteBranch.getNameForRemoteOperations().equals(GitBranchUtil.stripRefsPrefix(nameAtRemote));
-                }
-            }
+            remoteBranch -> remoteBranch.getRemote().equals(remote)
+                && remoteBranch.getNameForRemoteOperations().equals(GitBranchUtil.stripRefsPrefix(nameAtRemote))
         );
     }
 
@@ -804,10 +786,8 @@ public class GitUtil {
             return false;
         }
         AbstractVcs vcs = root.getVcs();
-        if (vcs == null) {
-            return false;
-        }
-        return GitVcs.getKey().equals(vcs.getKeyInstanceMethod());
+
+        return vcs != null && GitVcs.getKey().equals(vcs.getKeyInstanceMethod());
     }
 
     @Nonnull
@@ -898,7 +878,8 @@ public class GitUtil {
         final boolean local,
         final boolean revertable
     ) {
-        new Task.Backgroundable(project, GitBundle.message("changes.retrieving", revision)) {
+        new Task.Backgroundable(project, GitLocalize.changesRetrieving(revision).get()) {
+            @Override
             public void run(@Nonnull ProgressIndicator indicator) {
                 indicator.setIndeterminate(true);
                 try {
@@ -906,20 +887,14 @@ public class GitUtil {
                     final CommittedChangeList changeList =
                         GitChangeUtils.getRevisionChanges(project, vcsRoot, revision, true, local, revertable);
                     if (changeList != null) {
-                        UIUtil.invokeLaterIfNeeded(new Runnable() {
-                            public void run() {
-                                AbstractVcsHelper.getInstance(project)
-                                    .showChangesListBrowser(changeList, GitBundle.message("paths.affected.title", revision));
-                            }
-                        });
+                        UIUtil.invokeLaterIfNeeded(
+                            () -> AbstractVcsHelper.getInstance(project)
+                                .showChangesListBrowser(changeList, GitLocalize.pathsAffectedTitle(revision).get())
+                        );
                     }
                 }
                 catch (final VcsException e) {
-                    UIUtil.invokeLaterIfNeeded(new Runnable() {
-                        public void run() {
-                            GitUIUtil.showOperationError(project, e, "git show");
-                        }
-                    });
+                    UIUtil.invokeLaterIfNeeded(() -> GitUIUtil.showOperationError(project, e, "git show"));
                 }
             }
         }.queue();
@@ -1084,7 +1059,7 @@ public class GitUtil {
 
     @Nonnull
     public static String joinToHtml(@Nonnull Collection<GitRepository> repositories) {
-        return StringUtil.join(repositories, repository -> repository.getPresentableUrl(), "<br/>");
+        return StringUtil.join(repositories, Repository::getPresentableUrl, "<br/>");
     }
 
     @Nonnull

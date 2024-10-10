@@ -16,13 +16,14 @@
 package git4idea.actions;
 
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.ActionPlaces;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.versionControlSystem.AbstractVcsHelper;
 import consulo.versionControlSystem.change.Change;
 import consulo.versionControlSystem.change.ChangeListManager;
-import consulo.virtualFileSystem.VirtualFile;
 import consulo.versionControlSystem.change.ContentRevision;
+import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.status.FileStatus;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
@@ -36,18 +37,15 @@ import java.util.*;
  */
 public class GitResolveConflictsAction extends GitAction {
     @Override
+    @RequiredUIAccess
     public void actionPerformed(@Nonnull AnActionEvent event) {
         final Project project = event.getData(Project.KEY);
         if (project == null) {
             return;
         }
 
-        final Set<VirtualFile> conflictedFiles = new TreeSet<>(new Comparator<VirtualFile>() {
-            @Override
-            public int compare(@Nonnull VirtualFile f1, @Nonnull VirtualFile f2) {
-                return f1.getPresentableUrl().compareTo(f2.getPresentableUrl());
-            }
-        });
+        final Set<VirtualFile> conflictedFiles =
+            new TreeSet<>((Comparator<VirtualFile>)(f1, f2) -> f1.getPresentableUrl().compareTo(f2.getPresentableUrl()));
         for (Change change : ChangeListManager.getInstance(project).getAllChanges()) {
             if (change.getFileStatus() != FileStatus.MERGED_WITH_CONFLICTS) {
                 continue;
@@ -90,6 +88,7 @@ public class GitResolveConflictsAction extends GitAction {
     }
 
     @Override
+    @RequiredUIAccess
     public void update(@Nonnull AnActionEvent e) {
         super.update(e);
         if (ActionPlaces.isPopupPlace(e.getPlace())) {
