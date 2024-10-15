@@ -17,6 +17,7 @@ package git4idea.util;
 
 import consulo.git.localize.GitLocalize;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.ListCellRendererWrapper;
 import consulo.ui.ex.awt.Messages;
 import consulo.util.lang.StringUtil;
@@ -26,10 +27,7 @@ import consulo.versionControlSystem.VcsNotifier;
 import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitBranch;
 import git4idea.GitUtil;
-import git4idea.i18n.GitBundle;
 import git4idea.repo.GitRepository;
-import org.jetbrains.annotations.NonNls;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
@@ -46,11 +44,6 @@ import java.util.List;
  * Utilities for git plugin user interface
  */
 public class GitUIUtil {
-    /**
-     * Text containing in the label when there is no current branch
-     */
-    public static final String NO_CURRENT_BRANCH = GitBundle.message("common.no.active.branch");
-
     /**
      * A private constructor for utility class
      */
@@ -195,19 +188,17 @@ public class GitUIUtil {
         gitRootChooser.setRenderer(getVirtualFileListCellRenderer());
         gitRootChooser.setSelectedItem(defaultRoot != null ? defaultRoot : roots.get(0));
         if (currentBranchLabel != null) {
-            final ActionListener listener = new ActionListener() {
-                public void actionPerformed(final ActionEvent e) {
-                    VirtualFile root = (VirtualFile)gitRootChooser.getSelectedItem();
-                    assert root != null : "The root must not be null";
-                    GitRepository repo = GitUtil.getRepositoryManager(project).getRepositoryForRoot(root);
-                    assert repo != null : "The repository must not be null";
-                    GitBranch current = repo.getCurrentBranch();
-                    if (current == null) {
-                        currentBranchLabel.setText(NO_CURRENT_BRANCH);
-                    }
-                    else {
-                        currentBranchLabel.setText(current.getName());
-                    }
+            final ActionListener listener = e -> {
+                VirtualFile root = (VirtualFile)gitRootChooser.getSelectedItem();
+                assert root != null : "The root must not be null";
+                GitRepository repo = GitUtil.getRepositoryManager(project).getRepositoryForRoot(root);
+                assert repo != null : "The repository must not be null";
+                GitBranch current = repo.getCurrentBranch();
+                if (current == null) {
+                    currentBranchLabel.setText(GitLocalize.commonNoActiveBranch().get());
+                }
+                else {
+                    currentBranchLabel.setText(current.getName());
                 }
             };
             listener.actionPerformed(null);
@@ -222,7 +213,8 @@ public class GitUIUtil {
      * @param ex        the exception
      * @param operation the operation name
      */
-    public static void showOperationError(final Project project, final VcsException ex, @NonNls @Nonnull final String operation) {
+    @RequiredUIAccess
+    public static void showOperationError(final Project project, final VcsException ex, @Nonnull final String operation) {
         showOperationError(project, operation, ex.getMessage());
     }
 
@@ -233,10 +225,11 @@ public class GitUIUtil {
      * @param exs       the exceptions to show
      * @param operation the operation name
      */
+    @RequiredUIAccess
     public static void showOperationErrors(
         final Project project,
         final Collection<VcsException> exs,
-        @NonNls @Nonnull final String operation
+        @Nonnull final String operation
     ) {
         if (exs.size() == 1) {
             //noinspection ThrowableResultOfMethodCallIgnored
@@ -246,9 +239,9 @@ public class GitUIUtil {
             // TODO use dialog in order to show big messages
             StringBuilder b = new StringBuilder();
             for (VcsException ex : exs) {
-                b.append(GitBundle.message("errors.message.item", ex.getMessage()));
+                b.append(GitLocalize.errorsMessageItem(ex.getMessage()));
             }
-            showOperationError(project, operation, GitBundle.message("errors.message", b.toString()));
+            showOperationError(project, operation, GitLocalize.errorsMessage(b.toString()).get());
         }
     }
 
@@ -259,6 +252,7 @@ public class GitUIUtil {
      * @param message   the error description
      * @param operation the operation name
      */
+    @RequiredUIAccess
     public static void showOperationError(final Project project, final String operation, final String message) {
         Messages.showErrorDialog(project, message, GitLocalize.errorOccurredDuring(operation).get());
     }
@@ -288,6 +282,7 @@ public class GitUIUtil {
         ActionListener l = new ActionListener() {
             Boolean previousState;
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 if (checked.isSelected() == checkedState) {
                     if (previousState == null) {
@@ -341,6 +336,7 @@ public class GitUIUtil {
             /**
              * {@inheritDoc}
              */
+            @Override
             public void actionPerformed(ActionEvent e) {
                 check(first, firstState, second, !secondState);
                 check(second, secondState, first, !firstState);
@@ -365,6 +361,7 @@ public class GitUIUtil {
         ActionListener l = new ActionListener() {
             String previousState;
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 if (checked.isSelected() == checkedState) {
                     if (previousState == null) {

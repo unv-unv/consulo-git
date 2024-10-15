@@ -70,7 +70,7 @@ public abstract class BasicAction extends DumbAwareAction {
         final List<VcsException> exceptions = new ArrayList<>();
         final boolean background = perform(project, vcs, exceptions, affectedFiles);
         if (!background) {
-            GitVcs.runInBackground(new Task.Backgroundable(project, actionName.get()) {
+            GitVcs.runInBackground(new Task.Backgroundable(project, actionName) {
                 @Override
                 public void run(@Nonnull ProgressIndicator indicator) {
                     VirtualFileUtil.markDirtyAndRefresh(false, true, false, affectedFiles);

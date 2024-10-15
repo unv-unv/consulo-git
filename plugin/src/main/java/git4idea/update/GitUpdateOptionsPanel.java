@@ -16,9 +16,9 @@
 package git4idea.update;
 
 import consulo.application.Application;
+import consulo.git.localize.GitLocalize;
 import git4idea.config.GitVcsSettings;
 import git4idea.config.UpdateMethod;
-import git4idea.i18n.GitBundle;
 
 import javax.swing.*;
 
@@ -96,10 +96,7 @@ public class GitUpdateOptionsPanel {
     }
 
     private void createUIComponents() {
-        myShelveRadioButton = new JRadioButton(GitBundle.message("update.options.save.shelve"));
-        myShelveRadioButton.setToolTipText(GitBundle.message(
-            "update.options.save.shelve.tooltip",
-            Application.get().getName().get()
-        ));
+        myShelveRadioButton = new JRadioButton(GitLocalize.updateOptionsSaveShelve().get());
+        myShelveRadioButton.setToolTipText(GitLocalize.updateOptionsSaveShelveTooltip(Application.get().getName().get()).get());
     }
 }

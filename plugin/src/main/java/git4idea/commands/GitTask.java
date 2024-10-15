@@ -16,7 +16,6 @@
 package git4idea.commands;
 
 import consulo.application.Application;
-import consulo.application.ApplicationManager;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.ProgressManager;
 import consulo.application.progress.Task;
@@ -25,11 +24,11 @@ import consulo.disposer.Disposer;
 import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.util.dataholder.Key;
 import consulo.util.lang.StringUtil;
 import consulo.versionControlSystem.VcsException;
 import git4idea.GitVcs;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
@@ -74,6 +73,7 @@ public class GitTask {
      *
      * @return Result of the task execution.
      */
+    @RequiredUIAccess
     public GitTaskResult executeModal() {
         return execute(true);
     }
@@ -83,6 +83,7 @@ public class GitTask {
      *
      * @param resultHandler callback which will be called after task execution.
      */
+    @RequiredUIAccess
     public void executeModal(GitTaskResultHandler resultHandler) {
         execute(true, true, resultHandler);
     }
@@ -92,18 +93,21 @@ public class GitTask {
      *
      * @param resultHandler callback called after the task has finished or was cancelled by user or automatically.
      */
+    @RequiredUIAccess
     public void executeAsync(final GitTaskResultHandler resultHandler) {
         execute(false, false, resultHandler);
     }
 
+    @RequiredUIAccess
     public void executeInBackground(boolean sync, final GitTaskResultHandler resultHandler) {
         execute(sync, false, resultHandler);
     }
 
     // this is always sync
     @Nonnull
+    @RequiredUIAccess
     public GitTaskResult execute(boolean modal) {
-        final AtomicReference<GitTaskResult> result = new AtomicReference<GitTaskResult>(GitTaskResult.INITIAL);
+        final AtomicReference<GitTaskResult> result = new AtomicReference<>(GitTaskResult.INITIAL);
         execute(true, modal, new GitTaskResultHandlerAdapter() {
             @Override
             protected void run(GitTaskResult res) {
@@ -122,6 +126,7 @@ public class GitTask {
      * @param resultHandler Handle the result.
      * @see #execute(boolean)
      */
+    @RequiredUIAccess
     public void execute(boolean sync, boolean modal, final GitTaskResultHandler resultHandler) {
         final Object LOCK = new Object();
         final AtomicBoolean completed = new AtomicBoolean();
@@ -129,36 +134,33 @@ public class GitTask {
         if (modal) {
             final ModalTask task = new ModalTask(myProject, myHandler, myTitle) {
                 @Override
+                @RequiredUIAccess
                 public void onSuccess() {
                     commonOnSuccess(LOCK, resultHandler);
                     completed.set(true);
                 }
 
                 @Override
+                @RequiredUIAccess
                 public void onCancel() {
                     commonOnCancel(LOCK, resultHandler);
                     completed.set(true);
                 }
             };
-            ApplicationManager.getApplication().invokeAndWait(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        ProgressManager.getInstance().run(task);
-                    }
-                },
-                Application.get().getDefaultModalityState()
-            );
+            Application application = Application.get();
+            application.invokeAndWait(() -> ProgressManager.getInstance().run(task), application.getDefaultModalityState());
         }
         else {
             final BackgroundableTask task = new BackgroundableTask(myProject, myHandler, myTitle) {
                 @Override
+                @RequiredUIAccess
                 public void onSuccess() {
                     commonOnSuccess(LOCK, resultHandler);
                     completed.set(true);
                 }
 
                 @Override
+                @RequiredUIAccess
                 public void onCancel() {
                     commonOnCancel(LOCK, resultHandler);
                     completed.set(true);
@@ -288,7 +290,7 @@ public class GitTask {
         private GitTaskDelegate myDelegate;
 
         public BackgroundableTask(@Nullable final Project project, @Nonnull GitHandler handler, @Nonnull final LocalizeValue processTitle) {
-            super(project, processTitle.get(), true);
+            super(project, processTitle, true);
             myDelegate = new GitTaskDelegate(project, handler, this);
         }
 
@@ -297,25 +299,23 @@ public class GitTask {
             myDelegate.run(indicator);
         }
 
+        @RequiredUIAccess
         public final void runAlone() {
-            if (ApplicationManager.getApplication().isDispatchThread()) {
-                ApplicationManager.getApplication().executeOnPooledThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        justRun();
-                    }
-                });
+            Application application = Application.get();
+            if (application.isDispatchThread()) {
+                application.executeOnPooledThread((Runnable)this::justRun);
             }
             else {
                 justRun();
             }
         }
 
+        @RequiredUIAccess
         private void justRun() {
-            String oldTitle = myProgressIndicator.getText();
-            myProgressIndicator.setText(myTitle);
+            LocalizeValue oldTitle = myProgressIndicator.getTextValue();
+            myProgressIndicator.setTextValue(myTitle);
             myDelegate.run(myProgressIndicator);
-            myProgressIndicator.setText(oldTitle);
+            myProgressIndicator.setTextValue(oldTitle);
             if (myProgressIndicator.isCanceled()) {
                 onCancel();
             }
@@ -327,12 +327,7 @@ public class GitTask {
         @Override
         public void execute(ProgressIndicator indicator) {
             addListeners(this, indicator);
-            GitHandlerUtil.runInCurrentThread(
-                myHandler,
-                indicator,
-                false,
-                myTitle == null ? LocalizeValue.empty() : LocalizeValue.localizeTODO(myTitle)
-            );
+            GitHandlerUtil.runInCurrentThread(myHandler, indicator, false, myTitle);
         }
 
         @Override
@@ -345,7 +340,7 @@ public class GitTask {
         private GitTaskDelegate myDelegate;
 
         public ModalTask(@Nullable final Project project, @Nonnull GitHandler handler, @Nonnull final LocalizeValue processTitle) {
-            super(project, processTitle.get(), true);
+            super(project, processTitle, true);
             myDelegate = new GitTaskDelegate(project, handler, this);
         }
 
@@ -357,12 +352,7 @@ public class GitTask {
         @Override
         public void execute(ProgressIndicator indicator) {
             addListeners(this, indicator);
-            GitHandlerUtil.runInCurrentThread(
-                myHandler,
-                indicator,
-                false,
-                myTitle == null ? LocalizeValue.empty() : LocalizeValue.localizeTODO(myTitle)
-            );
+            GitHandlerUtil.runInCurrentThread(myHandler, indicator, false, myTitle);
         }
 
         @Override
@@ -393,21 +383,25 @@ public class GitTask {
         public void run(ProgressIndicator indicator) {
             myIndicator = indicator;
             myTimer = new Timer();
-            myTimer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    if (myIndicator != null && myIndicator.isCanceled()) {
-                        try {
-                            if (myHandler != null) {
-                                myHandler.destroyProcess();
+            myTimer.schedule(
+                new TimerTask() {
+                    @Override
+                    public void run() {
+                        if (myIndicator != null && myIndicator.isCanceled()) {
+                            try {
+                                if (myHandler != null) {
+                                    myHandler.destroyProcess();
+                                }
+                            }
+                            finally {
+                                Disposer.dispose(GitTaskDelegate.this);
                             }
                         }
-                        finally {
-                            Disposer.dispose(GitTaskDelegate.this);
-                        }
                     }
-                }
-            }, 0, 200);
+                },
+                0,
+                200
+            );
             myTask.execute(indicator);
         }
 

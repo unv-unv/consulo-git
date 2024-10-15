@@ -116,7 +116,7 @@ public class GitHandlerUtil {
         final boolean setIndeterminateFlag
     ) {
         final ProgressManager manager = ProgressManager.getInstance();
-        manager.run(new Task.Modal(handler.project(), operationTitle.get(), false) {
+        manager.run(new Task.Modal(handler.project(), operationTitle, false) {
             @Override
             public void run(@Nonnull final ProgressIndicator indicator) {
                 handler.addLineListener(new GitLineHandlerListenerProgress(indicator, handler, operationName, showErrors));
@@ -167,7 +167,7 @@ public class GitHandlerUtil {
             () -> {
                 if (indicator != null) {
                     indicator.setTextValue(
-                        operationName.get().isEmpty()
+                        operationName == LocalizeValue.empty()
                             ? GitLocalize.gitRunning(handler.printableCommandLine())
                             : operationName
                     );
@@ -286,7 +286,7 @@ public class GitHandlerUtil {
                 String text = getErrorText();
                 if (StringUtil.isEmpty(text) && myHandler.errors().isEmpty()) {
                     //noinspection ThrowableInstanceNeverThrown
-                    myHandler.addError(new VcsException(GitLocalize.gitErrorExit(exitCode).get()));
+                    myHandler.addError(new VcsException(GitLocalize.gitErrorExit(exitCode)));
                 }
                 else {
                     //noinspection ThrowableInstanceNeverThrown

@@ -18,12 +18,12 @@ package git4idea.rebase;
 import consulo.application.AllIcons;
 import consulo.application.dumb.DumbAware;
 import consulo.dataContext.DataProvider;
+import consulo.git.localize.GitLocalize;
 import consulo.ide.impl.idea.ide.TextCopyProvider;
 import consulo.ide.impl.idea.util.ListWithSelection;
 import consulo.ide.impl.idea.util.ui.ComboBoxTableCellRenderer;
-import consulo.language.editor.PlatformDataKeys;
 import consulo.project.Project;
-import consulo.ui.ex.Cell;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.CopyProvider;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.action.CommonShortcuts;
@@ -32,27 +32,19 @@ import consulo.ui.ex.awt.speedSearch.SpeedSearchUtil;
 import consulo.ui.ex.awt.speedSearch.TableSpeedSearch;
 import consulo.ui.ex.awt.table.JBTable;
 import consulo.util.collection.ArrayUtil;
-import consulo.util.collection.ContainerUtil;
 import consulo.util.dataholder.Key;
 import consulo.util.lang.StringUtil;
-import consulo.util.lang.function.PairFunction;
 import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitUtil;
 import git4idea.i18n.GitBundle;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 import javax.swing.*;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Interactive rebase editor. It allows reordering of the entries and changing commit status.
@@ -78,8 +70,8 @@ public class GitRebaseEditor extends DialogWrapper implements DataProvider {
         super(project, true);
         myProject = project;
         myRoot = gitRoot;
-        setTitle(GitBundle.message("rebase.editor.title"));
-        setOKButtonText(GitBundle.message("rebase.editor.button"));
+        setTitle(GitLocalize.rebaseEditorTitle());
+        setOKButtonText(GitLocalize.rebaseEditorButton().get());
 
         myTableModel = new MyTableModel(entries);
         myCommitsTable = new JBTable(myTableModel);
@@ -104,11 +96,7 @@ public class GitRebaseEditor extends DialogWrapper implements DataProvider {
             }
         });
 
-        myTableModel.addTableModelListener(new TableModelListener() {
-            public void tableChanged(final TableModelEvent e) {
-                validateFields();
-            }
-        });
+        myTableModel.addTableModelListener(e -> validateFields());
 
         installSpeedSearch();
         myCopyProvider = new MyCopyProvider();
@@ -119,17 +107,12 @@ public class GitRebaseEditor extends DialogWrapper implements DataProvider {
     }
 
     private void installSpeedSearch() {
-        new TableSpeedSearch(myCommitsTable, new PairFunction<Object, Cell, String>() {
-            @Nullable
-            @Override
-            public String fun(Object o, Cell cell) {
-                return cell.column == 0 ? null : String.valueOf(o);
-            }
-        });
+        new TableSpeedSearch(myCommitsTable, (o, cell) -> cell.column == 0 ? null : String.valueOf(o));
     }
 
     @Nullable
     @Override
+    @RequiredUIAccess
     public JComponent getPreferredFocusedComponent() {
         return myCommitsTable;
     }
@@ -144,7 +127,7 @@ public class GitRebaseEditor extends DialogWrapper implements DataProvider {
     private void validateFields() {
         final List<GitRebaseEntry> entries = myTableModel.myEntries;
         if (entries.size() == 0) {
-            setErrorText(GitBundle.message("rebase.editor.invalid.entryset"));
+            setErrorText(GitLocalize.rebaseEditorInvalidEntryset().get());
             setOKActionEnabled(false);
             return;
         }
@@ -164,6 +147,7 @@ public class GitRebaseEditor extends DialogWrapper implements DataProvider {
         setOKActionEnabled(true);
     }
 
+    @Override
     protected JComponent createCenterPanel() {
         return ToolbarDecorator.createDecorator(myCommitsTable)
             .disableAddAction()
@@ -193,7 +177,7 @@ public class GitRebaseEditor extends DialogWrapper implements DataProvider {
     @Nullable
     @Override
     public Object getData(@Nonnull Key<?> dataId) {
-        if (PlatformDataKeys.COPY_PROVIDER == dataId) {
+        if (CopyProvider.KEY == dataId) {
             return myCopyProvider;
         }
         return null;
@@ -219,38 +203,33 @@ public class GitRebaseEditor extends DialogWrapper implements DataProvider {
 
         @Override
         public String getColumnName(int column) {
-            switch (column) {
-                case ACTION_COLUMN:
-                    return GitBundle.message("rebase.editor.action.column");
-                case HASH_COLUMN:
-                    return GitBundle.message("rebase.editor.commit.column");
-                case SUBJECT_COLUMN:
-                    return GitBundle.message("rebase.editor.comment.column");
-                default:
-                    throw new IllegalArgumentException("Unsupported column index: " + column);
-            }
+            return switch (column) {
+                case ACTION_COLUMN -> GitLocalize.rebaseEditorActionColumn().get();
+                case HASH_COLUMN -> GitLocalize.rebaseEditorCommitColumn().get();
+                case SUBJECT_COLUMN -> GitLocalize.rebaseEditorCommentColumn().get();
+                default -> throw new IllegalArgumentException("Unsupported column index: " + column);
+            };
         }
 
+        @Override
         public int getRowCount() {
             return myEntries.size();
         }
 
+        @Override
         public int getColumnCount() {
             return SUBJECT_COLUMN + 1;
         }
 
+        @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
             GitRebaseEntry e = myEntries.get(rowIndex);
-            switch (columnIndex) {
-                case ACTION_COLUMN:
-                    return new ListWithSelection<>(Arrays.asList(GitRebaseEntry.Action.values()), e.getAction());
-                case HASH_COLUMN:
-                    return e.getCommit();
-                case SUBJECT_COLUMN:
-                    return e.getSubject();
-                default:
-                    throw new IllegalArgumentException("Unsupported column index: " + columnIndex);
-            }
+            return switch (columnIndex) {
+                case ACTION_COLUMN -> new ListWithSelection<>(Arrays.asList(GitRebaseEntry.Action.values()), e.getAction());
+                case HASH_COLUMN -> e.getCommit();
+                case SUBJECT_COLUMN -> e.getSubject();
+                default -> throw new IllegalArgumentException("Unsupported column index: " + columnIndex);
+            };
         }
 
         @Override
@@ -406,7 +385,8 @@ public class GitRebaseEditor extends DialogWrapper implements DataProvider {
         }
 
         @Override
-        public void actionPerformed(AnActionEvent e) {
+        @RequiredUIAccess
+        public void actionPerformed(@Nonnull AnActionEvent e) {
             int row = myCommitsTable.getSelectedRow();
             assert row >= 0 && row < myTableModel.getRowCount();
             GitRebaseEntry entry = myTableModel.myEntries.get(row);
@@ -437,7 +417,7 @@ public class GitRebaseEditor extends DialogWrapper implements DataProvider {
         @Override
         public Collection<String> getTextLinesToCopy() {
             if (myCommitsTable.getSelectedRowCount() > 0) {
-                List<String> lines = ContainerUtil.newArrayList();
+                List<String> lines = new ArrayList<>();
                 for (int row : myCommitsTable.getSelectedRows()) {
                     lines.add(myTableModel.getStringToCopy(row));
                 }

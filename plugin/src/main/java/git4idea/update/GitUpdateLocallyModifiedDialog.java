@@ -16,6 +16,7 @@
 package git4idea.update;
 
 import consulo.application.Application;
+import consulo.git.localize.GitLocalize;
 import consulo.project.Project;
 import consulo.ui.ex.awt.DialogWrapper;
 import consulo.ui.ex.awt.UIUtil;
@@ -26,14 +27,11 @@ import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitUtil;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitSimpleHandler;
-import git4idea.i18n.GitBundle;
 import git4idea.rollback.GitRollbackEnvironment;
 import git4idea.util.GitUIUtil;
 import git4idea.util.StringScanner;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -75,23 +73,21 @@ public class GitUpdateLocallyModifiedDialog extends DialogWrapper {
     protected GitUpdateLocallyModifiedDialog(final Project project, final VirtualFile root, List<String> locallyModifiedFiles) {
         super(project, true);
         myLocallyModifiedFiles = locallyModifiedFiles;
-        setTitle(GitBundle.message("update.locally.modified.title"));
+        setTitle(GitLocalize.updateLocallyModifiedTitle());
         myGitRoot.setText(root.getPresentableUrl());
         myFilesList.setModel(new DefaultListModel());
-        setOKButtonText(GitBundle.message("update.locally.modified.revert"));
+        setOKButtonText(GitLocalize.updateLocallyModifiedRevert().get());
         syncListModel();
-        myRescanButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                myLocallyModifiedFiles.clear();
-                try {
-                    scanFiles(project, root, myLocallyModifiedFiles);
-                }
-                catch (VcsException ex) {
-                    GitUIUtil.showOperationError(project, ex, "Checking for locally modified files");
-                }
+        myRescanButton.addActionListener(e -> {
+            myLocallyModifiedFiles.clear();
+            try {
+                scanFiles(project, root, myLocallyModifiedFiles);
+            }
+            catch (VcsException ex) {
+                GitUIUtil.showOperationError(project, ex, "Checking for locally modified files");
             }
         });
-        myDescriptionLabel.setText(GitBundle.message("update.locally.modified.message", Application.get().getName().get()));
+        myDescriptionLabel.setText(GitLocalize.updateLocallyModifiedMessage(Application.get().getName().get()).get());
         init();
     }
 
@@ -166,12 +162,10 @@ public class GitUpdateLocallyModifiedDialog extends DialogWrapper {
             scanFiles(project, root, files);
             final AtomicBoolean rc = new AtomicBoolean(true);
             if (!files.isEmpty()) {
-                UIUtil.invokeAndWaitIfNeeded(new Runnable() {
-                    public void run() {
-                        GitUpdateLocallyModifiedDialog d = new GitUpdateLocallyModifiedDialog(project, root, files);
-                        d.show();
-                        rc.set(d.isOK());
-                    }
+                UIUtil.invokeAndWaitIfNeeded((Runnable)() -> {
+                    GitUpdateLocallyModifiedDialog d = new GitUpdateLocallyModifiedDialog(project, root, files);
+                    d.show();
+                    rc.set(d.isOK());
                 });
                 if (rc.get()) {
                     if (!files.isEmpty()) {
@@ -182,11 +176,7 @@ public class GitUpdateLocallyModifiedDialog extends DialogWrapper {
             return rc.get();
         }
         catch (final VcsException e) {
-            UIUtil.invokeAndWaitIfNeeded(new Runnable() {
-                public void run() {
-                    GitUIUtil.showOperationError(project, e, "Checking for locally modified files");
-                }
-            });
+            UIUtil.invokeAndWaitIfNeeded((Runnable)() -> GitUIUtil.showOperationError(project, e, "Checking for locally modified files"));
             return false;
         }
     }

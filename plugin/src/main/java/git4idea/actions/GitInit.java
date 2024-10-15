@@ -95,7 +95,7 @@ public class GitInit extends DumbAwareAction {
                     return;
                 }
                 final String path = root.equals(finalBaseDir) ? "" : root.getPath();
-                GitVcs.runInBackground(new Task.Backgroundable(project, GitLocalize.commonRefreshing().get()) {
+                GitVcs.runInBackground(new Task.Backgroundable(project, GitLocalize.commonRefreshing()) {
                     @Override
                     public void run(@Nonnull ProgressIndicator indicator) {
                         refreshAndConfigureVcsMappings(project, root, path);
