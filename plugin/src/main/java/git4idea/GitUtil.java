@@ -472,11 +472,11 @@ public class GitUtil {
     public static List<VirtualFile> getGitRoots(Project project, GitVcs vcs) throws VcsException {
         final VirtualFile[] contentRoots = ProjectLevelVcsManager.getInstance(project).getRootsUnderVcs(vcs);
         if (contentRoots == null || contentRoots.length == 0) {
-            throw new VcsException(GitLocalize.repositoryActionMissingRootsUnconfiguredMessage().get());
+            throw new VcsException(GitLocalize.repositoryActionMissingRootsUnconfiguredMessage());
         }
         final List<VirtualFile> sortedRoots = DvcsUtil.sortVirtualFilesByPresentation(gitRootsForPaths(Arrays.asList(contentRoots)));
         if (sortedRoots.size() == 0) {
-            throw new VcsException(GitLocalize.repositoryActionMissingRootsMisconfigured().get());
+            throw new VcsException(GitLocalize.repositoryActionMissingRootsMisconfigured());
         }
         return sortedRoots;
     }
@@ -878,7 +878,7 @@ public class GitUtil {
         final boolean local,
         final boolean revertable
     ) {
-        new Task.Backgroundable(project, GitLocalize.changesRetrieving(revision).get()) {
+        new Task.Backgroundable(project, GitLocalize.changesRetrieving(revision)) {
             @Override
             public void run(@Nonnull ProgressIndicator indicator) {
                 indicator.setIndeterminate(true);
@@ -889,7 +889,7 @@ public class GitUtil {
                     if (changeList != null) {
                         UIUtil.invokeLaterIfNeeded(
                             () -> AbstractVcsHelper.getInstance(project)
-                                .showChangesListBrowser(changeList, GitLocalize.pathsAffectedTitle(revision).get())
+                                .showChangesListBrowser(changeList, GitLocalize.pathsAffectedTitle(revision))
                         );
                     }
                 }

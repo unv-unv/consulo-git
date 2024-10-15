@@ -70,8 +70,9 @@ public class GitPull extends GitRepositoryAction {
         }
         final Label beforeLabel = LocalHistory.getInstance().putSystemLabel(project, "Before update");
 
-        new Task.Backgroundable(project, GitLocalize.pullingTitle(dialog.getRemote()).get(), true) {
+        new Task.Backgroundable(project, GitLocalize.pullingTitle(dialog.getRemote()), true) {
             @Override
+            @RequiredUIAccess
             public void run(@Nonnull ProgressIndicator indicator) {
                 final GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager((Project)myProject);
 

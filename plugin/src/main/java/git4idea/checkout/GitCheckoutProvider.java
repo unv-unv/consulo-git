@@ -93,7 +93,7 @@ public class GitCheckoutProvider implements CheckoutProvider {
         final String puttyKey
     ) {
         final AtomicBoolean cloneResult = new AtomicBoolean();
-        new Task.Backgroundable(project, GitLocalize.cloningRepository(sourceRepositoryURL).get()) {
+        new Task.Backgroundable(project, GitLocalize.cloningRepository(sourceRepositoryURL)) {
             @Override
             public void run(@Nonnull ProgressIndicator indicator) {
                 cloneResult.set(doClone(project, indicator, git, directoryName, parentDirectory, sourceRepositoryURL, puttyKey));

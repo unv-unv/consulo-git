@@ -18,12 +18,11 @@ package git4idea.vfs;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.ProgressManager;
 import consulo.application.progress.Task;
-import consulo.application.util.SystemInfo;
 import consulo.git.localize.GitLocalize;
 import consulo.localize.LocalizeValue;
+import consulo.platform.Platform;
 import consulo.project.Project;
 import consulo.project.ui.util.AppUIUtil;
-import consulo.util.collection.ContainerUtil;
 import consulo.util.io.FileUtil;
 import consulo.util.lang.Pair;
 import consulo.versionControlSystem.FilePath;
@@ -40,7 +39,6 @@ import git4idea.commands.Git;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitHandler;
 import git4idea.commands.GitSimpleHandler;
-import git4idea.i18n.GitBundle;
 import git4idea.util.GitFileUtils;
 import git4idea.util.GitVcsConsoleWriter;
 
@@ -48,6 +46,7 @@ import jakarta.annotation.Nonnull;
 
 import java.io.File;
 import java.util.*;
+import java.util.function.Function;
 
 import static consulo.util.collection.ContainerUtil.map2Map;
 
@@ -59,19 +58,22 @@ public class GitVFSListener extends VcsVFSListener {
         myGit = git;
     }
 
+    @Nonnull
     @Override
-    protected String getAddTitle() {
-        return GitLocalize.vfsListenerAddTitle().get();
+    protected LocalizeValue getAddTitleValue() {
+        return GitLocalize.vfsListenerAddTitle();
     }
 
+    @Nonnull
     @Override
-    protected String getSingleFileAddTitle() {
-        return GitLocalize.vfsListenerAddSingleTitle().get();
+    protected LocalizeValue getSingleFileAddTitleValue() {
+        return GitLocalize.vfsListenerAddSingleTitle();
     }
 
+    @Nonnull
     @Override
-    protected String getSingleFileAddPromptTemplate() {
-        return GitBundle.message("vfs.listener.add.single.prompt");
+    protected Function<Object, LocalizeValue> getSingleFileAddPromptGenerator() {
+        return GitLocalize::vfsListenerAddSinglePrompt;
     }
 
     @Override
@@ -86,7 +88,7 @@ public class GitVFSListener extends VcsVFSListener {
         }
         final HashSet<VirtualFile> retainedFiles = new HashSet<>();
         final ProgressManager progressManager = ProgressManager.getInstance();
-        progressManager.run(new Task.Backgroundable(myProject, GitLocalize.vfsListenerCheckingIgnored().get(), true) {
+        progressManager.run(new Task.Backgroundable(myProject, GitLocalize.vfsListenerCheckingIgnored(), true) {
             @Override
             public void run(@Nonnull ProgressIndicator pi) {
                 for (Map.Entry<VirtualFile, List<VirtualFile>> e : sortedFiles.entrySet()) {
@@ -143,19 +145,22 @@ public class GitVFSListener extends VcsVFSListener {
         });
     }
 
+    @Nonnull
     @Override
-    protected String getDeleteTitle() {
-        return GitLocalize.vfsListenerDeleteTitle().get();
+    protected LocalizeValue getDeleteTitleValue() {
+        return GitLocalize.vfsListenerDeleteTitle();
     }
 
+    @Nonnull
     @Override
-    protected String getSingleFileDeleteTitle() {
-        return GitLocalize.vfsListenerDeleteSingleTitle().get();
+    protected LocalizeValue getSingleFileDeleteTitleValue() {
+        return GitLocalize.vfsListenerDeleteSingleTitle();
     }
 
+    @Nonnull
     @Override
-    protected String getSingleFileDeletePromptTemplate() {
-        return GitBundle.message("vfs.listener.delete.single.prompt");
+    protected Function<Object, LocalizeValue> getSingleFileDeletePromptGenerator() {
+        return GitLocalize::vfsListenerDeleteSinglePrompt;
     }
 
     @Override
@@ -186,13 +191,13 @@ public class GitVFSListener extends VcsVFSListener {
 
     @Override
     protected void performMoveRename(final List<MovedFileInfo> movedFiles) {
-        List<FilePath> toAdd = ContainerUtil.newArrayList();
-        List<FilePath> toRemove = ContainerUtil.newArrayList();
-        List<MovedFileInfo> toForceMove = ContainerUtil.newArrayList();
+        List<FilePath> toAdd = new ArrayList<>();
+        List<FilePath> toRemove = new ArrayList<>();
+        List<MovedFileInfo> toForceMove = new ArrayList<>();
         for (MovedFileInfo movedInfo : movedFiles) {
             String oldPath = movedInfo.myOldPath;
             String newPath = movedInfo.myNewPath;
-            if (!SystemInfo.isFileSystemCaseSensitive && GitUtil.isCaseOnlyChange(oldPath, newPath)) {
+            if (!Platform.current().fs().isCaseSensitive() && GitUtil.isCaseOnlyChange(oldPath, newPath)) {
                 toForceMove.add(movedInfo);
             }
             else {
@@ -263,7 +268,7 @@ public class GitVFSListener extends VcsVFSListener {
             return;
         }
 
-        GitVcs.runInBackground(new Task.Backgroundable(myProject, operationTitle.get()) {
+        GitVcs.runInBackground(new Task.Backgroundable(myProject, operationTitle) {
             @Override
             public void run(@Nonnull ProgressIndicator indicator) {
                 for (Map.Entry<VirtualFile, List<FilePath>> e : sortedFiles.entrySet()) {
