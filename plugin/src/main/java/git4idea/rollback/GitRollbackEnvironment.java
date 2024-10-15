@@ -42,6 +42,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 import jakarta.annotation.Nonnull;
+
 import java.io.File;
 import java.util.*;
 
@@ -52,211 +53,216 @@ import java.util.*;
 @ServiceAPI(ComponentScope.PROJECT)
 @ServiceImpl
 public class GitRollbackEnvironment implements RollbackEnvironment {
-  private final Project myProject;
+    private final Project myProject;
 
-  @Inject
-  public GitRollbackEnvironment(@Nonnull Project project) {
-    myProject = project;
-  }
-
-  @Nonnull
-  public String getRollbackOperationName() {
-    return GitBundle.message("revert.action.name");
-  }
-
-  public void rollbackModifiedWithoutCheckout(@Nonnull List<VirtualFile> files,
-                                              final List<VcsException> exceptions,
-                                              final RollbackProgressListener listener) {
-    throw new UnsupportedOperationException("Explicit file checkout is not supported by GIT.");
-  }
-
-  public void rollbackMissingFileDeletion(@Nonnull List<FilePath> files,
-                                          final List<VcsException> exceptions,
-                                          final RollbackProgressListener listener) {
-    throw new UnsupportedOperationException("Missing file delete is not reported by GIT.");
-  }
-
-  public void rollbackIfUnchanged(@Nonnull VirtualFile file) {
-    // do nothing
-  }
-
-  public void rollbackChanges(@Nonnull List<Change> changes,
-                              final List<VcsException> exceptions,
-                              @Nonnull final RollbackProgressListener listener) {
-    HashMap<VirtualFile, List<FilePath>> toUnindex = new HashMap<VirtualFile, List<FilePath>>();
-    HashMap<VirtualFile, List<FilePath>> toUnversion = new HashMap<VirtualFile, List<FilePath>>();
-    HashMap<VirtualFile, List<FilePath>> toRevert = new HashMap<VirtualFile, List<FilePath>>();
-    List<FilePath> toDelete = new ArrayList<FilePath>();
-
-    listener.determinate();
-    // collect changes to revert
-    for (Change c : changes) {
-      switch (c.getType()) {
-        case NEW:
-          // note that this the only change that could happen
-          // for HEAD-less working directories.
-          registerFile(toUnversion, c.getAfterRevision().getFile(), exceptions);
-          break;
-        case MOVED:
-          registerFile(toRevert, c.getBeforeRevision().getFile(), exceptions);
-          registerFile(toUnindex, c.getAfterRevision().getFile(), exceptions);
-          toDelete.add(c.getAfterRevision().getFile());
-          break;
-        case MODIFICATION:
-          // note that changes are also removed from index, if they got into index somehow
-          registerFile(toUnindex, c.getBeforeRevision().getFile(), exceptions);
-          registerFile(toRevert, c.getBeforeRevision().getFile(), exceptions);
-          break;
-        case DELETED:
-          registerFile(toRevert, c.getBeforeRevision().getFile(), exceptions);
-          break;
-      }
+    @Inject
+    public GitRollbackEnvironment(@Nonnull Project project) {
+        myProject = project;
     }
-    // unindex files
-    for (Map.Entry<VirtualFile, List<FilePath>> entry : toUnindex.entrySet()) {
-      listener.accept(entry.getValue());
-      try {
-        unindex(entry.getKey(), entry.getValue(), false);
-      }
-      catch (VcsException e) {
-        exceptions.add(e);
-      }
+
+    @Nonnull
+    public String getRollbackOperationName() {
+        return GitBundle.message("revert.action.name");
     }
-    // unversion files
-    for (Map.Entry<VirtualFile, List<FilePath>> entry : toUnversion.entrySet()) {
-      listener.accept(entry.getValue());
-      try {
-        unindex(entry.getKey(), entry.getValue(), true);
-      }
-      catch (VcsException e) {
-        exceptions.add(e);
-      }
+
+    public void rollbackModifiedWithoutCheckout(
+        @Nonnull List<VirtualFile> files,
+        final List<VcsException> exceptions,
+        final RollbackProgressListener listener
+    ) {
+        throw new UnsupportedOperationException("Explicit file checkout is not supported by GIT.");
     }
-    // delete files
-    for (FilePath file : toDelete) {
-      listener.accept(file);
-      try {
-        final File ioFile = file.getIOFile();
-        if (ioFile.exists()) {
-          if (!ioFile.delete()) {
-            //noinspection ThrowableInstanceNeverThrown
-            exceptions.add(new VcsException("Unable to delete file: " + file));
-          }
+
+    public void rollbackMissingFileDeletion(
+        @Nonnull List<FilePath> files,
+        final List<VcsException> exceptions,
+        final RollbackProgressListener listener
+    ) {
+        throw new UnsupportedOperationException("Missing file delete is not reported by GIT.");
+    }
+
+    public void rollbackIfUnchanged(@Nonnull VirtualFile file) {
+        // do nothing
+    }
+
+    public void rollbackChanges(
+        @Nonnull List<Change> changes,
+        final List<VcsException> exceptions,
+        @Nonnull final RollbackProgressListener listener
+    ) {
+        HashMap<VirtualFile, List<FilePath>> toUnindex = new HashMap<VirtualFile, List<FilePath>>();
+        HashMap<VirtualFile, List<FilePath>> toUnversion = new HashMap<VirtualFile, List<FilePath>>();
+        HashMap<VirtualFile, List<FilePath>> toRevert = new HashMap<VirtualFile, List<FilePath>>();
+        List<FilePath> toDelete = new ArrayList<FilePath>();
+
+        listener.determinate();
+        // collect changes to revert
+        for (Change c : changes) {
+            switch (c.getType()) {
+                case NEW:
+                    // note that this the only change that could happen
+                    // for HEAD-less working directories.
+                    registerFile(toUnversion, c.getAfterRevision().getFile(), exceptions);
+                    break;
+                case MOVED:
+                    registerFile(toRevert, c.getBeforeRevision().getFile(), exceptions);
+                    registerFile(toUnindex, c.getAfterRevision().getFile(), exceptions);
+                    toDelete.add(c.getAfterRevision().getFile());
+                    break;
+                case MODIFICATION:
+                    // note that changes are also removed from index, if they got into index somehow
+                    registerFile(toUnindex, c.getBeforeRevision().getFile(), exceptions);
+                    registerFile(toRevert, c.getBeforeRevision().getFile(), exceptions);
+                    break;
+                case DELETED:
+                    registerFile(toRevert, c.getBeforeRevision().getFile(), exceptions);
+                    break;
+            }
         }
-      }
-      catch (Exception e) {
-        //noinspection ThrowableInstanceNeverThrown
-        exceptions.add(new VcsException("Unable to delete file: " + file, e));
-      }
-    }
-    // revert files from HEAD
-    for (Map.Entry<VirtualFile, List<FilePath>> entry : toRevert.entrySet()) {
-      listener.accept(entry.getValue());
-      try {
-        revert(entry.getKey(), entry.getValue());
-      }
-      catch (VcsException e) {
-        exceptions.add(e);
-      }
-    }
-    LocalFileSystem lfs = LocalFileSystem.getInstance();
-    HashSet<File> filesToRefresh = new HashSet<File>();
-    for (Change c : changes) {
-      ContentRevision before = c.getBeforeRevision();
-      if (before != null) {
-        filesToRefresh.add(new File(before.getFile().getPath()));
-      }
-      ContentRevision after = c.getAfterRevision();
-      if (after != null) {
-        filesToRefresh.add(new File(after.getFile().getPath()));
-      }
-    }
-    lfs.refreshIoFiles(filesToRefresh);
-
-    for (GitRepository repo : GitUtil.getRepositoryManager(myProject).getRepositories()) {
-      repo.update();
-    }
-  }
-
-  /**
-   * Reverts the list of files we are passed.
-   *
-   * @param root  the VCS root
-   * @param files The array of files to revert.
-   * @throws VcsException Id it breaks.
-   */
-  public void revert(final VirtualFile root, final List<FilePath> files) throws VcsException {
-    for (List<String> paths : VcsFileUtil.chunkPaths(root, files)) {
-      GitSimpleHandler handler = new GitSimpleHandler(myProject, root, GitCommand.CHECKOUT);
-      handler.addParameters("HEAD");
-      handler.endOptions();
-      handler.addParameters(paths);
-      handler.run();
-    }
-  }
-
-  /**
-   * Remove file paths from index (git remove --cached).
-   *
-   * @param root          a git root
-   * @param files         files to remove from index.
-   * @param toUnversioned passed true if the file will be unversioned after unindexing, i.e. it was added before the revert operation.
-   * @throws VcsException if there is a problem with running git
-   */
-  private void unindex(final VirtualFile root, final List<FilePath> files, boolean toUnversioned) throws VcsException {
-    GitFileUtils.delete(myProject, root, files, "--cached", "-f");
-
-    if (toUnversioned) {
-      final GitRepository repo = GitUtil.getRepositoryManager(myProject).getRepositoryForRoot(root);
-      final GitUntrackedFilesHolder untrackedFilesHolder = (repo == null ? null : repo.getUntrackedFilesHolder());
-      for (FilePath path : files) {
-        final VirtualFile vf = VcsUtil.getVirtualFile(path.getIOFile());
-        if (untrackedFilesHolder != null && vf != null) {
-          untrackedFilesHolder.add(vf);
+        // unindex files
+        for (Map.Entry<VirtualFile, List<FilePath>> entry : toUnindex.entrySet()) {
+            listener.accept(entry.getValue());
+            try {
+                unindex(entry.getKey(), entry.getValue(), false);
+            }
+            catch (VcsException e) {
+                exceptions.add(e);
+            }
         }
-      }
-    }
-  }
+        // unversion files
+        for (Map.Entry<VirtualFile, List<FilePath>> entry : toUnversion.entrySet()) {
+            listener.accept(entry.getValue());
+            try {
+                unindex(entry.getKey(), entry.getValue(), true);
+            }
+            catch (VcsException e) {
+                exceptions.add(e);
+            }
+        }
+        // delete files
+        for (FilePath file : toDelete) {
+            listener.accept(file);
+            try {
+                final File ioFile = file.getIOFile();
+                if (ioFile.exists()) {
+                    if (!ioFile.delete()) {
+                        //noinspection ThrowableInstanceNeverThrown
+                        exceptions.add(new VcsException("Unable to delete file: " + file));
+                    }
+                }
+            }
+            catch (Exception e) {
+                //noinspection ThrowableInstanceNeverThrown
+                exceptions.add(new VcsException("Unable to delete file: " + file, e));
+            }
+        }
+        // revert files from HEAD
+        for (Map.Entry<VirtualFile, List<FilePath>> entry : toRevert.entrySet()) {
+            listener.accept(entry.getValue());
+            try {
+                revert(entry.getKey(), entry.getValue());
+            }
+            catch (VcsException e) {
+                exceptions.add(e);
+            }
+        }
+        LocalFileSystem lfs = LocalFileSystem.getInstance();
+        HashSet<File> filesToRefresh = new HashSet<File>();
+        for (Change c : changes) {
+            ContentRevision before = c.getBeforeRevision();
+            if (before != null) {
+                filesToRefresh.add(new File(before.getFile().getPath()));
+            }
+            ContentRevision after = c.getAfterRevision();
+            if (after != null) {
+                filesToRefresh.add(new File(after.getFile().getPath()));
+            }
+        }
+        lfs.refreshIoFiles(filesToRefresh);
 
-
-  /**
-   * Register file in the map under appropriate root
-   *
-   * @param files      a map to use
-   * @param file       a file to register
-   * @param exceptions the list of exceptions to update
-   */
-  private static void registerFile(Map<VirtualFile, List<FilePath>> files, FilePath file, List<VcsException> exceptions) {
-    final VirtualFile root;
-    try {
-      root = GitUtil.getGitRoot(file);
+        for (GitRepository repo : GitUtil.getRepositoryManager(myProject).getRepositories()) {
+            repo.update();
+        }
     }
-    catch (VcsException e) {
-      exceptions.add(e);
-      return;
-    }
-    List<FilePath> paths = files.get(root);
-    if (paths == null) {
-      paths = new ArrayList<FilePath>();
-      files.put(root, paths);
-    }
-    paths.add(file);
-  }
 
-  /**
-   * Get instance of the service
-   *
-   * @param project a context project
-   * @return a project-specific instance of the service
-   */
-  public static GitRollbackEnvironment getInstance(final Project project) {
-    return ServiceManager.getService(project, GitRollbackEnvironment.class);
-  }
+    /**
+     * Reverts the list of files we are passed.
+     *
+     * @param root  the VCS root
+     * @param files The array of files to revert.
+     * @throws VcsException Id it breaks.
+     */
+    public void revert(final VirtualFile root, final List<FilePath> files) throws VcsException {
+        for (List<String> paths : VcsFileUtil.chunkPaths(root, files)) {
+            GitSimpleHandler handler = new GitSimpleHandler(myProject, root, GitCommand.CHECKOUT);
+            handler.addParameters("HEAD");
+            handler.endOptions();
+            handler.addParameters(paths);
+            handler.run();
+        }
+    }
 
-  public static void resetHardLocal(final Project project, final VirtualFile root) {
-    GitSimpleHandler handler = new GitSimpleHandler(project, root, GitCommand.RESET);
-    handler.addParameters("--hard");
-    handler.endOptions();
-    GitHandlerUtil.runInCurrentThread(handler, null);
-  }
+    /**
+     * Remove file paths from index (git remove --cached).
+     *
+     * @param root          a git root
+     * @param files         files to remove from index.
+     * @param toUnversioned passed true if the file will be unversioned after unindexing, i.e. it was added before the revert operation.
+     * @throws VcsException if there is a problem with running git
+     */
+    private void unindex(final VirtualFile root, final List<FilePath> files, boolean toUnversioned) throws VcsException {
+        GitFileUtils.delete(myProject, root, files, "--cached", "-f");
+
+        if (toUnversioned) {
+            final GitRepository repo = GitUtil.getRepositoryManager(myProject).getRepositoryForRoot(root);
+            final GitUntrackedFilesHolder untrackedFilesHolder = (repo == null ? null : repo.getUntrackedFilesHolder());
+            for (FilePath path : files) {
+                final VirtualFile vf = VcsUtil.getVirtualFile(path.getIOFile());
+                if (untrackedFilesHolder != null && vf != null) {
+                    untrackedFilesHolder.add(vf);
+                }
+            }
+        }
+    }
+
+    /**
+     * Register file in the map under appropriate root
+     *
+     * @param files      a map to use
+     * @param file       a file to register
+     * @param exceptions the list of exceptions to update
+     */
+    private static void registerFile(Map<VirtualFile, List<FilePath>> files, FilePath file, List<VcsException> exceptions) {
+        final VirtualFile root;
+        try {
+            root = GitUtil.getGitRoot(file);
+        }
+        catch (VcsException e) {
+            exceptions.add(e);
+            return;
+        }
+        List<FilePath> paths = files.get(root);
+        if (paths == null) {
+            paths = new ArrayList<FilePath>();
+            files.put(root, paths);
+        }
+        paths.add(file);
+    }
+
+    /**
+     * Get instance of the service
+     *
+     * @param project a context project
+     * @return a project-specific instance of the service
+     */
+    public static GitRollbackEnvironment getInstance(final Project project) {
+        return ServiceManager.getService(project, GitRollbackEnvironment.class);
+    }
+
+    public static void resetHardLocal(final Project project, final VirtualFile root) {
+        GitSimpleHandler handler = new GitSimpleHandler(project, root, GitCommand.RESET);
+        handler.addParameters("--hard");
+        handler.endOptions();
+        GitHandlerUtil.runInCurrentThread(handler, null);
+    }
 }
