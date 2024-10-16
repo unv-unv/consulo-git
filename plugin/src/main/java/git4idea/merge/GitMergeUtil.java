@@ -15,7 +15,6 @@
  */
 package git4idea.merge;
 
-import consulo.git.localize.GitLocalize;
 import consulo.localHistory.Label;
 import consulo.localHistory.LocalHistory;
 import consulo.localize.LocalizeValue;
@@ -35,8 +34,6 @@ import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitRevisionNumber;
 import git4idea.GitVcs;
 import git4idea.actions.GitRepositoryAction;
-import git4idea.i18n.GitBundle;
-import org.jetbrains.annotations.NonNls;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -48,46 +45,9 @@ import java.util.List;
  */
 public class GitMergeUtil {
     /**
-     * The item representing default strategy
-     */
-    public static final String DEFAULT_STRATEGY = GitBundle.message("merge.default.strategy");
-
-    /**
      * A private constructor for utility class
      */
     private GitMergeUtil() {
-    }
-
-    /**
-     * Get a list of merge strategies for the specified branch count
-     *
-     * @param branchCount a number of branches to merge
-     * @return an array of strategy names
-     */
-    @NonNls
-    public static String[] getMergeStrategies(int branchCount) {
-        if (branchCount < 0) {
-            throw new IllegalArgumentException("Branch count must be non-negative: " + branchCount);
-        }
-        switch (branchCount) {
-            case 0:
-                return new String[]{GitLocalize.mergeDefaultStrategy().get()};
-            case 1:
-                return new String[]{
-                    GitLocalize.mergeDefaultStrategy().get(),
-                    "resolve",
-                    "recursive",
-                    "octopus",
-                    "ours",
-                    "subtree"
-                };
-            default:
-                return new String[]{
-                    GitLocalize.mergeDefaultStrategy().get(),
-                    "octopus",
-                    "ours"
-                };
-        }
     }
 
     /**
@@ -96,14 +56,14 @@ public class GitMergeUtil {
      * @param branchChooser a branch chooser
      * @param strategy      a strategy selector
      */
-    public static void setupStrategies(final ElementsChooser<String> branchChooser, final JComboBox strategy) {
+    public static void setupStrategies(final ElementsChooser<String> branchChooser, final JComboBox<GitMergeStrategy> strategy) {
         final ElementsChooser.ElementsMarkListener<String> listener = new ElementsChooser.ElementsMarkListener<>() {
             private void updateStrategies(final List<String> elements) {
                 strategy.removeAllItems();
-                for (String s : getMergeStrategies(elements.size())) {
+                for (GitMergeStrategy s : GitMergeStrategy.getMergeStrategies(elements.size())) {
                     strategy.addItem(s);
                 }
-                strategy.setSelectedItem(GitLocalize.mergeDefaultStrategy().get());
+                strategy.setSelectedItem(GitMergeStrategy.DEFAULT);
             }
 
             @Override

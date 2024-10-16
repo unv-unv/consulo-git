@@ -15,7 +15,9 @@
  */
 package git4idea.util;
 
+import consulo.annotation.DeprecationInfo;
 import consulo.git.localize.GitLocalize;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.ListCellRendererWrapper;
@@ -229,11 +231,11 @@ public class GitUIUtil {
     public static void showOperationErrors(
         final Project project,
         final Collection<VcsException> exs,
-        @Nonnull final String operation
+        @Nonnull final LocalizeValue operation
     ) {
         if (exs.size() == 1) {
             //noinspection ThrowableResultOfMethodCallIgnored
-            showOperationError(project, operation, exs.iterator().next().getMessage());
+            showOperationError(project, operation, LocalizeValue.ofNullable(exs.iterator().next().getMessage()));
         }
         else if (exs.size() > 1) {
             // TODO use dialog in order to show big messages
@@ -241,7 +243,7 @@ public class GitUIUtil {
             for (VcsException ex : exs) {
                 b.append(GitLocalize.errorsMessageItem(ex.getMessage()));
             }
-            showOperationError(project, operation, GitLocalize.errorsMessage(b.toString()).get());
+            showOperationError(project, operation, GitLocalize.errorsMessage(b.toString()));
         }
     }
 
@@ -252,6 +254,20 @@ public class GitUIUtil {
      * @param message   the error description
      * @param operation the operation name
      */
+    @RequiredUIAccess
+    public static void showOperationError(Project project, @Nonnull LocalizeValue operation, @Nonnull LocalizeValue message) {
+        Messages.showErrorDialog(project, message.get(), GitLocalize.errorOccurredDuring(operation).get());
+    }
+
+    /**
+     * Show error associated with the specified operation
+     *
+     * @param project   the project
+     * @param message   the error description
+     * @param operation the operation name
+     */
+    @Deprecated
+    @DeprecationInfo("Use variant with LocalizeValue")
     @RequiredUIAccess
     public static void showOperationError(final Project project, final String operation, final String message) {
         Messages.showErrorDialog(project, message, GitLocalize.errorOccurredDuring(operation).get());

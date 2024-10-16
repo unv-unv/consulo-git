@@ -15,12 +15,13 @@
  */
 package git4idea.ui;
 
-import consulo.ui.ex.awt.DialogWrapper;
+import consulo.git.localize.GitLocalize;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.ex.awt.DialogWrapper;
 import consulo.virtualFileSystem.VirtualFile;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitLineHandler;
-import git4idea.i18n.GitBundle;
 import git4idea.util.GitUIUtil;
 
 import javax.swing.*;
@@ -30,65 +31,67 @@ import java.util.List;
  * The git stash dialog.
  */
 public class GitStashDialog extends DialogWrapper {
-  private JComboBox myGitRootComboBox; // Git root selector
-  private JPanel myRootPanel;
-  private JLabel myCurrentBranch;
-  private JTextField myMessageTextField;
-  private JCheckBox myKeepIndexCheckBox; // --keep-index
-  private final Project myProject;
+    private JComboBox myGitRootComboBox; // Git root selector
+    private JPanel myRootPanel;
+    private JLabel myCurrentBranch;
+    private JTextField myMessageTextField;
+    private JCheckBox myKeepIndexCheckBox; // --keep-index
+    private final Project myProject;
 
-  /**
-   * A constructor
-   *
-   * @param project     the project
-   * @param roots       the list of Git roots
-   * @param defaultRoot the default root to select
-   */
-  public GitStashDialog(final Project project, final List<VirtualFile> roots, final VirtualFile defaultRoot) {
-    super(project, true);
-    myProject = project;
-    setTitle(GitBundle.message("stash.title"));
-    setOKButtonText(GitBundle.message("stash.button"));
-    GitUIUtil.setupRootChooser(project, roots, defaultRoot, myGitRootComboBox, myCurrentBranch);
-    init();
-  }
-
-  public GitLineHandler handler() {
-    GitLineHandler handler = new GitLineHandler(myProject, getGitRoot(), GitCommand.STASH);
-    handler.addParameters("save");
-    if (myKeepIndexCheckBox.isSelected()) {
-      handler.addParameters("--keep-index");
+    /**
+     * A constructor
+     *
+     * @param project     the project
+     * @param roots       the list of Git roots
+     * @param defaultRoot the default root to select
+     */
+    public GitStashDialog(final Project project, final List<VirtualFile> roots, final VirtualFile defaultRoot) {
+        super(project, true);
+        myProject = project;
+        setTitle(GitLocalize.stashTitle());
+        setOKButtonText(GitLocalize.stashButton());
+        GitUIUtil.setupRootChooser(project, roots, defaultRoot, myGitRootComboBox, myCurrentBranch);
+        init();
     }
-    final String msg = myMessageTextField.getText().trim();
-    if (msg.length() != 0) {
-      handler.addParameters(msg);
+
+    public GitLineHandler handler() {
+        GitLineHandler handler = new GitLineHandler(myProject, getGitRoot(), GitCommand.STASH);
+        handler.addParameters("save");
+        if (myKeepIndexCheckBox.isSelected()) {
+            handler.addParameters("--keep-index");
+        }
+        final String msg = myMessageTextField.getText().trim();
+        if (msg.length() != 0) {
+            handler.addParameters(msg);
+        }
+        return handler;
     }
-    return handler;
-  }
 
-  /**
-   * @return the selected git root
-   */
-  public VirtualFile getGitRoot() {
-    return (VirtualFile)myGitRootComboBox.getSelectedItem();
-  }
+    /**
+     * @return the selected git root
+     */
+    public VirtualFile getGitRoot() {
+        return (VirtualFile)myGitRootComboBox.getSelectedItem();
+    }
 
-  protected JComponent createCenterPanel() {
-    return myRootPanel;
-  }
+    @Override
+    protected JComponent createCenterPanel() {
+        return myRootPanel;
+    }
 
-  @Override
-  protected String getDimensionServiceKey() {
-    return getClass().getName();
-  }
+    @Override
+    protected String getDimensionServiceKey() {
+        return getClass().getName();
+    }
 
-  @Override
-  protected String getHelpId() {
-    return "reference.VersionControl.Git.Stash";
-  }
+    @Override
+    protected String getHelpId() {
+        return "reference.VersionControl.Git.Stash";
+    }
 
-  @Override
-  public JComponent getPreferredFocusedComponent() {
-    return myMessageTextField;
-  }
+    @Override
+    @RequiredUIAccess
+    public JComponent getPreferredFocusedComponent() {
+        return myMessageTextField;
+    }
 }

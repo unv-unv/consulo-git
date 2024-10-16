@@ -75,7 +75,7 @@ public abstract class BasicAction extends DumbAwareAction {
                 public void run(@Nonnull ProgressIndicator indicator) {
                     VirtualFileUtil.markDirtyAndRefresh(false, true, false, affectedFiles);
                     VcsFileUtil.markFilesDirty(project, Arrays.asList(affectedFiles));
-                    UIUtil.invokeLaterIfNeeded(() -> GitUIUtil.showOperationErrors(project, exceptions, actionName.get()));
+                    UIUtil.invokeLaterIfNeeded(() -> GitUIUtil.showOperationErrors(project, exceptions, actionName));
                 }
             });
         }

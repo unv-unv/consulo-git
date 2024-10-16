@@ -26,7 +26,6 @@ import git4idea.commands.GitLineHandler;
 import git4idea.commands.GitTask;
 import git4idea.commands.GitTaskResult;
 import git4idea.commands.GitTaskResultHandlerAdapter;
-import git4idea.i18n.GitBundle;
 import git4idea.rebase.GitInteractiveRebaseEditorHandler;
 import git4idea.rebase.GitRebaseEditorService;
 import git4idea.rebase.GitRebaseLineListener;
@@ -45,6 +44,7 @@ public abstract class GitRebaseActionBase extends GitRepositoryAction {
      * {@inheritDoc}
      */
     @Override
+    @RequiredUIAccess
     protected void perform(
         @Nonnull final Project project,
         @Nonnull final List<VirtualFile> gitRoots,
@@ -93,36 +93,32 @@ public abstract class GitRebaseActionBase extends GitRepositoryAction {
             return;
         }
         final GitRebaseLineListener.Result result = resultListener.getResult();
-        String messageId;
-        boolean isError = true;
         switch (result.status) {
             case CONFLICT:
-                messageId = "rebase.result.conflict";
+                Messages.showErrorDialog(
+                    project,
+                    GitLocalize.rebaseResultConflict(result.current, result.total).get(),
+                    GitLocalize.rebaseResultConflictTitle().get()
+                );
                 break;
             case ERROR:
-                messageId = "rebase.result.error";
+                Messages.showErrorDialog(
+                    project,
+                    GitLocalize.rebaseResultError(result.current, result.total).get(),
+                    GitLocalize.rebaseResultErrorTitle().get()
+                );
                 break;
             case CANCELLED:
                 // we do not need to show a message if editing was cancelled.
                 exceptions.clear();
                 return;
             case EDIT:
-                isError = false;
-                messageId = "rebase.result.amend";
+                Messages.showInfoMessage(
+                    project,
+                    GitLocalize.rebaseResultAmend(result.current, result.total).get(),
+                    GitLocalize.rebaseResultAmendTitle().get()
+                );
                 break;
-            case FINISHED:
-            default:
-                messageId = null;
-        }
-        if (messageId != null) {
-            String message = GitBundle.message(messageId, result.current, result.total);
-            String title = GitBundle.message(messageId + ".title");
-            if (isError) {
-                Messages.showErrorDialog(project, message, title);
-            }
-            else {
-                Messages.showInfoMessage(project, message, title);
-            }
         }
     }
 

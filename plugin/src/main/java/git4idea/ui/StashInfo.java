@@ -15,8 +15,9 @@
  */
 package git4idea.ui;
 
+import consulo.git.localize.GitLocalize;
+import consulo.localize.LocalizeValue;
 import consulo.util.lang.StringUtil;
-import git4idea.i18n.GitBundle;
 
 /**
  * Information about one stash.
@@ -25,23 +26,18 @@ public class StashInfo {
     private final String myStash; // stash codename (stash@{1})
     private final String myBranch;
     private final String myMessage;
-    private final String myText; // The formatted text representation
+    private final LocalizeValue myText; // The formatted text representation
 
     public StashInfo(final String stash, final String branch, final String message) {
         myStash = stash;
         myBranch = branch;
         myMessage = message;
-        myText = GitBundle.message(
-            "unstash.stashes.item",
-            StringUtil.escapeXml(stash),
-            StringUtil.escapeXml(branch),
-            StringUtil.escapeXml(message)
-        );
+        myText = GitLocalize.unstashStashesItem(StringUtil.escapeXml(stash), StringUtil.escapeXml(branch), StringUtil.escapeXml(message));
     }
 
     @Override
     public String toString() {
-        return myText;
+        return myText.get();
     }
 
     public String getStash() {
@@ -57,6 +53,6 @@ public class StashInfo {
     }
 
     public String getText() {
-        return myText;
+        return myText.get();
     }
 }

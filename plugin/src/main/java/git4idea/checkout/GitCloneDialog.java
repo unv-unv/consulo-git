@@ -80,7 +80,7 @@ public class GitCloneDialog extends DialogWrapper {
         super(project, true);
         myProject = project;
         setTitle(GitLocalize.cloneTitle());
-        setOKButtonText(GitLocalize.cloneButton().get());
+        setOKButtonText(GitLocalize.cloneButton());
 
         myPuttyKeyChooser.setVisible(GitVcsApplicationSettings.getInstance()
             .getSshExecutableType() == GitVcsApplicationSettings.SshExecutable.PUTTY);

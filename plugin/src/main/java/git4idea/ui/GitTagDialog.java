@@ -16,7 +16,9 @@
 package git4idea.ui;
 
 import consulo.git.localize.GitLocalize;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.DialogWrapper;
 import consulo.ui.ex.awt.Messages;
 import consulo.ui.ex.awt.event.DocumentAdapter;
@@ -28,16 +30,12 @@ import git4idea.GitUtil;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitHandlerUtil;
 import git4idea.commands.GitSimpleHandler;
-import git4idea.i18n.GitBundle;
 import git4idea.repo.GitRepositoryManager;
 import git4idea.util.GitUIUtil;
 import git4idea.util.StringScanner;
-import org.jetbrains.annotations.NonNls;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.HashSet;
 import java.util.List;
@@ -47,252 +45,248 @@ import java.util.Set;
  * The tag dialog for the git
  */
 public class GitTagDialog extends DialogWrapper {
-  /**
-   * Root panel
-   */
-  private JPanel myPanel;
-  /**
-   * Git root selector
-   */
-  private JComboBox myGitRootComboBox;
-  /**
-   * Current branch label
-   */
-  private JLabel myCurrentBranch;
-  /**
-   * Tag name
-   */
-  private JTextField myTagNameTextField;
-  /**
-   * Force tag creation checkbox
-   */
-  private JCheckBox myForceCheckBox;
-  /**
-   * Text area that contains tag message if non-empty
-   */
-  private JTextArea myMessageTextArea;
-  /**
-   * The name of commit to tag
-   */
-  private JTextField myCommitTextField;
-  /**
-   * The validate button
-   */
-  private JButton myValidateButton;
-  /**
-   * The validator for commit text field
-   */
-  private final GitReferenceValidator myCommitTextFieldValidator;
-  /**
-   * The current project
-   */
-  private final Project myProject;
-  /**
-   * Existing tags for the project
-   */
-  private final Set<String> myExistingTags = new HashSet<String>();
-  /**
-   * Prefix for message file name
-   */
-  @NonNls
-  private static final String MESSAGE_FILE_PREFIX = "git-tag-message-";
-  /**
-   * Suffix for message file name
-   */
-  @NonNls
-  private static final String MESSAGE_FILE_SUFFIX = ".txt";
-  /**
-   * Encoding for the message file
-   */
-  @NonNls
-  private static final String MESSAGE_FILE_ENCODING = "UTF-8";
+    /**
+     * Root panel
+     */
+    private JPanel myPanel;
+    /**
+     * Git root selector
+     */
+    private JComboBox myGitRootComboBox;
+    /**
+     * Current branch label
+     */
+    private JLabel myCurrentBranch;
+    /**
+     * Tag name
+     */
+    private JTextField myTagNameTextField;
+    /**
+     * Force tag creation checkbox
+     */
+    private JCheckBox myForceCheckBox;
+    /**
+     * Text area that contains tag message if non-empty
+     */
+    private JTextArea myMessageTextArea;
+    /**
+     * The name of commit to tag
+     */
+    private JTextField myCommitTextField;
+    /**
+     * The validate button
+     */
+    private JButton myValidateButton;
+    /**
+     * The validator for commit text field
+     */
+    private final GitReferenceValidator myCommitTextFieldValidator;
+    /**
+     * The current project
+     */
+    private final Project myProject;
+    /**
+     * Existing tags for the project
+     */
+    private final Set<String> myExistingTags = new HashSet<>();
+    /**
+     * Prefix for message file name
+     */
+    private static final String MESSAGE_FILE_PREFIX = "git-tag-message-";
+    /**
+     * Suffix for message file name
+     */
+    private static final String MESSAGE_FILE_SUFFIX = ".txt";
+    /**
+     * Encoding for the message file
+     */
+    private static final String MESSAGE_FILE_ENCODING = "UTF-8";
 
-  /**
-   * A constructor
-   *
-   * @param project     a project to select
-   * @param roots       a git repository roots for the project
-   * @param defaultRoot a guessed default root
-   */
-  public GitTagDialog(Project project, List<VirtualFile> roots, VirtualFile defaultRoot) {
-    super(project, true);
-    setTitle(GitBundle.message("tag.title"));
-    setOKButtonText(GitBundle.message("tag.button"));
-    myProject = project;
-    GitUIUtil.setupRootChooser(myProject, roots, defaultRoot, myGitRootComboBox, myCurrentBranch);
-    myGitRootComboBox.addActionListener(new ActionListener() {
-      public void actionPerformed(final ActionEvent e) {
+    /**
+     * A constructor
+     *
+     * @param project     a project to select
+     * @param roots       a git repository roots for the project
+     * @param defaultRoot a guessed default root
+     */
+    public GitTagDialog(Project project, List<VirtualFile> roots, VirtualFile defaultRoot) {
+        super(project, true);
+        setTitle(GitLocalize.tagTitle());
+        setOKButtonText(GitLocalize.tagButton());
+        myProject = project;
+        GitUIUtil.setupRootChooser(myProject, roots, defaultRoot, myGitRootComboBox, myCurrentBranch);
+        myGitRootComboBox.addActionListener(e -> {
+            fetchTags();
+            validateFields();
+        });
         fetchTags();
+        myTagNameTextField.getDocument().addDocumentListener(new DocumentAdapter() {
+            @Override
+            protected void textChanged(final DocumentEvent e) {
+                validateFields();
+            }
+        });
+        myCommitTextFieldValidator =
+            new GitReferenceValidator(project, myGitRootComboBox, myCommitTextField, myValidateButton, this::validateFields);
+        myForceCheckBox.addActionListener(e -> {
+            if (myForceCheckBox.isEnabled()) {
+                validateFields();
+            }
+        });
+        init();
         validateFields();
-      }
-    });
-    fetchTags();
-    myTagNameTextField.getDocument().addDocumentListener(new DocumentAdapter() {
-      protected void textChanged(final DocumentEvent e) {
-        validateFields();
-      }
-    });
-    myCommitTextFieldValidator = new GitReferenceValidator(project, myGitRootComboBox, myCommitTextField, myValidateButton, new Runnable() {
-      public void run() {
-        validateFields();
-      }
-    });
-    myForceCheckBox.addActionListener(new ActionListener() {
-      public void actionPerformed(final ActionEvent e) {
-        if (myForceCheckBox.isEnabled()) {
-          validateFields();
+    }
+
+    @Override
+    @RequiredUIAccess
+    public JComponent getPreferredFocusedComponent() {
+        return myTagNameTextField;
+    }
+
+    /**
+     * Perform tagging according to selected options
+     *
+     * @param exceptions the list where exceptions are collected
+     */
+    @RequiredUIAccess
+    public void runAction(final List<VcsException> exceptions) {
+        final String message = myMessageTextArea.getText();
+        final boolean hasMessage = message.trim().length() != 0;
+        final File messageFile;
+        if (hasMessage) {
+            try {
+                messageFile = FileUtil.createTempFile(MESSAGE_FILE_PREFIX, MESSAGE_FILE_SUFFIX);
+                messageFile.deleteOnExit();
+                try (Writer out = new OutputStreamWriter(new FileOutputStream(messageFile), MESSAGE_FILE_ENCODING)) {
+                    out.write(message);
+                }
+            }
+            catch (IOException ex) {
+                Messages.showErrorDialog(
+                    myProject,
+                    GitLocalize.tagErrorCreatingMessageFileMessage(ex.toString()).get(),
+                    GitLocalize.tagErrorCreatingMessageFileTitle().get()
+                );
+                return;
+            }
         }
-      }
-    });
-    init();
-    validateFields();
-  }
-
-  @Override
-  public JComponent getPreferredFocusedComponent() {
-    return myTagNameTextField;
-  }
-
-  /**
-   * Perform tagging according to selected options
-   *
-   * @param exceptions the list where exceptions are collected
-   */
-  public void runAction(final List<VcsException> exceptions) {
-    final String message = myMessageTextArea.getText();
-    final boolean hasMessage = message.trim().length() != 0;
-    final File messageFile;
-    if (hasMessage) {
-      try {
-        messageFile = FileUtil.createTempFile(MESSAGE_FILE_PREFIX, MESSAGE_FILE_SUFFIX);
-        messageFile.deleteOnExit();
-        Writer out = new OutputStreamWriter(new FileOutputStream(messageFile), MESSAGE_FILE_ENCODING);
+        else {
+            messageFile = null;
+        }
         try {
-          out.write(message);
+            GitSimpleHandler h = new GitSimpleHandler(myProject, getGitRoot(), GitCommand.TAG);
+            if (hasMessage) {
+                h.addParameters("-a");
+            }
+            if (myForceCheckBox.isEnabled() && myForceCheckBox.isSelected()) {
+                h.addParameters("-f");
+            }
+            if (hasMessage) {
+                h.addParameters("-F", messageFile.getAbsolutePath());
+            }
+            h.addParameters(myTagNameTextField.getText());
+            String object = myCommitTextField.getText().trim();
+            if (object.length() != 0) {
+                h.addParameters(object);
+            }
+            try {
+                GitHandlerUtil.doSynchronously(h, GitLocalize.taggingTitle(), LocalizeValue.ofNullable(h.printableCommandLine()));
+                VcsNotifier.getInstance(myProject).notifySuccess(
+                    myTagNameTextField.getText(),
+                    "Created tag " + myTagNameTextField.getText() + " successfully."
+                );
+            }
+            finally {
+                exceptions.addAll(h.errors());
+                GitRepositoryManager manager = GitUtil.getRepositoryManager(myProject);
+                manager.updateRepository(getGitRoot());
+            }
         }
         finally {
-          out.close();
+            if (messageFile != null) {
+                //noinspection ResultOfMethodCallIgnored
+                messageFile.delete();
+            }
         }
-      }
-      catch (IOException ex) {
-        Messages.showErrorDialog(myProject, GitBundle.message("tag.error.creating.message.file.message", ex.toString()),
-                                 GitBundle.message("tag.error.creating.message.file.title"));
-        return;
-      }
     }
-    else {
-      messageFile = null;
-    }
-    try {
-      GitSimpleHandler h = new GitSimpleHandler(myProject, getGitRoot(), GitCommand.TAG);
-      if (hasMessage) {
-        h.addParameters("-a");
-      }
-      if (myForceCheckBox.isEnabled() && myForceCheckBox.isSelected()) {
-        h.addParameters("-f");
-      }
-      if (hasMessage) {
-        h.addParameters("-F", messageFile.getAbsolutePath());
-      }
-      h.addParameters(myTagNameTextField.getText());
-      String object = myCommitTextField.getText().trim();
-      if (object.length() != 0) {
-        h.addParameters(object);
-      }
-      try {
-        GitHandlerUtil.doSynchronously(h, GitLocalize.taggingTitle(), h.printableCommandLine());
-        VcsNotifier.getInstance(myProject).notifySuccess(myTagNameTextField.getText(), "Created tag " + myTagNameTextField.getText() + " " +
-          "successfully.");
-      }
-      finally {
-        exceptions.addAll(h.errors());
-        GitRepositoryManager manager = GitUtil.getRepositoryManager(myProject);
-        manager.updateRepository(getGitRoot());
-      }
-    }
-    finally {
-      if (messageFile != null) {
-        //noinspection ResultOfMethodCallIgnored
-        messageFile.delete();
-      }
-    }
-  }
 
-  /**
-   * Validate dialog fields
-   */
-  private void validateFields() {
-    String text = myTagNameTextField.getText();
-    if (myExistingTags.contains(text)) {
-      myForceCheckBox.setEnabled(true);
-      if (!myForceCheckBox.isSelected()) {
-        setErrorText(GitBundle.message("tag.error.tag.exists"));
-        setOKActionEnabled(false);
-        return;
-      }
+    /**
+     * Validate dialog fields
+     */
+    private void validateFields() {
+        String text = myTagNameTextField.getText();
+        if (myExistingTags.contains(text)) {
+            myForceCheckBox.setEnabled(true);
+            if (!myForceCheckBox.isSelected()) {
+                setErrorText(GitLocalize.tagErrorTagExists().get());
+                setOKActionEnabled(false);
+                return;
+            }
+        }
+        else {
+            myForceCheckBox.setEnabled(false);
+            myForceCheckBox.setSelected(false);
+        }
+        if (myCommitTextFieldValidator.isInvalid()) {
+            setErrorText(GitLocalize.tagErrorInvalidCommit().get());
+            setOKActionEnabled(false);
+            return;
+        }
+        if (text.length() == 0) {
+            setErrorText(null);
+            setOKActionEnabled(false);
+            return;
+        }
+        setErrorText(null);
+        setOKActionEnabled(true);
     }
-    else {
-      myForceCheckBox.setEnabled(false);
-      myForceCheckBox.setSelected(false);
+
+    /**
+     * Fetch tags
+     */
+    private void fetchTags() {
+        myExistingTags.clear();
+        GitSimpleHandler h = new GitSimpleHandler(myProject, getGitRoot(), GitCommand.TAG);
+        h.setSilent(true);
+        String output =
+            GitHandlerUtil.doSynchronously(h, GitLocalize.tagGettingExistingTags(), LocalizeValue.ofNullable(h.printableCommandLine()));
+        for (StringScanner s = new StringScanner(output); s.hasMoreData(); ) {
+            String line = s.line();
+            if (line.length() == 0) {
+                continue;
+            }
+            myExistingTags.add(line);
+        }
     }
-    if (myCommitTextFieldValidator.isInvalid()) {
-      setErrorText(GitBundle.message("tag.error.invalid.commit"));
-      setOKActionEnabled(false);
-      return;
+
+    /**
+     * @return the current git root
+     */
+    private VirtualFile getGitRoot() {
+        return (VirtualFile)myGitRootComboBox.getSelectedItem();
     }
-    if (text.length() == 0) {
-      setErrorText(null);
-      setOKActionEnabled(false);
-      return;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected JComponent createCenterPanel() {
+        return myPanel;
     }
-    setErrorText(null);
-    setOKActionEnabled(true);
-  }
 
-  /**
-   * Fetch tags
-   */
-  private void fetchTags() {
-    myExistingTags.clear();
-    GitSimpleHandler h = new GitSimpleHandler(myProject, getGitRoot(), GitCommand.TAG);
-    h.setSilent(true);
-    String output = GitHandlerUtil.doSynchronously(h, GitLocalize.tagGettingExistingTags(), h.printableCommandLine());
-    for (StringScanner s = new StringScanner(output); s.hasMoreData(); ) {
-      String line = s.line();
-      if (line.length() == 0) {
-        continue;
-      }
-      myExistingTags.add(line);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected String getDimensionServiceKey() {
+        return getClass().getName();
     }
-  }
 
-  /**
-   * @return the current git root
-   */
-  private VirtualFile getGitRoot() {
-    return (VirtualFile)myGitRootComboBox.getSelectedItem();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  protected JComponent createCenterPanel() {
-    return myPanel;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  protected String getDimensionServiceKey() {
-    return getClass().getName();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  protected String getHelpId() {
-    return "reference.VersionControl.Git.TagFiles";
-  }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected String getHelpId() {
+        return "reference.VersionControl.Git.TagFiles";
+    }
 }

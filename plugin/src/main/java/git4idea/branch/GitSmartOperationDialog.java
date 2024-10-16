@@ -24,6 +24,7 @@ import consulo.ui.ex.awt.UIUtil;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -37,94 +38,92 @@ import static consulo.util.lang.StringUtil.capitalize;
  * Displays the list of these files and proposes to make a "smart" merge or checkout.
  */
 public class GitSmartOperationDialog extends DialogWrapper {
+    public static final int SMART_EXIT_CODE = OK_EXIT_CODE;
+    public static final int FORCE_EXIT_CODE = NEXT_USER_EXIT_CODE;
 
-  public static final int SMART_EXIT_CODE = OK_EXIT_CODE;
-  public static final int FORCE_EXIT_CODE = NEXT_USER_EXIT_CODE;
+    @Nonnull
+    private final JComponent myFileBrowser;
+    @Nonnull
+    private final String myOperationTitle;
+    @Nullable
+    private final String myForceButton;
 
-  @Nonnull
-  private final JComponent myFileBrowser;
-  @Nonnull
-  private final String myOperationTitle;
-  @Nullable
-  private final String myForceButton;
-
-  /**
-   * Shows the dialog with the list of local changes preventing merge/checkout and returns the dialog exit code.
-   */
-  static int showAndGetAnswer(@Nonnull final Project project,
-                              @Nonnull final JComponent fileBrowser,
-                              @Nonnull final String operationTitle,
-                              @Nullable final String forceButtonTitle) {
-    final AtomicInteger exitCode = new AtomicInteger();
-    UIUtil.invokeAndWaitIfNeeded(new Runnable() {
-      @Override
-      public void run() {
-        GitSmartOperationDialog dialog = new GitSmartOperationDialog(project, fileBrowser, operationTitle, forceButtonTitle);
-        dialog.show();
-        exitCode.set(dialog.getExitCode());
-      }
-    });
-    return exitCode.get();
-  }
-
-  private GitSmartOperationDialog(@Nonnull Project project,
-                                  @Nonnull JComponent fileBrowser,
-                                  @Nonnull String operationTitle,
-                                  @Nullable String forceButton) {
-    super(project);
-    myFileBrowser = fileBrowser;
-    myOperationTitle = operationTitle;
-    myForceButton = forceButton;
-    String capitalizedOperation = capitalize(myOperationTitle);
-    setTitle("Git " + capitalizedOperation + " Problem");
-
-    setOKButtonText("Smart " + capitalizedOperation);
-    getOKAction().putValue(Action.SHORT_DESCRIPTION, "Stash local changes, " + operationTitle + ", unstash");
-    setCancelButtonText("Don't " + capitalizedOperation);
-    getCancelAction().putValue(FOCUSED_ACTION, Boolean.TRUE);
-    init();
-  }
-
-  @Nonnull
-  @Override
-  protected Action[] createLeftSideActions() {
-    if (myForceButton != null) {
-      return new Action[]{new ForceCheckoutAction(myForceButton, myOperationTitle)};
+    /**
+     * Shows the dialog with the list of local changes preventing merge/checkout and returns the dialog exit code.
+     */
+    static int showAndGetAnswer(
+        @Nonnull final Project project,
+        @Nonnull final JComponent fileBrowser,
+        @Nonnull final String operationTitle,
+        @Nullable final String forceButtonTitle
+    ) {
+        final AtomicInteger exitCode = new AtomicInteger();
+        UIUtil.invokeAndWaitIfNeeded((Runnable)() -> {
+            GitSmartOperationDialog dialog = new GitSmartOperationDialog(project, fileBrowser, operationTitle, forceButtonTitle);
+            dialog.show();
+            exitCode.set(dialog.getExitCode());
+        });
+        return exitCode.get();
     }
-    return new Action[0];
-  }
 
-  @Override
-  protected JComponent createNorthPanel() {
-    JBLabel description = new JBLabel("<html>Your local changes to the following files would be overwritten by " + myOperationTitle +
-                                        ".<br/>" + Application.get().getName() + " can stash the changes, " +
-                                        "" + myOperationTitle + " and unstash them after that.</html>");
-    description.setBorder(IdeBorderFactory.createEmptyBorder(0, 0, 10, 0));
-    return description;
-  }
+    private GitSmartOperationDialog(
+        @Nonnull Project project,
+        @Nonnull JComponent fileBrowser,
+        @Nonnull String operationTitle,
+        @Nullable String forceButton
+    ) {
+        super(project);
+        myFileBrowser = fileBrowser;
+        myOperationTitle = operationTitle;
+        myForceButton = forceButton;
+        String capitalizedOperation = capitalize(myOperationTitle);
+        setTitle("Git " + capitalizedOperation + " Problem");
 
-  @Override
-  protected JComponent createCenterPanel() {
-    return myFileBrowser;
-  }
+        setOKButtonText("Smart " + capitalizedOperation);
+        getOKAction().putValue(Action.SHORT_DESCRIPTION, "Stash local changes, " + operationTitle + ", unstash");
+        setCancelButtonText("Don't " + capitalizedOperation);
+        getCancelAction().putValue(FOCUSED_ACTION, Boolean.TRUE);
+        init();
+    }
 
-  @Override
-  protected String getDimensionServiceKey() {
-    return GitSmartOperationDialog.class.getName();
-  }
-
-
-  private class ForceCheckoutAction extends AbstractAction {
-
-    ForceCheckoutAction(@Nonnull String buttonTitle, @Nonnull String operationTitle) {
-      super(buttonTitle);
-      putValue(Action.SHORT_DESCRIPTION, capitalize(operationTitle) + " and overwrite local changes");
+    @Nonnull
+    @Override
+    protected Action[] createLeftSideActions() {
+        if (myForceButton != null) {
+            return new Action[]{new ForceCheckoutAction(myForceButton, myOperationTitle)};
+        }
+        return new Action[0];
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {
-      close(FORCE_EXIT_CODE);
+    protected JComponent createNorthPanel() {
+        JBLabel description = new JBLabel("<html>Your local changes to the following files would be overwritten by " + myOperationTitle +
+            ".<br/>" + Application.get().getName() + " can stash the changes, " +
+            "" + myOperationTitle + " and unstash them after that.</html>");
+        description.setBorder(IdeBorderFactory.createEmptyBorder(0, 0, 10, 0));
+        return description;
     }
-  }
 
+    @Override
+    protected JComponent createCenterPanel() {
+        return myFileBrowser;
+    }
+
+    @Override
+    protected String getDimensionServiceKey() {
+        return GitSmartOperationDialog.class.getName();
+    }
+
+    private class ForceCheckoutAction extends AbstractAction {
+
+        ForceCheckoutAction(@Nonnull String buttonTitle, @Nonnull String operationTitle) {
+            super(buttonTitle);
+            putValue(Action.SHORT_DESCRIPTION, capitalize(operationTitle) + " and overwrite local changes");
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            close(FORCE_EXIT_CODE);
+        }
+    }
 }

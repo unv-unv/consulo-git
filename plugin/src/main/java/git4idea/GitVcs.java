@@ -68,7 +68,6 @@ import git4idea.config.*;
 import git4idea.diff.GitDiffProvider;
 import git4idea.diff.GitTreeDiffProvider;
 import git4idea.history.GitHistoryProvider;
-import git4idea.i18n.GitBundle;
 import git4idea.merge.GitMergeProvider;
 import git4idea.rollback.GitRollbackEnvironment;
 import git4idea.roots.GitIntegrationEnabler;
@@ -389,7 +388,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList> {
      * @param contentType a style to use
      */
     private void showMessage(@Nonnull LocalizeValue message, @Nonnull ConsoleViewContentType contentType) {
-        GitVcsConsoleWriter.getInstance(myProject).showMessage(message.get(), contentType);
+        GitVcsConsoleWriter.getInstance(myProject).showMessage(message, contentType);
     }
 
     /**
@@ -443,7 +442,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList> {
                 final String reason = (e.getCause() != null ? e.getCause() : e).getMessage();
                 LocalizeValue message = GitLocalize.vcsUnableToRunGit(executable, reason);
                 if (!myProject.isDefault()) {
-                    showMessage(message.get(), ConsoleViewContentType.SYSTEM_OUTPUT);
+                    showMessage(message, ConsoleViewContentType.SYSTEM_OUTPUT);
                 }
                 VcsBalloonProblemNotifier.showOverVersionControlView(myProject, message.get(), NotificationType.ERROR);
             }

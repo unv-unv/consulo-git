@@ -17,9 +17,9 @@ package git4idea.update;
 
 import consulo.configurable.Configurable;
 import consulo.configurable.ConfigurationException;
+import consulo.git.localize.GitLocalize;
+import consulo.ui.annotation.RequiredUIAccess;
 import git4idea.config.GitVcsSettings;
-import git4idea.i18n.GitBundle;
-import org.jetbrains.annotations.Nls;
 
 import javax.swing.*;
 
@@ -44,14 +44,15 @@ public class GitUpdateConfigurable implements Configurable {
     /**
      * {@inheritDoc}
      */
-    @Nls
+    @Override
     public String getDisplayName() {
-        return GitBundle.message("update.options.display.name");
+        return GitLocalize.updateOptionsDisplayName().get();
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getHelpTopic() {
         return "reference.VersionControl.Git.UpdateProject";
     }
@@ -59,6 +60,8 @@ public class GitUpdateConfigurable implements Configurable {
     /**
      * {@inheritDoc}
      */
+    @Override
+    @RequiredUIAccess
     public JComponent createComponent() {
         myPanel = new GitUpdateOptionsPanel();
         return myPanel.getPanel();  //To change body of implemented methods use File | Settings | File Templates.
@@ -67,6 +70,8 @@ public class GitUpdateConfigurable implements Configurable {
     /**
      * {@inheritDoc}
      */
+    @Override
+    @RequiredUIAccess
     public boolean isModified() {
         return myPanel.isModified(mySettings);
     }
@@ -74,6 +79,8 @@ public class GitUpdateConfigurable implements Configurable {
     /**
      * {@inheritDoc}
      */
+    @Override
+    @RequiredUIAccess
     public void apply() throws ConfigurationException {
         myPanel.applyTo(mySettings);
     }
@@ -81,6 +88,8 @@ public class GitUpdateConfigurable implements Configurable {
     /**
      * {@inheritDoc}
      */
+    @Override
+    @RequiredUIAccess
     public void reset() {
         myPanel.updateFrom(mySettings);
     }
@@ -88,6 +97,8 @@ public class GitUpdateConfigurable implements Configurable {
     /**
      * {@inheritDoc}
      */
+    @Override
+    @RequiredUIAccess
     public void disposeUIResources() {
         myPanel = null;
     }
