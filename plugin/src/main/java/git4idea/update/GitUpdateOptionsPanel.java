@@ -97,6 +97,6 @@ public class GitUpdateOptionsPanel {
 
     private void createUIComponents() {
         myShelveRadioButton = new JRadioButton(GitLocalize.updateOptionsSaveShelve().get());
-        myShelveRadioButton.setToolTipText(GitLocalize.updateOptionsSaveShelveTooltip(Application.get().getName().get()).get());
+        myShelveRadioButton.setToolTipText(GitLocalize.updateOptionsSaveShelveTooltip(Application.get().getName()).get());
     }
 }

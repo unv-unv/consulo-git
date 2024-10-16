@@ -15,6 +15,7 @@
  */
 package git4idea.merge;
 
+import consulo.git.localize.GitLocalize;
 import consulo.logging.Logger;
 import consulo.project.Project;
 import consulo.ui.ex.awt.ColumnInfo;
@@ -35,11 +36,9 @@ import git4idea.GitRevisionNumber;
 import git4idea.GitUtil;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitSimpleHandler;
-import git4idea.i18n.GitBundle;
 import git4idea.repo.GitRepository;
 import git4idea.util.GitFileUtils;
 import git4idea.util.StringScanner;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
@@ -104,6 +103,7 @@ public class GitMergeProvider implements MergeProvider2 {
     }
 
     @Nonnull
+    @Override
     public MergeData loadRevisions(final VirtualFile file) throws VcsException {
         final MergeData mergeData = new MergeData();
         if (file == null) {
@@ -112,31 +112,28 @@ public class GitMergeProvider implements MergeProvider2 {
         final VirtualFile root = GitUtil.getGitRoot(file);
         final FilePath path = VcsUtil.getFilePath(file.getPath());
 
-        VcsRunnable runnable = new VcsRunnable() {
-            @SuppressWarnings({"ConstantConditions"})
-            public void run() throws VcsException {
-                GitFileRevision original = new GitFileRevision(myProject, path, new GitRevisionNumber(":" + ORIGINAL_REVISION_NUM));
-                GitFileRevision current = new GitFileRevision(myProject, path, new GitRevisionNumber(":" + yoursRevision(root)));
-                GitFileRevision last = new GitFileRevision(myProject, path, new GitRevisionNumber(":" + theirsRevision(root)));
+        VcsRunnable runnable = () -> {
+            GitFileRevision original = new GitFileRevision(myProject, path, new GitRevisionNumber(":" + ORIGINAL_REVISION_NUM));
+            GitFileRevision current = new GitFileRevision(myProject, path, new GitRevisionNumber(":" + yoursRevision(root)));
+            GitFileRevision last = new GitFileRevision(myProject, path, new GitRevisionNumber(":" + theirsRevision(root)));
+            try {
                 try {
-                    try {
-                        mergeData.ORIGINAL = original.getContent();
-                    }
-                    catch (Exception ex) {
-                        /// unable to load original revision, use the current instead
-                        /// This could happen in case if rebasing.
-                        mergeData.ORIGINAL = file.contentsToByteArray();
-                    }
-                    mergeData.CURRENT = loadRevisionCatchingErrors(current);
-                    mergeData.LAST = loadRevisionCatchingErrors(last);
-                    mergeData.LAST_REVISION_NUMBER = findLastRevisionNumber(root);
+                    mergeData.ORIGINAL = original.getContent();
                 }
-                catch (IOException e) {
-                    throw new IllegalStateException("Failed to load file content", e);
+                catch (Exception ex) {
+                    /// unable to load original revision, use the current instead
+                    /// This could happen in case if rebasing.
+                    mergeData.ORIGINAL = file.contentsToByteArray();
                 }
+                mergeData.CURRENT = loadRevisionCatchingErrors(current);
+                mergeData.LAST = loadRevisionCatchingErrors(last);
+                mergeData.LAST_REVISION_NUMBER = findLastRevisionNumber(root);
+            }
+            catch (IOException e) {
+                throw new IllegalStateException("Failed to load file content", e);
             }
         };
-        VcsUtil.runVcsProcessWithProgress(runnable, GitBundle.message("merge.load.files"), false, myProject);
+        VcsUtil.runVcsProcessWithProgress(runnable, GitLocalize.mergeLoadFiles().get(), false, myProject);
         return mergeData;
     }
 
@@ -207,6 +204,7 @@ public class GitMergeProvider implements MergeProvider2 {
         return myReverseRoots.contains(root) ? YOURS_REVISION_NUM : THEIRS_REVISION_NUM;
     }
 
+    @Override
     public void conflictResolvedForFile(VirtualFile file) {
         if (file == null) {
             return;
@@ -219,11 +217,13 @@ public class GitMergeProvider implements MergeProvider2 {
         }
     }
 
+    @Override
     public boolean isBinary(@Nonnull VirtualFile file) {
         return file.getFileType().isBinary();
     }
 
     @Nonnull
+    @Override
     public MergeSession createMergeSession(List<VirtualFile> files) {
         return new MyMergeSession(files);
     }
@@ -317,15 +317,18 @@ public class GitMergeProvider implements MergeProvider2 {
             }
         }
 
+        @Override
         public ColumnInfo[] getMergeInfoColumns() {
             return new ColumnInfo[]{new StatusColumn(false), new StatusColumn(true)};
         }
 
+        @Override
         public boolean canMerge(VirtualFile file) {
             Conflict c = myConflicts.get(file);
             return c != null;
         }
 
+        @Override
         public void conflictResolvedForFile(VirtualFile file, Resolution resolution) {
             Conflict c = myConflicts.get(file);
             assert c != null : "Conflict was not loaded for the file: " + file.getPath();
@@ -370,27 +373,25 @@ public class GitMergeProvider implements MergeProvider2 {
             private final boolean myIsTheirs;
 
             public StatusColumn(boolean isTheirs) {
-                super(isTheirs ? GitBundle.message("merge.tool.column.theirs.status") : GitBundle.message("merge.tool.column.yours.status"));
+                super(isTheirs ? GitLocalize.mergeToolColumnTheirsStatus().get() : GitLocalize.mergeToolColumnYoursStatus().get());
                 myIsTheirs = isTheirs;
             }
 
+            @Override
             public String valueOf(VirtualFile file) {
                 Conflict c = myConflicts.get(file);
                 assert c != null : "No conflict for the file " + file;
                 Conflict.Status s = myIsTheirs ? c.myStatusTheirs : c.myStatusYours;
-                switch (s) {
-                    case MODIFIED:
-                        return GitBundle.message("merge.tool.column.status.modified");
-                    case DELETED:
-                        return GitBundle.message("merge.tool.column.status.deleted");
-                    default:
-                        throw new IllegalStateException("Unknown status " + s + " for file " + file.getPath());
-                }
+                return switch (s) {
+                    case MODIFIED -> GitLocalize.mergeToolColumnStatusModified().get();
+                    case DELETED -> GitLocalize.mergeToolColumnStatusDeleted().get();
+                    default -> throw new IllegalStateException("Unknown status " + s + " for file " + file.getPath());
+                };
             }
 
             @Override
             public String getMaxStringValue() {
-                return GitBundle.message("merge.tool.column.status.modified");
+                return GitLocalize.mergeToolColumnStatusModified().get();
             }
 
             @Override

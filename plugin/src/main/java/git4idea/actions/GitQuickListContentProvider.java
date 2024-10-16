@@ -72,7 +72,7 @@ public class GitQuickListContentProvider implements VcsQuickListContentProvider 
         addSeparator(actions);
         final AnAction githubRebase = manager.getAction("Github.Rebase");
         if (githubRebase != null) {
-            actions.add(new AnSeparator(GitLocalize.vcsPopupGitGithubSection().get()));
+            actions.add(new AnSeparator(GitLocalize.vcsPopupGitGithubSection()));
             actions.add(githubRebase);
         }
 

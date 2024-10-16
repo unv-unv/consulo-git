@@ -71,7 +71,7 @@ public class GitRebaseEditor extends DialogWrapper implements DataProvider {
         myProject = project;
         myRoot = gitRoot;
         setTitle(GitLocalize.rebaseEditorTitle());
-        setOKButtonText(GitLocalize.rebaseEditorButton().get());
+        setOKButtonText(GitLocalize.rebaseEditorButton());
 
         myTableModel = new MyTableModel(entries);
         myCommitsTable = new JBTable(myTableModel);
@@ -153,8 +153,7 @@ public class GitRebaseEditor extends DialogWrapper implements DataProvider {
             .disableAddAction()
             .disableRemoveAction()
             .addExtraAction(new MyDiffAction())
-            .setMoveUpAction(new MoveUpDownActionListener(MoveDirection
-                .UP))
+            .setMoveUpAction(new MoveUpDownActionListener(MoveDirection.UP))
             .setMoveDownAction(new MoveUpDownActionListener(MoveDirection.DOWN))
             .createPanel();
     }

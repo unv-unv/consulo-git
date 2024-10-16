@@ -15,13 +15,13 @@
  */
 package git4idea.commands;
 
+import consulo.git.localize.GitLocalize;
 import consulo.process.ProcessOutputTypes;
 import consulo.project.Project;
 import consulo.util.dataholder.Key;
 import consulo.util.lang.StringUtil;
 import consulo.versionControlSystem.VcsException;
 import consulo.virtualFileSystem.VirtualFile;
-import git4idea.i18n.GitBundle;
 import jakarta.annotation.Nonnull;
 
 import java.io.File;
@@ -80,6 +80,7 @@ public class GitSimpleHandler extends GitTextHandler {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected void processTerminated(final int exitCode) {
         if (myVcs == null) {
             return;
@@ -121,6 +122,7 @@ public class GitSimpleHandler extends GitTextHandler {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected void onTextAvailable(final String text, final Key outputType) {
         final StringBuilder entire;
         final StringBuilder lineRest;
@@ -214,6 +216,7 @@ public class GitSimpleHandler extends GitTextHandler {
         final VcsException[] ex = new VcsException[1];
         final String[] result = new String[1];
         addListener(new GitHandlerListener() {
+            @Override
             public void processTerminated(final int exitCode) {
                 try {
                     if (exitCode == 0 || isIgnoredErrorCode(exitCode)) {
@@ -221,11 +224,11 @@ public class GitSimpleHandler extends GitTextHandler {
                     }
                     else {
                         String msg = getStderr();
-                        if (msg.length() == 0) {
+                        if (msg.isEmpty()) {
                             msg = getStdout();
                         }
-                        if (msg.length() == 0) {
-                            msg = GitBundle.message("git.error.exit", exitCode);
+                        if (msg.isEmpty()) {
+                            msg = GitLocalize.gitErrorExit(exitCode).get();
                         }
                         ex[0] = new VcsException(msg);
                     }
@@ -235,6 +238,7 @@ public class GitSimpleHandler extends GitTextHandler {
                 }
             }
 
+            @Override
             public void startFailed(final Throwable exception) {
                 ex[0] = new VcsException(
                     "Process failed to start (" + myCommandLine.getCommandLineString() + "): " + exception.toString(),

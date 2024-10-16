@@ -15,12 +15,13 @@
  */
 package git4idea.ui;
 
+import consulo.git.localize.GitLocalize;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.ui.ex.awt.DialogWrapper;
 import consulo.virtualFileSystem.VirtualFile;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitLineHandler;
-import git4idea.i18n.GitBundle;
 import git4idea.util.GitUIUtil;
 
 import javax.swing.*;
@@ -30,18 +31,6 @@ import java.util.List;
  * The dialog for the "git reset" operation
  */
 public class GitResetDialog extends DialogWrapper {
-    /**
-     * The --soft reset type
-     */
-    private static final String SOFT = GitBundle.message("reset.type.soft");
-    /**
-     * The --mixed reset type
-     */
-    private static final String MIXED = GitBundle.message("reset.type.mixed");
-    /**
-     * The --hard reset type
-     */
-    private static final String HARD = GitBundle.message("reset.type.hard");
     /**
      * Git root selector
      */
@@ -53,7 +42,7 @@ public class GitResetDialog extends DialogWrapper {
     /**
      * The selector for reset type
      */
-    private JComboBox myResetTypeComboBox;
+    private JComboBox<LocalizeValue> myResetTypeComboBox;
     /**
      * The text field that contains commit expressions
      */
@@ -86,19 +75,15 @@ public class GitResetDialog extends DialogWrapper {
     public GitResetDialog(final Project project, final List<VirtualFile> roots, final VirtualFile defaultRoot) {
         super(project, true);
         myProject = project;
-        setTitle(GitBundle.message("reset.title"));
-        setOKButtonText(GitBundle.message("reset.button"));
-        myResetTypeComboBox.addItem(MIXED);
-        myResetTypeComboBox.addItem(SOFT);
-        myResetTypeComboBox.addItem(HARD);
-        myResetTypeComboBox.setSelectedItem(MIXED);
+        setTitle(GitLocalize.resetTitle());
+        setOKButtonText(GitLocalize.resetButton());
+        myResetTypeComboBox.addItem(GitLocalize.resetTypeMixed());
+        myResetTypeComboBox.addItem(GitLocalize.resetTypeSoft());
+        myResetTypeComboBox.addItem(GitLocalize.resetTypeHard());
+        myResetTypeComboBox.setSelectedItem(GitLocalize.resetTypeMixed());
         GitUIUtil.setupRootChooser(project, roots, defaultRoot, myGitRootComboBox, myCurrentBranchLabel);
         myGitReferenceValidator =
-            new GitReferenceValidator(myProject, myGitRootComboBox, myCommitTextField, myValidateButton, new Runnable() {
-                public void run() {
-                    validateFields();
-                }
-            });
+            new GitReferenceValidator(myProject, myGitRootComboBox, myCommitTextField, myValidateButton, this::validateFields);
         init();
     }
 
@@ -107,7 +92,7 @@ public class GitResetDialog extends DialogWrapper {
      */
     void validateFields() {
         if (myGitReferenceValidator.isInvalid()) {
-            setErrorText(GitBundle.message("reset.commit.invalid"));
+            setErrorText(GitLocalize.resetCommitInvalid().get());
             setOKActionEnabled(false);
         }
         setErrorText(null);
@@ -119,14 +104,14 @@ public class GitResetDialog extends DialogWrapper {
      */
     public GitLineHandler handler() {
         GitLineHandler handler = new GitLineHandler(myProject, getGitRoot(), GitCommand.RESET);
-        String type = (String)myResetTypeComboBox.getSelectedItem();
-        if (SOFT.equals(type)) {
+        LocalizeValue type = (LocalizeValue)myResetTypeComboBox.getSelectedItem();
+        if (GitLocalize.resetTypeSoft().equals(type)) {
             handler.addParameters("--soft");
         }
-        else if (HARD.equals(type)) {
+        else if (GitLocalize.resetTypeHard().equals(type)) {
             handler.addParameters("--hard");
         }
-        else if (MIXED.equals(type)) {
+        else if (GitLocalize.resetTypeMixed().equals(type)) {
             handler.addParameters("--mixed");
         }
         final String commit = myCommitTextField.getText().trim();
@@ -147,6 +132,7 @@ public class GitResetDialog extends DialogWrapper {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected JComponent createCenterPanel() {
         return myPanel;
     }

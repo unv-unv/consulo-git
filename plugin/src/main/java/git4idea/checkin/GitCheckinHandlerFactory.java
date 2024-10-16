@@ -19,12 +19,14 @@ import consulo.annotation.component.ExtensionImpl;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.ProgressManager;
 import consulo.application.progress.Task;
+import consulo.git.localize.GitLocalize;
 import consulo.ide.ServiceManager;
 import consulo.logging.Logger;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.Messages;
 import consulo.ui.ex.awt.UIUtil;
-import consulo.util.lang.Pair;
+import consulo.util.lang.Couple;
 import consulo.util.lang.StringUtil;
 import consulo.util.lang.function.PairConsumer;
 import consulo.util.lang.xml.XmlStringUtil;
@@ -47,7 +49,6 @@ import git4idea.config.GitVersionSpecialty;
 import git4idea.crlf.GitCrlfDialog;
 import git4idea.crlf.GitCrlfProblemsDetector;
 import git4idea.crlf.GitCrlfUtil;
-import git4idea.i18n.GitBundle;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import jakarta.annotation.Nonnull;
@@ -90,6 +91,7 @@ public class GitCheckinHandlerFactory extends VcsCheckinHandlerFactory {
         }
 
         @Override
+        @RequiredUIAccess
         public ReturnResult beforeCheckin(@Nullable CommitExecutor executor, PairConsumer<Object, Object> additionalDataConsumer) {
             if (emptyCommitMessage()) {
                 return ReturnResult.CANCEL;
@@ -139,12 +141,7 @@ public class GitCheckinHandlerFactory extends VcsCheckinHandlerFactory {
 
             if (crlfHelper.get().shouldWarn()) {
                 final GitCrlfDialog dialog = new GitCrlfDialog(myProject);
-                UIUtil.invokeAndWaitIfNeeded(new Runnable() {
-                    @Override
-                    public void run() {
-                        dialog.show();
-                    }
-                });
+                UIUtil.invokeAndWaitIfNeeded((Runnable)dialog::show);
                 int decision = dialog.getExitCode();
                 if (decision == GitCrlfDialog.CANCEL) {
                     return ReturnResult.CANCEL;
@@ -175,13 +172,14 @@ public class GitCheckinHandlerFactory extends VcsCheckinHandlerFactory {
             }
         }
 
+        @RequiredUIAccess
         private ReturnResult checkUserName() {
             Project project = myPanel.getProject();
             GitVcs vcs = GitVcs.getInstance(project);
             assert vcs != null;
 
             Collection<VirtualFile> notDefined = new ArrayList<>();
-            Map<VirtualFile, Pair<String, String>> defined = new HashMap<>();
+            Map<VirtualFile, Couple<String>> defined = new HashMap<>();
             Collection<VirtualFile> allRoots = new ArrayList<>(
                 Arrays.asList(ProjectLevelVcsManager.getInstance(project).getRootsUnderVcs(vcs))
             );
@@ -189,7 +187,7 @@ public class GitCheckinHandlerFactory extends VcsCheckinHandlerFactory {
             Collection<VirtualFile> affectedRoots = getSelectedRoots();
             for (VirtualFile root : affectedRoots) {
                 try {
-                    Pair<String, String> nameAndEmail = getUserNameAndEmailFromGitConfig(project, root);
+                    Couple<String> nameAndEmail = getUserNameAndEmailFromGitConfig(project, root);
                     String name = nameAndEmail.getFirst();
                     String email = nameAndEmail.getSecond();
                     if (name == null || email == null) {
@@ -226,7 +224,7 @@ public class GitCheckinHandlerFactory extends VcsCheckinHandlerFactory {
                 allRoots.removeAll(affectedRoots);
                 for (VirtualFile root : allRoots) {
                     try {
-                        Pair<String, String> nameAndEmail = getUserNameAndEmailFromGitConfig(project, root);
+                        Couple<String> nameAndEmail = getUserNameAndEmailFromGitConfig(project, root);
                         String name = nameAndEmail.getFirst();
                         String email = nameAndEmail.getSecond();
                         if (name != null && email != null) {
@@ -280,28 +278,30 @@ public class GitCheckinHandlerFactory extends VcsCheckinHandlerFactory {
         }
 
         @Nonnull
-        private Pair<String, String> getUserNameAndEmailFromGitConfig(
+        private Couple<String> getUserNameAndEmailFromGitConfig(
             @Nonnull Project project,
             @Nonnull VirtualFile root
         ) throws VcsException {
             String name = GitConfigUtil.getValue(project, root, GitConfigUtil.USER_NAME);
             String email = GitConfigUtil.getValue(project, root, GitConfigUtil.USER_EMAIL);
-            return Pair.create(name, email);
+            return Couple.of(name, email);
         }
 
+        @RequiredUIAccess
         private boolean emptyCommitMessage() {
             if (myPanel.getCommitMessage().trim().isEmpty()) {
                 Messages.showMessageDialog(
                     myPanel.getComponent(),
-                    GitBundle.message("git.commit.message.empty"),
-                    GitBundle.message("git.commit.message.empty.title"),
-                    Messages.getErrorIcon()
+                    GitLocalize.gitCommitMessageEmpty().get(),
+                    GitLocalize.gitCommitMessageEmptyTitle().get(),
+                    UIUtil.getErrorIcon()
                 );
                 return true;
             }
             return false;
         }
 
+        @RequiredUIAccess
         private ReturnResult warnAboutDetachedHeadIfNeeded() {
             // Warning: commit on a detached HEAD
             DetachedRoot detachedRoot = getDetachedRoot();
@@ -334,7 +334,7 @@ public class GitCheckinHandlerFactory extends VcsCheckinHandlerFactory {
                 title,
                 "Cancel",
                 "Commit",
-                Messages.getWarningIcon()
+                UIUtil.getWarningIcon()
             );
             if (choice == 1) {
                 return ReturnResult.COMMIT;

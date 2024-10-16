@@ -16,9 +16,11 @@
 package git4idea.stash;
 
 import consulo.application.progress.ProgressIndicator;
+import consulo.git.localize.GitLocalize;
 import consulo.ide.impl.idea.openapi.vcs.changes.shelf.ShelveChangesManager;
 import consulo.ide.impl.idea.openapi.vcs.changes.shelf.ShelvedChangeList;
 import consulo.ide.impl.idea.openapi.vcs.changes.shelf.ShelvedChangesViewManager;
+import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.project.Project;
 import consulo.versionControlSystem.ProjectLevelVcsManager;
@@ -27,9 +29,7 @@ import consulo.versionControlSystem.base.LocalChangesUnderRoots;
 import consulo.versionControlSystem.change.Change;
 import consulo.virtualFileSystem.VirtualFile;
 import git4idea.commands.Git;
-import git4idea.i18n.GitBundle;
 import git4idea.rollback.GitRollbackEnvironment;
-
 import jakarta.annotation.Nonnull;
 
 import java.util.*;
@@ -56,8 +56,8 @@ public class GitShelveChangesSaver extends GitChangesSaver {
         final Map<String, Map<VirtualFile, Collection<Change>>> lists =
             new LocalChangesUnderRoots(myChangeManager, myVcsManager).getChangesByLists(rootsToSave);
 
-        String oldProgressTitle = myProgressIndicator.getText();
-        myProgressIndicator.setText(GitBundle.message("update.shelving.changes"));
+        LocalizeValue oldProgressTitle = myProgressIndicator.getTextValue();
+        myProgressIndicator.setTextValue(GitLocalize.updateShelvingChanges());
         List<VcsException> exceptions = new ArrayList<>(1);
         myShelvedLists = new HashMap<>();
 
@@ -90,15 +90,15 @@ public class GitShelveChangesSaver extends GitChangesSaver {
                 GitRollbackEnvironment.resetHardLocal(myProject, root);
             }
         }
-        myProgressIndicator.setText(oldProgressTitle);
+        myProgressIndicator.setTextValue(oldProgressTitle);
     }
 
     @Override
     public void load() {
         if (myShelvedLists != null) {
             LOG.info("load ");
-            String oldProgressTitle = myProgressIndicator.getText();
-            myProgressIndicator.setText(GitBundle.message("update.unshelving.changes"));
+            LocalizeValue oldProgressTitle = myProgressIndicator.getTextValue();
+            myProgressIndicator.setTextValue(GitLocalize.updateUnshelvingChanges());
             for (ShelvedChangeList list : myShelvedLists.values()) {
                 GitShelveUtils.doSystemUnshelve(
                     myProject,
@@ -108,7 +108,7 @@ public class GitShelveChangesSaver extends GitChangesSaver {
                     getConflictRightPanelTitle()
                 );
             }
-            myProgressIndicator.setText(oldProgressTitle);
+            myProgressIndicator.setTextValue(oldProgressTitle);
         }
     }
 

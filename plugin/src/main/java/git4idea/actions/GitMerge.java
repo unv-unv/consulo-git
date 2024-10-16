@@ -89,7 +89,7 @@ public class GitMerge extends GitRepositoryAction {
             GitHandlerUtil.doSynchronously(
                 lineHandler,
                 GitLocalize.mergingTitle(dialog.getSelectedRoot().getPath()),
-                lineHandler.printableCommandLine()
+                LocalizeValue.ofNullable(lineHandler.printableCommandLine())
             );
         }
         finally {

@@ -15,12 +15,13 @@
  */
 package git4idea.rebase;
 
+import consulo.git.localize.GitLocalize;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.DialogWrapper;
 import consulo.util.io.FileUtil;
 import consulo.virtualFileSystem.VirtualFile;
 import git4idea.config.GitConfigUtil;
-import git4idea.i18n.GitBundle;
 
 import javax.swing.*;
 import java.io.File;
@@ -63,8 +64,8 @@ public class GitRebaseUnstructuredEditor extends DialogWrapper {
      */
     protected GitRebaseUnstructuredEditor(Project project, VirtualFile root, String path) throws IOException {
         super(project, true);
-        setTitle(GitBundle.message("rebase.unstructured.editor.title"));
-        setOKButtonText(GitBundle.message("rebase.unstructured.editor.button"));
+        setTitle(GitLocalize.rebaseUnstructuredEditorTitle());
+        setOKButtonText(GitLocalize.rebaseUnstructuredEditorButton());
         myGitRootLabel.setText(root.getPresentableUrl());
         encoding = GitConfigUtil.getCommitEncoding(project, root);
         myFile = new File(path);
@@ -85,6 +86,7 @@ public class GitRebaseUnstructuredEditor extends DialogWrapper {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected JComponent createCenterPanel() {
         return myPanel;
     }
@@ -98,6 +100,7 @@ public class GitRebaseUnstructuredEditor extends DialogWrapper {
     }
 
     @Override
+    @RequiredUIAccess
     public JComponent getPreferredFocusedComponent() {
         return myTextArea;
     }

@@ -38,7 +38,6 @@ import static consulo.util.lang.StringUtil.capitalize;
  * Displays the list of these files and proposes to make a "smart" merge or checkout.
  */
 public class GitSmartOperationDialog extends DialogWrapper {
-
     public static final int SMART_EXIT_CODE = OK_EXIT_CODE;
     public static final int FORCE_EXIT_CODE = NEXT_USER_EXIT_CODE;
 
@@ -59,13 +58,10 @@ public class GitSmartOperationDialog extends DialogWrapper {
         @Nullable final String forceButtonTitle
     ) {
         final AtomicInteger exitCode = new AtomicInteger();
-        UIUtil.invokeAndWaitIfNeeded(new Runnable() {
-            @Override
-            public void run() {
-                GitSmartOperationDialog dialog = new GitSmartOperationDialog(project, fileBrowser, operationTitle, forceButtonTitle);
-                dialog.show();
-                exitCode.set(dialog.getExitCode());
-            }
+        UIUtil.invokeAndWaitIfNeeded((Runnable)() -> {
+            GitSmartOperationDialog dialog = new GitSmartOperationDialog(project, fileBrowser, operationTitle, forceButtonTitle);
+            dialog.show();
+            exitCode.set(dialog.getExitCode());
         });
         return exitCode.get();
     }
@@ -118,7 +114,6 @@ public class GitSmartOperationDialog extends DialogWrapper {
         return GitSmartOperationDialog.class.getName();
     }
 
-
     private class ForceCheckoutAction extends AbstractAction {
 
         ForceCheckoutAction(@Nonnull String buttonTitle, @Nonnull String operationTitle) {
@@ -131,5 +126,4 @@ public class GitSmartOperationDialog extends DialogWrapper {
             close(FORCE_EXIT_CODE);
         }
     }
-
 }

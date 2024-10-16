@@ -35,7 +35,6 @@ import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitRevisionNumber;
 import git4idea.GitVcs;
 import git4idea.actions.GitRepositoryAction;
-import git4idea.i18n.GitBundle;
 import org.jetbrains.annotations.NonNls;
 
 import javax.swing.*;
@@ -47,11 +46,6 @@ import java.util.List;
  * Utilities for merge
  */
 public class GitMergeUtil {
-    /**
-     * The item representing default strategy
-     */
-    public static final String DEFAULT_STRATEGY = GitBundle.message("merge.default.strategy");
-
     /**
      * A private constructor for utility class
      */

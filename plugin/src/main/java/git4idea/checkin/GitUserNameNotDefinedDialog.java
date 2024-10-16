@@ -15,17 +15,14 @@
  */
 package git4idea.checkin;
 
+import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.*;
-import consulo.util.lang.Pair;
+import consulo.util.lang.Couple;
 import consulo.util.lang.StringUtil;
 import consulo.util.lang.SystemProperties;
-import consulo.virtualFileSystem.VirtualFile;
-import consulo.ui.ex.awt.JBLabel;
 import consulo.util.lang.xml.XmlStringUtil;
-import consulo.project.Project;
-import consulo.ui.ex.awt.DialogWrapper;
-import consulo.ui.ex.awt.ValidationInfo;
-
+import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
@@ -35,9 +32,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
-import static consulo.util.lang.StringUtil.isEmptyOrSpaces;
 import static consulo.ui.ex.awt.UIUtil.DEFAULT_HGAP;
 import static consulo.ui.ex.awt.UIUtil.DEFAULT_VGAP;
+import static consulo.util.lang.StringUtil.isEmptyOrSpaces;
 
 /**
  * @author Kirill Likhodedov
@@ -48,7 +45,7 @@ class GitUserNameNotDefinedDialog extends DialogWrapper {
     @Nonnull
     private final Collection<VirtualFile> myAllRootsAffectedByCommit;
     @Nullable
-    private final Pair<String, String> myProposedValues;
+    private final Couple<String> myProposedValues;
 
     private JTextField myNameTextField;
     private JTextField myEmailTextField;
@@ -58,7 +55,7 @@ class GitUserNameNotDefinedDialog extends DialogWrapper {
         @Nonnull Project project,
         @Nonnull Collection<VirtualFile> rootsWithUndefinedProps,
         @Nonnull Collection<VirtualFile> allRootsAffectedByCommit,
-        @Nonnull Map<VirtualFile, Pair<String, String>> rootsWithDefinedProps
+        @Nonnull Map<VirtualFile, Couple<String>> rootsWithDefinedProps
     ) {
         super(project, false);
         myRootsWithUndefinedProps = rootsWithUndefinedProps;
@@ -73,6 +70,7 @@ class GitUserNameNotDefinedDialog extends DialogWrapper {
     }
 
     @Override
+    @RequiredUIAccess
     protected ValidationInfo doValidate() {
         String message = "You have to specify user name and email for Git";
         if (isEmptyOrSpaces(getUserName())) {
@@ -85,17 +83,18 @@ class GitUserNameNotDefinedDialog extends DialogWrapper {
     }
 
     @Override
+    @RequiredUIAccess
     public JComponent getPreferredFocusedComponent() {
         return myNameTextField;
     }
 
     @Nullable
-    private static Pair<String, String> calcProposedValues(Map<VirtualFile, Pair<String, String>> rootsWithDefinedProps) {
+    private static Couple<String> calcProposedValues(Map<VirtualFile, Couple<String>> rootsWithDefinedProps) {
         if (rootsWithDefinedProps.isEmpty()) {
             return null;
         }
-        Iterator<Map.Entry<VirtualFile, Pair<String, String>>> iterator = rootsWithDefinedProps.entrySet().iterator();
-        Pair<String, String> firstValue = iterator.next().getValue();
+        Iterator<Map.Entry<VirtualFile, Couple<String>>> iterator = rootsWithDefinedProps.entrySet().iterator();
+        Couple<String> firstValue = iterator.next().getValue();
         while (iterator.hasNext()) {
             // nothing to propose if there are different values set in different repositories
             if (!firstValue.equals(iterator.next().getValue())) {

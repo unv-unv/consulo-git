@@ -1,11 +1,13 @@
 // Copyright 2000-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package git4idea.util;
 
+import consulo.annotation.DeprecationInfo;
 import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
 import consulo.document.util.TextRange;
 import consulo.execution.ui.console.ConsoleViewContentType;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.util.dataholder.Key;
 import consulo.util.lang.Pair;
@@ -42,6 +44,13 @@ public final class GitVcsConsoleWriter {
   /**
    * Shows a plain message in the Version Control Console.
    */
+  public void showMessage(@Nonnull LocalizeValue message) {
+    showMessage(message, ConsoleViewContentType.NORMAL_OUTPUT);
+  }
+
+  /**
+   * Shows a plain message in the Version Control Console.
+   */
   public void showMessage(@Nonnull String message) {
     showMessage(message, ConsoleViewContentType.NORMAL_OUTPUT);
   }
@@ -67,9 +76,21 @@ public final class GitVcsConsoleWriter {
    * @param message     a message to show
    * @param contentType a style to use
    */
-  public void showMessage(@Nonnull String message, @Nonnull ConsoleViewContentType contentType) {
-    String shortMessage = StringUtil.shortenPathWithEllipsis(message, MAX_CONSOLE_OUTPUT_SIZE);
+  public void showMessage(@Nonnull LocalizeValue message, @Nonnull ConsoleViewContentType contentType) {
+    String shortMessage = StringUtil.shortenPathWithEllipsis(message.get(), MAX_CONSOLE_OUTPUT_SIZE);
     ProjectLevelVcsManager.getInstance(myProject).addMessageToConsoleWindow(shortMessage, contentType);
+  }
+
+  /**
+   * Show message in the Version Control Console
+   *
+   * @param message     a message to show
+   * @param contentType a style to use
+   */
+  @Deprecated
+  @DeprecationInfo("Use variant with LocalizeValue")
+  public void showMessage(@Nonnull String message, @Nonnull ConsoleViewContentType contentType) {
+    showMessage(LocalizeValue.of(message), contentType);
   }
 
   public void showMessage(@Nonnull List<Pair<String, Key>> lineChunks) {

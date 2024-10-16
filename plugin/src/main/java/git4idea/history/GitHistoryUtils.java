@@ -15,11 +15,12 @@
  */
 package git4idea.history;
 
-import consulo.application.ApplicationManager;
+import consulo.application.Application;
 import consulo.application.util.Semaphore;
 import consulo.application.util.function.Computable;
 import consulo.application.util.registry.Registry;
 import consulo.component.ProcessCanceledException;
+import consulo.git.localize.GitLocalize;
 import consulo.ide.ServiceManager;
 import consulo.ide.impl.idea.openapi.vcs.history.VcsRevisionDescriptionImpl;
 import consulo.ide.impl.idea.util.NullableFunction;
@@ -57,10 +58,8 @@ import git4idea.history.browser.SHAHash;
 import git4idea.history.browser.SymbolicRefs;
 import git4idea.history.browser.SymbolicRefsI;
 import git4idea.history.wholeTree.AbstractHash;
-import git4idea.i18n.GitBundle;
 import git4idea.log.GitLogProvider;
 import git4idea.log.GitRefManager;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
@@ -80,7 +79,7 @@ public class GitHistoryUtils {
      */
     public static final List<String> LOG_ALL = Arrays.asList("HEAD", "--branches", "--remotes", "--tags");
 
-    private static final Logger LOG = Logger.getInstance("#git4idea.history.GitHistoryUtils");
+    private static final Logger LOG = Logger.getInstance(GitHistoryUtils.class);
 
     private GitHistoryUtils() {
     }
@@ -733,8 +732,7 @@ public class GitHistoryUtils {
 
     @Nullable
     private static VcsLogObjectsFactory getObjectsFactoryWithDisposeCheck(@Nonnull Project project) {
-        return ApplicationManager.getApplication().runReadAction((Computable<VcsLogObjectsFactory>)() ->
-        {
+        return Application.get().runReadAction((Computable<VcsLogObjectsFactory>)() -> {
             if (!project.isDisposed()) {
                 return ServiceManager.getService(project, VcsLogObjectsFactory.class);
             }
@@ -1014,7 +1012,7 @@ public class GitHistoryUtils {
 
         StopWatch sw = StopWatch.start("loading details");
 
-        processHandlerOutputByLine(h, parser, record -> converter.accept(record));
+        processHandlerOutputByLine(h, parser, converter::accept);
 
         sw.report();
     }
@@ -1294,7 +1292,7 @@ public class GitHistoryUtils {
             if (exitCode != 0) {
                 String errorMessage = myErrors.toString();
                 if (errorMessage.isEmpty()) {
-                    errorMessage = GitBundle.message("git.error.exit", exitCode);
+                    errorMessage = GitLocalize.gitErrorExit(exitCode).get();
                 }
                 myException = new VcsException(errorMessage + "\nCommand line: [" + myHandler.printableCommandLine() + "]");
             }

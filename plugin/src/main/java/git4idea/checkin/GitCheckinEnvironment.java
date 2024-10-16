@@ -19,8 +19,7 @@ import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
 import consulo.application.Application;
-import consulo.application.CommonBundle;
-import consulo.application.util.SystemInfo;
+import consulo.git.localize.GitLocalize;
 import consulo.ide.ServiceManager;
 import consulo.ide.impl.idea.dvcs.AmendComponent;
 import consulo.ide.impl.idea.dvcs.push.ui.VcsPushDialog;
@@ -32,7 +31,10 @@ import consulo.ide.impl.idea.util.textCompletion.TextCompletionProvider;
 import consulo.ide.impl.idea.util.textCompletion.TextFieldWithCompletion;
 import consulo.ide.impl.idea.util.textCompletion.ValuesCompletionProvider;
 import consulo.language.editor.ui.awt.EditorTextField;
+import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
+import consulo.platform.Platform;
+import consulo.platform.base.localize.CommonLocalize;
 import consulo.project.Project;
 import consulo.ui.ex.awt.*;
 import consulo.util.io.FileUtil;
@@ -64,16 +66,13 @@ import git4idea.commands.GitSimpleHandler;
 import git4idea.config.GitConfigUtil;
 import git4idea.config.GitVcsSettings;
 import git4idea.config.GitVersionSpecialty;
-import git4idea.i18n.GitBundle;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import git4idea.util.GitFileUtils;
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
-import org.jetbrains.annotations.NonNls;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 import javax.swing.*;
 import java.awt.*;
@@ -101,9 +100,7 @@ import static java.util.Arrays.asList;
 @ServiceImpl
 public class GitCheckinEnvironment implements CheckinEnvironment {
     private static final Logger LOG = Logger.getInstance(GitCheckinEnvironment.class);
-    @NonNls
     private static final String GIT_COMMIT_MSG_FILE_PREFIX = "git-commit-msg-"; // the file name prefix for commit message file
-    @NonNls
     private static final String GIT_COMMIT_MSG_FILE_EXT = ".txt"; // the file extension for commit message file
 
     private final Project myProject;
@@ -128,6 +125,7 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
         mySettings = settings;
     }
 
+    @Override
     public boolean keepChangeListAfterCommit(ChangeList changeList) {
         return false;
     }
@@ -138,6 +136,7 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
     }
 
     @Nullable
+    @Override
     public RefreshableOnComponent createAdditionalOptionsPanel(
         CheckinProjectPanel panel,
         PairConsumer<Object, Object> additionalDataConsumer
@@ -146,6 +145,7 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
     }
 
     @Nullable
+    @Override
     public String getDefaultMessageFor(FilePath[] filesToCheckin) {
         LinkedHashSet<String> messages = new LinkedHashSet<>();
         GitRepositoryManager manager = getRepositoryManager(myProject);
@@ -183,14 +183,17 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
         return Files.readString(messageFile.toPath(), charset);
     }
 
+    @Override
     public String getHelpId() {
         return null;
     }
 
+    @Override
     public String getCheckinOperationName() {
-        return GitBundle.message("commit.action.name");
+        return GitLocalize.commitActionName().get();
     }
 
+    @Override
     public List<VcsException> commit(
         @Nonnull List<Change> changes,
         @Nonnull String message,
@@ -227,7 +230,7 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
                     case MOVED:
                         FilePath afterPath = change.getAfterRevision().getFile();
                         FilePath beforePath = change.getBeforeRevision().getFile();
-                        if (!SystemInfo.isFileSystemCaseSensitive && GitUtil.isCaseOnlyChange(beforePath.getPath(), afterPath.getPath())) {
+                        if (!Platform.current().fs().isCaseSensitive() && GitUtil.isCaseOnlyChange(beforePath.getPath(), afterPath.getPath())) {
                             caseOnlyRenames.add(change);
                         }
                         else {
@@ -273,7 +276,7 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
                 }
             }
         }
-        if (myNextCommitIsPushed != null && myNextCommitIsPushed.booleanValue() && exceptions.isEmpty()) {
+        if (myNextCommitIsPushed != null && myNextCommitIsPushed && exceptions.isEmpty()) {
             GitRepositoryManager manager = getRepositoryManager(myProject);
             Collection<GitRepository> repositories = GitUtil.getRepositoriesFromRoots(manager, sortedChanges.keySet());
             final List<GitRepository> preselectedRepositories = newArrayList(repositories);
@@ -300,10 +303,10 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
         @Nullable String author
     ) {
         String rootPath = root.getPath();
-        LOG.info("Committing case only rename: " + getLogString(rootPath, caseOnlyRenames) + " in " + getShortRepositoryName(
-            project,
-            root
-        ));
+        LOG.info(
+            "Committing case only rename: " + getLogString(rootPath, caseOnlyRenames) + " in " +
+            getShortRepositoryName(project, root)
+        );
 
         // 1. Check what is staged besides case-only renames
         Collection<Change> stagedChanges;
@@ -394,6 +397,7 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
         return new VcsException(msg.trim(), original.getCause());
     }
 
+    @Override
     public List<VcsException> commit(List<Change> changes, String preparedComment) {
         return commit(changes, preparedComment, FunctionUtil.nullConstant(), null);
     }
@@ -465,22 +469,20 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
             files.addAll(realRemoved);
             final Ref<Boolean> mergeAll = new Ref<>();
             try {
-                UIUtil.invokeAndWaitIfNeeded(new Runnable() {
-                    public void run() {
-                        String message = GitBundle.message("commit.partial.merge.message", partialOperation.getName());
-                        SelectFilePathsDialog dialog = new SelectFilePathsDialog(
-                            project,
-                            files,
-                            message,
-                            null,
-                            "Commit All Files",
-                            CommonBundle.getCancelButtonText(),
-                            false
-                        );
-                        dialog.setTitle(GitBundle.message("commit.partial.merge.title"));
-                        dialog.show();
-                        mergeAll.set(dialog.isOK());
-                    }
+                UIUtil.invokeAndWaitIfNeeded((Runnable)() -> {
+                    LocalizeValue message = GitLocalize.commitPartialMergeMessage(partialOperation.getName());
+                    SelectFilePathsDialog dialog = new SelectFilePathsDialog(
+                        project,
+                        files,
+                        message.get(),
+                        null,
+                        LocalizeValue.localizeTODO("Commit All Files"),
+                        CommonLocalize.buttonCancel(),
+                        false
+                    );
+                    dialog.setTitle(GitLocalize.commitPartialMergeTitle());
+                    dialog.show();
+                    mergeAll.set(dialog.isOK());
                 });
             }
             catch (RuntimeException ex) {
@@ -603,17 +605,14 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
         // filter comment lines
         File file = FileUtil.createTempFile(GIT_COMMIT_MSG_FILE_PREFIX, GIT_COMMIT_MSG_FILE_EXT);
         file.deleteOnExit();
-        @NonNls String encoding = GitConfigUtil.getCommitEncoding(myProject, root);
-        Writer out = new OutputStreamWriter(new FileOutputStream(file), encoding);
-        try {
+        String encoding = GitConfigUtil.getCommitEncoding(myProject, root);
+        try (Writer out = new OutputStreamWriter(new FileOutputStream(file), encoding)) {
             out.write(message);
-        }
-        finally {
-            out.close();
         }
         return file;
     }
 
+    @Override
     public List<VcsException> scheduleMissingFileForDeletion(List<FilePath> files) {
         ArrayList<VcsException> rc = new ArrayList<>();
         Map<VirtualFile, List<FilePath>> sortedFiles;
@@ -673,6 +672,7 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
         }
     }
 
+    @Override
     public List<VcsException> scheduleUnversionedFilesForAddition(List<VirtualFile> files) {
         ArrayList<VcsException> rc = new ArrayList<>();
         Map<VirtualFile, List<VirtualFile>> sortedFiles;
@@ -773,8 +773,8 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
             myVcs = assertNotNull(GitVcs.getInstance(project));
 
             myAuthorField = createTextField(project, getAuthors(project));
-            myAuthorField.setToolTipText(GitBundle.message("commit.author.tooltip"));
-            JLabel authorLabel = new JBLabel(GitBundle.message("commit.author"));
+            myAuthorField.setToolTipText(GitLocalize.commitAuthorTooltip().get());
+            JLabel authorLabel = new JBLabel(GitLocalize.commitAuthor().get());
             authorLabel.setLabelFor(myAuthorField);
 
             myAmendComponent = new MyAmendComponent(project, getRepositoryManager(project), panel);

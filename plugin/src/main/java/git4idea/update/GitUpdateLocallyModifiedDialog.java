@@ -47,7 +47,7 @@ public class GitUpdateLocallyModifiedDialog extends DialogWrapper {
     /**
      * The list of files to revert
      */
-    private JList myFilesList;
+    private JList<String> myFilesList;
 
     private JLabel myDescriptionLabel;
     /**
@@ -76,7 +76,7 @@ public class GitUpdateLocallyModifiedDialog extends DialogWrapper {
         setTitle(GitLocalize.updateLocallyModifiedTitle());
         myGitRoot.setText(root.getPresentableUrl());
         myFilesList.setModel(new DefaultListModel());
-        setOKButtonText(GitLocalize.updateLocallyModifiedRevert().get());
+        setOKButtonText(GitLocalize.updateLocallyModifiedRevert());
         syncListModel();
         myRescanButton.addActionListener(e -> {
             myLocallyModifiedFiles.clear();
@@ -87,15 +87,16 @@ public class GitUpdateLocallyModifiedDialog extends DialogWrapper {
                 GitUIUtil.showOperationError(project, ex, "Checking for locally modified files");
             }
         });
-        myDescriptionLabel.setText(GitLocalize.updateLocallyModifiedMessage(Application.get().getName().get()).get());
+        myDescriptionLabel.setText(GitLocalize.updateLocallyModifiedMessage(Application.get().getName()).get());
         init();
     }
 
     /**
      * Refresh list model according to the current content of the collection
      */
+    @SuppressWarnings("unchecked")
     private void syncListModel() {
-        DefaultListModel listModel = (DefaultListModel)myFilesList.getModel();
+        DefaultListModel<String> listModel = (DefaultListModel)myFilesList.getModel();
         listModel.removeAllElements();
         for (String p : myLocallyModifiedFiles) {
             listModel.addElement(p);

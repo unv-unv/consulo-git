@@ -25,13 +25,12 @@ import git4idea.GitVcs;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitLineHandler;
 import git4idea.commands.GitSimpleHandler;
+import git4idea.i18n.GitBundle;
 import git4idea.util.GitUIUtil;
 import jakarta.annotation.Nonnull;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -103,21 +102,19 @@ public class GitMergeDialog extends DialogWrapper {
         myVcs = GitVcs.getInstance(project);
         initBranchChooser();
         setOKActionEnabled(false);
-        setOKButtonText(GitLocalize.mergeBranchButton().get());
+        setOKButtonText(GitLocalize.mergeBranchButton());
         GitUIUtil.setupRootChooser(myProject, roots, defaultRoot, myGitRoot, myCurrentBranchText);
         GitUIUtil.imply(mySquashCommitCheckBox, true, myNoCommitCheckBox, true);
         GitUIUtil.imply(mySquashCommitCheckBox, true, myAddLogInformationCheckBox, false);
         GitUIUtil.implyDisabled(mySquashCommitCheckBox, true, myCommitMessage);
         GitUIUtil.exclusive(mySquashCommitCheckBox, true, myNoFastForwardCheckBox, true);
-        myGitRoot.addActionListener(new ActionListener() {
-            public void actionPerformed(final ActionEvent event) {
-                try {
-                    updateBranches();
-                }
-                catch (VcsException ex) {
-                    if (myVcs.getExecutableValidator().checkExecutableAndShowMessageIfNeeded(getRootPane())) {
-                        myVcs.showErrors(List.of(ex), GitLocalize.mergeRetrievingBranches());
-                    }
+        myGitRoot.addActionListener(event -> {
+            try {
+                updateBranches();
+            }
+            catch (VcsException ex) {
+                if (myVcs.getExecutableValidator().checkExecutableAndShowMessageIfNeeded(getRootPane())) {
+                    myVcs.showErrors(List.of(ex), GitLocalize.mergeRetrievingBranches());
                 }
             }
         });
@@ -128,7 +125,7 @@ public class GitMergeDialog extends DialogWrapper {
      * Initialize {@link #myBranchChooser} component
      */
     private void initBranchChooser() {
-        myBranchChooser = new ElementsChooser<String>(true);
+        myBranchChooser = new ElementsChooser<>(true);
         myBranchChooser.setToolTipText(GitLocalize.mergeBranchesTooltip().get());
         GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(0, 0, 0, 0);
@@ -190,7 +187,7 @@ public class GitMergeDialog extends DialogWrapper {
             h.addParameters("--no-ff");
         }
         String strategy = (String)myStrategy.getSelectedItem();
-        if (!GitMergeUtil.DEFAULT_STRATEGY.equals(strategy)) {
+        if (!GitBundle.message("merge.default.strategy").equals(strategy)) {
             h.addParameters("--strategy", strategy);
         }
         for (String branch : myBranchChooser.getMarkedElements()) {
@@ -203,6 +200,7 @@ public class GitMergeDialog extends DialogWrapper {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected JComponent createCenterPanel() {
         return myPanel;
     }

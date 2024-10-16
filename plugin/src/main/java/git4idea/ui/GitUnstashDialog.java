@@ -22,6 +22,7 @@ import consulo.application.progress.Task;
 import consulo.git.localize.GitLocalize;
 import consulo.ide.ServiceManager;
 import consulo.ide.impl.idea.openapi.vfs.VfsUtil;
+import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.platform.base.localize.CommonLocalize;
 import consulo.process.cmd.GeneralCommandLine;
@@ -109,7 +110,7 @@ public class GitUnstashDialog extends DialogWrapper {
     /**
      * Set of branches for the current root
      */
-    private final HashSet<String> myBranches = new HashSet<String>();
+    private final HashSet<String> myBranches = new HashSet<>();
 
     /**
      * The project
@@ -131,8 +132,8 @@ public class GitUnstashDialog extends DialogWrapper {
         myProject = project;
         myVcs = GitVcs.getInstance(project);
         setTitle(GitLocalize.unstashTitle());
-        setOKButtonText(GitLocalize.unstashButtonApply().get());
-        setCancelButtonText(CommonLocalize.buttonClose().get());
+        setOKButtonText(GitLocalize.unstashButtonApply());
+        setCancelButtonText(CommonLocalize.buttonClose());
         GitUIUtil.setupRootChooser(project, roots, defaultRoot, myGitRootComboBox, myCurrentBranch);
         myStashList.setModel(new DefaultListModel());
         refreshStashList();
@@ -157,7 +158,7 @@ public class GitUnstashDialog extends DialogWrapper {
             )) {
                 GitLineHandler h = new GitLineHandler(myProject, getGitRoot(), GitCommand.STASH);
                 h.addParameters("clear");
-                GitHandlerUtil.doSynchronously(h, GitLocalize.unstashClearingStashes(), h.printableCommandLine());
+                GitHandlerUtil.doSynchronously(h, GitLocalize.unstashClearingStashes(), LocalizeValue.ofNullable(h.printableCommandLine()));
                 refreshStashList();
                 updateDialogState();
             }
@@ -242,7 +243,7 @@ public class GitUnstashDialog extends DialogWrapper {
     private void updateDialogState() {
         String branch = myBranchTextField.getText();
         if (branch.length() != 0) {
-            setOKButtonText(GitLocalize.unstashButtonBranch().get());
+            setOKButtonText(GitLocalize.unstashButtonBranch());
             myPopStashCheckBox.setEnabled(false);
             myPopStashCheckBox.setSelected(true);
             myReinstateIndexCheckBox.setEnabled(false);
@@ -263,11 +264,7 @@ public class GitUnstashDialog extends DialogWrapper {
                 myPopStashCheckBox.setSelected(false);
             }
             myPopStashCheckBox.setEnabled(true);
-            setOKButtonText(
-                myPopStashCheckBox.isSelected()
-                    ? GitLocalize.unstashButtonPop().get()
-                    : GitLocalize.unstashButtonApply().get()
-            );
+            setOKButtonText(myPopStashCheckBox.isSelected() ? GitLocalize.unstashButtonPop() : GitLocalize.unstashButtonApply());
             if (!myReinstateIndexCheckBox.isEnabled()) {
                 myReinstateIndexCheckBox.setSelected(false);
             }
@@ -306,7 +303,7 @@ public class GitUnstashDialog extends DialogWrapper {
         final DefaultListModel listModel = (DefaultListModel)myStashList.getModel();
         listModel.clear();
         VirtualFile root = getGitRoot();
-        GitStashUtils.loadStashStack(myProject, root, stashInfo -> listModel.addElement(stashInfo));
+        GitStashUtils.loadStashStack(myProject, root, listModel::addElement);
         myBranches.clear();
         GitRepository repository = GitUtil.getRepositoryManager(myProject).getRepositoryForRoot(root);
         if (repository != null) {
@@ -384,6 +381,7 @@ public class GitUnstashDialog extends DialogWrapper {
     }
 
     @Override
+    @RequiredUIAccess
     protected void doOKAction() {
         VirtualFile root = getGitRoot();
         GitLineHandler h = handler();
@@ -397,7 +395,7 @@ public class GitUnstashDialog extends DialogWrapper {
                 }
             }
         });
-        int rc = GitHandlerUtil.doSynchronously(h, GitLocalize.unstashUnstashing(), h.printableCommandLine(), false);
+        int rc = GitHandlerUtil.doSynchronously(h, GitLocalize.unstashUnstashing(), LocalizeValue.of(h.printableCommandLine()), false);
 
         VfsUtil.markDirtyAndRefresh(true, true, false, root);
 
@@ -406,7 +404,7 @@ public class GitUnstashDialog extends DialogWrapper {
             LOG.info("loadRoot " + root + ", conflictsResolved: " + conflictsResolved);
         }
         else if (rc != 0) {
-            GitUIUtil.showOperationErrors(myProject, h.errors(), h.printableCommandLine());
+            GitUIUtil.showOperationErrors(myProject, h.errors(), LocalizeValue.of(h.printableCommandLine()));
         }
         super.doOKAction();
     }

@@ -18,6 +18,7 @@ package git4idea.rollback;
 import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
+import consulo.git.localize.GitLocalize;
 import consulo.ide.ServiceManager;
 import consulo.project.Project;
 import consulo.versionControlSystem.FilePath;
@@ -34,14 +35,12 @@ import git4idea.GitUtil;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitHandlerUtil;
 import git4idea.commands.GitSimpleHandler;
-import git4idea.i18n.GitBundle;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitUntrackedFilesHolder;
 import git4idea.util.GitFileUtils;
+import jakarta.annotation.Nonnull;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-
-import jakarta.annotation.Nonnull;
 
 import java.io.File;
 import java.util.*;
@@ -61,10 +60,12 @@ public class GitRollbackEnvironment implements RollbackEnvironment {
     }
 
     @Nonnull
+    @Override
     public String getRollbackOperationName() {
-        return GitBundle.message("revert.action.name");
+        return GitLocalize.revertActionName().get();
     }
 
+    @Override
     public void rollbackModifiedWithoutCheckout(
         @Nonnull List<VirtualFile> files,
         final List<VcsException> exceptions,
@@ -73,6 +74,7 @@ public class GitRollbackEnvironment implements RollbackEnvironment {
         throw new UnsupportedOperationException("Explicit file checkout is not supported by GIT.");
     }
 
+    @Override
     public void rollbackMissingFileDeletion(
         @Nonnull List<FilePath> files,
         final List<VcsException> exceptions,
@@ -81,19 +83,21 @@ public class GitRollbackEnvironment implements RollbackEnvironment {
         throw new UnsupportedOperationException("Missing file delete is not reported by GIT.");
     }
 
+    @Override
     public void rollbackIfUnchanged(@Nonnull VirtualFile file) {
         // do nothing
     }
 
+    @Override
     public void rollbackChanges(
         @Nonnull List<Change> changes,
         final List<VcsException> exceptions,
         @Nonnull final RollbackProgressListener listener
     ) {
-        HashMap<VirtualFile, List<FilePath>> toUnindex = new HashMap<VirtualFile, List<FilePath>>();
-        HashMap<VirtualFile, List<FilePath>> toUnversion = new HashMap<VirtualFile, List<FilePath>>();
-        HashMap<VirtualFile, List<FilePath>> toRevert = new HashMap<VirtualFile, List<FilePath>>();
-        List<FilePath> toDelete = new ArrayList<FilePath>();
+        HashMap<VirtualFile, List<FilePath>> toUnindex = new HashMap<>();
+        HashMap<VirtualFile, List<FilePath>> toUnversion = new HashMap<>();
+        HashMap<VirtualFile, List<FilePath>> toRevert = new HashMap<>();
+        List<FilePath> toDelete = new ArrayList<>();
 
         listener.determinate();
         // collect changes to revert
@@ -167,7 +171,7 @@ public class GitRollbackEnvironment implements RollbackEnvironment {
             }
         }
         LocalFileSystem lfs = LocalFileSystem.getInstance();
-        HashSet<File> filesToRefresh = new HashSet<File>();
+        HashSet<File> filesToRefresh = new HashSet<>();
         for (Change c : changes) {
             ContentRevision before = c.getBeforeRevision();
             if (before != null) {
@@ -243,7 +247,7 @@ public class GitRollbackEnvironment implements RollbackEnvironment {
         }
         List<FilePath> paths = files.get(root);
         if (paths == null) {
-            paths = new ArrayList<FilePath>();
+            paths = new ArrayList<>();
             files.put(root, paths);
         }
         paths.add(file);

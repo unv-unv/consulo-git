@@ -15,12 +15,13 @@
  */
 package git4idea.ui;
 
-import consulo.ui.ex.awt.DialogWrapper;
+import consulo.git.localize.GitLocalize;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.ex.awt.DialogWrapper;
 import consulo.virtualFileSystem.VirtualFile;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitLineHandler;
-import git4idea.i18n.GitBundle;
 import git4idea.util.GitUIUtil;
 
 import javax.swing.*;
@@ -47,8 +48,8 @@ public class GitStashDialog extends DialogWrapper {
     public GitStashDialog(final Project project, final List<VirtualFile> roots, final VirtualFile defaultRoot) {
         super(project, true);
         myProject = project;
-        setTitle(GitBundle.message("stash.title"));
-        setOKButtonText(GitBundle.message("stash.button"));
+        setTitle(GitLocalize.stashTitle());
+        setOKButtonText(GitLocalize.stashButton());
         GitUIUtil.setupRootChooser(project, roots, defaultRoot, myGitRootComboBox, myCurrentBranch);
         init();
     }
@@ -73,6 +74,7 @@ public class GitStashDialog extends DialogWrapper {
         return (VirtualFile)myGitRootComboBox.getSelectedItem();
     }
 
+    @Override
     protected JComponent createCenterPanel() {
         return myRootPanel;
     }
@@ -88,6 +90,7 @@ public class GitStashDialog extends DialogWrapper {
     }
 
     @Override
+    @RequiredUIAccess
     public JComponent getPreferredFocusedComponent() {
         return myMessageTextField;
     }

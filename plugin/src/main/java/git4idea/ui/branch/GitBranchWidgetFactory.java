@@ -1,12 +1,11 @@
 package git4idea.ui.branch;
 
 import consulo.annotation.component.ExtensionImpl;
+import consulo.git.localize.GitLocalize;
 import consulo.project.Project;
 import consulo.project.ui.wm.StatusBar;
 import consulo.project.ui.wm.StatusBarWidget;
 import consulo.project.ui.wm.StatusBarWidgetFactory;
-import git4idea.i18n.GitBundle;
-
 import jakarta.annotation.Nonnull;
 
 @ExtensionImpl(id = "gitWidget", order = "after codeStyleWidget,before readOnlyWidget")
@@ -14,7 +13,7 @@ public class GitBranchWidgetFactory implements StatusBarWidgetFactory {
     @Override
     @Nonnull
     public String getDisplayName() {
-        return GitBundle.message("git.status.bar.widget.name");
+        return GitLocalize.gitStatusBarWidgetName().get();
     }
 
     @Override

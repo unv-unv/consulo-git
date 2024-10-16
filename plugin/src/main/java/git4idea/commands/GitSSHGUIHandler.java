@@ -16,15 +16,15 @@
 package git4idea.commands;
 
 import consulo.application.Application;
-import consulo.application.ApplicationManager;
 import consulo.credentialStorage.ui.PasswordSafePromptDialog;
+import consulo.git.localize.GitLocalize;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.DialogWrapper;
 import consulo.ui.ex.awt.Messages;
 import consulo.ui.ex.awt.UIUtil;
 import git4idea.config.SSHConnectionSettings;
-import git4idea.i18n.GitBundle;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
@@ -53,20 +53,12 @@ public class GitSSHGUIHandler {
         final String fingerprint,
         final boolean isNew
     ) {
-        final String message;
-        if (isNew) {
-            message = GitBundle.message("ssh.new.host.key", hostname, port, fingerprint, serverHostKeyAlgorithm);
-        }
-        else {
-            message = GitBundle.message("ssh.changed.host.key", hostname, port, fingerprint, serverHostKeyAlgorithm);
-        }
+        final LocalizeValue message = isNew
+            ? GitLocalize.sshNewHostKey(hostname, port, fingerprint, serverHostKeyAlgorithm)
+            : GitLocalize.sshChangedHostKey(hostname, port, fingerprint, serverHostKeyAlgorithm);
         final AtomicBoolean rc = new AtomicBoolean();
-        ApplicationManager.getApplication().invokeAndWait(
-            new Runnable() {
-                public void run() {
-                    rc.set(Messages.YES == Messages.showYesNoDialog(myProject, message, GitBundle.message("ssh.confirm.key.titile"), null));
-                }
-            },
+        Application.get().invokeAndWait(
+            () -> rc.set(Messages.YES == Messages.showYesNoDialog(myProject, message.get(), GitLocalize.sshConfirmKeyTitile().get(), null)),
             Application.get().getAnyModalityState()
         );
         return rc.get();
@@ -77,8 +69,8 @@ public class GitSSHGUIHandler {
         String error = processLastError(resetPassword, lastError);
         PasswordSafePromptDialog passwordSafePromptDialog = myProject.getInstance(PasswordSafePromptDialog.class);
         return passwordSafePromptDialog.askPassphrase(
-            GitBundle.message("ssh.ask.passphrase.title"),
-            GitBundle.message("ssh.askPassphrase.message", keyPath, username),
+            GitLocalize.sshAskPassphraseTitle().get(),
+            GitLocalize.sshAskpassphraseMessage(keyPath, username).get(),
             GitSSHGUIHandler.class,
             "PASSPHRASE:" + keyPath,
             resetPassword,
@@ -97,14 +89,8 @@ public class GitSSHGUIHandler {
     private String processLastError(boolean resetPassword, final String lastError) {
         String error;
         if (lastError != null && lastError.length() != 0 && !resetPassword) {
-            ApplicationManager.getApplication().invokeAndWait(
-                new Runnable() {
-                    public void run() {
-                        showError(lastError);
-                    }
-                },
-                Application.get().getAnyModalityState()
-            );
+            Application application = Application.get();
+            application.invokeAndWait(() -> showError(lastError), application.getAnyModalityState());
             error = null;
         }
         else {
@@ -113,9 +99,10 @@ public class GitSSHGUIHandler {
         return error;
     }
 
+    @RequiredUIAccess
     private void showError(final String lastError) {
         if (lastError.length() != 0) {
-            Messages.showErrorDialog(myProject, lastError, GitBundle.message("ssh.error.title"));
+            Messages.showErrorDialog(myProject, lastError, GitLocalize.sshErrorTitle().get());
         }
     }
 
@@ -144,19 +131,18 @@ public class GitSSHGUIHandler {
         final Vector<Boolean> echo,
         final String lastError
     ) {
-        final AtomicReference<Vector<String>> rc = new AtomicReference<Vector<String>>();
-        ApplicationManager.getApplication().invokeAndWait(
-            new Runnable() {
-                public void run() {
-                    showError(lastError);
-                    GitSSHKeyboardInteractiveDialog dialog =
-                        new GitSSHKeyboardInteractiveDialog(name, numPrompts, instruction, prompt, echo, username);
-                    if (dialog.showAndGet()) {
-                        rc.set(dialog.getResults());
-                    }
+        final AtomicReference<Vector<String>> rc = new AtomicReference<>();
+        Application application = Application.get();
+        application.invokeAndWait(
+            () -> {
+                showError(lastError);
+                GitSSHKeyboardInteractiveDialog dialog =
+                    new GitSSHKeyboardInteractiveDialog(name, numPrompts, instruction, prompt, echo, username);
+                if (dialog.showAndGet()) {
+                    rc.set(dialog.getResults());
                 }
             },
-            Application.get().getAnyModalityState()
+            application.getAnyModalityState()
         );
         return rc.get();
     }
@@ -173,8 +159,8 @@ public class GitSSHGUIHandler {
         String error = processLastError(resetPassword, lastError);
         PasswordSafePromptDialog passwordSafePromptDialog = myProject.getInstance(PasswordSafePromptDialog.class);
         return passwordSafePromptDialog.askPassword(
-            GitBundle.message("ssh.password.title"),
-            GitBundle.message("ssh.password.message", username),
+            GitLocalize.sshPasswordTitle().get(),
+            GitLocalize.sshPasswordMessage(username).get(),
             GitSSHGUIHandler.class,
             "PASSWORD:" + username,
             resetPassword,
@@ -206,11 +192,7 @@ public class GitSSHGUIHandler {
         SSHConnectionSettings s = SSHConnectionSettings.getInstance();
         s.setLastSuccessful(userName, method);
         if (error != null && error.length() != 0) {
-            UIUtil.invokeLaterIfNeeded(new Runnable() {
-                public void run() {
-                    showError(error);
-                }
-            });
+            UIUtil.invokeLaterIfNeeded(() -> showError(error));
         }
     }
 
@@ -259,7 +241,7 @@ public class GitSSHGUIHandler {
             myPrompt = prompt;
             myEcho = echo;
             myUserName = userName;
-            setTitle(GitBundle.message("ssh.keyboard.interactive.title", name));
+            setTitle(GitLocalize.sshKeyboardInteractiveTitle(name));
             init();
             setResizable(true);
             setModal(true);
@@ -294,7 +276,7 @@ public class GitSSHGUIHandler {
                 c.anchor = GridBagConstraints.WEST;
                 c.gridx = 0;
                 c.gridy = line;
-                contents.add(new JLabel(GitBundle.message("ssh.keyboard.interactive.username")), c);
+                contents.add(new JLabel(GitLocalize.sshKeyboardInteractiveUsername().get()), c);
                 c = new GridBagConstraints();
                 c.insets = insets;
                 c.gridx = 1;
@@ -321,12 +303,7 @@ public class GitSSHGUIHandler {
                     c.weightx = 1;
                     c.fill = GridBagConstraints.HORIZONTAL;
                     c.anchor = GridBagConstraints.WEST;
-                    if (myEcho.get(i).booleanValue()) {
-                        inputs[i] = new JTextField(32);
-                    }
-                    else {
-                        inputs[i] = new JPasswordField(32);
-                    }
+                    inputs[i] = myEcho.get(i) ? new JTextField(32) : new JPasswordField(32);
                     contents.add(inputs[i], c);
                     line++;
                 }
@@ -359,7 +336,7 @@ public class GitSSHGUIHandler {
          */
         @SuppressWarnings({"UseOfObsoleteCollectionType"})
         public Vector<String> getResults() {
-            Vector<String> rc = new Vector<String>(myNumPrompts);
+            Vector<String> rc = new Vector<>(myNumPrompts);
             for (int i = 0; i < myNumPrompts; i++) {
                 rc.add(inputs[i].getText());
             }
@@ -367,11 +344,9 @@ public class GitSSHGUIHandler {
         }
 
         @Override
+        @RequiredUIAccess
         public JComponent getPreferredFocusedComponent() {
-            if (inputs.length > 0) {
-                return inputs[0];
-            }
-            return super.getPreferredFocusedComponent();
+            return inputs.length > 0 ? inputs[0] : super.getPreferredFocusedComponent();
         }
     }
 }

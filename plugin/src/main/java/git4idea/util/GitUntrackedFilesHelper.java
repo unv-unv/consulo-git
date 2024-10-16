@@ -16,11 +16,8 @@
 package git4idea.util;
 
 import consulo.application.Application;
-import consulo.application.ApplicationManager;
 import consulo.ide.impl.idea.openapi.vcs.changes.ui.SelectFilesDialog;
 import consulo.project.Project;
-import consulo.project.ui.notification.Notification;
-import consulo.project.ui.notification.event.NotificationListener;
 import consulo.ui.ex.awt.DialogWrapper;
 import consulo.ui.ex.awt.JBLabel;
 import consulo.ui.ex.awt.ScrollPaneFactory;
@@ -34,7 +31,6 @@ import consulo.versionControlSystem.VcsNotifier;
 import consulo.virtualFileSystem.VirtualFile;
 import git4idea.DialogManager;
 import git4idea.GitUtil;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
@@ -71,11 +67,12 @@ public class GitUntrackedFilesHelper {
 
         final Collection<String> absolutePaths = GitUtil.toAbsolute(root, relativePaths);
         final List<VirtualFile> untrackedFiles =
-            ContainerUtil.mapNotNull(absolutePaths, absolutePath -> GitUtil.findRefreshFileOrLog(absolutePath));
+            ContainerUtil.mapNotNull(absolutePaths, GitUtil::findRefreshFileOrLog);
 
-        VcsNotifier.getInstance(project).notifyError(notificationTitle, notificationDesc, new NotificationListener() {
-            @Override
-            public void hyperlinkUpdate(@Nonnull Notification notification, @Nonnull HyperlinkEvent event) {
+        VcsNotifier.getInstance(project).notifyError(
+            notificationTitle,
+            notificationDesc,
+            (notification, event) -> {
                 if (event.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
                     final String dialogDesc = createUntrackedFilesOverwrittenDescription(operation, false);
                     String title = "Untracked Files Preventing " + StringUtil.capitalize(operation);
@@ -83,14 +80,13 @@ public class GitUntrackedFilesHelper {
                         GitUtil.showPathsInDialog(project, absolutePaths, title, dialogDesc);
                     }
                     else {
-                        DialogWrapper dialog;
-                        dialog = new UntrackedFilesDialog(project, untrackedFiles, dialogDesc);
+                        DialogWrapper dialog = new UntrackedFilesDialog(project, untrackedFiles, dialogDesc);
                         dialog.setTitle(title);
                         dialog.show();
                     }
                 }
             }
-        });
+        );
     }
 
     @Nonnull
@@ -126,12 +122,11 @@ public class GitUntrackedFilesHelper {
     ) {
         final Collection<String> absolutePaths = GitUtil.toAbsolute(root, relativePaths);
         final List<VirtualFile> untrackedFiles =
-            ContainerUtil.mapNotNull(absolutePaths, absolutePath -> GitUtil.findRefreshFileOrLog(absolutePath));
+            ContainerUtil.mapNotNull(absolutePaths, GitUtil::findRefreshFileOrLog);
 
         final Ref<Boolean> rollback = Ref.create();
-        ApplicationManager.getApplication().invokeAndWait(new Runnable() {
-            @Override
-            public void run() {
+        Application.get().invokeAndWait(
+            () -> {
                 JComponent filesBrowser;
                 if (untrackedFiles.isEmpty()) {
                     filesBrowser = new GitSimplePathsBrowser(project, absolutePaths);
@@ -146,8 +141,9 @@ public class GitUntrackedFilesHelper {
                 dialog.setTitle(title);
                 DialogManager.show(dialog);
                 rollback.set(dialog.isOK());
-            }
-        }, Application.get().getDefaultModalityState());
+            },
+            Application.get().getDefaultModalityState()
+        );
         return rollback.get();
     }
 

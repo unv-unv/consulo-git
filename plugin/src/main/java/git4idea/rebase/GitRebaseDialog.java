@@ -15,9 +15,11 @@
  */
 package git4idea.rebase;
 
+import consulo.git.localize.GitLocalize;
 import consulo.ide.ServiceManager;
 import consulo.logging.Logger;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.ComboBox;
 import consulo.ui.ex.awt.DialogWrapper;
 import consulo.ui.ex.awt.event.DocumentAdapter;
@@ -29,20 +31,17 @@ import git4idea.branch.GitBranchUtil;
 import git4idea.branch.GitRebaseParams;
 import git4idea.config.GitConfigUtil;
 import git4idea.config.GitRebaseSettings;
-import git4idea.i18n.GitBundle;
 import git4idea.merge.GitMergeUtil;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import git4idea.ui.GitReferenceValidator;
 import git4idea.util.GitUIUtil;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
@@ -90,7 +89,7 @@ public class GitRebaseDialog extends DialogWrapper {
     /**
      * Merge strategy drop down
      */
-    private ComboBox myMergeStrategyComboBox;
+    private ComboBox<String> myMergeStrategyComboBox;
     /**
      * If selected, rebase is interactive
      */
@@ -155,17 +154,13 @@ public class GitRebaseDialog extends DialogWrapper {
      */
     public GitRebaseDialog(Project project, List<VirtualFile> roots, VirtualFile defaultRoot) {
         super(project, true);
-        setTitle(GitBundle.message("rebase.title"));
-        setOKButtonText(GitBundle.message("rebase.button"));
+        setTitle(GitLocalize.rebaseTitle());
+        setOKButtonText(GitLocalize.rebaseButton());
         init();
         myProject = project;
         mySettings = ServiceManager.getService(myProject, GitRebaseSettings.class);
         myRepositoryManager = GitUtil.getRepositoryManager(myProject);
-        final Runnable validateRunnable = new Runnable() {
-            public void run() {
-                validateFields();
-            }
-        };
+        final Runnable validateRunnable = this::validateFields;
         myOntoValidator = new GitReferenceValidator(myProject,
             myGitRootComboBox,
             GitUIUtil.getTextField(myOntoComboBox),
@@ -179,11 +174,7 @@ public class GitRebaseDialog extends DialogWrapper {
             validateRunnable
         );
         GitUIUtil.setupRootChooser(myProject, roots, defaultRoot, myGitRootComboBox, null);
-        myGitRootComboBox.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                validateFields();
-            }
-        });
+        myGitRootComboBox.addActionListener(e -> validateFields());
 
         setupBranches();
         setupStrategy();
@@ -201,6 +192,7 @@ public class GitRebaseDialog extends DialogWrapper {
 
     @Nullable
     @Override
+    @RequiredUIAccess
     public JComponent getPreferredFocusedComponent() {
         return myOntoComboBox;
     }
@@ -256,12 +248,8 @@ public class GitRebaseDialog extends DialogWrapper {
         for (String s : GitMergeUtil.getMergeStrategies(1)) {
             myMergeStrategyComboBox.addItem(s);
         }
-        myMergeStrategyComboBox.setSelectedItem(GitMergeUtil.DEFAULT_STRATEGY);
-        myDoNotUseMergeCheckBox.addActionListener(new ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                myMergeStrategyComboBox.setEnabled(!myDoNotUseMergeCheckBox.isSelected());
-            }
-        });
+        myMergeStrategyComboBox.setSelectedItem(GitLocalize.mergeDefaultStrategy().get());
+        myDoNotUseMergeCheckBox.addActionListener(e -> myMergeStrategyComboBox.setEnabled(!myDoNotUseMergeCheckBox.isSelected()));
     }
 
 
@@ -275,17 +263,17 @@ public class GitRebaseDialog extends DialogWrapper {
             return;
         }
         else if (myOntoValidator.isInvalid()) {
-            setErrorText(GitBundle.message("rebase.invalid.onto"));
+            setErrorText(GitLocalize.rebaseInvalidOnto().get());
             setOKActionEnabled(false);
             return;
         }
         if (GitUIUtil.getTextField(myFromComboBox).getText().length() != 0 && myFromValidator.isInvalid()) {
-            setErrorText(GitBundle.message("rebase.invalid.from"));
+            setErrorText(GitLocalize.rebaseInvalidFrom().get());
             setOKActionEnabled(false);
             return;
         }
         if (GitRebaseUtils.isRebaseInTheProgress(myProject, gitRoot())) {
-            setErrorText(GitBundle.message("rebase.in.progress"));
+            setErrorText(GitLocalize.rebaseInProgress().get());
             setOKActionEnabled(false);
             return;
         }
@@ -298,30 +286,21 @@ public class GitRebaseDialog extends DialogWrapper {
      */
     private void setupBranches() {
         GitUIUtil.getTextField(myOntoComboBox).getDocument().addDocumentListener(new DocumentAdapter() {
+            @Override
             protected void textChanged(final DocumentEvent e) {
                 validateFields();
             }
         });
-        final ActionListener rootListener = new ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                loadRefs();
-                updateBranches();
-            }
+        final ActionListener rootListener = e -> {
+            loadRefs();
+            updateBranches();
         };
-        final ActionListener showListener = new ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                updateOntoFrom();
-            }
-        };
+        final ActionListener showListener = e -> updateOntoFrom();
         myShowRemoteBranchesCheckBox.addActionListener(showListener);
         myShowTagsCheckBox.addActionListener(showListener);
         rootListener.actionPerformed(null);
         myGitRootComboBox.addActionListener(rootListener);
-        myBranchComboBox.addActionListener(new ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                updateTrackedBranch();
-            }
-        });
+        myBranchComboBox.addActionListener(e -> updateTrackedBranch());
     }
 
     /**
@@ -373,6 +352,7 @@ public class GitRebaseDialog extends DialogWrapper {
     /**
      * Load tags and branches
      */
+    @RequiredUIAccess
     protected void loadRefs() {
         try {
             myLocalBranches.clear();
@@ -398,6 +378,7 @@ public class GitRebaseDialog extends DialogWrapper {
     /**
      * Update tracked branch basing on the currently selected branch
      */
+    @RequiredUIAccess
     private void updateTrackedBranch() {
         try {
             final VirtualFile root = gitRoot();
@@ -479,6 +460,7 @@ public class GitRebaseDialog extends DialogWrapper {
     /**
      * {@inheritDoc}
      */
+    @Override
     protected JComponent createCenterPanel() {
         return myPanel;
     }

@@ -15,8 +15,11 @@
  */
 package git4idea.merge;
 
+import consulo.git.localize.GitLocalize;
+import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.DialogWrapper;
 import consulo.ui.ex.awt.ElementsChooser;
 import consulo.ui.ex.awt.ListCellRendererWrapper;
@@ -27,19 +30,15 @@ import git4idea.GitRemoteBranch;
 import git4idea.GitUtil;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitLineHandler;
-import git4idea.i18n.GitBundle;
 import git4idea.repo.GitBranchTrackInfo;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import git4idea.util.GitUIUtil;
 import jakarta.annotation.Nonnull;
-
 import jakarta.annotation.Nullable;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -106,30 +105,16 @@ public class GitPullDialog extends DialogWrapper {
      */
     public GitPullDialog(Project project, List<VirtualFile> roots, VirtualFile defaultRoot) {
         super(project, true);
-        setTitle(GitBundle.message("pull.title"));
+        setTitle(GitLocalize.pullTitle());
         myProject = project;
         myRepositoryManager = GitUtil.getRepositoryManager(myProject);
         GitUIUtil.setupRootChooser(myProject, roots, defaultRoot, myGitRoot, myCurrentBranch);
-        myGitRoot.addActionListener(new ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                updateRemotes();
-            }
-        });
-        setOKButtonText(GitBundle.message("pull.button"));
+        myGitRoot.addActionListener(e -> updateRemotes());
+        setOKButtonText(GitLocalize.pullButton());
         updateRemotes();
         updateBranches();
-        myRemote.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                updateBranches();
-            }
-        });
-        final ElementsChooser.ElementsMarkListener<String> listener =
-            new ElementsChooser.ElementsMarkListener<String>() {
-                public void elementMarkChanged(final String element, final boolean isMarked) {
-                    validateDialog();
-                }
-            };
+        myRemote.addActionListener(e -> updateBranches());
+        final ElementsChooser.ElementsMarkListener<String> listener = (element, isMarked) -> validateDialog();
         myBranchChooser.addElementsMarkListener(listener);
         listener.elementMarkChanged(null, true);
         GitUIUtil.imply(mySquashCommitCheckBox, true, myNoCommitCheckBox, true);
@@ -177,7 +162,7 @@ public class GitPullDialog extends DialogWrapper {
             h.addParameters("--no-ff");
         }
         String strategy = (String)myStrategy.getSelectedItem();
-        if (!GitMergeUtil.DEFAULT_STRATEGY.equals(strategy)) {
+        if (!GitLocalize.mergeDefaultStrategy().get().equals(strategy)) {
             h.addParameters("--strategy", strategy);
         }
         h.addParameters("-v");
@@ -219,7 +204,7 @@ public class GitPullDialog extends DialogWrapper {
 
         GitBranchTrackInfo trackInfo = GitUtil.getTrackInfoForCurrentBranch(repository);
         String currentRemoteBranch = trackInfo == null ? null : trackInfo.getRemoteBranch().getNameForLocalOperations();
-        List<GitRemoteBranch> remoteBranches = new ArrayList<GitRemoteBranch>(repository.getBranches().getRemoteBranches());
+        List<GitRemoteBranch> remoteBranches = new ArrayList<>(repository.getBranches().getRemoteBranches());
         Collections.sort(remoteBranches);
         for (GitBranch remoteBranch : remoteBranches) {
             if (belongsToRemote(remoteBranch, selectedRemote)) {
@@ -269,12 +254,7 @@ public class GitPullDialog extends DialogWrapper {
         }
         else {
             GitRemote origin = getOriginRemote(remotes);
-            if (origin != null) {
-                return origin;
-            }
-            else {
-                return remotes.iterator().next();
-            }
+            return origin != null ? origin : remotes.iterator().next();
         }
     }
 
@@ -307,7 +287,7 @@ public class GitPullDialog extends DialogWrapper {
      * @return a list cell renderer for virtual files (it renders presentable URL
      */
     public ListCellRendererWrapper<GitRemote> getGitRemoteListCellRenderer(final String defaultRemote) {
-        return new ListCellRendererWrapper<GitRemote>() {
+        return new ListCellRendererWrapper<>() {
             @Override
             public void customize(
                 final JList list,
@@ -316,24 +296,20 @@ public class GitPullDialog extends DialogWrapper {
                 final boolean selected,
                 final boolean hasFocus
             ) {
-                final String text;
+                final LocalizeValue text;
                 if (remote == null) {
-                    text = GitBundle.message("util.remote.renderer.none");
+                    text = GitLocalize.utilRemoteRendererNone();
                 }
                 else if (".".equals(remote.getName())) {
-                    text = GitBundle.message("util.remote.renderer.self");
+                    text = GitLocalize.utilRemoteRendererSelf();
+                }
+                else if (defaultRemote != null && defaultRemote.equals(remote.getName())) {
+                    text = GitLocalize.utilRemoteRendererDefault(remote.getName(), remote.getFirstUrl());
                 }
                 else {
-                    String key;
-                    if (defaultRemote != null && defaultRemote.equals(remote.getName())) {
-                        key = "util.remote.renderer.default";
-                    }
-                    else {
-                        key = "util.remote.renderer.normal";
-                    }
-                    text = GitBundle.message(key, remote.getName(), remote.getFirstUrl());
+                    text = GitLocalize.utilRemoteRendererNormal(remote.getName(), remote.getFirstUrl());
                 }
-                setText(text);
+                setText(text.get());
             }
         };
     }
@@ -350,12 +326,13 @@ public class GitPullDialog extends DialogWrapper {
      * Create branch chooser
      */
     private void createUIComponents() {
-        myBranchChooser = new ElementsChooser<String>(true);
+        myBranchChooser = new ElementsChooser<>(true);
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     protected JComponent createCenterPanel() {
         return myPanel;
     }
@@ -383,6 +360,7 @@ public class GitPullDialog extends DialogWrapper {
     }
 
     @Override
+    @RequiredUIAccess
     public JComponent getPreferredFocusedComponent() {
         return myBranchChooser.getComponent();
     }

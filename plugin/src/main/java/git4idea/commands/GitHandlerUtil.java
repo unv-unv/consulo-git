@@ -56,7 +56,11 @@ public class GitHandlerUtil {
      * @return A stdout content or null if there was error (exit code != 0 or exception during start).
      */
     @Nullable
-    public static String doSynchronously(final GitSimpleHandler handler, @Nonnull LocalizeValue operationTitle, final String operationName) {
+    public static String doSynchronously(
+        final GitSimpleHandler handler,
+        @Nonnull LocalizeValue operationTitle,
+        @Nonnull LocalizeValue operationName
+    ) {
         handler.addListener(new GitHandlerListenerBase(handler, operationName) {
             @Override
             protected String getErrorText() {
@@ -76,7 +80,11 @@ public class GitHandlerUtil {
      * @param operationName  an operation name shown in failure dialog
      * @return An exit code
      */
-    public static int doSynchronously(final GitLineHandler handler, @Nonnull LocalizeValue operationTitle, final String operationName) {
+    public static int doSynchronously(
+        final GitLineHandler handler,
+        @Nonnull LocalizeValue operationTitle,
+        @Nonnull LocalizeValue operationName
+    ) {
         return doSynchronously(handler, operationTitle, operationName, true);
     }
 
@@ -92,7 +100,7 @@ public class GitHandlerUtil {
     public static int doSynchronously(
         GitLineHandler handler,
         @Nonnull LocalizeValue operationTitle,
-        String operationName,
+        @Nonnull LocalizeValue operationName,
         boolean showErrors
     ) {
         return doSynchronously(handler, operationTitle, operationName, showErrors, true);
@@ -111,7 +119,7 @@ public class GitHandlerUtil {
     public static int doSynchronously(
         final GitLineHandler handler,
         @Nonnull final LocalizeValue operationTitle,
-        final String operationName,
+        @Nonnull final LocalizeValue operationName,
         final boolean showErrors,
         final boolean setIndeterminateFlag
     ) {
@@ -234,7 +242,7 @@ public class GitHandlerUtil {
         /**
          * a operation name for the handler
          */
-        protected final String myOperationName;
+        protected final LocalizeValue myOperationName;
         /**
          * if true, the errors are shown when process is terminated
          */
@@ -246,7 +254,7 @@ public class GitHandlerUtil {
          * @param handler       a handler instance
          * @param operationName an operation name
          */
-        public GitHandlerListenerBase(final GitHandler handler, final String operationName) {
+        public GitHandlerListenerBase(final GitHandler handler, @Nonnull LocalizeValue operationName) {
             this(handler, operationName, true);
         }
 
@@ -257,7 +265,7 @@ public class GitHandlerUtil {
          * @param operationName an operation name
          * @param showErrors    if true, the errors are shown when process is terminated
          */
-        public GitHandlerListenerBase(final GitHandler handler, final String operationName, boolean showErrors) {
+        public GitHandlerListenerBase(GitHandler handler, @Nonnull LocalizeValue operationName, boolean showErrors) {
             myHandler = handler;
             myOperationName = operationName;
             myShowErrors = showErrors;
@@ -308,7 +316,11 @@ public class GitHandlerUtil {
             //noinspection ThrowableInstanceNeverThrown
             myHandler.addError(new VcsException("Git start failed: " + exception.getMessage(), exception));
             if (myShowErrors) {
-                EventQueue.invokeLater(() -> GitUIUtil.showOperationError(myHandler.project(), myOperationName, exception.getMessage()));
+                EventQueue.invokeLater(() -> GitUIUtil.showOperationError(
+                    myHandler.project(),
+                    myOperationName,
+                    LocalizeValue.of(exception.getMessage())
+                ));
             }
         }
     }
@@ -324,7 +336,7 @@ public class GitHandlerUtil {
          * @param operationName an operation name
          * @param showErrors    if true, the errors are shown when process is terminated
          */
-        public GitLineHandlerListenerBase(GitHandler handler, String operationName, boolean showErrors) {
+        public GitLineHandlerListenerBase(GitHandler handler, @Nonnull LocalizeValue operationName, boolean showErrors) {
             super(handler, operationName, showErrors);
         }
     }
@@ -349,28 +361,10 @@ public class GitHandlerUtil {
         public GitLineHandlerListenerProgress(
             final ProgressIndicator manager,
             GitHandler handler,
-            String operationName,
-            boolean showErrors
-        ) {
-            super(handler, operationName, showErrors);
-            myProgressIndicator = manager;
-        }
-
-        /**
-         * A constructor
-         *
-         * @param manager       the project manager
-         * @param handler       a handler instance
-         * @param operationName an operation name
-         * @param showErrors    if true, the errors are shown when process is terminated
-         */
-        public GitLineHandlerListenerProgress(
-            final ProgressIndicator manager,
-            GitHandler handler,
             @Nonnull LocalizeValue operationName,
             boolean showErrors
         ) {
-            super(handler, operationName.get(), showErrors);
+            super(handler, operationName, showErrors);
             myProgressIndicator = manager;
         }
 

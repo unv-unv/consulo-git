@@ -63,7 +63,7 @@ public class GitResetHead extends GitRepositoryAction {
         }
         GitLineHandler h = d.handler();
         affectedRoots.add(d.getGitRoot());
-        GitHandlerUtil.doSynchronously(h, GitLocalize.resettingTitle(), h.printableCommandLine());
+        GitHandlerUtil.doSynchronously(h, GitLocalize.resettingTitle(), LocalizeValue.ofNullable(h.printableCommandLine()));
         GitRepositoryManager manager = GitUtil.getRepositoryManager(project);
         manager.updateRepository(d.getGitRoot());
     }

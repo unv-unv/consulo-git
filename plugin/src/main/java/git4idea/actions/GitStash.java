@@ -60,7 +60,7 @@ public class GitStash extends GitRepositoryAction {
         VirtualFile root = d.getGitRoot();
         affectedRoots.add(root);
         final GitLineHandler h = d.handler();
-        GitHandlerUtil.doSynchronously(h, GitLocalize.stashingTitle(), h.printableCommandLine());
+        GitHandlerUtil.doSynchronously(h, GitLocalize.stashingTitle(), LocalizeValue.ofNullable(h.printableCommandLine()));
         VirtualFileUtil.markDirtyAndRefresh(true, true, false, root);
     }
 
