@@ -25,7 +25,6 @@ import git4idea.GitVcs;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitLineHandler;
 import git4idea.commands.GitSimpleHandler;
-import git4idea.i18n.GitBundle;
 import git4idea.util.GitUIUtil;
 import jakarta.annotation.Nonnull;
 
@@ -73,7 +72,7 @@ public class GitMergeDialog extends DialogWrapper {
     /**
      * The strategy for merge
      */
-    private JComboBox myStrategy;
+    private JComboBox<GitMergeStrategy> myStrategy;
     /**
      * The panel
      */
@@ -135,9 +134,10 @@ public class GitMergeDialog extends DialogWrapper {
         c.weighty = 1;
         c.fill = GridBagConstraints.BOTH;
         myBranchToMergeContainer.add(myBranchChooser, c);
+        myStrategy.setRenderer(GitMergeStrategy.LIST_CELL_RENDERER);
         GitMergeUtil.setupStrategies(myBranchChooser, myStrategy);
         final ElementsChooser.ElementsMarkListener<String> listener =
-            (element, isMarked) -> setOKActionEnabled(myBranchChooser.getMarkedElements().size() != 0);
+            (element, isMarked) -> setOKActionEnabled(!myBranchChooser.getMarkedElements().isEmpty());
         listener.elementMarkChanged(null, true);
         myBranchChooser.addElementsMarkListener(listener);
     }
@@ -186,10 +186,8 @@ public class GitMergeDialog extends DialogWrapper {
         if (myNoFastForwardCheckBox.isSelected()) {
             h.addParameters("--no-ff");
         }
-        String strategy = (String)myStrategy.getSelectedItem();
-        if (!GitBundle.message("merge.default.strategy").equals(strategy)) {
-            h.addParameters("--strategy", strategy);
-        }
+        GitMergeStrategy strategy = (GitMergeStrategy)myStrategy.getSelectedItem();
+        strategy.addParametersTo(h);
         for (String branch : myBranchChooser.getMarkedElements()) {
             h.addParameters(branch);
         }

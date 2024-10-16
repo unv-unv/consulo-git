@@ -16,9 +16,9 @@
 package git4idea.ui;
 
 import consulo.git.localize.GitLocalize;
-import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.ui.ex.awt.DialogWrapper;
+import consulo.ui.ex.awt.SimpleListCellRenderer;
 import consulo.virtualFileSystem.VirtualFile;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitLineHandler;
@@ -42,7 +42,7 @@ public class GitResetDialog extends DialogWrapper {
     /**
      * The selector for reset type
      */
-    private JComboBox<LocalizeValue> myResetTypeComboBox;
+    private JComboBox<GitResetType> myResetTypeComboBox;
     /**
      * The text field that contains commit expressions
      */
@@ -77,10 +77,11 @@ public class GitResetDialog extends DialogWrapper {
         myProject = project;
         setTitle(GitLocalize.resetTitle());
         setOKButtonText(GitLocalize.resetButton());
-        myResetTypeComboBox.addItem(GitLocalize.resetTypeMixed());
-        myResetTypeComboBox.addItem(GitLocalize.resetTypeSoft());
-        myResetTypeComboBox.addItem(GitLocalize.resetTypeHard());
-        myResetTypeComboBox.setSelectedItem(GitLocalize.resetTypeMixed());
+        myResetTypeComboBox.setRenderer(GitResetType.LIST_CELL_RENDERER);
+        myResetTypeComboBox.addItem(GitResetType.MIXED);
+        myResetTypeComboBox.addItem(GitResetType.SOFT);
+        myResetTypeComboBox.addItem(GitResetType.HARD);
+        myResetTypeComboBox.setSelectedItem(GitResetType.MIXED);
         GitUIUtil.setupRootChooser(project, roots, defaultRoot, myGitRootComboBox, myCurrentBranchLabel);
         myGitReferenceValidator =
             new GitReferenceValidator(myProject, myGitRootComboBox, myCommitTextField, myValidateButton, this::validateFields);
@@ -104,16 +105,8 @@ public class GitResetDialog extends DialogWrapper {
      */
     public GitLineHandler handler() {
         GitLineHandler handler = new GitLineHandler(myProject, getGitRoot(), GitCommand.RESET);
-        LocalizeValue type = (LocalizeValue)myResetTypeComboBox.getSelectedItem();
-        if (GitLocalize.resetTypeSoft().equals(type)) {
-            handler.addParameters("--soft");
-        }
-        else if (GitLocalize.resetTypeHard().equals(type)) {
-            handler.addParameters("--hard");
-        }
-        else if (GitLocalize.resetTypeMixed().equals(type)) {
-            handler.addParameters("--mixed");
-        }
+        GitResetType resetType = (GitResetType)myResetTypeComboBox.getSelectedItem();
+        resetType.addParametersTo(handler);
         final String commit = myCommitTextField.getText().trim();
         if (commit.length() != 0) {
             handler.addParameters(commit);

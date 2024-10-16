@@ -77,8 +77,9 @@ public final class GitVcsConsoleWriter {
    * @param contentType a style to use
    */
   public void showMessage(@Nonnull LocalizeValue message, @Nonnull ConsoleViewContentType contentType) {
-    String shortMessage = StringUtil.shortenPathWithEllipsis(message.get(), MAX_CONSOLE_OUTPUT_SIZE);
-    ProjectLevelVcsManager.getInstance(myProject).addMessageToConsoleWindow(shortMessage, contentType);
+    LocalizeValue shortMessage =
+        message.map(((localizeManager, value) -> StringUtil.shortenPathWithEllipsis(value, MAX_CONSOLE_OUTPUT_SIZE)));
+    ProjectLevelVcsManager.getInstance(myProject).addMessageToConsoleWindow(shortMessage.get(), contentType);
   }
 
   /**

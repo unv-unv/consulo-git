@@ -31,7 +31,7 @@ import git4idea.branch.GitBranchUtil;
 import git4idea.branch.GitRebaseParams;
 import git4idea.config.GitConfigUtil;
 import git4idea.config.GitRebaseSettings;
-import git4idea.merge.GitMergeUtil;
+import git4idea.merge.GitMergeStrategy;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
@@ -89,7 +89,7 @@ public class GitRebaseDialog extends DialogWrapper {
     /**
      * Merge strategy drop down
      */
-    private ComboBox<String> myMergeStrategyComboBox;
+    private ComboBox<GitMergeStrategy> myMergeStrategyComboBox;
     /**
      * If selected, rebase is interactive
      */
@@ -245,10 +245,11 @@ public class GitRebaseDialog extends DialogWrapper {
      * Setup strategy
      */
     private void setupStrategy() {
-        for (String s : GitMergeUtil.getMergeStrategies(1)) {
+        myMergeStrategyComboBox.setRenderer(GitMergeStrategy.LIST_CELL_RENDERER);
+        for (GitMergeStrategy s : GitMergeStrategy.getMergeStrategies(1)) {
             myMergeStrategyComboBox.addItem(s);
         }
-        myMergeStrategyComboBox.setSelectedItem(GitLocalize.mergeDefaultStrategy().get());
+        myMergeStrategyComboBox.setSelectedItem(GitMergeStrategy.DEFAULT);
         myDoNotUseMergeCheckBox.addActionListener(e -> myMergeStrategyComboBox.setEnabled(!myDoNotUseMergeCheckBox.isSelected()));
     }
 

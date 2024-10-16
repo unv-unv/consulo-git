@@ -65,7 +65,7 @@ public class GitPullDialog extends DialogWrapper {
     /**
      * The merge strategy
      */
-    private JComboBox myStrategy;
+    private JComboBox<GitMergeStrategy> myStrategy;
     /**
      * No commit option
      */
@@ -120,6 +120,7 @@ public class GitPullDialog extends DialogWrapper {
         GitUIUtil.imply(mySquashCommitCheckBox, true, myNoCommitCheckBox, true);
         GitUIUtil.imply(mySquashCommitCheckBox, true, myAddLogInformationCheckBox, false);
         GitUIUtil.exclusive(mySquashCommitCheckBox, true, myNoFastForwardCheckBox, true);
+        myStrategy.setRenderer(GitMergeStrategy.LIST_CELL_RENDERER);
         GitMergeUtil.setupStrategies(myBranchChooser, myStrategy);
         init();
     }
@@ -161,10 +162,8 @@ public class GitPullDialog extends DialogWrapper {
         if (myNoFastForwardCheckBox.isSelected()) {
             h.addParameters("--no-ff");
         }
-        String strategy = (String)myStrategy.getSelectedItem();
-        if (!GitLocalize.mergeDefaultStrategy().get().equals(strategy)) {
-            h.addParameters("--strategy", strategy);
-        }
+        GitMergeStrategy strategy = (GitMergeStrategy)myStrategy.getSelectedItem();
+        strategy.addParametersTo(h);
         h.addParameters("-v");
         h.addProgressParameter();
 
