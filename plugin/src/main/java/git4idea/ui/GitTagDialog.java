@@ -218,7 +218,7 @@ public class GitTagDialog extends DialogWrapper {
         if (myExistingTags.contains(text)) {
             myForceCheckBox.setEnabled(true);
             if (!myForceCheckBox.isSelected()) {
-                setErrorText(GitLocalize.tagErrorTagExists().get());
+                setErrorText(GitLocalize.tagErrorTagExists());
                 setOKActionEnabled(false);
                 return;
             }
@@ -227,18 +227,19 @@ public class GitTagDialog extends DialogWrapper {
             myForceCheckBox.setEnabled(false);
             myForceCheckBox.setSelected(false);
         }
+
         if (myCommitTextFieldValidator.isInvalid()) {
-            setErrorText(GitLocalize.tagErrorInvalidCommit().get());
+            setErrorText(GitLocalize.tagErrorInvalidCommit());
             setOKActionEnabled(false);
-            return;
         }
-        if (text.length() == 0) {
-            setErrorText(null);
+        else if (text.isEmpty()) {
+            clearErrorText();
             setOKActionEnabled(false);
-            return;
         }
-        setErrorText(null);
-        setOKActionEnabled(true);
+        else {
+            clearErrorText();
+            setOKActionEnabled(true);
+        }
     }
 
     /**

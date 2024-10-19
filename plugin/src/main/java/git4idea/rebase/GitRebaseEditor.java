@@ -127,7 +127,7 @@ public class GitRebaseEditor extends DialogWrapper implements DataProvider {
     private void validateFields() {
         final List<GitRebaseEntry> entries = myTableModel.myEntries;
         if (entries.size() == 0) {
-            setErrorText(GitLocalize.rebaseEditorInvalidEntryset().get());
+            setErrorText(GitLocalize.rebaseEditorInvalidEntryset());
             setOKActionEnabled(false);
             return;
         }
@@ -143,7 +143,7 @@ public class GitRebaseEditor extends DialogWrapper implements DataProvider {
                 return;
             }
         }
-        setErrorText(null);
+        clearErrorText();
         setOKActionEnabled(true);
     }
 
