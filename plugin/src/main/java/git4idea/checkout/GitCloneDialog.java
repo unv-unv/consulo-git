@@ -213,7 +213,7 @@ public class GitCloneDialog extends DialogWrapper {
         if (!checkDestination()) {
             return;
         }
-        setErrorText(null);
+        clearErrorText();
         setOKActionEnabled(true);
     }
 
@@ -224,18 +224,18 @@ public class GitCloneDialog extends DialogWrapper {
      */
     private boolean checkDestination() {
         if (myParentDirectory.getText().length() == 0 || myDirectoryName.getText().length() == 0) {
-            setErrorText(null);
+            clearErrorText();
             setOKActionEnabled(false);
             return false;
         }
         File file = new File(myParentDirectory.getText(), myDirectoryName.getText());
         if (file.exists()) {
-            setErrorText(GitLocalize.cloneDestinationExistsError(file).get());
+            setErrorText(GitLocalize.cloneDestinationExistsError(file));
             setOKActionEnabled(false);
             return false;
         }
         else if (!file.getParentFile().exists()) {
-            setErrorText(GitLocalize.cloneParentMissingError(file.getParent()).get());
+            setErrorText(GitLocalize.cloneParentMissingError(file.getParent()));
             setOKActionEnabled(false);
             return false;
         }
@@ -249,14 +249,14 @@ public class GitCloneDialog extends DialogWrapper {
      */
     private boolean checkRepositoryURL() {
         String repository = getCurrentUrlText();
-        if (repository.length() == 0) {
-            setErrorText(null);
+        if (repository.isEmpty()) {
+            clearErrorText();
             setOKActionEnabled(false);
             return false;
         }
         if (myTestResult != null && repository.equals(myTestURL)) {
             if (!myTestResult) {
-                setErrorText(GitLocalize.cloneTestFailedError().get());
+                setErrorText(GitLocalize.cloneTestFailedError());
                 setOKActionEnabled(false);
                 return false;
             }
@@ -280,7 +280,7 @@ public class GitCloneDialog extends DialogWrapper {
             File file = new File(repository);
             if (file.exists()) {
                 if (!file.isDirectory()) {
-                    setErrorText(GitLocalize.cloneUrlIsNotDirectoryError().get());
+                    setErrorText(GitLocalize.cloneUrlIsNotDirectoryError());
                     setOKActionEnabled(false);
                 }
                 return true;
@@ -289,7 +289,7 @@ public class GitCloneDialog extends DialogWrapper {
         catch (Exception fileExp) {
             // do nothing
         }
-        setErrorText(GitLocalize.cloneInvalidUrl().get());
+        setErrorText(GitLocalize.cloneInvalidUrl());
         setOKActionEnabled(false);
         return false;
     }

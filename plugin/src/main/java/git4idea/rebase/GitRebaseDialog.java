@@ -65,11 +65,11 @@ public class GitRebaseDialog extends DialogWrapper {
     /**
      * The selector for branch to rebase
      */
-    protected ComboBox myBranchComboBox;
+    protected ComboBox<String> myBranchComboBox;
     /**
      * The from branch combo box. This is used as base branch if different from onto branch
      */
-    protected ComboBox myFromComboBox;
+    protected ComboBox<GitReference> myFromComboBox;
     /**
      * The validation button for from branch
      */
@@ -77,7 +77,7 @@ public class GitRebaseDialog extends DialogWrapper {
     /**
      * The onto branch combobox.
      */
-    protected ComboBox myOntoComboBox;
+    protected ComboBox<GitReference> myOntoComboBox;
     /**
      * The validate button for onto branch
      */
@@ -259,26 +259,26 @@ public class GitRebaseDialog extends DialogWrapper {
      */
     private void validateFields() {
         if (GitUIUtil.getTextField(myOntoComboBox).getText().length() == 0) {
-            setErrorText(null);
+            clearErrorText();
             setOKActionEnabled(false);
             return;
         }
         else if (myOntoValidator.isInvalid()) {
-            setErrorText(GitLocalize.rebaseInvalidOnto().get());
+            setErrorText(GitLocalize.rebaseInvalidOnto());
             setOKActionEnabled(false);
             return;
         }
         if (GitUIUtil.getTextField(myFromComboBox).getText().length() != 0 && myFromValidator.isInvalid()) {
-            setErrorText(GitLocalize.rebaseInvalidFrom().get());
+            setErrorText(GitLocalize.rebaseInvalidFrom());
             setOKActionEnabled(false);
             return;
         }
         if (GitRebaseUtils.isRebaseInTheProgress(myProject, gitRoot())) {
-            setErrorText(GitLocalize.rebaseInProgress().get());
+            setErrorText(GitLocalize.rebaseInProgress());
             setOKActionEnabled(false);
             return;
         }
-        setErrorText(null);
+        clearErrorText();
         setOKActionEnabled(true);
     }
 
@@ -307,6 +307,7 @@ public class GitRebaseDialog extends DialogWrapper {
     /**
      * Update branches when git root changed
      */
+    @RequiredUIAccess
     private void updateBranches() {
         myBranchComboBox.removeAllItems();
         for (GitBranch b : myLocalBranches) {
@@ -388,10 +389,7 @@ public class GitRebaseDialog extends DialogWrapper {
             if (currentBranch != null) {
                 String remote = GitConfigUtil.getValue(myProject, root, "branch." + currentBranch + ".remote");
                 String mergeBranch = GitConfigUtil.getValue(myProject, root, "branch." + currentBranch + ".merge");
-                if (remote == null || mergeBranch == null) {
-                    trackedBranch = null;
-                }
-                else {
+                if (remote != null && mergeBranch != null) {
                     mergeBranch = GitBranchUtil.stripRefsPrefix(mergeBranch);
                     if (remote.equals(".")) {
                         trackedBranch = new GitSvnRemoteBranch(mergeBranch);

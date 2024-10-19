@@ -542,7 +542,7 @@ rebase.editor.commit.column:
 rebase.editor.invalid.entryset:
   text: No commits found to rebase
 rebase.editor.invalid.squash:
-  text: The first non-skip commit could not be marked as squashed since squash merges commit with the previous commit.
+  text: The first non-skip commit cannot be marked as {0} since it merges commit with the previous commit.
 rebase.editor.message:
   text: Reorder and edit &rebased commits
 rebase.editor.move.down.tooltip:
@@ -1093,4 +1093,5 @@ action.Git.Rebase.Continue.text:
   text: Continue Rebase
 action.Git.Rebase.Skip.text:
   text: Skip Commit
-
+repository.not.found.error:
+  text: Cannot find configured Git repository for {0}
