@@ -36,7 +36,6 @@ import consulo.util.dataholder.Key;
 import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitUtil;
-import git4idea.i18n.GitBundle;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
@@ -138,7 +137,7 @@ public class GitRebaseEditor extends DialogWrapper implements DataProvider {
         if (i < entries.size()) {
             GitRebaseEntry.Action action = entries.get(i).getAction();
             if (action == GitRebaseEntry.Action.squash || action == GitRebaseEntry.Action.fixup) {
-                setErrorText(GitBundle.message("rebase.editor.invalid.squash", StringUtil.toLowerCase(action.name())));
+                setErrorText(GitLocalize.rebaseEditorInvalidSquash(StringUtil.toLowerCase(action.name())));
                 setOKActionEnabled(false);
                 return;
             }

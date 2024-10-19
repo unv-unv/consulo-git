@@ -213,7 +213,7 @@ public class GitCloneDialog extends DialogWrapper {
         if (!checkDestination()) {
             return;
         }
-        setErrorText(null);
+        clearErrorText();
         setOKActionEnabled(true);
     }
 
@@ -224,7 +224,7 @@ public class GitCloneDialog extends DialogWrapper {
      */
     private boolean checkDestination() {
         if (myParentDirectory.getText().length() == 0 || myDirectoryName.getText().length() == 0) {
-            setErrorText(null);
+            clearErrorText();
             setOKActionEnabled(false);
             return false;
         }

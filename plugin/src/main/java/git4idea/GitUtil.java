@@ -81,11 +81,11 @@ import static consulo.versionControlSystem.distributed.DvcsUtil.joinShortNames;
 public class GitUtil {
     private static final class GitRepositoryNotFoundException extends VcsException {
         private GitRepositoryNotFoundException(@Nonnull VirtualFile file) {
-            super(GitBundle.message("repository.not.found.error", file.getPresentableUrl()));
+            super(GitLocalize.repositoryNotFoundError(file.getPresentableUrl()));
         }
 
         private GitRepositoryNotFoundException(@Nonnull FilePath filePath) {
-            super(GitBundle.message("repository.not.found.error", filePath.getPresentableUrl()));
+            super(GitLocalize.repositoryNotFoundError(filePath.getPresentableUrl()));
         }
     }
 

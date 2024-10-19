@@ -259,7 +259,7 @@ public class GitRebaseDialog extends DialogWrapper {
      */
     private void validateFields() {
         if (GitUIUtil.getTextField(myOntoComboBox).getText().length() == 0) {
-            setErrorText(null);
+            clearErrorText();
             setOKActionEnabled(false);
             return;
         }
@@ -278,7 +278,7 @@ public class GitRebaseDialog extends DialogWrapper {
             setOKActionEnabled(false);
             return;
         }
-        setErrorText(null);
+        clearErrorText();
         setOKActionEnabled(true);
     }
 
