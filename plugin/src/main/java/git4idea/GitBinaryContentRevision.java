@@ -27,20 +27,20 @@ import jakarta.annotation.Nonnull;
 
 /**
  * @author irengrig
- *         Date: 12/20/10
- *         Time: 2:57 PM
+ * Date: 12/20/10
+ * Time: 2:57 PM
  */
 public class GitBinaryContentRevision extends GitContentRevision implements BinaryContentRevision {
-  public GitBinaryContentRevision(@Nonnull FilePath file, @Nonnull GitRevisionNumber revision, @Nonnull Project project) {
-    super(file, revision, project, null);
-  }
-
-  @Override
-  public byte[] getBinaryContent() throws VcsException {
-    if (myFile.isDirectory()) {
-      return null;
+    public GitBinaryContentRevision(@Nonnull FilePath file, @Nonnull GitRevisionNumber revision, @Nonnull Project project) {
+        super(file, revision, project, null);
     }
-    final VirtualFile root = GitUtil.getGitRoot(myFile);
-    return GitFileUtils.getFileContent(myProject, root, myRevision.getRev(), VcsFileUtil.relativePath(root, myFile));
-  }
+
+    @Override
+    public byte[] getBinaryContent() throws VcsException {
+        if (myFile.isDirectory()) {
+            return null;
+        }
+        final VirtualFile root = GitUtil.getGitRoot(myFile);
+        return GitFileUtils.getFileContent(myProject, root, myRevision.getRev(), VcsFileUtil.relativePath(root, myFile));
+    }
 }

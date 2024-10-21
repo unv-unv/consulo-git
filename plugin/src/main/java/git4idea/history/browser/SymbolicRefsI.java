@@ -28,20 +28,20 @@ import jakarta.annotation.Nullable;
  * To change this template use File | Settings | File Templates.
  */
 public interface SymbolicRefsI {
-  /*TreeSet<String> getLocalBranches();
+    /*TreeSet<String> getLocalBranches();
 
-  TreeSet<String> getRemoteBranches();*/
+    TreeSet<String> getRemoteBranches();*/
 
-  @Nullable
-  String getCurrentName();
+    @Nullable
+    String getCurrentName();
 
-  GitBranch getCurrent();
+    GitBranch getCurrent();
 
-  SymbolicRefs.Kind getKind(String s);
+    SymbolicRefs.Kind getKind(String s);
 
-  String getTrackedRemoteName();
+    String getTrackedRemoteName();
 
-  String getUsername();
+    String getUsername();
 
-  AbstractHash getHeadHash();
+    AbstractHash getHeadHash();
 }

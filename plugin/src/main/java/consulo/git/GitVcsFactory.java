@@ -25,69 +25,73 @@ import jakarta.annotation.Nonnull;
  */
 @ExtensionImpl
 public class GitVcsFactory implements VcsFactory {
-  private static final LocalizeValue Git = LocalizeValue.localizeTODO("Git");
+    private static final LocalizeValue Git = LocalizeValue.localizeTODO("Git");
 
-  private final Project myProject;
-  private final Provider<Git> myGit;
-  private final Provider<GitAnnotationProvider> myGitAnnotationProvider;
-  private final Provider<GitDiffProvider> myGitDiffProvider;
-  private final Provider<GitHistoryProvider> myGitHistoryProvider;
-  private final Provider<GitRollbackEnvironment> myGitRollbackEnvironment;
-  private final Provider<GitVcsApplicationSettings> myGitVcsApplicationSettings;
-  private final Provider<GitVcsSettings> myGitVcsSettings;
-  private final Provider<GitExecutableManager> myGitExecutableManager;
+    private final Project myProject;
+    private final Provider<Git> myGit;
+    private final Provider<GitAnnotationProvider> myGitAnnotationProvider;
+    private final Provider<GitDiffProvider> myGitDiffProvider;
+    private final Provider<GitHistoryProvider> myGitHistoryProvider;
+    private final Provider<GitRollbackEnvironment> myGitRollbackEnvironment;
+    private final Provider<GitVcsApplicationSettings> myGitVcsApplicationSettings;
+    private final Provider<GitVcsSettings> myGitVcsSettings;
+    private final Provider<GitExecutableManager> myGitExecutableManager;
 
-  @Inject
-  public GitVcsFactory(@Nonnull Project project,
-                       @Nonnull Provider<Git> git,
-                       @Nonnull Provider<GitAnnotationProvider> gitAnnotationProvider,
-                       @Nonnull Provider<GitDiffProvider> gitDiffProvider,
-                       @Nonnull Provider<GitHistoryProvider> gitHistoryProvider,
-                       @Nonnull Provider<GitRollbackEnvironment> gitRollbackEnvironment,
-                       @Nonnull Provider<GitVcsApplicationSettings> gitSettings,
-                       @Nonnull Provider<GitVcsSettings> gitProjectSettings,
-                       @Nonnull Provider<GitExecutableManager> gitExecutableManager) {
-    myProject = project;
-    myGit = git;
-    myGitAnnotationProvider = gitAnnotationProvider;
-    myGitDiffProvider = gitDiffProvider;
-    myGitHistoryProvider = gitHistoryProvider;
-    myGitRollbackEnvironment = gitRollbackEnvironment;
-    myGitVcsApplicationSettings = gitSettings;
-    myGitVcsSettings = gitProjectSettings;
-    myGitExecutableManager = gitExecutableManager;
-  }
+    @Inject
+    public GitVcsFactory(
+        @Nonnull Project project,
+        @Nonnull Provider<Git> git,
+        @Nonnull Provider<GitAnnotationProvider> gitAnnotationProvider,
+        @Nonnull Provider<GitDiffProvider> gitDiffProvider,
+        @Nonnull Provider<GitHistoryProvider> gitHistoryProvider,
+        @Nonnull Provider<GitRollbackEnvironment> gitRollbackEnvironment,
+        @Nonnull Provider<GitVcsApplicationSettings> gitSettings,
+        @Nonnull Provider<GitVcsSettings> gitProjectSettings,
+        @Nonnull Provider<GitExecutableManager> gitExecutableManager
+    ) {
+        myProject = project;
+        myGit = git;
+        myGitAnnotationProvider = gitAnnotationProvider;
+        myGitDiffProvider = gitDiffProvider;
+        myGitHistoryProvider = gitHistoryProvider;
+        myGitRollbackEnvironment = gitRollbackEnvironment;
+        myGitVcsApplicationSettings = gitSettings;
+        myGitVcsSettings = gitProjectSettings;
+        myGitExecutableManager = gitExecutableManager;
+    }
 
-  @Nonnull
-  @Override
-  public String getId() {
-    // wrong - but all code based on name not id
-    return GitVcs.NAME;
-  }
+    @Nonnull
+    @Override
+    public String getId() {
+        // wrong - but all code based on name not id
+        return GitVcs.NAME;
+    }
 
-  @Nonnull
-  @Override
-  public LocalizeValue getDisplayName() {
-    return Git;
-  }
+    @Nonnull
+    @Override
+    public LocalizeValue getDisplayName() {
+        return Git;
+    }
 
-  @Nonnull
-  @Override
-  public String getAdministrativeAreaName() {
-    return ".git";
-  }
+    @Nonnull
+    @Override
+    public String getAdministrativeAreaName() {
+        return ".git";
+    }
 
-  @Nonnull
-  @Override
-  public AbstractVcs<?> createVcs() {
-    return new GitVcs(myProject,
-                      myGit.get(),
-                      myGitAnnotationProvider.get(),
-                      myGitDiffProvider.get(),
-                      myGitHistoryProvider.get(),
-                      myGitRollbackEnvironment.get(),
-                      myGitVcsApplicationSettings.get(),
-                      myGitVcsSettings.get(),
-                      myGitExecutableManager.get());
-  }
+    @Nonnull
+    @Override
+    public AbstractVcs<?> createVcs() {
+        return new GitVcs(
+            myProject,
+            myGit.get(),
+            myGitAnnotationProvider.get(),
+            myGitDiffProvider.get(),
+            myGitHistoryProvider.get(),
+            myGitRollbackEnvironment.get(),
+            myGitVcsApplicationSettings.get(),
+            myGitVcsSettings.get(),
+            myGitExecutableManager.get()
+        );
+    }
 }

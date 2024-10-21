@@ -32,34 +32,40 @@ import java.util.Collections;
  * Time: 3:07 PM
  */
 public class GitCreateNewTag {
-  private final Project myProject;
-  private final GitRepository myRepository;
-  private final String myReference;
-  private final Runnable myCallInAwtAfterExecution;
+    private final Project myProject;
+    private final GitRepository myRepository;
+    private final String myReference;
+    private final Runnable myCallInAwtAfterExecution;
 
-  public GitCreateNewTag(Project project, GitRepository repository, String reference, Runnable callInAwtAfterExecution) {
-    myProject = project;
-    myRepository = repository;
-    myReference = reference;
-    myCallInAwtAfterExecution = callInAwtAfterExecution;
-  }
-
-  public void execute() {
-    final String name = Messages.showInputDialog(myProject, "Enter the name of new tag", "Create New Tag On " + myReference,
-                                                 Messages.getQuestionIcon(), "", new InputValidator() {
-      @Override
-      public boolean checkInput(String inputString) {
-        return ! StringUtil.isEmpty(inputString) && ! StringUtil.containsWhitespaces(inputString);
-      }
-
-      @Override
-      public boolean canClose(String inputString) {
-        return ! StringUtil.isEmpty(inputString) && ! StringUtil.containsWhitespaces(inputString);
-      }
-    });
-    if (name != null) {
-      GitBrancher brancher = ServiceManager.getService(myProject, GitBrancher.class);
-      brancher.createNewTag(name, myReference, Collections.singletonList(myRepository), myCallInAwtAfterExecution);
+    public GitCreateNewTag(Project project, GitRepository repository, String reference, Runnable callInAwtAfterExecution) {
+        myProject = project;
+        myRepository = repository;
+        myReference = reference;
+        myCallInAwtAfterExecution = callInAwtAfterExecution;
     }
-  }
+
+    public void execute() {
+        final String name = Messages.showInputDialog(
+            myProject,
+            "Enter the name of new tag",
+            "Create New Tag On " + myReference,
+            Messages.getQuestionIcon(),
+            "",
+            new InputValidator() {
+                @Override
+                public boolean checkInput(String inputString) {
+                    return !StringUtil.isEmpty(inputString) && !StringUtil.containsWhitespaces(inputString);
+                }
+
+                @Override
+                public boolean canClose(String inputString) {
+                    return !StringUtil.isEmpty(inputString) && !StringUtil.containsWhitespaces(inputString);
+                }
+            }
+        );
+        if (name != null) {
+            GitBrancher brancher = ServiceManager.getService(myProject, GitBrancher.class);
+            brancher.createNewTag(name, myReference, Collections.singletonList(myRepository), myCallInAwtAfterExecution);
+        }
+    }
 }
