@@ -1,3 +1,5 @@
+git4idea.vcs.name:
+  text: Git
 action.text.show.all.submitted:
   text: Show all files changed by this commit
 add.action.name:
@@ -1095,3 +1097,37 @@ action.Git.Rebase.Skip.text:
   text: Skip Commit
 repository.not.found.error:
   text: Cannot find configured Git repository for {0}
+git.new.tag.dialog.title:
+  text: Create New Tag On {0}
+git.new.tag.dialog.tag.name.label:
+  text: Enter the name of new tag
+error.commit.cant.create.message.file:
+  text: Creation of commit message file failed
+rebase.update.project.abort.task.title:
+  text: Aborting rebase…
+rebase.update.project.notification.abort.error.message:
+  text: Error aborting rebase
+rebase.update.project.notification.abort.success.message:
+  text: Rebase aborted
+rebase.update.project.notification.abort.cancel.message:
+  text: Abort rebase cancelled
+settings.auto.update.on.push.rejected:
+  text: Auto-update if &push of the current branch was rejected
+settings.crlf:
+  text: Warn if &CRLF line separators are about to be committed
+settings.detached.head:
+  text: Warn when committing in detached HEAD or during rebase
+settings.commit.automatically.on.cherry.pick:
+  text: Commit automatically on cherry-pick
+settings.update.method:
+  text: 'Update method:'
+settings.protected.branched:
+  text: 'Protected branches:'
+clone.dialog.checking.git.version:
+  text: Checking Git version…
+git.executable.version.is:
+  text: Git version is {0}
+progress.title.moving.files:
+  text: Moving files…
+button.commit.all.files:
+  text: Commit All Files

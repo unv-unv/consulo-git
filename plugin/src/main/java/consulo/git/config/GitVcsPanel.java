@@ -80,28 +80,22 @@ public class GitVcsPanel {
         gitPathBuilder.dialogDescription(GitLocalize.findGitDescription());
         gitPathBuilder.fileChooserDescriptor(FileChooserDescriptorFactory.createSingleFileNoJarsDescriptor());
 
-        myAutoUpdateIfPushRejected = CheckBox.create(LocalizeValue.localizeTODO("Auto-update if &push of the current branch was rejected"));
+        myAutoUpdateIfPushRejected = CheckBox.create(GitLocalize.settingsAutoUpdateOnPushRejected());
         myEnableForcePush = CheckBox.create(LocalizeValue.localizeTODO("Allow &force push"));
         mySyncControl = CheckBox.create(DvcsBundle.message("sync.setting"));
-        myAutoCommitOnCherryPick = CheckBox.create(LocalizeValue.localizeTODO("Commit automatically on cherry-pick"));
-        myWarnAboutCrlf = CheckBox.create(LocalizeValue.localizeTODO("Warn if &CRLF line separators are about to be committed"));
-        myWarnAboutDetachedHead = CheckBox.create(LocalizeValue.localizeTODO("Warn when committing in detached HEAD or during rebase"));
+        myAutoCommitOnCherryPick = CheckBox.create(GitLocalize.settingsCommitAutomaticallyOnCherryPick());
+        myWarnAboutCrlf = CheckBox.create(GitLocalize.settingsCrlf());
+        myWarnAboutDetachedHead = CheckBox.create(GitLocalize.settingsDetachedHead());
 
         myGitField = gitPathBuilder.build();
 
         mySSHExecutableComboBox = ComboBox.create(GitVcsApplicationSettings.SshExecutable.values());
         mySSHExecutableComboBox.setValue(GitVcsApplicationSettings.SshExecutable.IDEA_SSH);
-        mySSHExecutableComboBox.setTextRender(sshExecutable -> {
-            switch (sshExecutable) {
-                case IDEA_SSH:
-                    return GitLocalize.gitVcsConfigSshModeIdea();
-                case NATIVE_SSH:
-                    return GitLocalize.gitVcsConfigSshModeNative();
-                case PUTTY:
-                    return GitLocalize.gitVcsConfigSshModePutty();
-                default:
-                    throw new IllegalArgumentException(sshExecutable.name());
-            }
+        mySSHExecutableComboBox.setTextRender(sshExecutable -> switch (sshExecutable) {
+            case IDEA_SSH -> GitLocalize.gitVcsConfigSshModeIdea();
+            case NATIVE_SSH -> GitLocalize.gitVcsConfigSshModeNative();
+            case PUTTY -> GitLocalize.gitVcsConfigSshModePutty();
+            default -> throw new IllegalArgumentException(sshExecutable.name());
         });
 
         myUpdateMethodComboBox = ComboBox.create(UpdateMethod.values());
@@ -112,7 +106,7 @@ public class GitVcsPanel {
         final GitRepositoryManager repositoryManager = ServiceManager.getService(project, GitRepositoryManager.class);
         mySyncControl.setVisible(repositoryManager.moreThanOneRoot());
 
-        myProtectedBranchesLabel = Label.create(LocalizeValue.localizeTODO("Protected branches:"));
+        myProtectedBranchesLabel = Label.create(GitLocalize.settingsProtectedBranched());
         myProtectedBranchesButton = TextBoxWithExpandAction.create(
             AllIcons.Actions.ShowViewer,
             "Protected Branches",
@@ -131,7 +125,7 @@ public class GitVcsPanel {
         myRootPanel.add(myAutoCommitOnCherryPick);
         myRootPanel.add(myWarnAboutCrlf);
         myRootPanel.add(myWarnAboutDetachedHead);
-        Component updateMethodLabeled = LabeledBuilder.sided(LocalizeValue.localizeTODO("Update method:"), myUpdateMethodComboBox);
+        Component updateMethodLabeled = LabeledBuilder.sided(GitLocalize.settingsUpdateMethod(), myUpdateMethodComboBox);
         updateMethodLabeled.addBorder(BorderPosition.LEFT, BorderStyle.EMPTY, 18);
         myRootPanel.add(updateMethodLabeled);
         myRootPanel.add(myAutoUpdateIfPushRejected);
@@ -154,7 +148,7 @@ public class GitVcsPanel {
 
         Task.Backgroundable.queue(
             myProject,
-            "Checking git version...",
+            GitLocalize.cloneDialogCheckingGitVersion(),
             true,
             indicator -> {
                 final GitVersion version;
@@ -171,14 +165,10 @@ public class GitVcsPanel {
                 uiAccess.give(() -> {
                     Alert<Object> alert;
                     if (version.isSupported()) {
-                        alert = Alerts.okInfo(String.format("Git version is %s", version.toString()));
+                        alert = Alerts.okInfo(GitLocalize.gitExecutableVersionIs(version));
                     }
                     else {
-                        alert = Alerts.okWarning(String.format(
-                            "This version is unsupported, and some plugin functionality could fail to work. " +
-                                "The minimal supported version is '%s'",
-                            GitVersion.MIN
-                        ));
+                        alert = Alerts.okWarning(GitLocalize.findGitUnsupportedMessage(version, GitVersion.MIN));
                     }
 
                     alert = alert.title(GitLocalize.findGitSuccessTitle());

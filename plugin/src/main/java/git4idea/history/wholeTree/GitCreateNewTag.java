@@ -15,21 +15,22 @@
  */
 package git4idea.history.wholeTree;
 
-import consulo.ui.ex.InputValidator;
-import consulo.ui.ex.awt.Messages;
-import consulo.util.lang.StringUtil;
+import consulo.git.localize.GitLocalize;
 import consulo.ide.ServiceManager;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.ex.InputValidator;
+import consulo.ui.ex.awt.Messages;
+import consulo.ui.ex.awt.UIUtil;
+import consulo.util.lang.StringUtil;
 import git4idea.branch.GitBrancher;
 import git4idea.repo.GitRepository;
 
 import java.util.Collections;
 
 /**
- * Created by IntelliJ IDEA.
- * User: Irina.Chernushina
- * Date: 10/26/11
- * Time: 3:07 PM
+ * @author Irina.Chernushina
+ * @since 2011-10-26
  */
 public class GitCreateNewTag {
     private final Project myProject;
@@ -44,20 +45,23 @@ public class GitCreateNewTag {
         myCallInAwtAfterExecution = callInAwtAfterExecution;
     }
 
+    @RequiredUIAccess
     public void execute() {
         final String name = Messages.showInputDialog(
             myProject,
-            "Enter the name of new tag",
-            "Create New Tag On " + myReference,
-            Messages.getQuestionIcon(),
+            GitLocalize.gitNewTagDialogTagNameLabel().get(),
+            GitLocalize.gitNewTagDialogTitle(myReference).get(),
+            UIUtil.getQuestionIcon(),
             "",
             new InputValidator() {
                 @Override
+                @RequiredUIAccess
                 public boolean checkInput(String inputString) {
                     return !StringUtil.isEmpty(inputString) && !StringUtil.containsWhitespaces(inputString);
                 }
 
                 @Override
+                @RequiredUIAccess
                 public boolean canClose(String inputString) {
                     return !StringUtil.isEmpty(inputString) && !StringUtil.containsWhitespaces(inputString);
                 }

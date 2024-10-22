@@ -1,6 +1,7 @@
 package consulo.git;
 
 import consulo.annotation.component.ExtensionImpl;
+import consulo.git.localize.GitLocalize;
 import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.versionControlSystem.AbstractVcs;
@@ -68,7 +69,7 @@ public class GitVcsFactory implements VcsFactory {
     @Nonnull
     @Override
     public LocalizeValue getDisplayName() {
-        return LocalizeValue.localizeTODO("Git");
+        return GitLocalize.git4ideaVcsName();
     }
 
     @Nonnull

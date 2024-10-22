@@ -15,16 +15,23 @@
  */
 package git4idea.commands;
 
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.versionControlSystem.VcsNotifier;
+import jakarta.annotation.Nonnull;
 
 public class GitTaskResultNotificationHandler extends GitTaskResultHandlerAdapter {
     private final Project myProject;
-    private final String mySuccessMessage;
-    private final String myCancelMessage;
-    private final String myErrorMessage;
+    private final LocalizeValue mySuccessMessage;
+    private final LocalizeValue myCancelMessage;
+    private final LocalizeValue myErrorMessage;
 
-    public GitTaskResultNotificationHandler(Project project, String successMessage, String cancelMessage, String errorMessage) {
+    public GitTaskResultNotificationHandler(
+        Project project,
+        @Nonnull LocalizeValue successMessage,
+        @Nonnull LocalizeValue cancelMessage,
+        @Nonnull LocalizeValue errorMessage
+    ) {
         myProject = project;
         mySuccessMessage = successMessage;
         myCancelMessage = cancelMessage;
@@ -33,16 +40,16 @@ public class GitTaskResultNotificationHandler extends GitTaskResultHandlerAdapte
 
     @Override
     protected void onSuccess() {
-        VcsNotifier.getInstance(myProject).notifySuccess(mySuccessMessage);
+        VcsNotifier.getInstance(myProject).notifySuccess(mySuccessMessage.get());
     }
 
     @Override
     protected void onCancel() {
-        VcsNotifier.getInstance(myProject).notifySuccess(myCancelMessage);
+        VcsNotifier.getInstance(myProject).notifySuccess(myCancelMessage.get());
     }
 
     @Override
     protected void onFailure() {
-        VcsNotifier.getInstance(myProject).notifyError("", myErrorMessage);
+        VcsNotifier.getInstance(myProject).notifyError("", myErrorMessage.get());
     }
 }

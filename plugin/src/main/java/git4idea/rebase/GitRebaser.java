@@ -18,6 +18,7 @@ package git4idea.rebase;
 import consulo.application.AccessToken;
 import consulo.application.progress.ProgressIndicator;
 import consulo.component.ProcessCanceledException;
+import consulo.git.localize.GitLocalize;
 import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.project.Project;
@@ -124,13 +125,13 @@ public class GitRebaser {
         final GitLineHandler rh = new GitLineHandler(myProject, root, GitCommand.REBASE);
         rh.setStdoutSuppressed(false);
         rh.addParameters("--abort");
-        GitTask task = new GitTask(myProject, rh, LocalizeValue.localizeTODO("Aborting rebase"));
+        GitTask task = new GitTask(myProject, rh, GitLocalize.rebaseUpdateProjectAbortTaskTitle());
         task.setProgressIndicator(myProgressIndicator);
         task.executeAsync(new GitTaskResultNotificationHandler(
             myProject,
-            "Rebase aborted",
-            "Abort rebase cancelled",
-            "Error aborting rebase"
+            GitLocalize.rebaseUpdateProjectNotificationAbortSuccessMessage(),
+            GitLocalize.rebaseUpdateProjectNotificationAbortCancelMessage(),
+            GitLocalize.rebaseUpdateProjectNotificationAbortErrorMessage()
         ));
     }
 
