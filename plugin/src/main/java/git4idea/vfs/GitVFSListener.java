@@ -215,7 +215,7 @@ public class GitVFSListener extends VcsVFSListener {
         Set<File> toRefresh = new HashSet<>();
         performBackgroundOperation(
             filesToMove.keySet(),
-            LocalizeValue.localizeTODO("Moving Files..."),
+            GitLocalize.progressTitleMovingFiles(),
             new LongOperationPerRootExecutor() {
                 @Override
                 public void execute(@Nonnull VirtualFile root, @Nonnull List<FilePath> files) throws VcsException {
