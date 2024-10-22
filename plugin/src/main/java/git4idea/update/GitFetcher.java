@@ -19,11 +19,12 @@ import consulo.application.progress.ProgressIndicator;
 import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.util.dataholder.Key;
 import consulo.util.lang.StringUtil;
 import consulo.versionControlSystem.VcsException;
 import consulo.versionControlSystem.VcsNotifier;
-import consulo.versionControlSystem.distributed.DvcsUtil;
+import consulo.versionControlSystem.util.VcsImplUtil;
 import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
@@ -37,7 +38,6 @@ import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import git4idea.util.GitUIUtil;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
@@ -64,7 +64,7 @@ public class GitFetcher {
     private final boolean myFetchAll;
     private final GitVcs myVcs;
 
-    private final Collection<Exception> myErrors = new ArrayList<Exception>();
+    private final Collection<Exception> myErrors = new ArrayList<>();
 
     /**
      * @param fetchAll Pass {@code true} to fetch all remotes and all branches (like {@code git fetch} without parameters does).
@@ -83,6 +83,7 @@ public class GitFetcher {
      *
      * @return true if fetch was successful, false in the case of error.
      */
+    @RequiredUIAccess
     public GitFetchResult fetch(@Nonnull GitRepository repository) {
         // TODO need to have a fair compound result here
         GitFetchResult fetchResult = GitFetchResult.success();
@@ -98,6 +99,7 @@ public class GitFetcher {
     }
 
     @Nonnull
+    @RequiredUIAccess
     public GitFetchResult fetch(@Nonnull VirtualFile root, @Nonnull String remoteName) {
         GitRepository repository = myRepositoryManager.getRepositoryForRoot(root);
         if (repository == null) {
@@ -121,6 +123,7 @@ public class GitFetcher {
     }
 
     @Nonnull
+    @RequiredUIAccess
     private GitFetchResult fetchCurrentRemote(@Nonnull GitRepository repository) {
         FetchParams fetchParams = getFetchParams(repository);
         if (fetchParams.isError()) {
@@ -133,13 +136,15 @@ public class GitFetcher {
     }
 
     @Nonnull
+    @RequiredUIAccess
     private GitFetchResult fetchRemote(@Nonnull GitRepository repository, @Nonnull GitRemote remote, @Nonnull String url) {
         return fetchNatively(repository.getRoot(), remote, url, null);
     }
 
     // leaving this unused method, because the wanted behavior can change again
-    @SuppressWarnings("UnusedDeclaration")
     @Nonnull
+    @RequiredUIAccess
+    @SuppressWarnings("UnusedDeclaration")
     private GitFetchResult fetchCurrentBranch(@Nonnull GitRepository repository) {
         FetchParams fetchParams = getFetchParams(repository);
         if (fetchParams.isError()) {
@@ -180,6 +185,7 @@ public class GitFetcher {
     }
 
     @Nonnull
+    @RequiredUIAccess
     private GitFetchResult fetchAll(@Nonnull GitRepository repository, @Nonnull GitFetchResult fetchResult) {
         for (GitRemote remote : repository.getRemotes()) {
             String url = remote.getFirstUrl();
@@ -198,6 +204,7 @@ public class GitFetcher {
         return fetchResult;
     }
 
+    @RequiredUIAccess
     private GitFetchResult fetchNatively(
         @Nonnull VirtualFile root,
         @Nonnull GitRemote remote,
@@ -225,7 +232,7 @@ public class GitFetcher {
         GitFetchPruneDetector pruneDetector = new GitFetchPruneDetector();
         h.addLineListener(pruneDetector);
 
-        final AtomicReference<GitFetchResult> result = new AtomicReference<GitFetchResult>();
+        final AtomicReference<GitFetchResult> result = new AtomicReference<>();
         fetchTask.execute(true, false, new GitTaskResultHandlerAdapter() {
             @Override
             protected void onSuccess() {
@@ -318,12 +325,13 @@ public class GitFetcher {
      * @param notifySuccess          if set to {@code true} successful notification will be displayed.
      * @return true if all fetches were successful, false if at least one fetch failed.
      */
+    @RequiredUIAccess
     public boolean fetchRootsAndNotify(
         @Nonnull Collection<GitRepository> roots,
         @Nullable String errorNotificationTitle,
         boolean notifySuccess
     ) {
-        Map<VirtualFile, String> additionalInfo = new HashMap<VirtualFile, String>();
+        Map<VirtualFile, String> additionalInfo = new HashMap<>();
         for (GitRepository repository : roots) {
             LOG.info("fetching " + repository);
             GitFetchResult result = fetch(repository);
@@ -332,7 +340,7 @@ public class GitFetcher {
                 additionalInfo.put(repository.getRoot(), ai);
             }
             if (!result.isSuccess()) {
-                Collection<Exception> errors = new ArrayList<Exception>(getErrors());
+                Collection<Exception> errors = new ArrayList<>(getErrors());
                 errors.addAll(result.getErrors());
                 displayFetchResult(myProject, result, errorNotificationTitle, errors);
                 return false;
@@ -360,7 +368,7 @@ public class GitFetcher {
             for (Map.Entry<VirtualFile, String> entry : additionalInfo.entrySet()) {
                 info.append(entry.getValue())
                     .append(" in ")
-                    .append(DvcsUtil.getShortRepositoryName(myProject, entry.getKey()))
+                    .append(VcsImplUtil.getShortVcsRootName(myProject, entry.getKey()))
                     .append("<br/>");
             }
         }
@@ -375,7 +383,7 @@ public class GitFetcher {
         private static final Pattern PRUNE_PATTERN = Pattern.compile("\\s*x\\s*\\[deleted\\].*->\\s*(\\S*)");
 
         @Nonnull
-        private final Collection<String> myPrunedRefs = new ArrayList<String>();
+        private final Collection<String> myPrunedRefs = new ArrayList<>();
 
         @Override
         public void onLineAvailable(String line, Key outputType) {

@@ -21,11 +21,8 @@ import git4idea.history.wholeTree.AbstractHash;
 import jakarta.annotation.Nullable;
 
 /**
- * Created by IntelliJ IDEA.
- * User: Irina.Chernushina
- * Date: 12/1/11
- * Time: 10:18 PM
- * To change this template use File | Settings | File Templates.
+ * @author Irina.Chernushina
+ * @since 2011-12-01
  */
 public interface SymbolicRefsI {
     /*TreeSet<String> getLocalBranches();

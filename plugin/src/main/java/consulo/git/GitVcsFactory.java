@@ -21,12 +21,10 @@ import jakarta.annotation.Nonnull;
 
 /**
  * @author VISTALL
- * @since 29/01/2023
+ * @since 2023-01-29
  */
 @ExtensionImpl
 public class GitVcsFactory implements VcsFactory {
-    private static final LocalizeValue Git = LocalizeValue.localizeTODO("Git");
-
     private final Project myProject;
     private final Provider<Git> myGit;
     private final Provider<GitAnnotationProvider> myGitAnnotationProvider;
@@ -70,7 +68,7 @@ public class GitVcsFactory implements VcsFactory {
     @Nonnull
     @Override
     public LocalizeValue getDisplayName() {
-        return Git;
+        return LocalizeValue.localizeTODO("Git");
     }
 
     @Nonnull

@@ -27,8 +27,7 @@ import jakarta.annotation.Nonnull;
 
 /**
  * @author irengrig
- * Date: 12/20/10
- * Time: 2:57 PM
+ * @since 2010-12-20
  */
 public class GitBinaryContentRevision extends GitContentRevision implements BinaryContentRevision {
     public GitBinaryContentRevision(@Nonnull FilePath file, @Nonnull GitRevisionNumber revision, @Nonnull Project project) {

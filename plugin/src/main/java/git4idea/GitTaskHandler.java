@@ -35,11 +35,10 @@ import java.util.function.Function;
 
 /**
  * @author Dmitry Avdeev
- * Date: 17.07.13
+ * @since 2013-07-17
  */
 @ExtensionImpl
 public class GitTaskHandler extends DvcsTaskHandler<GitRepository> {
-
     @Nonnull
     private final GitBrancher myBrancher;
     @Nonnull
@@ -93,10 +92,7 @@ public class GitTaskHandler extends DvcsTaskHandler<GitRepository> {
         );
         list.addAll(ContainerUtil.map(
             branches.getRemoteBranches(),
-            (Function<GitBranch, TaskInfo>)branch -> new TaskInfo(
-                branch.getName(),
-                Collections.singleton(repository.getPresentableUrl())
-            ) {
+            (Function<GitBranch, TaskInfo>)branch -> new TaskInfo(branch.getName(), Collections.singleton(repository.getPresentableUrl())) {
                 @Override
                 public boolean isRemote() {
                     return true;

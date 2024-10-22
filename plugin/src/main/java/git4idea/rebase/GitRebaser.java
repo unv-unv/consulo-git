@@ -21,6 +21,7 @@ import consulo.component.ProcessCanceledException;
 import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.versionControlSystem.ProjectLevelVcsManager;
 import consulo.versionControlSystem.VcsException;
 import consulo.versionControlSystem.distributed.DvcsUtil;
@@ -34,7 +35,6 @@ import git4idea.util.GitUIUtil;
 import git4idea.util.GitUntrackedFilesHelper;
 import git4idea.util.LocalChangesWouldBeOverwrittenHelper;
 import git4idea.util.StringScanner;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
@@ -118,6 +118,7 @@ public class GitRebaser {
         return new GitLineHandler(myProject, root, GitCommand.REBASE);
     }
 
+    @RequiredUIAccess
     public void abortRebase(@Nonnull VirtualFile root) {
         LOG.info("abortRebase " + root);
         final GitLineHandler rh = new GitLineHandler(myProject, root, GitCommand.REBASE);
@@ -133,6 +134,7 @@ public class GitRebaser {
         ));
     }
 
+    @RequiredUIAccess
     public boolean continueRebase(@Nonnull VirtualFile root) {
         return continueRebase(root, "--continue");
     }
@@ -142,6 +144,7 @@ public class GitRebaser {
      *
      * @return true if rebase successfully finished.
      */
+    @RequiredUIAccess
     public boolean continueRebase(@Nonnull Collection<VirtualFile> rebasingRoots) {
         try (AccessToken ignored = DvcsUtil.workingTreeChangeStarted(myProject, "Rebase")) {
             boolean success = true;
@@ -153,6 +156,7 @@ public class GitRebaser {
     }
 
     // start operation may be "--continue" or "--skip" depending on the situation.
+    @RequiredUIAccess
     private boolean continueRebase(final @Nonnull VirtualFile root, @Nonnull String startOperation) {
         LOG.info("continueRebase " + root + " " + startOperation);
         final GitLineHandler rh = new GitLineHandler(myProject, root, GitCommand.REBASE);
@@ -199,6 +203,7 @@ public class GitRebaser {
      * NB: If there are merges in the unpushed commits being reordered, a conflict would happen. The calling code should probably
      * prohibit reordering merge commits.
      */
+    @RequiredUIAccess
     public boolean reoderCommitsIfNeeded(
         @Nonnull final VirtualFile root,
         @Nonnull String parentCommit,
@@ -237,6 +242,7 @@ public class GitRebaser {
         }
     }
 
+    @RequiredUIAccess
     private boolean executeRebaseTaskInBackground(
         VirtualFile root,
         GitLineHandler h,
@@ -273,16 +279,19 @@ public class GitRebaser {
     /**
      * @return true if the failure situation was resolved successfully, false if we failed to resolve the problem.
      */
+    @RequiredUIAccess
     private boolean handleRebaseFailure(final VirtualFile root, final GitLineHandler h, GitRebaseProblemDetector rebaseConflictDetector) {
         if (rebaseConflictDetector.isMergeConflict()) {
             LOG.info("handleRebaseFailure merge conflict");
             return new GitConflictResolver(myProject, myGit, Collections.singleton(root), makeParamsForRebaseConflict()) {
                 @Override
+                @RequiredUIAccess
                 protected boolean proceedIfNothingToMerge() {
                     return continueRebase(root, "--continue");
                 }
 
                 @Override
+                @RequiredUIAccess
                 protected boolean proceedAfterAllMerged() {
                     return continueRebase(root, "--continue");
                 }
@@ -420,11 +429,13 @@ public class GitRebaser {
         }
 
         @Override
+        @RequiredUIAccess
         protected boolean proceedIfNothingToMerge() throws VcsException {
             return myRebaser.continueRebase(myRoot);
         }
 
         @Override
+        @RequiredUIAccess
         protected boolean proceedAfterAllMerged() throws VcsException {
             return myRebaser.continueRebase(myRoot);
         }
@@ -459,6 +470,7 @@ public class GitRebaser {
             myHasMerges = hasMerges;
         }
 
+        @Override
         public int editCommits(String path) {
             if (!myRebaseEditorShown) {
                 myRebaseEditorShown = true;
@@ -476,8 +488,7 @@ public class GitRebaser {
                         String commit = s.spaceToken();
                         pickLines.put(commit, "pick " + commit + " " + s.line());
                     }
-                    PrintWriter w = new PrintWriter(new OutputStreamWriter(new FileOutputStream(path), StandardCharsets.UTF_8));
-                    try {
+                    try (PrintWriter w = new PrintWriter(new OutputStreamWriter(new FileOutputStream(path), StandardCharsets.UTF_8))) {
                         for (String commit : myCommits) {
                             String key = pickLines.headMap(commit + "\u0000").lastKey();
                             if (key == null || !commit.startsWith(key)) {
@@ -485,9 +496,6 @@ public class GitRebaser {
                             }
                             w.print(pickLines.get(key) + "\n");
                         }
-                    }
-                    finally {
-                        w.close();
                     }
                     return 0;
                 }
