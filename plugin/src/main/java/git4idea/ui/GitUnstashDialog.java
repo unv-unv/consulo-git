@@ -249,12 +249,12 @@ public class GitUnstashDialog extends DialogWrapper {
             myReinstateIndexCheckBox.setEnabled(false);
             myReinstateIndexCheckBox.setSelected(true);
             if (!GitBranchNameValidator.INSTANCE.checkInput(branch)) {
-                setErrorText(GitLocalize.unstashErrorInvalidBranchName().get());
+                setErrorText(GitLocalize.unstashErrorInvalidBranchName());
                 setOKActionEnabled(false);
                 return;
             }
             if (myBranches.contains(branch)) {
-                setErrorText(GitLocalize.unstashErrorBranchExists().get());
+                setErrorText(GitLocalize.unstashErrorBranchExists());
                 setOKActionEnabled(false);
                 return;
             }
@@ -270,30 +270,24 @@ public class GitUnstashDialog extends DialogWrapper {
             }
             myReinstateIndexCheckBox.setEnabled(true);
         }
+
+        clearErrorText();
+
         if (myStashList.getModel().getSize() == 0) {
             myViewButton.setEnabled(false);
             myDropButton.setEnabled(false);
             myClearButton.setEnabled(false);
-            setErrorText(null);
             setOKActionEnabled(false);
             return;
         }
         else {
             myClearButton.setEnabled(true);
         }
-        if (myStashList.getSelectedIndex() == -1) {
-            myViewButton.setEnabled(false);
-            myDropButton.setEnabled(false);
-            setErrorText(null);
-            setOKActionEnabled(false);
-            return;
-        }
-        else {
-            myViewButton.setEnabled(true);
-            myDropButton.setEnabled(true);
-        }
-        setErrorText(null);
-        setOKActionEnabled(true);
+
+        boolean enableButtons = myStashList.getSelectedIndex() != -1;
+        myViewButton.setEnabled(enableButtons);
+        myDropButton.setEnabled(enableButtons);
+        setOKActionEnabled(enableButtons);
     }
 
     /**

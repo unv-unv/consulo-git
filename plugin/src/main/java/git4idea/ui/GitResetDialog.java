@@ -93,11 +93,13 @@ public class GitResetDialog extends DialogWrapper {
      */
     void validateFields() {
         if (myGitReferenceValidator.isInvalid()) {
-            setErrorText(GitLocalize.resetCommitInvalid().get());
+            setErrorText(GitLocalize.resetCommitInvalid());
             setOKActionEnabled(false);
         }
-        setErrorText(null);
-        setOKActionEnabled(true);
+        else {
+            clearErrorText();
+            setOKActionEnabled(true);
+        }
     }
 
     /**

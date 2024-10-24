@@ -21,27 +21,24 @@ import git4idea.history.wholeTree.AbstractHash;
 import jakarta.annotation.Nullable;
 
 /**
- * Created by IntelliJ IDEA.
- * User: Irina.Chernushina
- * Date: 12/1/11
- * Time: 10:18 PM
- * To change this template use File | Settings | File Templates.
+ * @author Irina.Chernushina
+ * @since 2011-12-01
  */
 public interface SymbolicRefsI {
-  /*TreeSet<String> getLocalBranches();
+    /*TreeSet<String> getLocalBranches();
 
-  TreeSet<String> getRemoteBranches();*/
+    TreeSet<String> getRemoteBranches();*/
 
-  @Nullable
-  String getCurrentName();
+    @Nullable
+    String getCurrentName();
 
-  GitBranch getCurrent();
+    GitBranch getCurrent();
 
-  SymbolicRefs.Kind getKind(String s);
+    SymbolicRefs.Kind getKind(String s);
 
-  String getTrackedRemoteName();
+    String getTrackedRemoteName();
 
-  String getUsername();
+    String getUsername();
 
-  AbstractHash getHeadHash();
+    AbstractHash getHeadHash();
 }

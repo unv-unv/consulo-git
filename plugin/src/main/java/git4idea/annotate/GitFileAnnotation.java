@@ -18,6 +18,7 @@ package git4idea.annotate;
 import consulo.application.util.DateFormatUtil;
 import consulo.git.localize.GitLocalize;
 import consulo.ide.impl.idea.openapi.vcs.annotate.ShowAllAffectedGenericAction;
+import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.project.Project;
 import consulo.versionControlSystem.VcsException;
@@ -143,14 +144,15 @@ public class GitFileAnnotation extends FileAnnotation {
     /**
      * {@inheritDoc}
      */
+    @Nonnull
     @Override
-    public String getToolTip(final int lineNumber) {
+    public LocalizeValue getToolTipValue(int lineNumber) {
         if (myLines.size() <= lineNumber || lineNumber < 0) {
-            return "";
+            return LocalizeValue.empty();
         }
         final LineInfo info = myLines.get(lineNumber);
         if (info == null) {
-            return "";
+            return LocalizeValue.empty();
         }
         VcsFileRevision fileRevision = myRevisionMap.get(info.getRevision());
         if (fileRevision != null) {
@@ -159,10 +161,10 @@ public class GitFileAnnotation extends FileAnnotation {
                 info.getAuthor(),
                 info.getDate(),
                 fileRevision.getCommitMessage()
-            ).get();
+            );
         }
         else {
-            return "";
+            return LocalizeValue.empty();
         }
     }
 

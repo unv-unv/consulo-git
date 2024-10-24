@@ -213,7 +213,7 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
             }
             catch (IOException ex) {
                 //noinspection ThrowableInstanceNeverThrown
-                exceptions.add(new VcsException("Creation of commit message file failed", ex));
+                exceptions.add(new VcsException(GitLocalize.errorCommitCantCreateMessageFile(), ex));
                 continue;
             }
 
@@ -478,7 +478,7 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
                         files,
                         message.get(),
                         null,
-                        LocalizeValue.localizeTODO("Commit All Files"),
+                        GitLocalize.buttonCommitAllFiles(),
                         CommonLocalize.buttonCancel(),
                         false
                     );
