@@ -36,7 +36,9 @@ import consulo.logging.Logger;
 import consulo.platform.Platform;
 import consulo.platform.base.localize.CommonLocalize;
 import consulo.project.Project;
+import consulo.ui.Label;
 import consulo.ui.ex.awt.*;
+import consulo.ui.ex.awtUnsafe.TargetAWT;
 import consulo.util.io.FileUtil;
 import consulo.util.lang.StringUtil;
 import consulo.util.lang.function.Condition;
@@ -774,8 +776,8 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
 
             myAuthorField = createTextField(project, getAuthors(project));
             myAuthorField.setToolTipText(GitLocalize.commitAuthorTooltip().get());
-            JLabel authorLabel = new JBLabel(GitLocalize.commitAuthor().get());
-            authorLabel.setLabelFor(myAuthorField);
+            Label authorLabel = Label.create(GitLocalize.commitAuthor());
+            authorLabel.setTarget(TargetAWT.wrap(myAuthorField));
 
             myAmendComponent = new MyAmendComponent(project, getRepositoryManager(project), panel);
             mySignOffCheckbox = new JBCheckBox("Sign-off commit", mySettings.shouldSignOffCommit());
@@ -786,7 +788,7 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
                 setDefaultAnchor(GridBagConstraints.WEST).
                 setDefaultInsets(JBUI.insets(2));
             myPanel = new JPanel(new GridBagLayout());
-            myPanel.add(authorLabel, gb.nextLine().next());
+            myPanel.add(TargetAWT.to(authorLabel), gb.nextLine().next());
             myPanel.add(myAuthorField, gb.next().fillCellHorizontally().weightx(1));
             myPanel.add(mySignOffCheckbox, gb.nextLine().next().coverLine());
             myPanel.add(myAmendComponent.getComponent(), gb.nextLine().next().coverLine());
