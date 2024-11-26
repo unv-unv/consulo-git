@@ -15,19 +15,17 @@
  */
 package git4idea.ui.branch;
 
-import consulo.application.AllIcons;
 import consulo.ide.impl.idea.ui.TabbedPaneImpl;
+import consulo.platform.base.icon.PlatformIconGroup;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.DialogWrapper;
 import consulo.ui.ex.awt.TabbedPaneWrapper;
 import consulo.ui.ex.awtUnsafe.TargetAWT;
 import consulo.versionControlSystem.distributed.DvcsUtil;
-import git4idea.Git4ideaIcons;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 import git4idea.util.GitCommitCompareInfo;
-
 import jakarta.annotation.Nonnull;
 
 import javax.swing.*;
@@ -77,8 +75,8 @@ public class GitCompareBranchesDialog extends DialogWrapper {
         JPanel diffPanel = new GitCompareBranchesDiffPanel(myProject, myBranchName, myCurrentBranchName, myCompareInfo);
 
         TabbedPaneImpl tabbedPane = new TabbedPaneImpl(SwingConstants.TOP);
-        tabbedPane.addTab("Log", TargetAWT.to(Git4ideaIcons.Branch), myLogPanel);
-        tabbedPane.addTab("Diff", TargetAWT.to(AllIcons.Actions.Diff), diffPanel);
+        tabbedPane.addTab("Log", TargetAWT.to(PlatformIconGroup.vcsBranch()), myLogPanel);
+        tabbedPane.addTab("Diff", TargetAWT.to(PlatformIconGroup.actionsDiff()), diffPanel);
         tabbedPane.setKeyboardNavigation(TabbedPaneWrapper.DEFAULT_PREV_NEXT_SHORTCUTS);
         return tabbedPane;
     }
