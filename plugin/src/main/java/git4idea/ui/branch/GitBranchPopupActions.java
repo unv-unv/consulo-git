@@ -20,6 +20,7 @@ import consulo.ide.impl.idea.dvcs.ui.BranchActionGroup;
 import consulo.ide.impl.idea.dvcs.ui.LightActionGroup;
 import consulo.ide.impl.idea.dvcs.ui.NewBranchAction;
 import consulo.ide.impl.idea.dvcs.ui.PopupElementWithAdditionalInfo;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.ActionGroup;
@@ -186,7 +187,8 @@ class GitBranchPopupActions {
             myBranchName = branchName;
             mySelectedRepository = selectedRepository;
             myGitBranchManager = ServiceManager.getService(project, GitBranchManager.class);
-            getTemplatePresentation().setText(calcBranchText(), false); // no mnemonics
+            getTemplatePresentation().setDisabledMnemonic(true);
+            getTemplatePresentation().setTextValue(LocalizeValue.of(calcBranchText()));
             setFavorite(myGitBranchManager.isFavorite(LOCAL, repositories.size() > 1 ? null : mySelectedRepository, myBranchName));
         }
 
@@ -369,7 +371,8 @@ class GitBranchPopupActions {
             myBranchName = branchName;
             mySelectedRepository = selectedRepository;
             myGitBranchManager = ServiceManager.getService(project, GitBranchManager.class);
-            getTemplatePresentation().setText(myBranchName, false); // no mnemonics
+            getTemplatePresentation().setDisabledMnemonic(true);
+            getTemplatePresentation().setTextValue(LocalizeValue.of(branchName));
             setFavorite(myGitBranchManager.isFavorite(REMOTE, repositories.size() > 1 ? null : mySelectedRepository, myBranchName));
         }
 
