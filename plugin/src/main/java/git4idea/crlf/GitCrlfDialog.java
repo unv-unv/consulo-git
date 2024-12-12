@@ -15,22 +15,18 @@
  */
 package git4idea.crlf;
 
-import consulo.ide.impl.idea.ide.BrowserUtil;
-import consulo.ui.ex.awt.*;
-import consulo.ui.ex.awt.LinkListener;
-import consulo.ui.ex.awt.UIUtil;
 import consulo.project.Project;
-import consulo.ui.ex.awt.DialogWrapper;
-import consulo.ui.ex.awt.JBLabel;
+import consulo.ui.ex.awt.*;
+import consulo.webBrowser.BrowserUtil;
 import jakarta.annotation.Nonnull;
-
 import jakarta.annotation.Nullable;
+
 import javax.swing.*;
 import java.awt.*;
 
 import static consulo.ui.ex.awt.UIUtil.DEFAULT_HGAP;
 import static consulo.ui.ex.awt.UIUtil.DEFAULT_VGAP;
-import static git4idea.crlf.GitCrlfUtil.*;
+import static git4idea.crlf.GitCrlfUtil.RECOMMENDED_VALUE;
 
 /**
  * Warns the user that CRLF line separators are about to be committed to the repository.
