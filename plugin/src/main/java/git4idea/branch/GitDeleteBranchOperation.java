@@ -19,6 +19,7 @@ import com.google.common.collect.Maps;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.Task;
 import consulo.ide.ServiceManager;
+import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.project.Project;
 import consulo.project.ui.notification.Notification;
@@ -57,9 +58,9 @@ class GitDeleteBranchOperation extends GitBranchOperation {
 
   private static final Logger LOG = Logger.getInstance(GitDeleteBranchOperation.class);
 
-  static final String RESTORE = "Restore";
-  static final String VIEW_COMMITS = "View Commits";
-  static final String DELETE_TRACKED_BRANCH = "Delete Tracked Branch";
+  static final LocalizeValue RESTORE = LocalizeValue.localizeTODO("Restore");
+  static final LocalizeValue VIEW_COMMITS = LocalizeValue.localizeTODO("View Commits");
+  static final LocalizeValue DELETE_TRACKED_BRANCH = LocalizeValue.localizeTODO("Delete Tracked Branch");
 
   @Nonnull
   private final String myBranchName;

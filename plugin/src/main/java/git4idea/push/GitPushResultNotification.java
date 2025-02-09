@@ -16,6 +16,7 @@
 package git4idea.push;
 
 import consulo.application.ApplicationManager;
+import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.project.Project;
 import consulo.project.ui.notification.Notification;
@@ -40,7 +41,7 @@ import java.util.List;
 import java.util.Map;
 
 class GitPushResultNotification extends Notification {
-    public static final String VIEW_FILES_UPDATED_DURING_THE_PUSH = "View files updated during the push";
+    public static final LocalizeValue VIEW_FILES_UPDATED_DURING_THE_PUSH = LocalizeValue.localizeTODO("View files updated during the push");
 
     public static final String UPDATE_WITH_RESOLVED_CONFLICTS =
         "push has been cancelled, because there were conflicts during update.<br/>" + "Check that conflicts were resolved correctly, and " +
