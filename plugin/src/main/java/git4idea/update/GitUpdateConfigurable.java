@@ -27,9 +27,7 @@ import javax.swing.*;
  * Configurable for the update session
  */
 public class GitUpdateConfigurable implements Configurable {
-    /** The vcs settings for the configurable */
     private final GitVcsSettings mySettings;
-    /** The options panel */
     private GitUpdateOptionsPanel myPanel;
 
     /**
@@ -64,7 +62,7 @@ public class GitUpdateConfigurable implements Configurable {
     @RequiredUIAccess
     public JComponent createComponent() {
         myPanel = new GitUpdateOptionsPanel();
-        return myPanel.getPanel();  //To change body of implemented methods use File | Settings | File Templates.
+        return myPanel.getPanel();
     }
 
     /**
