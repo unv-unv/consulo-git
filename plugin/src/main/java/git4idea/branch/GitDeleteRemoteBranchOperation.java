@@ -15,6 +15,7 @@
  */
 package git4idea.branch;
 
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.ui.ex.awt.DialogWrapper;
 import consulo.ui.ex.awt.MessageDialogBuilder;
@@ -207,12 +208,12 @@ class GitDeleteRemoteBranchOperation extends GitBranchOperation {
         message +=
           "\n\nCurrent branch " + GitBranchUtil.getCurrentBranchOrRev(repositories) + " tracks " + branchName + " but won't be deleted.";
       }
-      final String checkboxMessage;
+      final LocalizeValue checkboxMessage;
       if (trackingBranches.size() == 1) {
-        checkboxMessage = "Delete tracking local branch " + trackingBranches.iterator().next() + " as well";
+        checkboxMessage = LocalizeValue.localizeTODO("Delete tracking local branch " + trackingBranches.iterator().next() + " as well");
       }
       else {
-        checkboxMessage = "Delete tracking local branches " + StringUtil.join(trackingBranches, ", ");
+        checkboxMessage = LocalizeValue.localizeTODO("Delete tracking local branches " + StringUtil.join(trackingBranches, ", "));
       }
 
       final AtomicBoolean deleteChoice = new AtomicBoolean();
@@ -228,7 +229,7 @@ class GitDeleteRemoteBranchOperation extends GitBranchOperation {
 
                                      @Nonnull
                                      @Override
-                                     public String getDoNotShowMessage() {
+                                     public LocalizeValue getDoNotShowMessage() {
                                        return checkboxMessage;
                                      }
                                    })
