@@ -20,7 +20,6 @@ import consulo.application.ApplicationManager;
 import consulo.credentialStorage.AuthData;
 import consulo.credentialStorage.AuthenticationData;
 import consulo.credentialStorage.PasswordSafe;
-import consulo.credentialStorage.PasswordSafeException;
 import consulo.credentialStorage.ui.AuthDialog;
 import consulo.credentialStorage.ui.PasswordSafePromptDialog;
 import consulo.logging.Logger;
@@ -181,14 +180,9 @@ class GitHttpGuiAuthenticator implements GitHttpAuthenticator {
     }
 
     // save password
-    if (myPasswordKey != null && myPassword != null) {
+    if (myPasswordKey != null && myPassword != null && mySaveOnDisk) {
       PasswordSafe passwordSafe = PasswordSafe.getInstance();
-      try {
-        passwordSafe.storePassword(myProject, PASS_REQUESTER, myPasswordKey, myPassword, mySaveOnDisk);
-      }
-      catch (PasswordSafeException e) {
-        LOG.error("Couldn't remember password for " + myPasswordKey, e);
-      }
+      passwordSafe.storePassword(myProject, PASS_REQUESTER, myPasswordKey, myPassword);
     }
   }
 
@@ -297,14 +291,8 @@ class GitHttpGuiAuthenticator implements GitHttpAuthenticator {
       String userName = getUsername(url);
       String key = makeKey(url, userName);
       final PasswordSafe passwordSafe = PasswordSafe.getInstance();
-      try {
-        String password = passwordSafe.getPassword(myProject, PASS_REQUESTER, key);
-        return new AuthData(StringUtil.notNullize(userName), password);
-      }
-      catch (PasswordSafeException e) {
-        LOG.info("Couldn't get the password for key [" + key + "]", e);
-        return null;
-      }
+      String password = passwordSafe.getPassword(myProject, PASS_REQUESTER, key);
+      return new AuthData(StringUtil.notNullize(userName), password);
     }
 
     @Nullable
@@ -315,12 +303,7 @@ class GitHttpGuiAuthenticator implements GitHttpAuthenticator {
     @Override
     public void forgetPassword(@Nonnull String url) {
       String key = myPasswordKey != null ? myPasswordKey : makeKey(url, getUsername(url));
-      try {
-        PasswordSafe.getInstance().removePassword(myProject, PASS_REQUESTER, key);
-      }
-      catch (PasswordSafeException e) {
-        LOG.info("Couldn't forget the password for " + myPasswordKey);
-      }
+      PasswordSafe.getInstance().storePassword(myProject, PASS_REQUESTER, key, null);
     }
   }
 }
