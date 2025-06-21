@@ -16,10 +16,9 @@
 package git4idea;
 
 import consulo.application.util.SystemInfo;
-import consulo.ide.impl.idea.util.text.FilePathHashingStrategy;
 import consulo.util.collection.HashingStrategy;
 import consulo.util.lang.StringUtil;
-
+import consulo.virtualFileSystem.util.FilePathHashingStrategy;
 import jakarta.annotation.Nonnull;
 
 /**
