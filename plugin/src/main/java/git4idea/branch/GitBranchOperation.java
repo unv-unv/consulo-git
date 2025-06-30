@@ -20,7 +20,6 @@ import consulo.application.Application;
 import consulo.application.ApplicationManager;
 import consulo.application.progress.ProgressIndicator;
 import consulo.document.FileDocumentManager;
-import consulo.ide.impl.idea.openapi.vfs.VfsUtil;
 import consulo.logging.Logger;
 import consulo.project.Project;
 import consulo.util.collection.MultiMap;
@@ -31,12 +30,12 @@ import consulo.versionControlSystem.VcsNotifier;
 import consulo.versionControlSystem.change.Change;
 import consulo.versionControlSystem.distributed.DvcsUtil;
 import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
 import git4idea.GitUtil;
 import git4idea.commands.Git;
 import git4idea.commands.GitMessageWithFilesDetector;
 import git4idea.config.GitVcsSettings;
 import git4idea.repo.GitRepository;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
@@ -353,7 +352,7 @@ abstract class GitBranchOperation
 	{
 		// marking all files dirty, because sometimes FileWatcher is unable to process such a large set of changes that can happen during
 		// checkout on a large repository: IDEA-89944
-		VfsUtil.markDirtyAndRefresh(false, true, false, repository.getRoot());
+		VirtualFileUtil.markDirtyAndRefresh(false, true, false, repository.getRoot());
 	}
 
 	protected void fatalLocalChangesError(@Nonnull String reference)

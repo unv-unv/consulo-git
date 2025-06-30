@@ -25,7 +25,6 @@ import consulo.ide.impl.idea.dvcs.AmendComponent;
 import consulo.ide.impl.idea.dvcs.push.ui.VcsPushDialog;
 import consulo.ide.impl.idea.openapi.vcs.changes.ui.SelectFilePathsDialog;
 import consulo.ide.impl.idea.openapi.vcs.checkin.CheckinChangeListSpecificComponent;
-import consulo.ide.impl.idea.util.FunctionUtil;
 import consulo.ide.impl.idea.util.textCompletion.DefaultTextCompletionValueDescriptor;
 import consulo.ide.impl.idea.util.textCompletion.TextCompletionProvider;
 import consulo.ide.impl.idea.util.textCompletion.TextFieldWithCompletion;
@@ -37,11 +36,15 @@ import consulo.platform.Platform;
 import consulo.platform.base.localize.CommonLocalize;
 import consulo.project.Project;
 import consulo.ui.Label;
-import consulo.ui.ex.awt.*;
+import consulo.ui.ex.awt.GridBag;
+import consulo.ui.ex.awt.JBCheckBox;
+import consulo.ui.ex.awt.JBUI;
+import consulo.ui.ex.awt.UIUtil;
 import consulo.ui.ex.awtUnsafe.TargetAWT;
 import consulo.util.io.FileUtil;
 import consulo.util.lang.StringUtil;
 import consulo.util.lang.function.Condition;
+import consulo.util.lang.function.Functions;
 import consulo.util.lang.function.PairConsumer;
 import consulo.util.lang.ref.Ref;
 import consulo.versionControlSystem.FilePath;
@@ -401,7 +404,7 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
 
     @Override
     public List<VcsException> commit(List<Change> changes, String preparedComment) {
-        return commit(changes, preparedComment, FunctionUtil.nullConstant(), null);
+        return commit(changes, preparedComment, Functions.constant(null), null);
     }
 
     /**

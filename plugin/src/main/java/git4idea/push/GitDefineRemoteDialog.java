@@ -18,18 +18,18 @@ package git4idea.push;
 import consulo.application.progress.ProgressManager;
 import consulo.application.util.function.ThrowableComputable;
 import consulo.component.ProcessCanceledException;
-import consulo.ide.impl.idea.openapi.vfs.VfsUtilCore;
 import consulo.logging.Logger;
 import consulo.ui.ex.awt.*;
 import consulo.util.lang.StringUtil;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
 import git4idea.commands.Git;
 import git4idea.commands.GitCommandResult;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import git4idea.validators.GitRefNameValidator;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -127,7 +127,7 @@ class GitDefineRemoteDialog extends DialogWrapper
 			@Override
 			public String compute() throws ProcessCanceledException
 			{
-				final GitCommandResult result = myGit.lsRemote(myRepository.getProject(), VfsUtilCore.virtualToIoFile(myRepository.getRoot()), url);
+				final GitCommandResult result = myGit.lsRemote(myRepository.getProject(), VirtualFileUtil.virtualToIoFile(myRepository.getRoot()), url);
 				return !result.success() ? "Remote URL test failed: " + result.getErrorOutputAsHtmlString() : null;
 			}
 		}, "Checking URL...", true, myRepository.getProject());

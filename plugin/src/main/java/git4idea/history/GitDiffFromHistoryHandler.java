@@ -19,7 +19,6 @@ import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.Task;
 import consulo.dataContext.DataContext;
 import consulo.ide.ServiceManager;
-import consulo.ide.impl.idea.openapi.actionSystem.impl.SimpleDataContext;
 import consulo.ide.impl.idea.openapi.vcs.history.BaseDiffFromHistoryHandler;
 import consulo.logging.Logger;
 import consulo.project.Project;
@@ -257,7 +256,7 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
 	private void showPopup(@Nonnull AnActionEvent event, @Nonnull GitFileRevision rev, @Nonnull FilePath filePath, @Nonnull Collection<GitFileRevision> parents)
 	{
 		ActionGroup parentActions = createActionGroup(rev, filePath, parents);
-		DataContext dataContext = SimpleDataContext.getProjectContext(myProject);
+		DataContext dataContext = DataContext.builder().add(Project.KEY, myProject).build();
 		ListPopup popup = JBPopupFactory.getInstance().createActionGroupPopup("Choose parent to compare", parentActions, dataContext, JBPopupFactory.ActionSelectionAid.NUMBERING, true);
 		showPopupInBestPosition(popup, event, dataContext);
 	}

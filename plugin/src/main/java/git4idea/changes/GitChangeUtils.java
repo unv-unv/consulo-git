@@ -311,7 +311,7 @@ public class GitChangeUtils
 	 * @param skipDiffsForMerge
 	 * @param handler           the handler that produced the output to parse. - for debugging purposes.
 	 * @param local             pass {@code true} to indicate that this revision should be an editable
-	 *                          {@link consulo.ide.impl.idea.openapi.vcs.changes.CurrentContentRevision}.
+	 *                          {@link consulo.versionControlSystem.change.CurrentContentRevision}.
 	 *                          Pass {@code false} for
 	 * @param revertable
 	 * @return the parsed changelist

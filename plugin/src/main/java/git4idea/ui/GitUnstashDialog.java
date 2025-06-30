@@ -21,7 +21,6 @@ import consulo.application.progress.ProgressManager;
 import consulo.application.progress.Task;
 import consulo.git.localize.GitLocalize;
 import consulo.ide.ServiceManager;
-import consulo.ide.impl.idea.openapi.vfs.VfsUtil;
 import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.platform.base.localize.CommonLocalize;
@@ -39,6 +38,7 @@ import consulo.versionControlSystem.VcsNotifier;
 import consulo.versionControlSystem.history.VcsRevisionNumber;
 import consulo.versionControlSystem.merge.MergeDialogCustomizer;
 import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
 import git4idea.GitRevisionNumber;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
@@ -391,7 +391,7 @@ public class GitUnstashDialog extends DialogWrapper {
         });
         int rc = GitHandlerUtil.doSynchronously(h, GitLocalize.unstashUnstashing(), LocalizeValue.of(h.printableCommandLine()), false);
 
-        VfsUtil.markDirtyAndRefresh(true, true, false, root);
+        VirtualFileUtil.markDirtyAndRefresh(true, true, false, root);
 
         if (conflict.get()) {
             boolean conflictsResolved = new UnstashConflictResolver(myProject, root, getSelectedStash()).merge();

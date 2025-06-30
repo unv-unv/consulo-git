@@ -21,7 +21,6 @@ import consulo.application.ApplicationManager;
 import consulo.application.progress.ProgressIndicator;
 import consulo.document.FileDocumentManager;
 import consulo.ide.ServiceManager;
-import consulo.ide.impl.idea.openapi.vfs.VfsUtil;
 import consulo.project.Project;
 import consulo.util.collection.MultiMap;
 import consulo.util.lang.StringUtil;
@@ -32,6 +31,7 @@ import consulo.versionControlSystem.change.VcsDirtyScopeManager;
 import consulo.versionControlSystem.distributed.DvcsUtil;
 import consulo.versionControlSystem.log.Hash;
 import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
 import git4idea.GitUtil;
 import git4idea.branch.GitBranchUiHandlerImpl;
 import git4idea.branch.GitSmartOperationDialog;
@@ -41,8 +41,8 @@ import git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector;
 import git4idea.config.GitVcsSettings;
 import git4idea.repo.GitRepository;
 import git4idea.util.GitPreservingProcess;
-
 import jakarta.annotation.Nonnull;
+
 import java.util.*;
 
 import static git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector.Operation.RESET;
@@ -96,7 +96,7 @@ public class GitResetOperation {
         }
         results.put(repository, result);
         repository.update();
-        VfsUtil.markDirtyAndRefresh(false, true, false, root);
+        VirtualFileUtil.markDirtyAndRefresh(false, true, false, root);
         VcsDirtyScopeManager.getInstance(myProject).dirDirtyRecursively(root);
       }
     }

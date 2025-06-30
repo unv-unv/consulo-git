@@ -16,9 +16,10 @@
 package org.jetbrains.git4idea.util;
 
 import consulo.application.util.SystemInfo;
-import consulo.ide.impl.idea.openapi.application.PathManager;
 import consulo.util.collection.ContainerUtil;
+import consulo.util.io.ClassPathUtil;
 import consulo.util.io.FileUtil;
+import consulo.util.io.NioFiles;
 import consulo.util.io.URLUtil;
 import consulo.util.lang.Pair;
 import jakarta.annotation.Nonnull;
@@ -186,7 +187,7 @@ public class ScriptGenerator {
     finally {
       out.close();
     }
-    consulo.ide.impl.idea.openapi.util.io.FileUtil.setExecutableAttribute(scriptPath.getPath(), true);
+    NioFiles.setExecutable(scriptPath.toPath());
     return scriptPath;
   }
 
@@ -229,7 +230,7 @@ public class ScriptGenerator {
    */
   @SuppressWarnings({"SameParameterValue"})
   public static String getJarForResource(Class context, String res) {
-    String resourceRoot = PathManager.getResourceRoot(context, res);
+    String resourceRoot = ClassPathUtil.getResourceRoot(context, res);
     return new File(resourceRoot).getAbsoluteFile().getAbsolutePath();
   }
 }

@@ -21,7 +21,6 @@ import consulo.application.util.function.Processor;
 import consulo.document.DocumentReference;
 import consulo.document.DocumentReferenceManager;
 import consulo.ide.impl.idea.openapi.vcs.changes.shelf.*;
-import consulo.ide.impl.idea.openapi.vfs.VfsUtil;
 import consulo.logging.Logger;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
@@ -32,9 +31,10 @@ import consulo.versionControlSystem.VcsException;
 import consulo.versionControlSystem.change.Change;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
 import jakarta.annotation.Nonnull;
-
 import jakarta.annotation.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -85,7 +85,7 @@ public class GitShelveUtils {
       ContainerUtil.process(changes, new Processor<ShelvedChange>() {
         @Override
         public boolean process(ShelvedChange change) {
-          final VirtualFile vfUnderProject = VfsUtil.findFileByIoFile(new File(project.getBasePath(), change.getAfterPath()), false);
+          final VirtualFile vfUnderProject = VirtualFileUtil.findFileByIoFile(new File(project.getBasePath(), change.getAfterPath()), false);
           if (vfUnderProject != null) {
             final DocumentReference documentReference = DocumentReferenceManager.getInstance().create(vfUnderProject);
             undoManager.nonundoableActionPerformed(documentReference, false);

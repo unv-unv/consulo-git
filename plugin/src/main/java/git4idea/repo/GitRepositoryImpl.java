@@ -18,18 +18,18 @@ package git4idea.repo;
 import consulo.application.ApplicationManager;
 import consulo.disposer.Disposable;
 import consulo.disposer.Disposer;
-import consulo.ide.impl.idea.openapi.vfs.VfsUtilCore;
 import consulo.project.Project;
 import consulo.versionControlSystem.distributed.repository.RepositoryImpl;
 import consulo.versionControlSystem.util.StopWatch;
 import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
 import git4idea.GitLocalBranch;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
 import git4idea.branch.GitBranchesCollection;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+
 import java.io.File;
 import java.util.Collection;
 
@@ -230,7 +230,7 @@ public class GitRepositoryImpl extends RepositoryImpl implements GitRepository {
 
   @Nonnull
   private File getSubmoduleFile() {
-    return new File(VfsUtilCore.virtualToIoFile(getRoot()), ".gitmodules");
+    return new File(VirtualFileUtil.virtualToIoFile(getRoot()), ".gitmodules");
   }
 
   private static void notifyIfRepoChanged(@Nonnull final GitRepository repository,

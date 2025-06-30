@@ -16,16 +16,17 @@
 package git4idea.rebase;
 
 import consulo.application.util.SystemInfo;
-import consulo.ide.impl.idea.openapi.util.io.FileUtil;
 import consulo.project.Project;
 import consulo.util.collection.ContainerUtil;
 import consulo.virtualFileSystem.VirtualFile;
 import git4idea.config.GitConfigUtil;
 import git4idea.util.StringScanner;
+import jakarta.annotation.Nonnull;
 import org.jetbrains.annotations.NonNls;
 
-import jakarta.annotation.Nonnull;
 import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.List;
 
 class GitInteractiveRebaseFile {
@@ -49,7 +50,7 @@ class GitInteractiveRebaseFile {
   public List<GitRebaseEntry> load() throws IOException, NoopException {
     String encoding = GitConfigUtil.getLogEncoding(myProject, myRoot);
     List<GitRebaseEntry> entries = ContainerUtil.newArrayList();
-    final StringScanner s = new StringScanner(FileUtil.loadFile(new File(myFile), encoding));
+    final StringScanner s = new StringScanner(Files.readString(new File(myFile).toPath(), Charset.forName(encoding)));
     boolean noop = false;
     while (s.hasMoreData()) {
       if (s.isEol() || s.startsWith('#')) {

@@ -15,9 +15,7 @@
  */
 package git4idea.merge;
 
-import consulo.ide.impl.idea.openapi.util.io.FileUtil;
 import consulo.project.Project;
-import consulo.util.io.CharsetToolkit;
 import consulo.versionControlSystem.VcsException;
 import consulo.versionControlSystem.VcsKey;
 import consulo.versionControlSystem.update.FileGroup;
@@ -35,6 +33,8 @@ import jakarta.annotation.Nullable;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.*;
 
 import static consulo.util.lang.ObjectUtil.assertNotNull;
@@ -131,7 +131,7 @@ public class MergeChangeCollector {
       File mergeHeadsFile = myRepository.getRepositoryFiles().getMergeHeadFile();
       try {
         if (mergeHeadsFile.exists()) {
-          String mergeHeads = new String(FileUtil.loadFileText(mergeHeadsFile, CharsetToolkit.UTF8));
+          String mergeHeads = Files.readString(mergeHeadsFile.toPath(), StandardCharsets.UTF_8);
           for (StringScanner s = new StringScanner(mergeHeads); s.hasMoreData(); ) {
             String head = s.line();
             if (head.length() == 0) {

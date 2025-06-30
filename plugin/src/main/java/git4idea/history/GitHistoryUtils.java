@@ -23,7 +23,6 @@ import consulo.component.ProcessCanceledException;
 import consulo.git.localize.GitLocalize;
 import consulo.ide.ServiceManager;
 import consulo.ide.impl.idea.openapi.vcs.history.VcsRevisionDescriptionImpl;
-import consulo.ide.impl.idea.util.NullableFunction;
 import consulo.ide.impl.idea.vcs.log.impl.LogDataImpl;
 import consulo.logging.Logger;
 import consulo.process.ProcessOutputTypes;
@@ -67,6 +66,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static git4idea.history.GitLogParser.GitLogOption.*;
 
@@ -975,7 +975,7 @@ public class GitHistoryUtils {
         @Nonnull VirtualFile root,
         boolean withRefs,
         boolean withChanges,
-        @Nonnull NullableFunction<GitLogRecord, T> converter,
+        @Nonnull Function<GitLogRecord, T> converter,
         String... parameters
     ) throws VcsException {
         List<T> commits = new ArrayList<>();
