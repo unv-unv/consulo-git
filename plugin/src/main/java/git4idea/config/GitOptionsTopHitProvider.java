@@ -16,6 +16,7 @@
 package git4idea.config;
 
 import consulo.annotation.component.ExtensionImpl;
+import consulo.component.ComponentManager;
 import consulo.ide.ServiceManager;
 import consulo.ide.impl.idea.ide.ui.OptionsTopHitProvider;
 import consulo.ide.impl.idea.ide.ui.PublicMethodBasedOptionDescription;
@@ -44,8 +45,9 @@ public final class GitOptionsTopHitProvider extends OptionsTopHitProvider {
 
     @Nonnull
     @Override
-    public Collection<BooleanOptionDescription> getOptions(@Nullable Project project) {
-        if (project != null) {
+    public Collection<BooleanOptionDescription> getOptions(@Nullable ComponentManager c) {
+        if (c != null) {
+            Project project = (Project) c;
             for (VcsDescriptor descriptor : ProjectLevelVcsManager.getInstance(project).getAllVcss()) {
                 if ("Git".equals(descriptor.getDisplayName())) {
                     final GitVcsSettings settings = GitVcsSettings.getInstance(project);
