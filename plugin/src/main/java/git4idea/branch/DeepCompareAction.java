@@ -16,23 +16,22 @@
 package git4idea.branch;
 
 import consulo.application.dumb.DumbAware;
-import consulo.ide.ServiceManager;
 import consulo.ide.impl.idea.vcs.log.data.VcsLogBranchFilterImpl;
 import consulo.ide.impl.idea.vcs.log.ui.filter.BranchPopupBuilder;
-import consulo.language.editor.CommonDataKeys;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.RelativePoint;
 import consulo.ui.ex.action.*;
 import consulo.ui.ex.popup.JBPopupFactory;
 import consulo.ui.ex.popup.ListPopup;
 import consulo.util.collection.ContainerUtil;
-import consulo.util.lang.function.Condition;
 import consulo.versionControlSystem.log.*;
 import consulo.versionControlSystem.log.util.VcsLogUtil;
 import consulo.virtualFileSystem.VirtualFile;
 import git4idea.repo.GitRepositoryManager;
-
 import jakarta.annotation.Nonnull;
+
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.util.Collection;
@@ -42,19 +41,26 @@ import java.util.function.Consumer;
 public class DeepCompareAction extends ToggleAction implements DumbAware {
   @Override
   public boolean isSelected(AnActionEvent e) {
-    Project project = e.getData(CommonDataKeys.PROJECT);
-    VcsLogUi ui = e.getData(VcsLogDataKeys.VCS_LOG_UI);
+    Project project = e.getData(Project.KEY);
+    VcsLogUi ui = e.getData(VcsLogUi.KEY);
     if (project == null || ui == null) {
       return false;
     }
     return DeepComparator.getInstance(project, ui).hasHighlightingOrInProgress();
   }
 
+  @Nonnull
+  @Override
+  public ActionUpdateThread getActionUpdateThread() {
+    return ActionUpdateThread.EDT;
+  }
+
+  @RequiredUIAccess
   @Override
   public void setSelected(AnActionEvent e, boolean selected) {
-    Project project = e.getData(CommonDataKeys.PROJECT);
-    final VcsLogUi ui = e.getData(VcsLogDataKeys.VCS_LOG_UI);
-    final VcsLogDataProvider dataProvider = e.getData(VcsLogDataKeys.VCS_LOG_DATA_PROVIDER);
+    Project project = e.getData(Project.KEY);
+    final VcsLogUi ui = e.getData(VcsLogUi.KEY);
+    final VcsLogDataProvider dataProvider = e.getData(VcsLogDataProvider.KEY);
     if (project == null || ui == null || dataProvider == null) {
       return;
     }
@@ -85,10 +91,11 @@ public class DeepCompareAction extends ToggleAction implements DumbAware {
     ActionGroup actionGroup = new BranchPopupBuilder(dataPack, visibleRoots, null) {
       @Nonnull
       @Override
-      protected AnAction createAction(@Nonnull final String name) {
-        return new DumbAwareAction(name) {
+      protected AnAction createAction(@Nonnull String name) {
+        return new DumbAwareAction(LocalizeValue.of(name)) {
+          @RequiredUIAccess
           @Override
-          public void actionPerformed(AnActionEvent e) {
+          public void actionPerformed(@Nonnull AnActionEvent e) {
             consumer.accept(name);
           }
         };
@@ -116,20 +123,15 @@ public class DeepCompareAction extends ToggleAction implements DumbAware {
   @Override
   public void update(@Nonnull AnActionEvent e) {
     super.update(e);
-    Project project = e.getData(CommonDataKeys.PROJECT);
-    VcsLogUi ui = e.getData(VcsLogDataKeys.VCS_LOG_UI);
+    Project project = e.getData(Project.KEY);
+    VcsLogUi ui = e.getData(VcsLogUi.KEY);
     e.getPresentation().setEnabledAndVisible(project != null && ui != null &&
                                                hasGitRoots(project, getAllVisibleRoots(ui)));
   }
 
   private static boolean hasGitRoots(@Nonnull Project project, @Nonnull Set<VirtualFile> roots) {
-    final GitRepositoryManager manager = ServiceManager.getService(project, GitRepositoryManager.class);
-    return ContainerUtil.exists(roots, new Condition<VirtualFile>() {
-      @Override
-      public boolean value(VirtualFile root) {
-        return manager.getRepositoryForRoot(root) != null;
-      }
-    });
+    final GitRepositoryManager manager = project.getInstance(GitRepositoryManager.class);
+    return ContainerUtil.exists(roots, root -> manager.getRepositoryForRoot(root) != null);
   }
 
   @Nonnull
