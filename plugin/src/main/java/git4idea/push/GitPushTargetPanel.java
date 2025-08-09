@@ -24,7 +24,6 @@ import consulo.document.event.DocumentEvent;
 import consulo.ide.ServiceManager;
 import consulo.ide.impl.idea.dvcs.push.ui.*;
 import consulo.ide.impl.idea.ui.popup.list.ListPopupImpl;
-import consulo.ide.impl.idea.util.ui.table.ComponentsListFocusTraversalPolicy;
 import consulo.logging.Logger;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
@@ -33,6 +32,7 @@ import consulo.ui.ex.SimpleTextAttributes;
 import consulo.ui.ex.awt.JBLabel;
 import consulo.ui.ex.awt.Messages;
 import consulo.ui.ex.awt.ValidationInfo;
+import consulo.ui.ex.awt.table.ComponentsListFocusTraversalPolicy;
 import consulo.ui.ex.awt.tree.ColoredTreeCellRenderer;
 import consulo.ui.ex.popup.BaseListPopupStep;
 import consulo.ui.ex.popup.ListPopup;
@@ -46,9 +46,9 @@ import git4idea.commands.Git;
 import git4idea.commands.GitCommandResult;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
