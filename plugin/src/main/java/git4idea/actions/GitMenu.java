@@ -28,9 +28,4 @@ public class GitMenu extends StandardVcsGroup {
     public AbstractVcs getVcs(Project project) {
         return GitVcs.getInstance(project);
     }
-
-    @Override
-    public String getVcsName(final Project project) {
-        return GitVcs.NAME;
-    }
 }

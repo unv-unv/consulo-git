@@ -18,6 +18,7 @@ package git4idea.update;
 import consulo.configurable.Configurable;
 import consulo.configurable.ConfigurationException;
 import consulo.git.localize.GitLocalize;
+import consulo.localize.LocalizeValue;
 import consulo.ui.annotation.RequiredUIAccess;
 import git4idea.config.GitVcsSettings;
 
@@ -43,8 +44,8 @@ public class GitUpdateConfigurable implements Configurable {
      * {@inheritDoc}
      */
     @Override
-    public String getDisplayName() {
-        return GitLocalize.updateOptionsDisplayName().get();
+    public LocalizeValue getDisplayName() {
+        return GitLocalize.updateOptionsDisplayName();
     }
 
     /**

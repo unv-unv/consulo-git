@@ -223,8 +223,8 @@ public class GitVcs extends AbstractVcs<CommittedChangeList> {
 
     @Override
     @Nonnull
-    public String getDisplayName() {
-        return NAME;
+    public LocalizeValue getDisplayName() {
+        return GitLocalize.git4ideaVcsName();
     }
 
     @Override
@@ -427,7 +427,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList> {
                         @Override
                         protected void hyperlinkActivated(@Nonnull Notification notification, @Nonnull HyperlinkEvent e) {
                             if (SETTINGS_LINK.equals(e.getDescription())) {
-                                ShowSettingsUtil.getInstance().showSettingsDialog(myProject, getConfigurable().getDisplayName());
+                                ShowSettingsUtil.getInstance().showSettingsDialog(myProject, getConfigurable().getDisplayName().get());
                             }
                             else if (UPDATE_LINK.equals(e.getDescription())) {
                                 Platform.current().openInBrowser("http://git-scm.com");

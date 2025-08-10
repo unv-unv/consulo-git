@@ -21,19 +21,17 @@ import consulo.configurable.ProjectConfigurable;
 import consulo.configurable.StandardConfigurableIds;
 import consulo.disposer.Disposable;
 import consulo.git.config.GitVcsPanel;
+import consulo.git.localize.GitLocalize;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.ui.Component;
 import consulo.ui.annotation.RequiredUIAccess;
-import git4idea.GitVcs;
-import jakarta.inject.Inject;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import jakarta.inject.Inject;
 
 @ExtensionImpl
 public class GitVcsConfigurable implements ProjectConfigurable {
-    public static final String DISPLAY_NAME = GitVcs.NAME;
-
     private final Project myProject;
     private final GitVcsSettings mySettings;
     @Nonnull
@@ -61,8 +59,8 @@ public class GitVcsConfigurable implements ProjectConfigurable {
 
     @Nonnull
     @Override
-    public String getDisplayName() {
-        return DISPLAY_NAME;
+    public LocalizeValue getDisplayName() {
+        return GitLocalize.git4ideaVcsName();
     }
 
     @Nullable
