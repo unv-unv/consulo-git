@@ -16,22 +16,21 @@
 package git4idea.ui.branch;
 
 import consulo.ide.impl.idea.dvcs.branch.DvcsBranchPopup;
-import consulo.ide.impl.idea.dvcs.ui.BranchActionGroup;
-import consulo.ide.impl.idea.dvcs.ui.LightActionGroup;
-import consulo.ide.impl.idea.dvcs.ui.RootAction;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.ui.ex.action.ActionGroup;
 import consulo.ui.ex.action.AnAction;
 import consulo.util.collection.ContainerUtil;
 import consulo.util.lang.function.Condition;
 import consulo.versionControlSystem.distributed.DvcsUtil;
+import consulo.versionControlSystem.distributed.action.BranchActionGroup;
+import consulo.versionControlSystem.distributed.action.RootAction;
 import consulo.versionControlSystem.distributed.repository.AbstractRepositoryManager;
 import git4idea.GitUtil;
 import git4idea.branch.GitBranchUtil;
 import git4idea.config.GitVcsSettings;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
@@ -103,7 +102,7 @@ class GitBranchPopup extends DvcsBranchPopup<GitRepository> {
 
     @Override
     protected void fillWithCommonRepositoryActions(
-        @Nonnull LightActionGroup popupGroup,
+        @Nonnull ActionGroup.Builder popupGroup,
         @Nonnull AbstractRepositoryManager<GitRepository> repositoryManager
     ) {
         List<GitRepository> allRepositories = repositoryManager.getRepositories();
@@ -112,7 +111,7 @@ class GitBranchPopup extends DvcsBranchPopup<GitRepository> {
 
         popupGroup.addAll(createRepositoriesActions());
 
-        popupGroup.addSeparator("Common Local Branches");
+        popupGroup.addSeparator(LocalizeValue.localizeTODO("Common Local Branches"));
         List<BranchActionGroup> localBranchActions = myMultiRootBranchConfig.getLocalBranchNames()
             .stream()
             .map(l -> createLocalBranchActions(allRepositories, l))
@@ -125,7 +124,7 @@ class GitBranchPopup extends DvcsBranchPopup<GitRepository> {
             getNumOfTopShownBranches(localBranchActions),
             SHOW_ALL_LOCALS_KEY
         );
-        popupGroup.addSeparator("Common Remote Branches");
+        popupGroup.addSeparator(LocalizeValue.localizeTODO("Common Remote Branches"));
         List<BranchActionGroup> remoteBranchActions = map(
             ((GitMultiRootBranchConfig)myMultiRootBranchConfig).getRemoteBranches(),
             remoteBranch -> new GitBranchPopupActions.RemoteBranchActions(myProject, allRepositories, remoteBranch, myCurrentRepository)
@@ -155,9 +154,9 @@ class GitBranchPopup extends DvcsBranchPopup<GitRepository> {
 
     @Nonnull
     @Override
-    protected LightActionGroup createRepositoriesActions() {
-        LightActionGroup popupGroup = new LightActionGroup();
-        popupGroup.addSeparator("Repositories");
+    protected ActionGroup createRepositoriesActions() {
+        ActionGroup.Builder popupGroup = ActionGroup.newImmutableBuilder();
+        popupGroup.addSeparator(LocalizeValue.localizeTODO("Repositories"));
         List<ActionGroup> rootActions = DvcsUtil.sortRepositories(myRepositoryManager.getRepositories())
             .stream()
             .map(repo -> new RootAction<>(
@@ -174,11 +173,11 @@ class GitBranchPopup extends DvcsBranchPopup<GitRepository> {
             rootActions.size() > MAX_REPO_NUM ? DEFAULT_REPO_NUM : MAX_REPO_NUM,
             SHOW_ALL_REPOSITORIES
         );
-        return popupGroup;
+        return popupGroup.build();
     }
 
     @Override
-    protected void fillPopupWithCurrentRepositoryActions(@Nonnull LightActionGroup popupGroup, @Nullable LightActionGroup actions) {
+    protected void fillPopupWithCurrentRepositoryActions(@Nonnull ActionGroup.Builder popupGroup, @Nullable ActionGroup actions) {
         popupGroup.addAll(new GitBranchPopupActions(myCurrentRepository.getProject(), myCurrentRepository).createActions(
             actions,
             myRepoTitleInfo,

@@ -16,9 +16,6 @@
 package git4idea.ui.branch;
 
 import consulo.ide.ServiceManager;
-import consulo.ide.impl.idea.dvcs.ui.BranchActionGroup;
-import consulo.ide.impl.idea.dvcs.ui.LightActionGroup;
-import consulo.ide.impl.idea.dvcs.ui.NewBranchAction;
 import consulo.ide.impl.idea.dvcs.ui.PopupElementWithAdditionalInfo;
 import consulo.localize.LocalizeValue;
 import consulo.project.Project;
@@ -29,6 +26,8 @@ import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.action.DumbAwareAction;
 import consulo.ui.ex.awt.Messages;
 import consulo.util.collection.ContainerUtil;
+import consulo.versionControlSystem.distributed.action.BranchActionGroup;
+import consulo.versionControlSystem.distributed.action.NewBranchAction;
 import consulo.versionControlSystem.distributed.repository.Repository;
 import git4idea.branch.GitBranchUtil;
 import git4idea.branch.GitBrancher;
@@ -59,18 +58,18 @@ class GitBranchPopupActions {
         return createActions(null, "", false);
     }
 
-    ActionGroup createActions(@Nullable LightActionGroup toInsert, @Nonnull String repoInfo, boolean firstLevelGroup) {
-        LightActionGroup popupGroup = new LightActionGroup();
+    ActionGroup createActions(@Nullable ActionGroup toInsert, @Nonnull String repoInfo, boolean firstLevelGroup) {
+        ActionGroup.Builder popupGroup = ActionGroup.newImmutableBuilder();
         List<GitRepository> repositoryList = List.of(myRepository);
 
-        popupGroup.addAction(new GitNewBranchAction(myProject, repositoryList));
-        popupGroup.addAction(new CheckoutRevisionActions(myProject, repositoryList));
+        popupGroup.add(new GitNewBranchAction(myProject, repositoryList));
+        popupGroup.add(new CheckoutRevisionActions(myProject, repositoryList));
 
         if (toInsert != null) {
             popupGroup.addAll(toInsert);
         }
 
-        popupGroup.addSeparator("Local Branches" + repoInfo);
+        popupGroup.addSeparator(LocalizeValue.localizeTODO("Local Branches" + repoInfo));
         List<BranchActionGroup> localBranchActions = myRepository.getBranches()
             .getLocalBranches()
             .stream()
@@ -88,7 +87,7 @@ class GitBranchPopupActions {
             firstLevelGroup
         );
 
-        popupGroup.addSeparator("Remote Branches" + repoInfo);
+        popupGroup.addSeparator(LocalizeValue.localizeTODO("Remote Branches" + repoInfo));
         List<BranchActionGroup> remoteBranchActions =
             myRepository.getBranches()
                 .getRemoteBranches()
@@ -108,7 +107,7 @@ class GitBranchPopupActions {
             getNumOfFavorites(remoteBranchActions),
             firstLevelGroup ? GitBranchPopup.SHOW_ALL_REMOTES_KEY : null
         );
-        return popupGroup;
+        return popupGroup.build();
     }
 
     public static class GitNewBranchAction extends NewBranchAction<GitRepository> {
@@ -116,8 +115,9 @@ class GitBranchPopupActions {
             super(project, repositories);
         }
 
+        @RequiredUIAccess
         @Override
-        public void actionPerformed(AnActionEvent e) {
+        public void actionPerformed(@Nonnull AnActionEvent e) {
             final String name = GitBranchUtil.getNewBranchNameFromUser(myProject, myRepositories, "Create New Branch");
             if (name != null) {
                 GitBrancher brancher = ServiceManager.getService(myProject, GitBrancher.class);
@@ -148,7 +148,7 @@ class GitBranchPopupActions {
             String reference =
                 Messages.showInputDialog(myProject, "Enter reference (branch, tag) name or commit hash:", "Checkout", null);
             if (reference != null) {
-                GitBrancher brancher = ServiceManager.getService(myProject, GitBrancher.class);
+                GitBrancher brancher = myProject.getInstance(GitBrancher.class);
                 brancher.checkout(reference, true, myRepositories, null);
                 reportUsage("git.branch.checkout.revision");
             }
@@ -186,7 +186,7 @@ class GitBranchPopupActions {
             myRepositories = repositories;
             myBranchName = branchName;
             mySelectedRepository = selectedRepository;
-            myGitBranchManager = ServiceManager.getService(project, GitBranchManager.class);
+            myGitBranchManager = project.getInstance(GitBranchManager.class);
             getTemplatePresentation().setDisabledMnemonic(true);
             getTemplatePresentation().setTextValue(LocalizeValue.of(calcBranchText()));
             setFavorite(myGitBranchManager.isFavorite(LOCAL, repositories.size() > 1 ? null : mySelectedRepository, myBranchName));
@@ -339,7 +339,7 @@ class GitBranchPopupActions {
             @Override
             @RequiredUIAccess
             public void actionPerformed(@Nonnull AnActionEvent e) {
-                GitBrancher brancher = ServiceManager.getService(myProject, GitBrancher.class);
+                GitBrancher brancher = myProject.getInstance(GitBrancher.class);
                 brancher.deleteBranch(myBranchName, myRepositories);
                 reportUsage("git.branch.delete.local");
             }

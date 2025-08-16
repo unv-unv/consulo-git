@@ -16,13 +16,12 @@
 package git4idea.actions;
 
 import consulo.ide.ServiceManager;
-import consulo.ide.impl.idea.dvcs.ui.VcsLogSingleCommitAction;
 import consulo.project.Project;
+import consulo.versionControlSystem.distributed.action.VcsLogSingleCommitAction;
 import consulo.versionControlSystem.distributed.repository.AbstractRepositoryManager;
 import consulo.virtualFileSystem.VirtualFile;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
@@ -30,7 +29,7 @@ public abstract class GitLogSingleCommitAction extends VcsLogSingleCommitAction<
     @Nonnull
     @Override
     protected AbstractRepositoryManager<GitRepository> getRepositoryManager(@Nonnull Project project) {
-        return ServiceManager.getService(project, GitRepositoryManager.class);
+        return project.getInstance(GitRepositoryManager.class);
     }
 
     @Override
