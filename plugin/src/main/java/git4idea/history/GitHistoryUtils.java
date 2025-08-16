@@ -23,7 +23,6 @@ import consulo.component.ProcessCanceledException;
 import consulo.git.localize.GitLocalize;
 import consulo.ide.ServiceManager;
 import consulo.ide.impl.idea.openapi.vcs.history.VcsRevisionDescriptionImpl;
-import consulo.ide.impl.idea.vcs.log.impl.LogDataImpl;
 import consulo.logging.Logger;
 import consulo.process.ProcessOutputTypes;
 import consulo.project.Project;

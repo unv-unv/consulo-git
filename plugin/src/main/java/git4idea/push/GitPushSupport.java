@@ -16,8 +16,6 @@
 package git4idea.push;
 
 import consulo.annotation.component.ExtensionImpl;
-import consulo.ide.ServiceManager;
-import consulo.ide.impl.idea.dvcs.push.PushSettings;
 import consulo.project.Project;
 import consulo.util.lang.ObjectUtil;
 import consulo.versionControlSystem.AbstractVcs;
@@ -29,10 +27,10 @@ import git4idea.config.GitSharedSettings;
 import git4idea.config.GitVcsSettings;
 import git4idea.config.GitVersionSpecialty;
 import git4idea.repo.*;
-import jakarta.inject.Inject;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import jakarta.inject.Inject;
+
 import java.util.Collection;
 
 @ExtensionImpl
@@ -58,8 +56,8 @@ public class GitPushSupport extends PushSupport<GitRepository, GitPushSource, Gi
     mySettings = GitVcsSettings.getInstance(project);
     myPusher = new GitPusher(project, mySettings, this);
     myOutgoingCommitsProvider = new GitOutgoingCommitsProvider(project);
-    mySharedSettings = ServiceManager.getService(project, GitSharedSettings.class);
-    myCommonPushSettings = ServiceManager.getService(project, PushSettings.class);
+    mySharedSettings = project.getInstance(GitSharedSettings.class);
+    myCommonPushSettings = project.getInstance(PushSettings.class);
   }
 
   @Nonnull

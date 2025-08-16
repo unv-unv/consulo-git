@@ -18,10 +18,10 @@ package git4idea.config;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.component.ComponentManager;
 import consulo.ide.ServiceManager;
-import consulo.ide.impl.idea.ide.ui.OptionsTopHitProvider;
 import consulo.ide.impl.idea.ide.ui.PublicMethodBasedOptionDescription;
-import consulo.ide.impl.idea.ide.ui.search.BooleanOptionDescription;
 import consulo.project.Project;
+import consulo.ui.ex.action.BooleanOptionDescription;
+import consulo.ui.ex.action.OptionsTopHitProvider;
 import consulo.versionControlSystem.ProjectLevelVcsManager;
 import consulo.versionControlSystem.VcsDescriptor;
 import consulo.versionControlSystem.distributed.branch.DvcsSyncSettings;
@@ -64,7 +64,7 @@ public final class GitOptionsTopHitProvider extends OptionsTopHitProvider {
                         "autoUpdateIfPushRejected",
                         "setAutoUpdateIfPushRejected"
                     ));
-                    GitRepositoryManager manager = ServiceManager.getService(project, GitRepositoryManager.class);
+                    GitRepositoryManager manager = project.getService(GitRepositoryManager.class);
                     if (manager != null && manager.moreThanOneRoot()) {
                         options.add(new BooleanOptionDescription("Git: Control repositories synchronously", "vcs.Git") {
                             @Override
