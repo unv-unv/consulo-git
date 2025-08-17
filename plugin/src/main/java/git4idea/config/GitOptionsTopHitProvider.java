@@ -17,14 +17,14 @@ package git4idea.config;
 
 import consulo.annotation.component.ExtensionImpl;
 import consulo.component.ComponentManager;
-import consulo.ide.ServiceManager;
-import consulo.ide.impl.idea.ide.ui.PublicMethodBasedOptionDescription;
 import consulo.project.Project;
 import consulo.ui.ex.action.BooleanOptionDescription;
 import consulo.ui.ex.action.OptionsTopHitProvider;
+import consulo.ui.ex.action.PublicMethodBasedOptionDescription;
 import consulo.versionControlSystem.ProjectLevelVcsManager;
 import consulo.versionControlSystem.VcsDescriptor;
 import consulo.versionControlSystem.distributed.branch.DvcsSyncSettings;
+import git4idea.GitVcs;
 import git4idea.repo.GitRepositoryManager;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -32,6 +32,8 @@ import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 /**
  * @author Sergey.Malenkov
@@ -49,22 +51,22 @@ public final class GitOptionsTopHitProvider extends OptionsTopHitProvider {
         if (c != null) {
             Project project = (Project) c;
             for (VcsDescriptor descriptor : ProjectLevelVcsManager.getInstance(project).getAllVcss()) {
-                if ("Git".equals(descriptor.getDisplayName())) {
+                if (GitVcs.ID.equals(descriptor.getId())) {
                     final GitVcsSettings settings = GitVcsSettings.getInstance(project);
                     ArrayList<BooleanOptionDescription> options = new ArrayList<>();
                     options.add(option(
                         project,
                         "Git: Commit automatically on cherry-pick",
-                        "isAutoCommitOnCherryPick",
-                        "setAutoCommitOnCherryPick"
+                        GitVcsSettings::isAutoCommitOnCherryPick,
+                        GitVcsSettings::setAutoCommitOnCherryPick
                     ));
                     options.add(option(
                         project,
                         "Git: Auto-update if push of the current branch was rejected",
-                        "autoUpdateIfPushRejected",
-                        "setAutoUpdateIfPushRejected"
+                        GitVcsSettings::autoUpdateIfPushRejected,
+                        GitVcsSettings::setAutoUpdateIfPushRejected
                     ));
-                    GitRepositoryManager manager = project.getService(GitRepositoryManager.class);
+                    GitRepositoryManager manager = project.getInstanceIfCreated(GitRepositoryManager.class);
                     if (manager != null && manager.moreThanOneRoot()) {
                         options.add(new BooleanOptionDescription("Git: Control repositories synchronously", "vcs.Git") {
                             @Override
@@ -81,16 +83,20 @@ public final class GitOptionsTopHitProvider extends OptionsTopHitProvider {
                     options.add(option(
                         project,
                         "Git: Warn if CRLF line separators are about to be committed",
-                        "warnAboutCrlf",
-                        "setWarnAboutCrlf"
+                        GitVcsSettings::warnAboutCrlf,
+                        GitVcsSettings::setWarnAboutCrlf
                     ));
                     options.add(option(
                         project,
                         "Git: Warn when committing in detached HEAD or during rebase",
-                        "warnAboutDetachedHead",
-                        "setWarnAboutDetachedHead"
+                        GitVcsSettings::warnAboutDetachedHead,
+                        GitVcsSettings::setWarnAboutDetachedHead
                     ));
-                    options.add(option(project, "Git: Allow force push", "isForcePushAllowed", "setForcePushAllowed"));
+                    options.add(option(project,
+                        "Git: Allow force push",
+                        GitVcsSettings::isForcePushAllowed,
+                        GitVcsSettings::setForcePushAllowed)
+                    );
                     return Collections.unmodifiableCollection(options);
                 }
             }
@@ -98,12 +104,10 @@ public final class GitOptionsTopHitProvider extends OptionsTopHitProvider {
         return Collections.emptyList();
     }
 
-    private static BooleanOptionDescription option(final Project project, String option, String getter, String setter) {
-        return new PublicMethodBasedOptionDescription(option, "vcs.Git", getter, setter) {
-            @Override
-            public Object getInstance() {
-                return GitVcsSettings.getInstance(project);
-            }
-        };
+    private static BooleanOptionDescription option(Project project,
+                                                   String option,
+                                                   Function<GitVcsSettings, Boolean> getter,
+                                                   BiConsumer<GitVcsSettings, Boolean> setter) {
+        return new PublicMethodBasedOptionDescription<>(option, "vcs.Git", () -> GitVcsSettings.getInstance(project), getter, setter);
     }
 }
