@@ -21,10 +21,9 @@ import consulo.project.Project;
 import consulo.ui.ex.action.ActionGroup;
 import consulo.ui.ex.action.AnAction;
 import consulo.util.collection.ContainerUtil;
-import consulo.util.lang.function.Condition;
 import consulo.versionControlSystem.distributed.DvcsUtil;
-import consulo.versionControlSystem.distributed.action.BranchActionGroup;
-import consulo.versionControlSystem.distributed.action.RootAction;
+import consulo.versionControlSystem.distributed.branch.BranchActionGroup;
+import consulo.versionControlSystem.distributed.branch.RootAction;
 import consulo.versionControlSystem.distributed.repository.AbstractRepositoryManager;
 import git4idea.GitUtil;
 import git4idea.branch.GitBranchUtil;
@@ -36,6 +35,7 @@ import jakarta.annotation.Nullable;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 import static consulo.ide.impl.idea.dvcs.branch.DvcsBranchPopup.MyMoreIndex.DEFAULT_REPO_NUM;
 import static consulo.ide.impl.idea.dvcs.branch.DvcsBranchPopup.MyMoreIndex.MAX_REPO_NUM;
@@ -61,7 +61,7 @@ class GitBranchPopup extends DvcsBranchPopup<GitRepository> {
      */
     static GitBranchPopup getInstance(@Nonnull final Project project, @Nonnull GitRepository currentRepository) {
         final GitVcsSettings vcsSettings = GitVcsSettings.getInstance(project);
-        Condition<AnAction> preselectActionCondition = action -> {
+        Predicate<AnAction> preselectActionCondition = action -> {
             if (action instanceof GitBranchPopupActions.LocalBranchActions) {
                 GitBranchPopupActions.LocalBranchActions branchAction = (GitBranchPopupActions.LocalBranchActions)action;
                 String branchName = branchAction.getBranchName();
@@ -88,7 +88,7 @@ class GitBranchPopup extends DvcsBranchPopup<GitRepository> {
         @Nonnull GitRepository currentRepository,
         @Nonnull GitRepositoryManager repositoryManager,
         @Nonnull GitVcsSettings vcsSettings,
-        @Nonnull Condition<AnAction> preselectActionCondition
+        @Nonnull Predicate<AnAction> preselectActionCondition
     ) {
         super(
             currentRepository,

@@ -16,7 +16,6 @@
 package git4idea.ui.branch;
 
 import consulo.ide.ServiceManager;
-import consulo.ide.impl.idea.dvcs.ui.PopupElementWithAdditionalInfo;
 import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
@@ -26,8 +25,9 @@ import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.action.DumbAwareAction;
 import consulo.ui.ex.awt.Messages;
 import consulo.util.collection.ContainerUtil;
-import consulo.versionControlSystem.distributed.action.BranchActionGroup;
-import consulo.versionControlSystem.distributed.action.NewBranchAction;
+import consulo.versionControlSystem.distributed.branch.BranchActionGroup;
+import consulo.versionControlSystem.distributed.branch.NewBranchAction;
+import consulo.versionControlSystem.distributed.branch.PopupElementWithAdditionalInfo;
 import consulo.versionControlSystem.distributed.repository.Repository;
 import git4idea.branch.GitBranchUtil;
 import git4idea.branch.GitBrancher;

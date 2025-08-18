@@ -71,4 +71,5 @@ module com.intellij.git {
     exports git4idea.vfs;
     exports org.jetbrains.git4idea.ssh;
     exports org.jetbrains.git4idea.util;
+    
 }
