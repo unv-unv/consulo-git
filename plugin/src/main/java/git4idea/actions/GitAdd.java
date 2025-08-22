@@ -15,13 +15,22 @@
  */
 package git4idea.actions;
 
+import consulo.annotation.component.ActionImpl;
+import consulo.annotation.component.ActionRef;
 import consulo.ide.impl.idea.openapi.vcs.changes.actions.ScheduleForAdditionAction;
+import consulo.localize.LocalizeValue;
+import consulo.platform.base.icon.PlatformIconGroup;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.virtualFileSystem.status.FileStatus;
 
 import jakarta.annotation.Nonnull;
 
+@ActionImpl(id = "Git.Add", shortcutFrom = @ActionRef(id = "ChangesView.AddUnversioned"))
 public class GitAdd extends ScheduleForAdditionAction {
+    public GitAdd() {
+        super(LocalizeValue.localizeTODO("Add"), LocalizeValue.localizeTODO("Add"), PlatformIconGroup.generalAdd());
+    }
+
     @Override
     protected boolean isStatusForAddition(FileStatus status) {
         return status == FileStatus.UNKNOWN
