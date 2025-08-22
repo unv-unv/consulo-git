@@ -21,8 +21,7 @@
 
     <group id="Git.FileActions">
       <reference ref="CheckinFiles"/>
-      <action id="Git.Add" class="git4idea.actions.GitAdd" text="Add" icon="consulo.platform.base.PlatformIconGroup@general.add"
-              use-shortcut-of="ChangesView.AddUnversioned"/>
+      <reference ref="Git.Add"/>
       <separator/>
       <reference ref="Annotate"/>
       <reference ref="Show.Current.Revision"/>
