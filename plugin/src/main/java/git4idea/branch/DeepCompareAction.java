@@ -15,7 +15,10 @@
  */
 package git4idea.branch;
 
+import consulo.annotation.component.ActionImpl;
 import consulo.application.dumb.DumbAware;
+import consulo.git.icon.GitIconGroup;
+import consulo.git.localize.GitLocalize;
 import consulo.ide.impl.idea.vcs.log.data.VcsLogBranchFilterImpl;
 import consulo.ide.impl.idea.vcs.log.ui.filter.BranchPopupBuilder;
 import consulo.localize.LocalizeValue;
@@ -38,106 +41,120 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.function.Consumer;
 
+@ActionImpl(id = "Git.Log.DeepCompare")
 public class DeepCompareAction extends ToggleAction implements DumbAware {
-  @Override
-  public boolean isSelected(AnActionEvent e) {
-    Project project = e.getData(Project.KEY);
-    VcsLogUi ui = e.getData(VcsLogUi.KEY);
-    if (project == null || ui == null) {
-      return false;
+    public DeepCompareAction() {
+        super(GitLocalize.actionLogDeepCompareText(), GitLocalize.actionLogDeepCompareDescription(), GitIconGroup.deepcompare());
     }
-    return DeepComparator.getInstance(project, ui).hasHighlightingOrInProgress();
-  }
 
-  @Nonnull
-  @Override
-  public ActionUpdateThread getActionUpdateThread() {
-    return ActionUpdateThread.EDT;
-  }
-
-  @RequiredUIAccess
-  @Override
-  public void setSelected(AnActionEvent e, boolean selected) {
-    Project project = e.getData(Project.KEY);
-    final VcsLogUi ui = e.getData(VcsLogUi.KEY);
-    final VcsLogDataProvider dataProvider = e.getData(VcsLogDataProvider.KEY);
-    if (project == null || ui == null || dataProvider == null) {
-      return;
+    @Override
+    public boolean isSelected(AnActionEvent e) {
+        Project project = e.getData(Project.KEY);
+        VcsLogUi ui = e.getData(VcsLogUi.KEY);
+        return project != null && ui != null && DeepComparator.getInstance(project, ui).hasHighlightingOrInProgress();
     }
-    final DeepComparator dc = DeepComparator.getInstance(project, ui);
-    if (selected) {
-      VcsLogUtil.triggerUsage(e);
 
-      VcsLogBranchFilter branchFilter = ui.getFilterUi().getFilters().getBranchFilter();
-      String singleBranchName = branchFilter != null ? VcsLogUtil.getSingleFilteredBranch(branchFilter, ui.getDataPack().getRefs()) : null;
-      if (singleBranchName == null) {
-        selectBranchAndPerformAction(ui.getDataPack(), e, selectedBranch -> {
-          ui.getFilterUi().setFilter(VcsLogBranchFilterImpl.fromBranch(selectedBranch));
-          dc.highlightInBackground(selectedBranch, dataProvider);
-        }, getAllVisibleRoots(ui));
-        return;
-      }
-      dc.highlightInBackground(singleBranchName, dataProvider);
+    @Nonnull
+    @Override
+    public ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.EDT;
     }
-    else {
-      dc.stopAndUnhighlight();
+
+    @Override
+    @RequiredUIAccess
+    public void setSelected(AnActionEvent e, boolean selected) {
+        Project project = e.getData(Project.KEY);
+        final VcsLogUi ui = e.getData(VcsLogUi.KEY);
+        final VcsLogDataProvider dataProvider = e.getData(VcsLogDataProvider.KEY);
+        if (project == null || ui == null || dataProvider == null) {
+            return;
+        }
+        final DeepComparator dc = DeepComparator.getInstance(project, ui);
+        if (selected) {
+            VcsLogUtil.triggerUsage(e);
+
+            VcsLogBranchFilter branchFilter = ui.getFilterUi().getFilters().getBranchFilter();
+            String singleBranchName =
+                branchFilter != null ? VcsLogUtil.getSingleFilteredBranch(branchFilter, ui.getDataPack().getRefs()) : null;
+            if (singleBranchName == null) {
+                selectBranchAndPerformAction(
+                    ui.getDataPack(),
+                    e,
+                    selectedBranch -> {
+                        ui.getFilterUi().setFilter(VcsLogBranchFilterImpl.fromBranch(selectedBranch));
+                        dc.highlightInBackground(selectedBranch, dataProvider);
+                    },
+                    getAllVisibleRoots(ui)
+                );
+                return;
+            }
+            dc.highlightInBackground(singleBranchName, dataProvider);
+        }
+        else {
+            dc.stopAndUnhighlight();
+        }
     }
-  }
 
-  private static void selectBranchAndPerformAction(@Nonnull VcsLogDataPack dataPack,
-                                                   @Nonnull AnActionEvent event,
-                                                   @Nonnull final Consumer<String> consumer,
-                                                   @Nonnull Collection<VirtualFile> visibleRoots) {
-    ActionGroup actionGroup = new BranchPopupBuilder(dataPack, visibleRoots, null) {
-      @Nonnull
-      @Override
-      protected AnAction createAction(@Nonnull String name) {
-        return new DumbAwareAction(LocalizeValue.of(name)) {
-          @RequiredUIAccess
-          @Override
-          public void actionPerformed(@Nonnull AnActionEvent e) {
-            consumer.accept(name);
-          }
-        };
-      }
-    }.build();
-    ListPopup popup = JBPopupFactory.getInstance()
-                                    .createActionGroupPopup("Select branch to compare",
-                                                            actionGroup,
-                                                            event.getDataContext(),
-                                                            false,
-                                                            false,
-                                                            false,
-                                                            null,
-                                                            -1,
-                                                            null);
-    InputEvent inputEvent = event.getInputEvent();
-    if (inputEvent instanceof MouseEvent) {
-      popup.show(new RelativePoint((MouseEvent)inputEvent));
+    private static void selectBranchAndPerformAction(
+        @Nonnull VcsLogDataPack dataPack,
+        @Nonnull AnActionEvent event,
+        @Nonnull final Consumer<String> consumer,
+        @Nonnull Collection<VirtualFile> visibleRoots
+    ) {
+        ActionGroup actionGroup = new BranchPopupBuilder(dataPack, visibleRoots, null) {
+            @Nonnull
+            @Override
+            protected AnAction createAction(@Nonnull String name) {
+                return new DumbAwareAction(LocalizeValue.of(name)) {
+                    @RequiredUIAccess
+                    @Override
+                    public void actionPerformed(@Nonnull AnActionEvent e) {
+                        consumer.accept(name);
+                    }
+                };
+            }
+        }.build();
+        ListPopup popup = JBPopupFactory.getInstance().createActionGroupPopup(
+            "Select branch to compare",
+            actionGroup,
+            event.getDataContext(),
+            false,
+            false,
+            false,
+            null,
+            -1,
+            null
+        );
+        InputEvent inputEvent = event.getInputEvent();
+        if (inputEvent instanceof MouseEvent) {
+            popup.show(new RelativePoint((MouseEvent) inputEvent));
+        }
+        else {
+            popup.showInBestPositionFor(event.getDataContext());
+        }
     }
-    else {
-      popup.showInBestPositionFor(event.getDataContext());
+
+    @Override
+    public void update(@Nonnull AnActionEvent e) {
+        super.update(e);
+        Project project = e.getData(Project.KEY);
+        VcsLogUi ui = e.getData(VcsLogUi.KEY);
+        e.getPresentation().setEnabledAndVisible(
+            project != null && ui != null && hasGitRoots(project, getAllVisibleRoots(ui))
+        );
     }
-  }
 
-  @Override
-  public void update(@Nonnull AnActionEvent e) {
-    super.update(e);
-    Project project = e.getData(Project.KEY);
-    VcsLogUi ui = e.getData(VcsLogUi.KEY);
-    e.getPresentation().setEnabledAndVisible(project != null && ui != null &&
-                                               hasGitRoots(project, getAllVisibleRoots(ui)));
-  }
+    private static boolean hasGitRoots(@Nonnull Project project, @Nonnull Set<VirtualFile> roots) {
+        final GitRepositoryManager manager = project.getInstance(GitRepositoryManager.class);
+        return ContainerUtil.exists(roots, root -> manager.getRepositoryForRoot(root) != null);
+    }
 
-  private static boolean hasGitRoots(@Nonnull Project project, @Nonnull Set<VirtualFile> roots) {
-    final GitRepositoryManager manager = project.getInstance(GitRepositoryManager.class);
-    return ContainerUtil.exists(roots, root -> manager.getRepositoryForRoot(root) != null);
-  }
-
-  @Nonnull
-  private static Set<VirtualFile> getAllVisibleRoots(@Nonnull VcsLogUi ui) {
-    return VcsLogUtil.getAllVisibleRoots(ui.getDataPack().getLogProviders().keySet(),
-                                         ui.getFilterUi().getFilters().getRootFilter(),
-                                         ui.getFilterUi().getFilters().getStructureFilter());
-  }
+    @Nonnull
+    private static Set<VirtualFile> getAllVisibleRoots(@Nonnull VcsLogUi ui) {
+        return VcsLogUtil.getAllVisibleRoots(
+            ui.getDataPack().getLogProviders().keySet(),
+            ui.getFilterUi().getFilters().getRootFilter(),
+            ui.getFilterUi().getFilters().getStructureFilter()
+        );
+    }
 }

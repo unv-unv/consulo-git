@@ -32,6 +32,22 @@ action.Git.Tag.text:
     text: New Tag...
 action.Git.Unstash.text:
     text: Unstash Changes...
+action.checkout.revision.text:
+    text: Checkout Revision
+action.create.new.branch.description:
+    text: Create new branch starting from the selected commit
+action.create.new.branch.text:
+    text: New Branch...
+action.create.new.tag.description:
+    text: Create new tag pointing to this commit
+action.create.new.tag.text:
+    text: New Tag...
+action.log.deep.compare.description:
+    text: Dims those commits which have equivalent changes in the current branch
+action.log.deep.compare.text:
+    text: Highlight Non-picked Commits
+action.log.reset.text:
+    text: Reset Current Branch to Here...
 action.selected.directory.text:
     text: Selected {0,choice,1#Directory|2#Directories}
 action.selected.file.text:
@@ -254,6 +270,10 @@ debug.git.exec:
     text: 'DEBUG: work-dir: [{0}] exec: [{1}]'
 delete.action.name:
     text: Delete
+dialog.checkout.new.branch.from.0.title:
+    text: Checkout New Branch From {0}
+dialog.reset.title:
+    text: Git Reset
 diff.find.error:
     text: 'Finding revision for diff: {0}'
 error.commit.cant.create.message.file:
@@ -427,6 +447,10 @@ group.Git.MainMenu.RebaseActions.text:
     text: _Rebase
 group.Patch.MainMenu.text:
     text: Patch
+group.log.context.menu.text:
+    text: Git Log Context Menu
+group.log.toolbar.text:
+    text: Git Log Toolbar
 group.mainmenu.vcs.current.file.text:
     text: Current File
 index.file.error:

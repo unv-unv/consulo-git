@@ -15,7 +15,6 @@
  */
 package git4idea.actions;
 
-import consulo.ide.ServiceManager;
 import consulo.project.Project;
 import consulo.versionControlSystem.distributed.action.VcsLogSingleCommitAction;
 import consulo.versionControlSystem.distributed.repository.AbstractRepositoryManager;

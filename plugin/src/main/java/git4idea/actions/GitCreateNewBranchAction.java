@@ -17,23 +17,34 @@ package git4idea.actions;
 
 import java.util.Collections;
 
+import consulo.annotation.component.ActionImpl;
+import consulo.component.ComponentManager;
+import consulo.git.localize.GitLocalize;
 import consulo.project.Project;
 import consulo.versionControlSystem.log.Hash;
-import consulo.ide.ServiceManager;
 import git4idea.branch.GitBranchUtil;
 import git4idea.branch.GitBrancher;
 import git4idea.repo.GitRepository;
 import jakarta.annotation.Nonnull;
 
+@ActionImpl(id = "Git.CreateNewBranch")
 public class GitCreateNewBranchAction extends GitLogSingleCommitAction {
+    public GitCreateNewBranchAction() {
+        getTemplatePresentation().setTextValue(GitLocalize.actionCreateNewBranchText());
+        getTemplatePresentation().setDescriptionValue(GitLocalize.actionCreateNewBranchDescription());
+    }
+
     @Override
     protected void actionPerformed(@Nonnull GitRepository repository, @Nonnull Hash commit) {
         Project project = repository.getProject();
         String reference = commit.asString();
-        final String name =
-            GitBranchUtil.getNewBranchNameFromUser(project, Collections.singleton(repository), "Checkout New Branch From " + reference);
+        String name = GitBranchUtil.getNewBranchNameFromUser(
+            project,
+            Collections.singleton(repository),
+            GitLocalize.dialogCheckoutNewBranchFrom0Title(reference).get()
+        );
         if (name != null) {
-            GitBrancher brancher = ServiceManager.getService(project, GitBrancher.class);
+            GitBrancher brancher = project.getInstance(GitBrancher.class);
             brancher.checkoutNewBranchStartingFrom(name, reference, Collections.singletonList(repository), null);
         }
     }

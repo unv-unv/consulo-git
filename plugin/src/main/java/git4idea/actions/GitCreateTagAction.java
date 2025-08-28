@@ -15,13 +15,23 @@
  */
 package git4idea.actions;
 
+import consulo.annotation.component.ActionImpl;
+import consulo.git.localize.GitLocalize;
+import consulo.ui.annotation.RequiredUIAccess;
 import jakarta.annotation.Nonnull;
 import consulo.versionControlSystem.log.Hash;
 import git4idea.history.wholeTree.GitCreateNewTag;
 import git4idea.repo.GitRepository;
 
+@ActionImpl(id = "Git.CreateNewTag")
 public class GitCreateTagAction extends GitLogSingleCommitAction {
+    public GitCreateTagAction() {
+        getTemplatePresentation().setTextValue(GitLocalize.actionCreateNewTagText());
+        getTemplatePresentation().setDescriptionValue(GitLocalize.actionCreateNewTagDescription());
+    }
+
     @Override
+    @RequiredUIAccess
     protected void actionPerformed(@Nonnull GitRepository repository, @Nonnull Hash commit) {
         String reference = commit.asString();
         new GitCreateNewTag(repository.getProject(), repository, reference, null).execute();
