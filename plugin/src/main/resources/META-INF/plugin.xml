@@ -80,34 +80,10 @@
       <separator/>
     </group>
 
-    <action class="git4idea.actions.GitCheckoutRevisionAction" id="Git.CheckoutRevision" text="Checkout Revision"/>
-    <action class="git4idea.actions.GitCreateNewBranchAction" id="Git.CreateNewBranch" text="New Branch..."
-            description="Create new branch starting from the selected commit"/>
-    <action class="git4idea.actions.GitCreateTagAction" id="Git.CreateNewTag" text="New Tag..."
-            description="Create new tag pointing to this commit"/>
-    <action id="Git.Reset.In.Log" class="git4idea.reset.GitResetAction" text="Reset Current Branch to Here..."/>
-
-    <group id="Git.Log.ContextMenu">
-      <separator/>
-      <reference id="Git.CheckoutRevision"/>
-      <reference id="Git.CreateNewBranch"/>
-      <reference id="Git.CreateNewTag"/>
-      <separator/>
-      <reference id="Git.Reset.In.Log"/>
-      <add-to-group group-id="Vcs.Log.ContextMenu"/>
-    </group>
-
     <group id="Git.MainMenu.RebaseActions" class="git4idea.actions.GitRepositoryStateActionGroup$Rebase" popup="true">
       <action id="Git.Rebase.Abort" class="git4idea.actions.GitRebaseAbort"/>
       <action id="Git.Rebase.Continue" class="git4idea.actions.GitRebaseContinue"/>
       <action id="Git.Rebase.Skip" class="git4idea.actions.GitRebaseSkip"/>
-    </group>
-
-    <group id="Git.Log.Toolbar">
-      <action id="Git.Log.DeepCompare" class="git4idea.branch.DeepCompareAction" text="Highlight non-picked commits"
-              icon="consulo.git.GitIconGroup@deepcompare"
-              description="Dims those commits which have equivalent changes in the current branch"/>
-      <add-to-group group-id="Vcs.Log.Toolbar"/>
     </group>
 
     <group id="Git.MainMenu.FileActions" class="git4idea.actions.GitFileActionGroup" popup="true">

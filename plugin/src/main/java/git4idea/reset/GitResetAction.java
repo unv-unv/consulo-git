@@ -15,9 +15,12 @@
  */
 package git4idea.reset;
 
+import consulo.annotation.component.ActionImpl;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.Task;
+import consulo.git.localize.GitLocalize;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.util.lang.ObjectUtil;
 import consulo.versionControlSystem.log.Hash;
 import consulo.versionControlSystem.log.VcsFullCommitDetails;
@@ -25,32 +28,34 @@ import git4idea.config.GitVcsSettings;
 import git4idea.repo.GitRepository;
 
 import jakarta.annotation.Nonnull;
+
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class GitResetAction extends GitOneCommitPerRepoLogAction
-{
-	@Override
-	protected void actionPerformed(@Nonnull final Project project, @Nonnull final Map<GitRepository, VcsFullCommitDetails> commits)
-	{
-		GitVcsSettings settings = GitVcsSettings.getInstance(project);
-		GitResetMode defaultMode = ObjectUtil.notNull(settings.getResetMode(), GitResetMode.getDefault());
-		GitNewResetDialog dialog = new GitNewResetDialog(project, commits, defaultMode);
-		if(dialog.showAndGet())
-		{
-			final GitResetMode selectedMode = dialog.getResetMode();
-			settings.setResetMode(selectedMode);
-			new Task.Backgroundable(project, "Git reset", true)
-			{
-				@Override
-				public void run(@Nonnull ProgressIndicator indicator)
-				{
-					Map<GitRepository, Hash> hashes = commits.keySet().stream().collect(Collectors.toMap(Function.identity(), repo -> commits.get(repo).getId()));
-					new GitResetOperation(project, hashes, selectedMode, indicator).execute();
-				}
-			}.queue();
-		}
-	}
+@ActionImpl(id = "Git.Reset.In.Log")
+public class GitResetAction extends GitOneCommitPerRepoLogAction {
+    public GitResetAction() {
+        getTemplatePresentation().setTextValue(GitLocalize.actionLogResetText());
+    }
 
+    @RequiredUIAccess
+    @Override
+    protected void actionPerformed(@Nonnull final Project project, @Nonnull final Map<GitRepository, VcsFullCommitDetails> commits) {
+        GitVcsSettings settings = GitVcsSettings.getInstance(project);
+        GitResetMode defaultMode = ObjectUtil.notNull(settings.getResetMode(), GitResetMode.getDefault());
+        GitNewResetDialog dialog = new GitNewResetDialog(project, commits, defaultMode);
+        if (dialog.showAndGet()) {
+            final GitResetMode selectedMode = dialog.getResetMode();
+            settings.setResetMode(selectedMode);
+            new Task.Backgroundable(project, GitLocalize.dialogResetTitle(), true) {
+                @Override
+                public void run(@Nonnull ProgressIndicator indicator) {
+                    Map<GitRepository, Hash> hashes = commits.keySet().stream()
+                        .collect(Collectors.toMap(Function.identity(), repo -> commits.get(repo).getId()));
+                    new GitResetOperation(project, hashes, selectedMode, indicator).execute();
+                }
+            }.queue();
+        }
+    }
 }

@@ -15,18 +15,24 @@
  */
 package git4idea.actions;
 
-import consulo.ide.ServiceManager;
+import consulo.annotation.component.ActionImpl;
+import consulo.git.localize.GitLocalize;
 import consulo.versionControlSystem.log.Hash;
 import git4idea.branch.GitBrancher;
 import git4idea.repo.GitRepository;
 import jakarta.annotation.Nonnull;
 
-import java.util.Collections;
+import java.util.List;
 
+@ActionImpl(id = "Git.CheckoutRevision")
 public class GitCheckoutRevisionAction extends GitLogSingleCommitAction {
+    public GitCheckoutRevisionAction() {
+        getTemplatePresentation().setTextValue(GitLocalize.actionCheckoutRevisionText());
+    }
+
     @Override
     protected void actionPerformed(@Nonnull GitRepository repository, @Nonnull Hash commit) {
-        GitBrancher brancher = ServiceManager.getService(repository.getProject(), GitBrancher.class);
-        brancher.checkout(commit.asString(), false, Collections.singletonList(repository), null);
+        GitBrancher brancher = repository.getProject().getInstance(GitBrancher.class);
+        brancher.checkout(commit.asString(), false, List.of(repository), null);
     }
 }
