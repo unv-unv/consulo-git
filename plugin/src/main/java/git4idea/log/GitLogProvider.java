@@ -19,7 +19,7 @@ import consulo.annotation.component.ExtensionImpl;
 import consulo.component.messagebus.MessageBusConnection;
 import consulo.disposer.Disposable;
 import consulo.ide.impl.idea.vcs.log.data.VcsLogSorter;
-import consulo.ide.impl.idea.vcs.log.graph.impl.facade.PermanentGraphImpl;
+import consulo.ide.impl.idea.vcs.log.graph.PermanentGraph;
 import consulo.logging.Logger;
 import consulo.logging.attachment.AttachmentFactory;
 import consulo.project.Project;
@@ -182,7 +182,7 @@ public class GitLogProvider implements VcsLogProvider {
         StopWatch sw = StopWatch.start("validating data in " + root.getName());
         final Set<Hash> refs = ContainerUtil.map2Set(allRefs.getValues(), VcsRef::getCommitHash);
 
-        PermanentGraphImpl.newInstance(sortedCommits, new GraphColorManager<Hash>() {
+        PermanentGraph.newInstance(sortedCommits, new GraphColorManager<>() {
             @Override
             public int getColorOfBranch(@Nonnull Hash headCommit) {
                 return 0;
