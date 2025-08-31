@@ -45,8 +45,8 @@ public class GitTaskHandler extends DvcsTaskHandler<GitRepository> {
     private final GitRefNameValidator myNameValidator;
 
     @Inject
-    public GitTaskHandler(@Nonnull GitBrancher brancher, @Nonnull GitRepositoryManager repositoryManager, @Nonnull Project project) {
-        super(repositoryManager, project, "branch");
+    public GitTaskHandler(@Nonnull GitBrancher brancher, @Nonnull Project project) {
+        super(GitRepositoryManager.getInstance(project), project, "branch");
         myBrancher = brancher;
         myNameValidator = GitRefNameValidator.getInstance();
     }

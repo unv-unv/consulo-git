@@ -15,9 +15,7 @@
  */
 package git4idea.repo;
 
-import consulo.annotation.component.ComponentScope;
-import consulo.annotation.component.ServiceAPI;
-import consulo.annotation.component.ServiceImpl;
+import consulo.annotation.component.ExtensionImpl;
 import consulo.logging.Logger;
 import consulo.project.Project;
 import consulo.util.collection.ContainerUtil;
@@ -25,6 +23,7 @@ import consulo.versionControlSystem.change.VirtualFileHierarchicalComparator;
 import consulo.versionControlSystem.distributed.DvcsUtil;
 import consulo.versionControlSystem.distributed.branch.DvcsSyncSettings;
 import consulo.versionControlSystem.distributed.repository.AbstractRepositoryManager;
+import consulo.versionControlSystem.distributed.repository.RepositoryManager;
 import consulo.versionControlSystem.distributed.repository.VcsRepositoryManager;
 import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitVcs;
@@ -34,19 +33,17 @@ import git4idea.ui.branch.GitMultiRootBranchConfig;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
 
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
-@Singleton
-@ServiceAPI(ComponentScope.PROJECT)
-@ServiceImpl
+@ExtensionImpl
 public class GitRepositoryManager extends AbstractRepositoryManager<GitRepository> {
     @Nonnull
+    @SuppressWarnings("unchecked")
     public static GitRepositoryManager getInstance(@Nonnull Project project) {
-        return project.getInstance(GitRepositoryManager.class);
+        return (GitRepositoryManager)RepositoryManager.<GitRepository>getInstance(project, GitVcs.getKey());
     }
 
     private static final Logger LOG = Logger.getInstance(GitRepositoryManager.class);

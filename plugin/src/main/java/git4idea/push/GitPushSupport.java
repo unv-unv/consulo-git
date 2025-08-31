@@ -50,8 +50,8 @@ public class GitPushSupport extends PushSupport<GitRepository, GitPushSource, Gi
   private final PushSettings myCommonPushSettings;
 
   @Inject
-  public GitPushSupport(@Nonnull Project project, @Nonnull GitRepositoryManager repositoryManager) {
-    myRepositoryManager = repositoryManager;
+  public GitPushSupport(@Nonnull Project project) {
+    myRepositoryManager = GitRepositoryManager.getInstance(project);
     myVcs = GitVcs.getInstance(project);
     mySettings = GitVcsSettings.getInstance(project);
     myPusher = new GitPusher(project, mySettings, this);

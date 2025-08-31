@@ -20,7 +20,6 @@ import com.google.common.collect.Collections2;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.Task;
 import consulo.git.localize.GitLocalize;
-import consulo.ide.ServiceManager;
 import consulo.logging.Logger;
 import consulo.project.Project;
 import consulo.ui.ex.awt.DialogBuilder;
@@ -842,7 +841,7 @@ public class GitUtil {
 
     @Nonnull
     public static GitRepositoryManager getRepositoryManager(@Nonnull Project project) {
-        return ServiceManager.getService(project, GitRepositoryManager.class);
+        return GitRepositoryManager.getInstance(project);
     }
 
     @Nullable

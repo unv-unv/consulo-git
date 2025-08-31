@@ -18,6 +18,7 @@ package git4idea.ui.branch;
 import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
+import consulo.project.Project;
 import consulo.util.collection.ContainerUtil;
 import consulo.versionControlSystem.distributed.branch.BranchStorage;
 import consulo.versionControlSystem.distributed.branch.DvcsBranchInfo;
@@ -49,8 +50,8 @@ public class GitBranchManager {
     public final BranchStorage myPredefinedFavoriteBranches = new BranchStorage();
 
     @Inject
-    public GitBranchManager(@Nonnull GitRepositoryManager repositoryManager, @Nonnull GitVcsSettings settings) {
-        myRepositoryManager = repositoryManager;
+    public GitBranchManager(@Nonnull Project project, @Nonnull GitVcsSettings settings) {
+        myRepositoryManager = GitRepositoryManager.getInstance(project);
         mySettings = settings;
         for (GitBranchType type : GitBranchType.values()) {
             myPredefinedFavoriteBranches.myBranches.put(type.toString(), constructDefaultBranchPredefinedList(type));

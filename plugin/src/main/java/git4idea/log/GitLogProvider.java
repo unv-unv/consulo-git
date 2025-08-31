@@ -90,11 +90,10 @@ public class GitLogProvider implements VcsLogProvider {
 
     @Inject
     public GitLogProvider(@Nonnull Project project,
-                          @Nonnull GitRepositoryManager repositoryManager,
                           @Nonnull VcsLogObjectsFactory factory,
                           @Nonnull GitUserRegistry userRegistry) {
         myProject = project;
-        myRepositoryManager = repositoryManager;
+        myRepositoryManager = GitRepositoryManager.getInstance(project);
         myUserRegistry = userRegistry;
         myRefSorter = new GitRefManager(myRepositoryManager);
         myVcsObjectsFactory = factory;
