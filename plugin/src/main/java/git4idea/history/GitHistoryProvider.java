@@ -18,7 +18,6 @@ package git4idea.history;
 import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
-import consulo.ide.impl.idea.openapi.vcs.history.CopyRevisionNumberAction;
 import consulo.logging.Logger;
 import consulo.project.Project;
 import consulo.ui.ex.action.ActionManager;
@@ -81,9 +80,10 @@ public class GitHistoryProvider
 
     @Override
     public AnAction[] getAdditionalActions(Runnable refresher) {
+        ActionManager manager = ActionManager.getInstance();
         return new AnAction[]{
-            ActionManager.getInstance().getAction(VcsActions.ACTION_SHOW_ALL_AFFECTED),
-            new CopyRevisionNumberAction()
+            manager.getAction(VcsActions.ACTION_SHOW_ALL_AFFECTED),
+            manager.getAction(VcsActions.ACTION_COPY_REVISION_NUMBER)
         };
     }
 
