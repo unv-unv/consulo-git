@@ -18,8 +18,6 @@ package git4idea.log;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.component.messagebus.MessageBusConnection;
 import consulo.disposer.Disposable;
-import consulo.ide.impl.idea.vcs.log.data.VcsLogSorter;
-import consulo.ide.impl.idea.vcs.log.graph.PermanentGraph;
 import consulo.logging.Logger;
 import consulo.logging.attachment.AttachmentFactory;
 import consulo.project.Project;
@@ -37,6 +35,7 @@ import consulo.versionControlSystem.log.*;
 import consulo.versionControlSystem.log.base.HashImpl;
 import consulo.versionControlSystem.log.graph.GraphColorManager;
 import consulo.versionControlSystem.log.graph.GraphCommit;
+import consulo.versionControlSystem.log.graph.PermanentGraph;
 import consulo.versionControlSystem.log.util.UserNameRegex;
 import consulo.versionControlSystem.log.util.VcsUserUtil;
 import consulo.versionControlSystem.util.StopWatch;
@@ -161,7 +160,7 @@ public class GitLogProvider implements VcsLogProvider {
         }
 
         StopWatch sw = StopWatch.start("sorting commits in " + root.getName());
-        List<VcsCommitMetadata> sortedCommits = VcsLogSorter.sortByDateTopoOrder(allDetails);
+        List<VcsCommitMetadata> sortedCommits = VcsLogHelper.getInstance().sortByDateTopoOrder(allDetails);
         sortedCommits = sortedCommits.subList(0, Math.min(sortedCommits.size(), requirements.getCommitCount()));
         sw.report();
 

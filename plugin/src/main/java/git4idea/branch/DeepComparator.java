@@ -20,8 +20,6 @@ import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.Task;
 import consulo.disposer.Disposable;
 import consulo.disposer.Disposer;
-import consulo.ide.ServiceManager;
-import consulo.ide.impl.idea.vcs.log.ui.MergeCommitsHighlighter;
 import consulo.logging.Logger;
 import consulo.project.Project;
 import consulo.util.dataholder.Key;
@@ -37,15 +35,15 @@ import git4idea.commands.GitLineHandler;
 import git4idea.commands.GitLineHandlerAdapter;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class DeepComparator implements VcsLogHighlighter, Disposable {
+public class DeepComparator implements VcsLogDeepComparator, Disposable {
   private static final Logger LOG = Logger.getInstance(DeepComparator.class);
 
   @Nonnull
@@ -67,6 +65,7 @@ public class DeepComparator implements VcsLogHighlighter, Disposable {
     Disposer.register(parent, this);
   }
 
+  @Override
   public void highlightInBackground(@Nonnull String branchToCompare, @Nonnull VcsLogDataProvider dataProvider) {
     if (myTask != null) {
       LOG.error("Shouldn't be possible");
@@ -98,6 +97,7 @@ public class DeepComparator implements VcsLogHighlighter, Disposable {
     return repos;
   }
 
+  @Override
   public void stopAndUnhighlight() {
     stopTask();
     removeHighlighting();
@@ -120,12 +120,13 @@ public class DeepComparator implements VcsLogHighlighter, Disposable {
     stopAndUnhighlight();
   }
 
+  @Override
   public boolean hasHighlightingOrInProgress() {
     return myTask != null;
   }
 
   public static DeepComparator getInstance(@Nonnull Project project, @Nonnull VcsLogUi logUi) {
-    return ServiceManager.getService(project, DeepComparatorHolder.class).getInstance(logUi);
+    return project.getInstance(DeepComparatorHolder.class).getInstance(logUi);
   }
 
   @Nonnull
@@ -135,7 +136,7 @@ public class DeepComparator implements VcsLogHighlighter, Disposable {
       return VcsCommitStyle.DEFAULT;
     }
     return VcsCommitStyleFactory.foreground(!myNonPickedCommits.contains(new CommitId(commitDetails.getId(),
-                                                                                      commitDetails.getRoot())) ? MergeCommitsHighlighter.MERGE_COMMIT_FOREGROUND : null);
+                                                                                      commitDetails.getRoot())) ? COMMIT_FOREGROUND : null);
   }
 
   @Override

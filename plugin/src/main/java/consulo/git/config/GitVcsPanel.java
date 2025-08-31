@@ -19,6 +19,7 @@ import consulo.application.AllIcons;
 import consulo.application.progress.Task;
 import consulo.disposer.Disposable;
 import consulo.fileChooser.FileChooserDescriptorFactory;
+import consulo.fileChooser.FileChooserTextBoxBuilder;
 import consulo.git.localize.GitLocalize;
 import consulo.ide.ServiceManager;
 import consulo.localize.LocalizeValue;
@@ -28,7 +29,6 @@ import consulo.ui.*;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.border.BorderPosition;
 import consulo.ui.border.BorderStyle;
-import consulo.ui.ex.FileChooserTextBoxBuilder;
 import consulo.ui.layout.DockLayout;
 import consulo.ui.layout.HorizontalLayout;
 import consulo.ui.layout.VerticalLayout;
@@ -39,7 +39,6 @@ import consulo.versionControlSystem.distributed.branch.DvcsSyncSettings;
 import git4idea.GitVcs;
 import git4idea.config.*;
 import git4idea.repo.GitRepositoryManager;
-
 import jakarta.annotation.Nonnull;
 
 import java.util.List;

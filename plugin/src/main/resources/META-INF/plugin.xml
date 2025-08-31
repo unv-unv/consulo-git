@@ -15,10 +15,6 @@
       <add-to-group group-id="Vcs.Import"/>
     </action>
 
-    <action id="Git.Log" class="git4idea.log.GitShowExternalLogAction" text="Show Git Repository Log...">
-      <add-to-group group-id="Vcs.Browse"/>
-    </action>
-
     <group id="Git.FileActions">
       <reference ref="CheckinFiles"/>
       <reference ref="Git.Add"/>

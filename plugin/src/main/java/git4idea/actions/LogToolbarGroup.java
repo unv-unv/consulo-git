@@ -21,7 +21,6 @@ import consulo.annotation.component.ActionRef;
 import consulo.application.dumb.DumbAware;
 import consulo.git.localize.GitLocalize;
 import consulo.ui.ex.action.DefaultActionGroup;
-import git4idea.branch.DeepCompareAction;
 
 /**
  * @author UNV
@@ -29,7 +28,6 @@ import git4idea.branch.DeepCompareAction;
  */
 @ActionImpl(
     id = "Git.Log.Toolbar",
-    children = @ActionRef(type = DeepCompareAction.class),
     parents = @ActionParentRef(@ActionRef(id = "Vcs.Log.Toolbar"))
 )
 public class LogToolbarGroup extends DefaultActionGroup implements DumbAware {

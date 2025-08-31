@@ -18,7 +18,6 @@ package git4idea.ui;
 import consulo.application.util.DateFormatUtil;
 import consulo.dataContext.DataSink;
 import consulo.dataContext.TypeSafeDataProvider;
-import consulo.ide.impl.idea.openapi.vcs.changes.committed.CommittedChangesTreeBrowser;
 import consulo.ui.ex.action.AnAction;
 import consulo.ui.ex.action.CommonShortcuts;
 import consulo.ui.ex.awt.ColumnInfo;
@@ -30,9 +29,9 @@ import consulo.util.collection.ArrayUtil;
 import consulo.util.dataholder.Key;
 import consulo.versionControlSystem.VcsDataKeys;
 import consulo.versionControlSystem.change.Change;
+import consulo.versionControlSystem.change.ChangesBrowserUtil;
 import consulo.versionControlSystem.distributed.DvcsUtil;
 import git4idea.GitCommit;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
@@ -98,7 +97,7 @@ public class GitCommitListPanel extends JPanel implements TypeSafeDataProvider {
           changes.addAll(iterator.previous().getChanges());
         }
 
-        listener.accept(CommittedChangesTreeBrowser.zipChanges(changes));
+        listener.accept(ChangesBrowserUtil.zipChanges(changes));
       }
     });
   }
