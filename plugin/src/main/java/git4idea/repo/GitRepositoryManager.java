@@ -40,8 +40,7 @@ import java.util.List;
 
 @ExtensionImpl
 public class GitRepositoryManager extends AbstractRepositoryManager<GitRepository> {
-    @Nonnull
-    @SuppressWarnings("unchecked")
+    @Nullable
     public static GitRepositoryManager getInstance(@Nonnull Project project) {
         return (GitRepositoryManager)RepositoryManager.<GitRepository>getInstance(project, GitVcs.getKey());
     }

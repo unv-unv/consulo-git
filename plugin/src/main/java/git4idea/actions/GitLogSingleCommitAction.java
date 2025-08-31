@@ -28,7 +28,7 @@ public abstract class GitLogSingleCommitAction extends VcsLogSingleCommitAction<
     @Nonnull
     @Override
     protected AbstractRepositoryManager<GitRepository> getRepositoryManager(@Nonnull Project project) {
-        return project.getInstance(GitRepositoryManager.class);
+        return GitRepositoryManager.getInstance(project);
     }
 
     @Override

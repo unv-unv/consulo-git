@@ -66,7 +66,7 @@ public final class GitOptionsTopHitProvider extends OptionsTopHitProvider {
                         GitVcsSettings::autoUpdateIfPushRejected,
                         GitVcsSettings::setAutoUpdateIfPushRejected
                     ));
-                    GitRepositoryManager manager = project.getInstanceIfCreated(GitRepositoryManager.class);
+                    GitRepositoryManager manager = GitRepositoryManager.getInstance(project);
                     if (manager != null && manager.moreThanOneRoot()) {
                         options.add(new BooleanOptionDescription("Git: Control repositories synchronously", "vcs.Git") {
                             @Override

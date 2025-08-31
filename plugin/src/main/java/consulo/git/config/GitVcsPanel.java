@@ -21,7 +21,6 @@ import consulo.disposer.Disposable;
 import consulo.fileChooser.FileChooserDescriptorFactory;
 import consulo.fileChooser.FileChooserTextBoxBuilder;
 import consulo.git.localize.GitLocalize;
-import consulo.ide.ServiceManager;
 import consulo.localize.LocalizeValue;
 import consulo.process.cmd.ParametersListUtil;
 import consulo.project.Project;
@@ -102,7 +101,7 @@ public class GitVcsPanel {
 
         Button testButton = Button.create(GitLocalize.cloneTest());
         testButton.addClickListener(e -> testConnection());
-        final GitRepositoryManager repositoryManager = ServiceManager.getService(project, GitRepositoryManager.class);
+        final GitRepositoryManager repositoryManager = GitRepositoryManager.getInstance(project);
         mySyncControl.setVisible(repositoryManager.moreThanOneRoot());
 
         myProtectedBranchesLabel = Label.create(GitLocalize.settingsProtectedBranched());

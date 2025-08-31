@@ -18,7 +18,6 @@ package git4idea.changes;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.project.Project;
 import consulo.versionControlSystem.change.ChangesViewRefresher;
-import consulo.ide.ServiceManager;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import jakarta.annotation.Nonnull;
@@ -34,7 +33,7 @@ public class GitChangesViewRefresher implements ChangesViewRefresher {
 
   @Override
   public void refresh(@Nonnull Project project) {
-    GitRepositoryManager repositoryManager = ServiceManager.getService(project, GitRepositoryManager.class);
+    GitRepositoryManager repositoryManager = GitRepositoryManager.getInstance(project);
     for (GitRepository repository : repositoryManager.getRepositories()) {
       repository.getUntrackedFilesHolder().invalidate();
     }

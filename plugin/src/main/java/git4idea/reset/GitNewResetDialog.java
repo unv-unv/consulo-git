@@ -15,7 +15,6 @@
  */
 package git4idea.reset;
 
-import consulo.ide.ServiceManager;
 import consulo.ide.impl.idea.util.ui.RadioButtonEnumModel;
 import consulo.project.Project;
 import consulo.ui.ex.awt.*;
@@ -25,7 +24,6 @@ import consulo.versionControlSystem.distributed.DvcsUtil;
 import consulo.versionControlSystem.log.VcsFullCommitDetails;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
@@ -138,7 +136,7 @@ public class GitNewResetDialog extends DialogWrapper {
   }
 
   private static boolean isMultiRepo(@Nonnull Project project) {
-    return ServiceManager.getService(project, GitRepositoryManager.class).moreThanOneRoot();
+    return GitRepositoryManager.getInstance(project).moreThanOneRoot();
   }
 
   @Nonnull
