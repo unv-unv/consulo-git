@@ -21,9 +21,6 @@ import consulo.annotation.component.ServiceImpl;
 import consulo.application.Application;
 import consulo.git.localize.GitLocalize;
 import consulo.ide.ServiceManager;
-import consulo.ide.impl.idea.dvcs.push.ui.VcsPushDialog;
-import consulo.ide.impl.idea.openapi.vcs.changes.ui.SelectFilePathsDialog;
-import consulo.ide.impl.idea.openapi.vcs.checkin.CheckinChangeListSpecificComponent;
 import consulo.language.editor.ui.awt.*;
 import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
@@ -45,8 +42,10 @@ import consulo.util.lang.ref.Ref;
 import consulo.versionControlSystem.FilePath;
 import consulo.versionControlSystem.VcsException;
 import consulo.versionControlSystem.change.*;
+import consulo.versionControlSystem.checkin.CheckinChangeListSpecificComponent;
 import consulo.versionControlSystem.checkin.CheckinEnvironment;
 import consulo.versionControlSystem.checkin.CheckinProjectPanel;
+import consulo.versionControlSystem.distributed.DistributedVersionControlHelper;
 import consulo.versionControlSystem.distributed.DvcsUtil;
 import consulo.versionControlSystem.distributed.ui.AmendComponent;
 import consulo.versionControlSystem.log.VcsFullCommitDetails;
@@ -54,6 +53,8 @@ import consulo.versionControlSystem.log.VcsUser;
 import consulo.versionControlSystem.log.VcsUserRegistry;
 import consulo.versionControlSystem.log.util.VcsUserUtil;
 import consulo.versionControlSystem.ui.RefreshableOnComponent;
+import consulo.versionControlSystem.ui.awt.LegacyComponentFactory;
+import consulo.versionControlSystem.ui.awt.LegacyDialog;
 import consulo.versionControlSystem.util.VcsFileUtil;
 import consulo.versionControlSystem.util.VcsUtil;
 import consulo.virtualFileSystem.VirtualFile;
@@ -281,13 +282,18 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
             GitRepositoryManager manager = getRepositoryManager(myProject);
             Collection<GitRepository> repositories = GitUtil.getRepositoriesFromRoots(manager, sortedChanges.keySet());
             final List<GitRepository> preselectedRepositories = newArrayList(repositories);
-            Application.get().invokeLater(
-                () -> new VcsPushDialog(
-                    myProject,
-                    preselectedRepositories,
-                    GitBranchUtil.getCurrentRepository(myProject)
-                ).show(),
-                Application.get().getDefaultModalityState()
+            Application application = Application.get();
+            application.invokeLater(
+                () -> {
+                    DistributedVersionControlHelper helper = application.getInstance(DistributedVersionControlHelper.class);
+
+                    helper.createPushDialog(
+                        myProject,
+                        preselectedRepositories,
+                        GitBranchUtil.getCurrentRepository(myProject)
+                    ).show();
+                },
+                application.getDefaultModalityState()
             );
         }
         return exceptions;
@@ -306,7 +312,7 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
         String rootPath = root.getPath();
         LOG.info(
             "Committing case only rename: " + getLogString(rootPath, caseOnlyRenames) + " in " +
-            getShortRepositoryName(project, root)
+                getShortRepositoryName(project, root)
         );
 
         // 1. Check what is staged besides case-only renames
@@ -470,9 +476,11 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
             files.addAll(realRemoved);
             final Ref<Boolean> mergeAll = new Ref<>();
             try {
-                UIUtil.invokeAndWaitIfNeeded((Runnable)() -> {
+                LegacyComponentFactory legacyComponentFactory = project.getApplication().getInstance(LegacyComponentFactory.class);
+
+                UIUtil.invokeAndWaitIfNeeded((Runnable) () -> {
                     LocalizeValue message = GitLocalize.commitPartialMergeMessage(partialOperation.getName());
-                    SelectFilePathsDialog dialog = new SelectFilePathsDialog(
+                    LegacyDialog dialog = legacyComponentFactory.createSelectFilePathsDialog(
                         project,
                         files,
                         message.get(),
@@ -888,7 +896,7 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
         public void onChangeListSelected(LocalChangeList list) {
             Object data = list.getData();
             if (data instanceof VcsFullCommitDetails) {
-                VcsFullCommitDetails commit = (VcsFullCommitDetails)data;
+                VcsFullCommitDetails commit = (VcsFullCommitDetails) data;
                 String author = VcsUserUtil.toExactString(commit.getAuthor());
                 myAuthorField.setText(author);
                 myAuthorDate = new Date(commit.getAuthorTime());

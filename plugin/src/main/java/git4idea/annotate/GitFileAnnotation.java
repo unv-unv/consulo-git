@@ -17,10 +17,10 @@ package git4idea.annotate;
 
 import consulo.application.util.DateFormatUtil;
 import consulo.git.localize.GitLocalize;
-import consulo.ide.impl.idea.openapi.vcs.annotate.ShowAllAffectedGenericAction;
 import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.project.Project;
+import consulo.versionControlSystem.AbstractVcsHelper;
 import consulo.versionControlSystem.VcsException;
 import consulo.versionControlSystem.VcsKey;
 import consulo.versionControlSystem.annotate.AnnotationSourceSwitcher;
@@ -283,7 +283,7 @@ public class GitFileAnnotation extends FileAnnotation {
             if (lineNum >= 0 && lineNum < myLines.size()) {
                 final LineInfo info = myLines.get(lineNum);
                 if (info != null) {
-                    ShowAllAffectedGenericAction.showSubmittedFiles(myProject, info.getRevision(), myFile, GitVcs.getKey());
+                    AbstractVcsHelper.getInstance(myProject).showSubmittedFiles(info.getRevision(), myFile, GitVcs.getKey());
                 }
             }
         }

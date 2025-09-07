@@ -24,7 +24,7 @@ import consulo.util.dataholder.Key;
 import consulo.util.lang.StringUtil;
 import consulo.versionControlSystem.VcsException;
 import consulo.versionControlSystem.VcsNotifier;
-import consulo.versionControlSystem.util.VcsImplUtil;
+import consulo.versionControlSystem.util.VcsUtil;
 import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
@@ -368,7 +368,7 @@ public class GitFetcher {
             for (Map.Entry<VirtualFile, String> entry : additionalInfo.entrySet()) {
                 info.append(entry.getValue())
                     .append(" in ")
-                    .append(VcsImplUtil.getShortVcsRootName(myProject, entry.getKey()))
+                    .append(VcsUtil.getShortVcsRootName(myProject, entry.getKey()))
                     .append("<br/>");
             }
         }

@@ -16,7 +16,7 @@
 package git4idea.util;
 
 import consulo.application.Application;
-import consulo.ide.impl.idea.openapi.vcs.changes.ui.SelectFilesDialog;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.ui.ex.awt.DialogWrapper;
 import consulo.ui.ex.awt.JBLabel;
@@ -28,6 +28,8 @@ import consulo.util.lang.StringUtil;
 import consulo.util.lang.ref.Ref;
 import consulo.util.lang.xml.XmlStringUtil;
 import consulo.versionControlSystem.VcsNotifier;
+import consulo.versionControlSystem.ui.awt.LegacyComponentFactory;
+import consulo.versionControlSystem.ui.awt.LegacyDialog;
 import consulo.virtualFileSystem.VirtualFile;
 import git4idea.DialogManager;
 import git4idea.GitUtil;
@@ -80,9 +82,13 @@ public class GitUntrackedFilesHelper {
                         GitUtil.showPathsInDialog(project, absolutePaths, title, dialogDesc);
                     }
                     else {
-                        DialogWrapper dialog = new UntrackedFilesDialog(project, untrackedFiles, dialogDesc);
-                        dialog.setTitle(title);
-                        dialog.show();
+                        LegacyComponentFactory componentFactory = Application.get().getInstance(LegacyComponentFactory.class);
+
+                        LegacyDialog legacyDialog =
+                            componentFactory.createSelectFilesDialogOnlyOk(project, new ArrayList<>(untrackedFiles), StringUtil.stripHtml(dialogDesc, true), null, false, false, true);
+
+                        legacyDialog.setTitle(LocalizeValue.localizeTODO(title));
+                        legacyDialog.show();
                     }
                 }
             }
@@ -125,15 +131,18 @@ public class GitUntrackedFilesHelper {
             ContainerUtil.mapNotNull(absolutePaths, GitUtil::findRefreshFileOrLog);
 
         final Ref<Boolean> rollback = Ref.create();
-        Application.get().invokeAndWait(
+        Application application = Application.get();
+        application.invokeAndWait(
             () -> {
                 JComponent filesBrowser;
                 if (untrackedFiles.isEmpty()) {
                     filesBrowser = new GitSimplePathsBrowser(project, absolutePaths);
                 }
                 else {
+                    LegacyComponentFactory componentFactory = application.getInstance(LegacyComponentFactory.class);
+
                     filesBrowser =
-                        ScrollPaneFactory.createScrollPane(new SelectFilesDialog.VirtualFileList(project, untrackedFiles, false, false));
+                        ScrollPaneFactory.createScrollPane(componentFactory.createVirtualFileList(project, untrackedFiles, false, false).getComponent());
                 }
                 String title = "Could not " + StringUtil.capitalize(operationName);
                 String description = StringUtil.stripHtml(createUntrackedFilesOverwrittenDescription(operationName, false), true);
@@ -142,24 +151,9 @@ public class GitUntrackedFilesHelper {
                 DialogManager.show(dialog);
                 rollback.set(dialog.isOK());
             },
-            Application.get().getDefaultModalityState()
+            application.getDefaultModalityState()
         );
         return rollback.get();
-    }
-
-    private static class UntrackedFilesDialog extends SelectFilesDialog {
-
-        public UntrackedFilesDialog(Project project, Collection<VirtualFile> untrackedFiles, String dialogDesc) {
-            super(project, new ArrayList<>(untrackedFiles), StringUtil.stripHtml(dialogDesc, true), null, false, false, true);
-            init();
-        }
-
-        @Nonnull
-        @Override
-        protected Action[] createActions() {
-            return new Action[]{getOKAction()};
-        }
-
     }
 
     private static class UntrackedFilesRollBackDialog extends DialogWrapper {

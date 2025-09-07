@@ -15,13 +15,15 @@
  */
 package git4idea.ui.branch;
 
-import consulo.ide.impl.idea.openapi.vcs.changes.ui.ChangesBrowser;
+import consulo.application.Application;
 import consulo.project.Project;
 import consulo.ui.ex.awt.JBLabel;
 import consulo.ui.ex.awt.Splitter;
 import consulo.ui.ex.awt.UIUtil;
 import consulo.util.collection.ArrayUtil;
 import consulo.versionControlSystem.change.Change;
+import consulo.versionControlSystem.change.ChangesBrowser;
+import consulo.versionControlSystem.change.ChangesBrowserFactory;
 import git4idea.GitCommit;
 import git4idea.repo.GitRepository;
 import git4idea.ui.GitCommitListPanel;
@@ -67,7 +69,9 @@ class GitCompareBranchesLogPanel extends JPanel {
     }
 
     private JComponent createCenterPanel() {
-        final ChangesBrowser changesBrowser = new ChangesBrowser(
+        ChangesBrowserFactory browserFactory = Application.get().getInstance(ChangesBrowserFactory.class);
+
+        final ChangesBrowser changesBrowser = browserFactory.createChangeBrowser(
             myProject,
             null,
             Collections.<Change>emptyList(),
@@ -113,7 +117,7 @@ class GitCompareBranchesLogPanel extends JPanel {
         }
 
         Splitter rootPanel = new Splitter(false, 0.7f);
-        rootPanel.setSecondComponent(changesBrowser);
+        rootPanel.setSecondComponent(changesBrowser.getComponent());
         rootPanel.setFirstComponent(listPanel);
         return rootPanel;
     }

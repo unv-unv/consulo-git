@@ -17,10 +17,8 @@ package git4idea.stash;
 
 import consulo.application.Application;
 import consulo.application.ApplicationManager;
-import consulo.application.util.function.Processor;
 import consulo.document.DocumentReference;
 import consulo.document.DocumentReferenceManager;
-import consulo.ide.impl.idea.openapi.vcs.changes.shelf.*;
 import consulo.logging.Logger;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
@@ -29,6 +27,7 @@ import consulo.undoRedo.UndoManager;
 import consulo.util.collection.ContainerUtil;
 import consulo.versionControlSystem.VcsException;
 import consulo.versionControlSystem.change.Change;
+import consulo.versionControlSystem.change.shelf.*;
 import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
@@ -59,7 +58,7 @@ public class GitShelveUtils {
     refreshFilesBeforeUnshelve(project, shelvedChangeList, projectPath);
 
     LOG.info("Unshelving shelvedChangeList: " + shelvedChangeList);
-    final List<ShelvedChange> changes = shelvedChangeList.getChanges(project);
+    final List<? extends ShelvedChange> changes = shelvedChangeList.getChanges(project);
     // we pass null as target change list for Patch Applier to do NOTHING with change lists
     shelveManager.unshelveChangeList(shelvedChangeList,
                                      changes,
@@ -79,20 +78,17 @@ public class GitShelveUtils {
   }
 
   @RequiredUIAccess
-  private static void markUnshelvedFilesNonUndoable(@Nonnull final Project project, @Nonnull List<ShelvedChange> changes) {
+  private static void markUnshelvedFilesNonUndoable(@Nonnull final Project project, @Nonnull List<? extends ShelvedChange> changes) {
     final UndoManager undoManager = ProjectUndoManager.getInstance(project);
     if (undoManager != null && !changes.isEmpty()) {
-      ContainerUtil.process(changes, new Processor<ShelvedChange>() {
-        @Override
-        public boolean process(ShelvedChange change) {
-          final VirtualFile vfUnderProject = VirtualFileUtil.findFileByIoFile(new File(project.getBasePath(), change.getAfterPath()), false);
-          if (vfUnderProject != null) {
-            final DocumentReference documentReference = DocumentReferenceManager.getInstance().create(vfUnderProject);
-            undoManager.nonundoableActionPerformed(documentReference, false);
-            undoManager.invalidateActionsFor(documentReference);
-          }
-          return true;
+      ContainerUtil.process(changes, change -> {
+        final VirtualFile vfUnderProject = VirtualFileUtil.findFileByIoFile(new File(project.getBasePath(), change.getAfterPath()), false);
+        if (vfUnderProject != null) {
+          final DocumentReference documentReference = DocumentReferenceManager.getInstance().create(vfUnderProject);
+          undoManager.nonundoableActionPerformed(documentReference, false);
+          undoManager.invalidateActionsFor(documentReference);
         }
+        return true;
       });
     }
   }
@@ -108,11 +104,11 @@ public class GitShelveUtils {
       }
     }
     for (ShelvedBinaryFile f : shelvedChangeList.getBinaryFiles()) {
-      if (f.BEFORE_PATH != null) {
-        filesToRefresh.add(new File(projectPath + f.BEFORE_PATH));
+      if (f.getBeforePath() != null) {
+        filesToRefresh.add(new File(projectPath + f.getBeforePath()));
       }
-      if (f.AFTER_PATH != null) {
-        filesToRefresh.add(new File(projectPath + f.AFTER_PATH));
+      if (f.getAfterPath() != null) {
+        filesToRefresh.add(new File(projectPath + f.getAfterPath()));
       }
     }
     LocalFileSystem.getInstance().refreshIoFiles(filesToRefresh);

@@ -17,7 +17,6 @@ package git4idea.merge;
 
 import consulo.application.Application;
 import consulo.application.ApplicationManager;
-import consulo.ide.impl.idea.openapi.vcs.merge.MultipleFileMergeDialog;
 import consulo.logging.Logger;
 import consulo.project.Project;
 import consulo.project.ui.notification.Notification;

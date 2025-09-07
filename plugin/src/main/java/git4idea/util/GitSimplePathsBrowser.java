@@ -15,7 +15,6 @@
  */
 package git4idea.util;
 
-import consulo.ide.impl.idea.openapi.vcs.changes.ui.FilePathChangesTreeList;
 import consulo.project.Project;
 import consulo.ui.ex.action.ActionManager;
 import consulo.ui.ex.action.ActionPlaces;
@@ -24,47 +23,45 @@ import consulo.ui.ex.action.DefaultActionGroup;
 import consulo.util.collection.ContainerUtil;
 import consulo.versionControlSystem.FilePath;
 import consulo.versionControlSystem.action.VcsContextFactory;
-
+import consulo.versionControlSystem.ui.awt.ChangesBrowserTree;
+import consulo.versionControlSystem.ui.awt.LegacyComponentFactory;
 import jakarta.annotation.Nonnull;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
 
-public class GitSimplePathsBrowser extends JPanel
-{
-	public GitSimplePathsBrowser(@Nonnull Project project, @Nonnull Collection<String> absolutePaths)
-	{
-		super(new BorderLayout());
+public class GitSimplePathsBrowser extends JPanel {
+    public GitSimplePathsBrowser(@Nonnull Project project, @Nonnull Collection<String> absolutePaths) {
+        super(new BorderLayout());
 
-		FilePathChangesTreeList browser = createBrowser(project, absolutePaths);
-		ActionToolbar toolbar = createToolbar(browser);
+        ChangesBrowserTree<FilePath> browser = createBrowser(project, absolutePaths);
+        ActionToolbar toolbar = createToolbar(browser);
 
-		add(toolbar.getComponent(), BorderLayout.NORTH);
-		add(browser);
-	}
+        add(toolbar.getComponent(), BorderLayout.NORTH);
+        add(browser.getComponent());
+    }
 
-	@Nonnull
-	private static FilePathChangesTreeList createBrowser(@Nonnull Project project, @Nonnull Collection<String> absolutePaths)
-	{
-		List<FilePath> filePaths = toFilePaths(absolutePaths);
-		FilePathChangesTreeList browser = new FilePathChangesTreeList(project, filePaths, false, false, null, null);
-		browser.setChangesToDisplay(filePaths);
-		return browser;
-	}
+    @Nonnull
+    private static ChangesBrowserTree<FilePath> createBrowser(@Nonnull Project project, @Nonnull Collection<String> absolutePaths) {
+        List<FilePath> filePaths = toFilePaths(absolutePaths);
+        LegacyComponentFactory componentFactory = project.getApplication().getInstance(LegacyComponentFactory.class);
+        ChangesBrowserTree<FilePath> browser = componentFactory.createFilePathChangesTreeList(project, filePaths, false, false, null);
+        browser.setChangesToDisplay(filePaths);
+        return browser;
+    }
 
-	@Nonnull
-	private static ActionToolbar createToolbar(@Nonnull FilePathChangesTreeList browser)
-	{
-		DefaultActionGroup actionGroup = new DefaultActionGroup(browser.getTreeActions());
-		return ActionManager.getInstance().createActionToolbar(ActionPlaces.UNKNOWN, actionGroup, true);
-	}
+    @Nonnull
+    private static ActionToolbar createToolbar(@Nonnull ChangesBrowserTree<FilePath> browser) {
+        DefaultActionGroup actionGroup = new DefaultActionGroup(browser.getTreeActions());
+        return ActionManager.getInstance().createActionToolbar(ActionPlaces.UNKNOWN, actionGroup, true);
+    }
 
-	@Nonnull
-	private static List<FilePath> toFilePaths(@Nonnull Collection<String> absolutePaths)
-	{
-		VcsContextFactory vcsContextFactory = VcsContextFactory.getInstance();
-		return ContainerUtil.map(absolutePaths, path -> vcsContextFactory.createFilePathOn(new File(path), false));
-	}
+    @Nonnull
+    private static List<FilePath> toFilePaths(@Nonnull Collection<String> absolutePaths) {
+        VcsContextFactory vcsContextFactory = VcsContextFactory.getInstance();
+        return ContainerUtil.map(absolutePaths, path -> vcsContextFactory.createFilePathOn(new File(path), false));
+    }
 }

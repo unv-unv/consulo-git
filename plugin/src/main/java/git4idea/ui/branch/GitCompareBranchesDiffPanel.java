@@ -15,11 +15,13 @@
  */
 package git4idea.ui.branch;
 
-import consulo.ide.impl.idea.openapi.vcs.changes.ui.ChangesBrowser;
+import consulo.application.Application;
 import consulo.project.Project;
 import consulo.ui.ex.awt.JBLabel;
 import consulo.ui.ex.awt.UIUtil;
 import consulo.versionControlSystem.change.Change;
+import consulo.versionControlSystem.change.ChangesBrowser;
+import consulo.versionControlSystem.change.ChangesBrowserFactory;
 import git4idea.util.GitCommitCompareInfo;
 
 import javax.swing.*;
@@ -62,7 +64,8 @@ class GitCompareBranchesDiffPanel extends JPanel {
 
     private JComponent createCenterPanel() {
         List<Change> diff = myCompareInfo.getTotalDiff();
-        final ChangesBrowser changesBrowser = new ChangesBrowser(
+        ChangesBrowserFactory browserFactory = Application.get().getInstance(ChangesBrowserFactory.class);
+        final ChangesBrowser<Change> changesBrowser = browserFactory.createChangeBrowser(
             myProject,
             null,
             diff,
@@ -74,6 +77,6 @@ class GitCompareBranchesDiffPanel extends JPanel {
             null
         );
         changesBrowser.setChangesToDisplay(diff);
-        return changesBrowser;
+        return changesBrowser.getComponent();
     }
 }

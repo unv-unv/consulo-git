@@ -15,22 +15,14 @@
  */
 package git4idea.actions;
 
-import static consulo.ide.impl.idea.openapi.vcs.history.VcsDiffUtil.createChangesWithCurrentContentForFile;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
-import jakarta.annotation.Nonnull;
 import consulo.ide.impl.idea.dvcs.actions.DvcsCompareWithBranchAction;
 import consulo.project.Project;
 import consulo.util.collection.ContainerUtil;
+import consulo.versionControlSystem.FilePath;
 import consulo.versionControlSystem.VcsException;
 import consulo.versionControlSystem.change.Change;
 import consulo.versionControlSystem.util.VcsUtil;
 import consulo.virtualFileSystem.VirtualFile;
-import consulo.versionControlSystem.FilePath;
 import git4idea.GitBranch;
 import git4idea.GitContentRevision;
 import git4idea.GitRevisionNumber;
@@ -39,6 +31,12 @@ import git4idea.changes.GitChangeUtils;
 import git4idea.history.GitHistoryUtils;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
+import jakarta.annotation.Nonnull;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 public class GitCompareWithBranchAction extends DvcsCompareWithBranchAction<GitRepository> {
     @Override
@@ -101,7 +99,7 @@ public class GitCompareWithBranchAction extends DvcsCompareWithBranchAction<GitR
             throw new VcsException(fileDoesntExistInBranchError(file, branchToCompare));
         }
         return changes.isEmpty() && !filePath.isDirectory()
-            ? createChangesWithCurrentContentForFile(
+            ? VcsUtil.createChangesWithCurrentContentForFile(
                 filePath,
                 GitContentRevision.createRevision(filePath, compareRevisionNumber, project, null)
             ) : changes;
