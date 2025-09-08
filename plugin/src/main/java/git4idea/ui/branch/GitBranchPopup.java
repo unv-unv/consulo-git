@@ -15,7 +15,6 @@
  */
 package git4idea.ui.branch;
 
-import consulo.ide.impl.idea.dvcs.branch.DvcsBranchPopup;
 import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.ui.ex.action.ActionGroup;
@@ -23,6 +22,8 @@ import consulo.ui.ex.action.AnAction;
 import consulo.util.collection.ContainerUtil;
 import consulo.versionControlSystem.distributed.DvcsUtil;
 import consulo.versionControlSystem.distributed.branch.BranchActionGroup;
+import consulo.versionControlSystem.distributed.branch.BranchActionUtil;
+import consulo.versionControlSystem.distributed.branch.DvcsBranchPopup;
 import consulo.versionControlSystem.distributed.branch.RootAction;
 import consulo.versionControlSystem.distributed.repository.AbstractRepositoryManager;
 import git4idea.GitUtil;
@@ -37,11 +38,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 
-import static consulo.ide.impl.idea.dvcs.branch.DvcsBranchPopup.MyMoreIndex.DEFAULT_REPO_NUM;
-import static consulo.ide.impl.idea.dvcs.branch.DvcsBranchPopup.MyMoreIndex.MAX_REPO_NUM;
-import static consulo.ide.impl.idea.dvcs.ui.BranchActionGroupPopup.wrapWithMoreActionIfNeeded;
-import static consulo.ide.impl.idea.dvcs.ui.BranchActionUtil.*;
 import static consulo.util.collection.ContainerUtil.map;
+import static consulo.versionControlSystem.distributed.branch.DvcsBranchPopup.MyMoreIndex.DEFAULT_REPO_NUM;
+import static consulo.versionControlSystem.distributed.branch.DvcsBranchPopup.MyMoreIndex.MAX_REPO_NUM;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -117,11 +116,11 @@ class GitBranchPopup extends DvcsBranchPopup<GitRepository> {
             .map(l -> createLocalBranchActions(allRepositories, l))
             .filter(Objects::nonNull)
             .collect(toList());
-        wrapWithMoreActionIfNeeded(
+        BranchActionUtil.wrapWithMoreActionIfNeeded(
             myProject,
             popupGroup,
-            ContainerUtil.sorted(localBranchActions, FAVORITE_BRANCH_COMPARATOR),
-            getNumOfTopShownBranches(localBranchActions),
+            ContainerUtil.sorted(localBranchActions, BranchActionUtil.FAVORITE_BRANCH_COMPARATOR),
+            BranchActionUtil.getNumOfTopShownBranches(localBranchActions),
             SHOW_ALL_LOCALS_KEY
         );
         popupGroup.addSeparator(LocalizeValue.localizeTODO("Common Remote Branches"));
@@ -129,11 +128,11 @@ class GitBranchPopup extends DvcsBranchPopup<GitRepository> {
             ((GitMultiRootBranchConfig)myMultiRootBranchConfig).getRemoteBranches(),
             remoteBranch -> new GitBranchPopupActions.RemoteBranchActions(myProject, allRepositories, remoteBranch, myCurrentRepository)
         );
-        wrapWithMoreActionIfNeeded(
+        BranchActionUtil.wrapWithMoreActionIfNeeded(
             myProject,
             popupGroup,
-            ContainerUtil.sorted(remoteBranchActions, FAVORITE_BRANCH_COMPARATOR),
-            getNumOfFavorites(remoteBranchActions),
+            ContainerUtil.sorted(remoteBranchActions, BranchActionUtil.FAVORITE_BRANCH_COMPARATOR),
+            BranchActionUtil.getNumOfFavorites(remoteBranchActions),
             SHOW_ALL_REMOTES_KEY
         );
     }
@@ -166,7 +165,7 @@ class GitBranchPopup extends DvcsBranchPopup<GitRepository> {
                 GitBranchUtil.getDisplayableBranchText(repo)
             ))
             .collect(toList());
-        wrapWithMoreActionIfNeeded(
+        BranchActionUtil.wrapWithMoreActionIfNeeded(
             myProject,
             popupGroup,
             rootActions,

@@ -15,13 +15,11 @@
  */
 package git4idea.ui.branch;
 
-import consulo.ide.impl.idea.ui.TabbedPaneImpl;
 import consulo.platform.base.icon.PlatformIconGroup;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.DialogWrapper;
 import consulo.ui.ex.awt.TabbedPaneWrapper;
-import consulo.ui.ex.awtUnsafe.TargetAWT;
 import consulo.versionControlSystem.distributed.DvcsUtil;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
@@ -70,15 +68,15 @@ public class GitCompareBranchesDialog extends DialogWrapper {
     }
 
     @Override
+    @RequiredUIAccess
     protected JComponent createCenterPanel() {
         myLogPanel = new GitCompareBranchesLogPanel(myProject, myBranchName, myCurrentBranchName, myCompareInfo, myInitialRepo);
         JPanel diffPanel = new GitCompareBranchesDiffPanel(myProject, myBranchName, myCurrentBranchName, myCompareInfo);
 
-        TabbedPaneImpl tabbedPane = new TabbedPaneImpl(SwingConstants.TOP);
-        tabbedPane.addTab("Log", TargetAWT.to(PlatformIconGroup.vcsBranch()), myLogPanel);
-        tabbedPane.addTab("Diff", TargetAWT.to(PlatformIconGroup.actionsDiff()), diffPanel);
-        tabbedPane.setKeyboardNavigation(TabbedPaneWrapper.DEFAULT_PREV_NEXT_SHORTCUTS);
-        return tabbedPane;
+        TabbedPaneWrapper wrapper = new TabbedPaneWrapper(getDisposable());
+        wrapper.addTab("Log", PlatformIconGroup.vcsBranch(), myLogPanel, null);
+        wrapper.addTab("Diff", PlatformIconGroup.actionsDiff(), diffPanel, null);
+        return wrapper.getComponent();
     }
 
     // it is information dialog - no need to OK or Cancel. Close the dialog by clicking the cross button or pressing Esc.

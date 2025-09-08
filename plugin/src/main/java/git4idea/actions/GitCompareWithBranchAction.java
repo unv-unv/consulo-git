@@ -15,12 +15,12 @@
  */
 package git4idea.actions;
 
-import consulo.ide.impl.idea.dvcs.actions.DvcsCompareWithBranchAction;
 import consulo.project.Project;
 import consulo.util.collection.ContainerUtil;
 import consulo.versionControlSystem.FilePath;
 import consulo.versionControlSystem.VcsException;
 import consulo.versionControlSystem.change.Change;
+import consulo.versionControlSystem.distributed.action.DvcsCompareWithBranchAction;
 import consulo.versionControlSystem.util.VcsUtil;
 import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitBranch;

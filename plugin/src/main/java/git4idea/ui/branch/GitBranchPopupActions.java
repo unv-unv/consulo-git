@@ -26,6 +26,7 @@ import consulo.ui.ex.action.DumbAwareAction;
 import consulo.ui.ex.awt.Messages;
 import consulo.util.collection.ContainerUtil;
 import consulo.versionControlSystem.distributed.branch.BranchActionGroup;
+import consulo.versionControlSystem.distributed.branch.BranchActionUtil;
 import consulo.versionControlSystem.distributed.branch.NewBranchAction;
 import consulo.versionControlSystem.distributed.branch.PopupElementWithAdditionalInfo;
 import consulo.versionControlSystem.distributed.repository.Repository;
@@ -38,8 +39,6 @@ import jakarta.annotation.Nullable;
 
 import java.util.List;
 
-import static consulo.ide.impl.idea.dvcs.ui.BranchActionGroupPopup.wrapWithMoreActionIfNeeded;
-import static consulo.ide.impl.idea.dvcs.ui.BranchActionUtil.*;
 import static git4idea.GitStatisticsCollectorKt.reportUsage;
 import static git4idea.branch.GitBranchType.LOCAL;
 import static git4idea.branch.GitBranchType.REMOTE;
@@ -78,11 +77,11 @@ class GitBranchPopupActions {
             .map(branch -> new LocalBranchActions(myProject, repositoryList, branch.getName(), myRepository))
             .collect(toList());
         // if there are only a few local favorites -> show all;  for remotes it's better to show only favorites;
-        wrapWithMoreActionIfNeeded(
+        BranchActionUtil.wrapWithMoreActionIfNeeded(
             myProject,
             popupGroup,
-            ContainerUtil.sorted(localBranchActions, FAVORITE_BRANCH_COMPARATOR),
-            getNumOfTopShownBranches(localBranchActions),
+            ContainerUtil.sorted(localBranchActions, BranchActionUtil.FAVORITE_BRANCH_COMPARATOR),
+            BranchActionUtil.getNumOfTopShownBranches(localBranchActions),
             firstLevelGroup ? GitBranchPopup.SHOW_ALL_LOCALS_KEY : null,
             firstLevelGroup
         );
@@ -100,11 +99,11 @@ class GitBranchPopupActions {
                     myRepository
                 ))
                 .collect(toList());
-        wrapWithMoreActionIfNeeded(
+        BranchActionUtil.wrapWithMoreActionIfNeeded(
             myProject,
             popupGroup,
-            ContainerUtil.sorted(remoteBranchActions, FAVORITE_BRANCH_COMPARATOR),
-            getNumOfFavorites(remoteBranchActions),
+            ContainerUtil.sorted(remoteBranchActions, BranchActionUtil.FAVORITE_BRANCH_COMPARATOR),
+            BranchActionUtil.getNumOfFavorites(remoteBranchActions),
             firstLevelGroup ? GitBranchPopup.SHOW_ALL_REMOTES_KEY : null
         );
         return popupGroup.build();
@@ -563,7 +562,7 @@ class GitBranchPopupActions {
         @Override
         @RequiredUIAccess
         public void actionPerformed(@Nonnull AnActionEvent e) {
-            GitBrancher brancher = ServiceManager.getService(myProject, GitBrancher.class);
+            GitBrancher brancher = myProject.getInstance(GitBrancher.class);
             brancher.rebaseOnCurrent(myRepositories, myBranchName);
             reportUsage("git.branch.checkout.with.rebase");
         }

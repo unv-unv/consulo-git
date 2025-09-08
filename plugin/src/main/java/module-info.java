@@ -17,7 +17,6 @@ module com.intellij.git {
 
     // TODO remove
     requires java.desktop;
-    requires consulo.ide.impl;
     requires forms.rt;
 
     // serializing state
@@ -71,5 +70,4 @@ module com.intellij.git {
     exports git4idea.vfs;
     exports org.jetbrains.git4idea.ssh;
     exports org.jetbrains.git4idea.util;
-    
 }

@@ -15,7 +15,6 @@
  */
 package git4idea.reset;
 
-import consulo.ide.impl.idea.util.ui.RadioButtonEnumModel;
 import consulo.project.Project;
 import consulo.ui.ex.awt.*;
 import consulo.util.lang.StringUtil;
