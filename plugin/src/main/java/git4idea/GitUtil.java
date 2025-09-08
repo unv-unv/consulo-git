@@ -15,8 +15,6 @@
  */
 package git4idea;
 
-import com.google.common.base.Predicates;
-import com.google.common.collect.Collections2;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.Task;
 import consulo.git.localize.GitLocalize;
@@ -914,11 +912,10 @@ public class GitUtil {
     @Nonnull
     public static Collection<GitRepository> getRepositoriesForFiles(@Nonnull Project project, @Nonnull Collection<VirtualFile> files) {
         final GitRepositoryManager manager = getRepositoryManager(project);
-        com.google.common.base.Function<VirtualFile, GitRepository> ROOT_TO_REPO =
-            root -> root != null ? manager.getRepositoryForRoot(root) : null;
-        return Collections2.filter(
-            Collections2.transform(sortFilesByGitRootsIgnoringOthers(files).keySet(), ROOT_TO_REPO),
-            Predicates.notNull()
+        Function<VirtualFile, GitRepository> rootToRepo = root -> root != null ? manager.getRepositoryForRoot(root) : null;
+        return ContainerUtil.filter(
+            ContainerUtil.map(sortFilesByGitRootsIgnoringOthers(files).keySet(), rootToRepo),
+            Objects::nonNull
         );
     }
 

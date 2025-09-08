@@ -8,7 +8,6 @@ module com.intellij.git {
     requires com.intellij.git.rt;
     requires consulo.util.nodep;
 
-    requires com.google.common;
     requires org.apache.commons.codec;
     requires trilead.ssh2;
     requires xmlrpc.client;

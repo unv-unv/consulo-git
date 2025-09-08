@@ -15,7 +15,6 @@
  */
 package git4idea.branch;
 
-import com.google.common.collect.Collections2;
 import consulo.fileEditor.FileEditorManager;
 import consulo.logging.Logger;
 import consulo.project.Project;
@@ -223,7 +222,7 @@ public class GitBranchUtil {
    */
   @Nonnull
   public static Collection<String> getBranchNamesWithoutRemoteHead(@Nonnull Collection<GitRemoteBranch> remoteBranches) {
-    return Collections2.filter(convertBranchesToNames(remoteBranches), input -> {
+    return ContainerUtil.filter(convertBranchesToNames(remoteBranches), input -> {
       assert input != null;
       return !input.equals("HEAD");
     });
