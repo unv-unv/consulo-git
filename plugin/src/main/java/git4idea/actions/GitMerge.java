@@ -15,10 +15,12 @@
  */
 package git4idea.actions;
 
+import consulo.annotation.component.ActionImpl;
 import consulo.git.localize.GitLocalize;
 import consulo.localHistory.Label;
 import consulo.localHistory.LocalHistory;
 import consulo.localize.LocalizeValue;
+import consulo.platform.base.icon.PlatformIconGroup;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.versionControlSystem.VcsException;
@@ -27,6 +29,7 @@ import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitRevisionNumber;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
+import git4idea.actions.GitRepositoryAction;
 import git4idea.commands.GitHandlerUtil;
 import git4idea.commands.GitLineHandler;
 import git4idea.merge.GitMergeDialog;
@@ -40,14 +43,19 @@ import java.util.Set;
 /**
  * Git "merge" action
  */
+@ActionImpl(id = "Git.Merge")
 public class GitMerge extends GitRepositoryAction {
+    public GitMerge() {
+        super(GitLocalize.actionMergeText(), LocalizeValue.empty(), PlatformIconGroup.vcsMerge());
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
     @Nonnull
     protected LocalizeValue getActionName() {
-        return GitLocalize.mergeActionName();
+        return GitLocalize.actionMergeName();
     }
 
     /**
@@ -56,11 +64,11 @@ public class GitMerge extends GitRepositoryAction {
     @Override
     @RequiredUIAccess
     protected void perform(
-        @Nonnull final Project project,
-        @Nonnull final List<VirtualFile> gitRoots,
-        @Nonnull final VirtualFile defaultRoot,
-        final Set<VirtualFile> affectedRoots,
-        final List<VcsException> exceptions
+        @Nonnull Project project,
+        @Nonnull List<VirtualFile> gitRoots,
+        @Nonnull VirtualFile defaultRoot,
+        Set<VirtualFile> affectedRoots,
+        List<VcsException> exceptions
     ) throws VcsException {
         GitVcs vcs = GitVcs.getInstance(project);
         if (vcs == null) {
@@ -82,7 +90,7 @@ public class GitMerge extends GitRepositoryAction {
         }
         Label beforeLabel = LocalHistory.getInstance().putSystemLabel(project, "Before update");
         GitLineHandler lineHandler = dialog.handler();
-        final VirtualFile root = dialog.getSelectedRoot();
+        VirtualFile root = dialog.getSelectedRoot();
         affectedRoots.add(root);
         GitRevisionNumber currentRev = GitRevisionNumber.resolve(project, root, "HEAD");
         try {

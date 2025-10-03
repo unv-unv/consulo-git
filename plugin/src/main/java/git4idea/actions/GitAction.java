@@ -15,6 +15,7 @@
  */
 package git4idea.actions;
 
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
@@ -28,6 +29,10 @@ import jakarta.annotation.Nonnull;
  * @author Kirill Likhodedov
  */
 public abstract class GitAction extends DumbAwareAction {
+    protected GitAction(@Nonnull LocalizeValue text) {
+        super(text);
+    }
+
     @Override
     @RequiredUIAccess
     public void update(@Nonnull AnActionEvent e) {

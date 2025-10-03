@@ -18,7 +18,6 @@ package git4idea.actions;
 import java.util.Collections;
 
 import consulo.annotation.component.ActionImpl;
-import consulo.component.ComponentManager;
 import consulo.git.localize.GitLocalize;
 import consulo.project.Project;
 import consulo.versionControlSystem.log.Hash;

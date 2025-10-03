@@ -15,12 +15,14 @@
  */
 package git4idea.actions;
 
+import consulo.annotation.component.ActionImpl;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.Task;
 import consulo.git.localize.GitLocalize;
 import consulo.localHistory.Label;
 import consulo.localHistory.LocalHistory;
 import consulo.localize.LocalizeValue;
+import consulo.platform.base.icon.PlatformIconGroup;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.versionControlSystem.VcsException;
@@ -47,9 +49,14 @@ import java.util.Set;
 /**
  * Git "pull" action
  */
+@ActionImpl(id = "Git.Pull")
 public class GitPull extends GitRepositoryAction {
-    @Override
+    public GitPull() {
+        super(GitLocalize.actionPullText(), LocalizeValue.empty(), PlatformIconGroup.actionsCheckout());
+    }
+
     @Nonnull
+    @Override
     protected LocalizeValue getActionName() {
         return GitLocalize.pullActionName();
     }
@@ -58,8 +65,8 @@ public class GitPull extends GitRepositoryAction {
     @RequiredUIAccess
     protected void perform(
         @Nonnull final Project project,
-        @Nonnull final List<VirtualFile> gitRoots,
-        @Nonnull final VirtualFile defaultRoot,
+        @Nonnull List<VirtualFile> gitRoots,
+        @Nonnull VirtualFile defaultRoot,
         final Set<VirtualFile> affectedRoots,
         final List<VcsException> exceptions
     ) throws VcsException {
@@ -74,7 +81,7 @@ public class GitPull extends GitRepositoryAction {
             @Override
             @RequiredUIAccess
             public void run(@Nonnull ProgressIndicator indicator) {
-                final GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager((Project)myProject);
+                final GitRepositoryManager repositoryManager = GitUtil.getRepositoryManager((Project) myProject);
 
                 GitRepository repository = repositoryManager.getRepositoryForRoot(dialog.gitRoot());
                 assert repository != null : "Repository can't be null for root " + dialog.gitRoot();
@@ -100,30 +107,34 @@ public class GitPull extends GitRepositoryAction {
                 GitTask pullTask = new GitTask(project, handler, GitLocalize.pullingTitle(dialog.getRemote()));
                 pullTask.setProgressIndicator(indicator);
                 pullTask.setProgressAnalyzer(new GitStandardProgressAnalyzer());
-                pullTask.execute(true, false, new GitTaskResultHandlerAdapter() {
-                    @Override
-                    protected void onSuccess() {
-                        root.refresh(false, true);
-                        GitMergeUtil.showUpdates(
-                            GitPull.this,
-                            project,
-                            exceptions,
-                            root,
-                            currentRev,
-                            beforeLabel,
-                            getActionName(),
-                            ActionInfo.UPDATE
-                        );
-                        repositoryManager.updateRepository(root);
-                        runFinalTasks(project, GitVcs.getInstance(project), affectedRoots, getActionName(), exceptions);
-                    }
+                pullTask.execute(
+                    true,
+                    false,
+                    new GitTaskResultHandlerAdapter() {
+                        @Override
+                        protected void onSuccess() {
+                            root.refresh(false, true);
+                            GitMergeUtil.showUpdates(
+                                GitPull.this,
+                                project,
+                                exceptions,
+                                root,
+                                currentRev,
+                                beforeLabel,
+                                getActionName(),
+                                ActionInfo.UPDATE
+                            );
+                            repositoryManager.updateRepository(root);
+                            runFinalTasks(project, GitVcs.getInstance(project), affectedRoots, getActionName(), exceptions);
+                        }
 
-                    @Override
-                    protected void onFailure() {
-                        GitUIUtil.notifyGitErrors(project, "Error pulling " + dialog.getRemote(), "", handler.errors());
-                        repositoryManager.updateRepository(root);
+                        @Override
+                        protected void onFailure() {
+                            GitUIUtil.notifyGitErrors(project, "Error pulling " + dialog.getRemote(), "", handler.errors());
+                            repositoryManager.updateRepository(root);
+                        }
                     }
-                });
+                );
             }
         }.queue();
     }

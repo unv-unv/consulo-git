@@ -47,9 +47,9 @@ public abstract class GitRebaseActionBase extends GitRepositoryAction {
     @RequiredUIAccess
     protected void perform(
         @Nonnull final Project project,
-        @Nonnull final List<VirtualFile> gitRoots,
-        @Nonnull final VirtualFile defaultRoot,
-        final Set<VirtualFile> affectedRoots,
+        @Nonnull List<VirtualFile> gitRoots,
+        @Nonnull VirtualFile defaultRoot,
+        Set<VirtualFile> affectedRoots,
         final List<VcsException> exceptions
     ) throws VcsException {
         GitLineHandler h = createHandler(project, gitRoots, defaultRoot);
@@ -65,7 +65,7 @@ public abstract class GitRebaseActionBase extends GitRepositoryAction {
         affectedRoots.add(root);
 
         service.configureHandler(h, editor.getHandlerNo());
-        GitTask task = new GitTask(project, h, GitLocalize.rebasingTitle());
+        GitTask task = new GitTask(project, h, GitLocalize.taskRebasingTitle());
         task.executeInBackground(
             false,
             new GitTaskResultHandlerAdapter() {
@@ -92,7 +92,7 @@ public abstract class GitRebaseActionBase extends GitRepositoryAction {
         if (taskResult == GitTaskResult.CANCELLED) {
             return;
         }
-        final GitRebaseLineListener.Result result = resultListener.getResult();
+        GitRebaseLineListener.Result result = resultListener.getResult();
         switch (result.status) {
             case CONFLICT:
                 Messages.showErrorDialog(

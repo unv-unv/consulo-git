@@ -13,25 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package git4idea.actions;
+package consulo.git.action;
 
 import consulo.annotation.component.ActionImpl;
 import consulo.annotation.component.ActionParentRef;
 import consulo.annotation.component.ActionRef;
 import consulo.application.dumb.DumbAware;
 import consulo.git.localize.GitLocalize;
+import consulo.ui.ex.action.AnSeparator;
 import consulo.ui.ex.action.DefaultActionGroup;
+import git4idea.actions.GitCheckoutRevisionAction;
+import git4idea.actions.GitCreateNewBranchAction;
+import git4idea.actions.GitCreateTagAction;
+import git4idea.reset.GitResetAction;
 
 /**
  * @author UNV
  * @since 2025-08-28
  */
 @ActionImpl(
-    id = "Git.Log.Toolbar",
-    parents = @ActionParentRef(@ActionRef(id = "Vcs.Log.Toolbar"))
+    id = "Git.Log.ContextMenu",
+    children = {
+        @ActionRef(type = AnSeparator.class),
+        @ActionRef(type = GitCheckoutRevisionAction.class),
+        @ActionRef(type = GitCreateNewBranchAction.class),
+        @ActionRef(type = GitCreateTagAction.class),
+        @ActionRef(type = AnSeparator.class),
+        @ActionRef(type = GitResetAction.class)
+    },
+    parents = @ActionParentRef(@ActionRef(id = "Vcs.Log.ContextMenu"))
 )
-public class LogToolbarGroup extends DefaultActionGroup implements DumbAware {
-    public LogToolbarGroup() {
-        super(GitLocalize.groupLogToolbarText(), false);
+public class LogContextMenuGroup extends DefaultActionGroup implements DumbAware {
+    public LogContextMenuGroup() {
+        super(GitLocalize.groupLogContextMenuText(), false);
     }
 }

@@ -26,31 +26,28 @@
       <reference ref="Compare.Selected"/>
       <action id="Git.CompareWithBranch" class="git4idea.actions.GitCompareWithBranchAction" text="Compare with Branch..."/>
       <reference ref="Vcs.ShowTabbedFileHistory"/>
-      <reference id="Vcs.ShowHistoryForBlock"/>
+      <reference ref="Vcs.ShowHistoryForBlock"/>
       <separator/>
-      <reference id="ChangesView.Revert"/>
-      <action id="Git.ResolveConflicts" class="git4idea.actions.GitResolveConflictsAction" text="Resolve Conflicts..."/>
+      <reference ref="ChangesView.Revert"/>
+      <reference ref="Git.ResolveConflicts"/>
     </group>
 
     <group id="GitRepositoryActions">
-      <action id="Git.Branches" class="git4idea.ui.branch.GitBranchesAction" text="_Branches..." icon="consulo.git.GitIconGroup@branch"/>
-      <action id="Git.Tag" class="git4idea.actions.GitTag" text="Tag..."/>
-      <action id="Git.Merge" class="git4idea.actions.GitMerge" text="Merge Changes..."
-              icon="consulo.platform.base.PlatformIconGroup@vcs.mergesourcestree"/>
-      <action id="Git.Stash" class="git4idea.actions.GitStash" text="Stash Changes..."/>
-      <action id="Git.Unstash" class="git4idea.actions.GitUnstash" text="UnStash Changes..."/>
-      <action id="Git.Reset" class="git4idea.actions.GitResetHead" text="Reset HEAD..."
-              icon="consulo.platform.base.PlatformIconGroup@general.reset"/>
+      <reference ref="Git.Branches"/>
+      <reference ref="Git.Tag"/>
+      <reference ref="Git.Merge"/>
+      <reference ref="Git.Stash"/>
+      <reference ref="Git.Unstash"/>
+      <reference ref="Git.Reset"/>
       <separator/>
-      <action id="Git.Fetch" class="git4idea.actions.GitFetch" text="Fetch"/>
-      <action id="Git.Pull" class="git4idea.actions.GitPull" text="Pull..."
-              icon="consulo.platform.base.PlatformIconGroup@actions.checkout"/>
+      <reference ref="Git.Fetch"/>
+      <reference ref="Git.Pull"/>
       <reference ref="Vcs.Push"/>
       <separator/>
-      <action id="Git.Rebase" class="git4idea.actions.GitRebase" text="Rebase..."/>
-      <action id="Git.Rebase.Abort" class="git4idea.actions.GitRebaseAbort" text="Abort Rebasing"/>
-      <action id="Git.Rebase.Continue" class="git4idea.actions.GitRebaseContinue" text="Continue Rebasing"/>
-      <action id="Git.Rebase.Skip" class="git4idea.actions.GitRebaseSkip" text="Skip Commit in Rebasing"/>
+      <reference ref="Git.Rebase"/>
+      <reference ref="Git.Rebase.Abort"/>
+      <reference ref="Git.Rebase.Continue"/>
+      <reference ref="Git.Rebase.Skip"/>
       <separator/>
     </group>
 
@@ -75,69 +72,10 @@
       <separator/>
     </group>
 
-    <group id="Git.MainMenu.RebaseActions" class="git4idea.actions.GitRepositoryStateActionGroup$Rebase" popup="true">
-      <action id="Git.Rebase.Abort" class="git4idea.actions.GitRebaseAbort"/>
-      <action id="Git.Rebase.Continue" class="git4idea.actions.GitRebaseContinue"/>
-      <action id="Git.Rebase.Skip" class="git4idea.actions.GitRebaseSkip"/>
-    </group>
-
-    <group id="Git.MainMenu.FileActions" class="git4idea.actions.GitFileActionGroup" popup="true">
-      <reference ref="Git.FileActions"/>
-    </group>
-
-    <group id="Patch.MainMenu" popup="true">
-      <reference ref="ChangesView.CreatePatch"/>
-      <reference ref="ChangesView.ApplyPatch"/>
-      <reference ref="ChangesView.ApplyPatchFromClipboard"/>
-    </group>
-
-    <group id="Git.MainMenu.LocalChanges" popup="true">
-      <reference ref="ChangesView.Shelve"/>
-      <reference ref="Vcs.Show.Shelf"/>
-      <action id="Git.Stash" class="git4idea.actions.GitStash"/>
-      <action id="Git.Unstash" class="git4idea.actions.GitUnstash"/>
-      <reference ref="ChangesView.Revert"/>
-      <!--<reference ref="Vcs.UmlDiff"/>  -->
-    </group>
-
-    <group id="Git.MainMenu" class="git4idea.actions.GitMainMenuActionGroup" searchable="false">
-      <reference ref="CheckinProject"/>
-      <reference ref="Vcs.Push"/>
-      <reference ref="Vcs.UpdateProject"/>
-      <action id="Git.Pull" class="git4idea.actions.GitPull"/>
-      <action id="Git.Fetch" class="git4idea.actions.GitFetch"/>
-      <separator/>
-      <action id="Git.Merge" class="git4idea.actions.GitMerge" icon="consulo.platform.base.PlatformIconGroup@vcs.merge"/>
-      <!--<reference ref="Git.MainMenu.MergeActions"/> -->
-      <action id="Git.Rebase" class="git4idea.actions.GitRebase"/>
-      <reference ref="Git.MainMenu.RebaseActions"/>
-      <action id="Git.ResolveConflicts" class="git4idea.actions.GitResolveConflictsAction"/>
-      <separator/>
-      <action id="Git.Branches" class="git4idea.ui.branch.GitBranchesAction" icon="consulo.platform.base.PlatformIconGroup@vcs.branch">
-        <keyboard-shortcut first-keystroke="control shift BACK_QUOTE" keymap="$default"/>
-        <keyboard-shortcut first-keystroke="meta shift BACK_QUOTE" keymap="Mac OS X" remove="true"/>
-        <keyboard-shortcut first-keystroke="meta shift BACK_QUOTE" keymap="Mac OS X 10.5+" remove="true"/>
-      </action>
-      <reference ref="Git.CreateNewBranch"/>
-      <action id="Git.Tag" class="git4idea.actions.GitTag"/>
-      <action id="Git.Reset" class="git4idea.actions.GitResetHead" icon="consulo.platform.base.PlatformIconGroup@actions.rollback"/>
-      <separator/>
-      <reference ref="Vcs.Show.Log"/>
-      <reference id="Patch.MainMenu"/>
-      <reference id="Git.MainMenu.LocalChanges"/>
-      <reference id="Git.MainMenu.FileActions"/>
-      <separator/>
-      <!--<action id="Git.Configure.Remotes" class="git4idea.remote.GitConfigureRemotesAction"/> -->
-      <!--<action id="Git.Clone" class="git4idea.actions.GitCloneAction"/> -->
-      <separator/>
-      <reference id="Vcs.QuickListPopupAction"/>
-      <separator/>
-      <!--<action id="Git.Revert.Abort" class="git4idea.actions.GitAbortOperationAction$Revert"/>
-      <action id="Git.CherryPick.Abort" class="git4idea.actions.GitAbortOperationAction$CherryPick"/>
-      -->
-
-      <add-to-group group-id="VcsGroups" relative-to-action="Vcs.MainMenu" anchor="after"/>
-    </group>
-
+    <action id="Git.Branches" class="git4idea.ui.branch.GitBranchesAction">
+      <keyboard-shortcut first-keystroke="control shift BACK_QUOTE" keymap="$default"/>
+      <keyboard-shortcut first-keystroke="meta shift BACK_QUOTE" keymap="Mac OS X" remove="true"/>
+      <keyboard-shortcut first-keystroke="meta shift BACK_QUOTE" keymap="Mac OS X 10.5+" remove="true"/>
+    </action>
   </actions>
 </consulo-plugin>
