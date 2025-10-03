@@ -1,6 +1,7 @@
 package git4idea.actions;
 
 import consulo.application.dumb.DumbAware;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
@@ -19,20 +20,23 @@ public class GitRepositoryStateActionGroup extends DefaultActionGroup implements
         }
     }
 
-    public static class Rebase extends GitRepositoryStateActionGroup {
-        public Rebase() {
-            super(Repository.State.REBASING);
-        }
-    }
-
     private final Repository.State myState;
 
-    private GitRepositoryStateActionGroup(Repository.State state) {
+    protected GitRepositoryStateActionGroup(Repository.State state) {
         myState = state;
     }
 
-    @RequiredUIAccess
+    public GitRepositoryStateActionGroup(
+        @Nonnull LocalizeValue text,
+        boolean popup,
+        Repository.State state
+    ) {
+        super(text, popup);
+        myState = state;
+    }
+
     @Override
+    @RequiredUIAccess
     public void update(@Nonnull AnActionEvent e) {
         Presentation presentation = e.getPresentation();
         presentation.setEnabledAndVisible(false);

@@ -13,27 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package git4idea.actions;
+package consulo.git.action;
 
 import consulo.annotation.component.ActionImpl;
 import consulo.git.localize.GitLocalize;
-import consulo.ui.annotation.RequiredUIAccess;
-import jakarta.annotation.Nonnull;
 import consulo.versionControlSystem.log.Hash;
-import git4idea.history.wholeTree.GitCreateNewTag;
+import git4idea.branch.GitBrancher;
 import git4idea.repo.GitRepository;
+import jakarta.annotation.Nonnull;
 
-@ActionImpl(id = "Git.CreateNewTag")
-public class GitCreateTagAction extends GitLogSingleCommitAction {
-    public GitCreateTagAction() {
-        getTemplatePresentation().setTextValue(GitLocalize.actionCreateNewTagText());
-        getTemplatePresentation().setDescriptionValue(GitLocalize.actionCreateNewTagDescription());
+import java.util.List;
+
+@ActionImpl(id = "Git.CheckoutRevision")
+public class CheckoutRevisionAction extends GitLogSingleCommitAction {
+    public CheckoutRevisionAction() {
+        getTemplatePresentation().setTextValue(GitLocalize.actionCheckoutRevisionText());
     }
 
     @Override
-    @RequiredUIAccess
     protected void actionPerformed(@Nonnull GitRepository repository, @Nonnull Hash commit) {
-        String reference = commit.asString();
-        new GitCreateNewTag(repository.getProject(), repository, reference, null).execute();
+        GitBrancher brancher = repository.getProject().getInstance(GitBrancher.class);
+        brancher.checkout(commit.asString(), false, List.of(repository), null);
     }
 }

@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package git4idea.actions;
+package consulo.git.action;
 
+import consulo.annotation.component.ActionImpl;
+import consulo.git.localize.GitLocalize;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.ActionPlaces;
@@ -27,6 +29,7 @@ import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.status.FileStatus;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
+import git4idea.actions.GitAction;
 import git4idea.repo.GitRepository;
 import jakarta.annotation.Nonnull;
 
@@ -35,31 +38,36 @@ import java.util.*;
 /**
  * Git merge tool for resolving conflicts. Use IDEA built-in 3-way merge tool.
  */
-public class GitResolveConflictsAction extends GitAction {
+@ActionImpl(id = "Git.ResolveConflicts")
+public class ResolveConflictsAction extends GitAction {
+    public ResolveConflictsAction() {
+        super(GitLocalize.actionResolveConflictsText());
+    }
+
     @Override
     @RequiredUIAccess
     public void actionPerformed(@Nonnull AnActionEvent event) {
-        final Project project = event.getData(Project.KEY);
+        Project project = event.getData(Project.KEY);
         if (project == null) {
             return;
         }
 
-        final Set<VirtualFile> conflictedFiles =
-            new TreeSet<>((Comparator<VirtualFile>)(f1, f2) -> f1.getPresentableUrl().compareTo(f2.getPresentableUrl()));
+        Set<VirtualFile> conflictedFiles =
+            new TreeSet<>((Comparator<VirtualFile>) (f1, f2) -> f1.getPresentableUrl().compareTo(f2.getPresentableUrl()));
         for (Change change : ChangeListManager.getInstance(project).getAllChanges()) {
             if (change.getFileStatus() != FileStatus.MERGED_WITH_CONFLICTS) {
                 continue;
             }
-            final ContentRevision before = change.getBeforeRevision();
-            final ContentRevision after = change.getAfterRevision();
+            ContentRevision before = change.getBeforeRevision();
+            ContentRevision after = change.getAfterRevision();
             if (before != null) {
-                final VirtualFile file = before.getFile().getVirtualFile();
+                VirtualFile file = before.getFile().getVirtualFile();
                 if (file != null) {
                     conflictedFiles.add(file);
                 }
             }
             if (after != null) {
-                final VirtualFile file = after.getFile().getVirtualFile();
+                VirtualFile file = after.getFile().getVirtualFile();
                 if (file != null) {
                     conflictedFiles.add(file);
                 }
@@ -75,7 +83,7 @@ public class GitResolveConflictsAction extends GitAction {
 
     @Override
     protected boolean isEnabled(@Nonnull AnActionEvent event) {
-        final Collection<Change> changes = ChangeListManager.getInstance(event.getData(Project.KEY)).getAllChanges();
+        Collection<Change> changes = ChangeListManager.getInstance(event.getRequiredData(Project.KEY)).getAllChanges();
         if (changes.size() > 1000) {
             return true;
         }

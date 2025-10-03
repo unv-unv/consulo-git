@@ -19,6 +19,9 @@ import consulo.annotation.component.ActionImpl;
 import consulo.annotation.component.ActionParentRef;
 import consulo.annotation.component.ActionRef;
 import consulo.application.dumb.DumbAware;
+import consulo.git.action.CheckoutRevisionAction;
+import consulo.git.action.NewBranchAtCommitAction;
+import consulo.git.action.NewTagAtCommitAction;
 import consulo.git.localize.GitLocalize;
 import consulo.ui.ex.action.AnSeparator;
 import consulo.ui.ex.action.DefaultActionGroup;
@@ -32,9 +35,9 @@ import git4idea.reset.GitResetAction;
     id = "Git.Log.ContextMenu",
     children = {
         @ActionRef(type = AnSeparator.class),
-        @ActionRef(type = GitCheckoutRevisionAction.class),
-        @ActionRef(type = GitCreateNewBranchAction.class),
-        @ActionRef(type = GitCreateTagAction.class),
+        @ActionRef(type = CheckoutRevisionAction.class),
+        @ActionRef(type = NewBranchAtCommitAction.class),
+        @ActionRef(type = NewTagAtCommitAction.class),
         @ActionRef(type = AnSeparator.class),
         @ActionRef(type = GitResetAction.class)
     },

@@ -13,15 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package git4idea.actions;
+package consulo.git.action;
 
+import consulo.annotation.component.ActionImpl;
 import consulo.git.localize.GitLocalize;
 import consulo.localize.LocalizeValue;
+import consulo.platform.base.icon.PlatformIconGroup;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.versionControlSystem.VcsException;
 import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitUtil;
+import git4idea.actions.GitRepositoryAction;
 import git4idea.commands.GitHandlerUtil;
 import git4idea.commands.GitLineHandler;
 import git4idea.repo.GitRepositoryManager;
@@ -34,7 +37,12 @@ import java.util.Set;
 /**
  * The reset action
  */
-public class GitResetHead extends GitRepositoryAction {
+@ActionImpl(id = "Git.Reset")
+public class ResetHeadAction extends GitRepositoryAction {
+    public ResetHeadAction() {
+        super(GitLocalize.actionResetText(), LocalizeValue.empty(), PlatformIconGroup.actionsRollback());
+    }
+
     /**
      * {@inheritDoc}
      */

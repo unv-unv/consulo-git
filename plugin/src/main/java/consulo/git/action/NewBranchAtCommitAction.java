@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package git4idea.actions;
+package consulo.git.action;
 
 import java.util.Collections;
 
 import consulo.annotation.component.ActionImpl;
-import consulo.component.ComponentManager;
 import consulo.git.localize.GitLocalize;
 import consulo.project.Project;
 import consulo.versionControlSystem.log.Hash;
@@ -28,8 +27,8 @@ import git4idea.repo.GitRepository;
 import jakarta.annotation.Nonnull;
 
 @ActionImpl(id = "Git.CreateNewBranch")
-public class GitCreateNewBranchAction extends GitLogSingleCommitAction {
-    public GitCreateNewBranchAction() {
+public class NewBranchAtCommitAction extends GitLogSingleCommitAction {
+    public NewBranchAtCommitAction() {
         getTemplatePresentation().setTextValue(GitLocalize.actionCreateNewBranchText());
         getTemplatePresentation().setDescriptionValue(GitLocalize.actionCreateNewBranchDescription());
     }

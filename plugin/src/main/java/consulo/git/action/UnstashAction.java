@@ -13,31 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package git4idea.actions;
+package consulo.git.action;
 
+import consulo.annotation.component.ActionImpl;
 import consulo.git.localize.GitLocalize;
 import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.versionControlSystem.VcsException;
+import consulo.versionControlSystem.change.ChangeListManager;
 import consulo.virtualFileSystem.VirtualFile;
-import git4idea.ui.GitTagDialog;
+import git4idea.actions.GitRepositoryAction;import git4idea.ui.GitUnstashDialog;
 import jakarta.annotation.Nonnull;
 
 import java.util.List;
 import java.util.Set;
 
 /**
- * Git "tag" action
+ * Git unstash action
  */
-public class GitTag extends GitRepositoryAction {
+@ActionImpl(id = "Git.Unstash")
+public class UnstashAction extends GitRepositoryAction {
+    public UnstashAction() {
+        super(GitLocalize.actionUnstashText());
+    }
+
     /**
      * {@inheritDoc}
      */
-    @Override
     @Nonnull
+    @Override
     protected LocalizeValue getActionName() {
-        return GitLocalize.tagActionName();
+        return GitLocalize.actionUnstashName();
     }
 
     /**
@@ -46,17 +53,21 @@ public class GitTag extends GitRepositoryAction {
     @Override
     @RequiredUIAccess
     protected void perform(
-        @Nonnull final Project project,
-        @Nonnull final List<VirtualFile> gitRoots,
-        @Nonnull final VirtualFile defaultRoot,
-        final Set<VirtualFile> affectedRoots,
-        final List<VcsException> exceptions
+        @Nonnull Project project,
+        @Nonnull List<VirtualFile> gitRoots,
+        @Nonnull VirtualFile defaultRoot,
+        Set<VirtualFile> affectedRoots,
+        List<VcsException> exceptions
     ) throws VcsException {
-        GitTagDialog d = new GitTagDialog(project, gitRoots, defaultRoot);
-        d.show();
-        if (!d.isOK()) {
+        ChangeListManager changeListManager = ChangeListManager.getInstance(project);
+        if (changeListManager.isFreezedWithNotification("Can not unstash changes now")) {
             return;
         }
-        d.runAction(exceptions);
+        GitUnstashDialog.showUnstashDialog(project, gitRoots, defaultRoot);
+    }
+
+    @Override
+    protected boolean executeFinalTasksSynchronously() {
+        return false;
     }
 }

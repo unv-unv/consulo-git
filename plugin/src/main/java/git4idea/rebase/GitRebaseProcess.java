@@ -20,6 +20,7 @@ import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.ProgressManager;
 import consulo.application.progress.Task;
 import consulo.component.ProcessCanceledException;
+import consulo.git.localize.GitLocalize;
 import consulo.ide.ServiceManager;
 import consulo.logging.Logger;
 import consulo.project.Project;
@@ -49,10 +50,10 @@ import git4idea.repo.GitRepositoryManager;
 import git4idea.stash.GitChangesSaver;
 import git4idea.util.GitFreezingProcess;
 import git4idea.util.GitUntrackedFilesHelper;
-import org.jetbrains.annotations.Contract;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import org.jetbrains.annotations.Contract;
+
 import javax.swing.event.HyperlinkEvent;
 import java.util.*;
 
@@ -565,7 +566,7 @@ public class GitRebaseProcess
 		{
 			if(myCalledFromNotification)
 			{
-				retry(GitRebaseUtils.CONTINUE_PROGRESS_TITLE);
+				retry(GitLocalize.actionRebaseContinueProgressTitle().get());
 			}
 			return true;
 		}
@@ -608,7 +609,7 @@ public class GitRebaseProcess
 			}
 			else if("continue".equals(href))
 			{
-				retry(GitRebaseUtils.CONTINUE_PROGRESS_TITLE);
+				retry(GitLocalize.actionRebaseContinueProgressTitle().get());
 			}
 			else if("retry".equals(href))
 			{

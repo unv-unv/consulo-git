@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2014 JetBrains s.r.o.
+ * Copyright 2000-2009 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,24 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package git4idea.actions;
+package consulo.git.action;
+
+import consulo.annotation.component.ActionImpl;
+import consulo.git.localize.GitLocalize;
+import consulo.localize.LocalizeValue;
+import git4idea.actions.GitAbstractRebaseAction;
+import jakarta.annotation.Nonnull;
 
 import consulo.application.progress.ProgressIndicator;
 import consulo.project.Project;
 import git4idea.rebase.GitRebaseUtils;
 import git4idea.repo.GitRepository;
-import jakarta.annotation.Nonnull;
 
-public class GitRebaseAbort extends GitAbstractRebaseAction {
+@ActionImpl(id = "Git.Rebase.Skip")
+public class RebaseSkipAction extends GitAbstractRebaseAction {
+    public RebaseSkipAction() {
+        super(GitLocalize.actionRebaseSkipText());
+    }
+
     @Nonnull
     @Override
-    protected String getProgressTitle() {
-        return "Aborting Rebase Process...";
+    protected LocalizeValue getProgressTitle() {
+        return GitLocalize.actionRebaseSkipProgressTitle();
     }
 
     @Override
     protected void performActionForProject(@Nonnull Project project, @Nonnull ProgressIndicator indicator) {
-        GitRebaseUtils.abort(project, indicator);
+        GitRebaseUtils.skipRebase(project);
     }
 
     @Override
@@ -39,6 +49,6 @@ public class GitRebaseAbort extends GitAbstractRebaseAction {
         @Nonnull GitRepository repository,
         @Nonnull ProgressIndicator indicator
     ) {
-        GitRebaseUtils.abort(project, repository, indicator);
+        GitRebaseUtils.skipRebase(project, repository, indicator);
     }
 }

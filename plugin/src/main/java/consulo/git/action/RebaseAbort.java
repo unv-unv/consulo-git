@@ -1,5 +1,5 @@
 /*
- * Copyright 2000-2009 JetBrains s.r.o.
+ * Copyright 2000-2014 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,24 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package git4idea.actions;
+package consulo.git.action;
 
-import jakarta.annotation.Nonnull;
+import consulo.annotation.component.ActionImpl;
 import consulo.application.progress.ProgressIndicator;
+import consulo.git.localize.GitLocalize;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
+import git4idea.actions.GitAbstractRebaseAction;
 import git4idea.rebase.GitRebaseUtils;
 import git4idea.repo.GitRepository;
+import jakarta.annotation.Nonnull;
 
-public class GitRebaseContinue extends GitAbstractRebaseAction {
+@ActionImpl(id = "Git.Rebase.Abort")
+public class RebaseAbort extends GitAbstractRebaseAction {
+    public RebaseAbort() {
+        super(GitLocalize.actionRebaseAbortText());
+    }
+
     @Nonnull
     @Override
-    protected String getProgressTitle() {
-        return GitRebaseUtils.CONTINUE_PROGRESS_TITLE;
+    protected LocalizeValue getProgressTitle() {
+        return GitLocalize.actionRebaseAbortProgressTitle();
     }
 
     @Override
     protected void performActionForProject(@Nonnull Project project, @Nonnull ProgressIndicator indicator) {
-        GitRebaseUtils.continueRebase(project);
+        GitRebaseUtils.abort(project, indicator);
     }
 
     @Override
@@ -39,6 +48,6 @@ public class GitRebaseContinue extends GitAbstractRebaseAction {
         @Nonnull GitRepository repository,
         @Nonnull ProgressIndicator indicator
     ) {
-        GitRebaseUtils.continueRebase(project, repository, indicator);
+        GitRebaseUtils.abort(project, repository, indicator);
     }
 }

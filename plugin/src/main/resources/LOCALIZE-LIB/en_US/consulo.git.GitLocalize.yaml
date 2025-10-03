@@ -1,37 +1,17 @@
 action.Annotate.with.Blame.text:
     text: A_nnotate with Git Blame
-action.Git.Branches.text:
-    text: _Branches...
-action.Git.Fetch.text:
-    text: Fetch
-action.Git.Merge.text:
-    text: Merge...
 action.Git.Pull.text:
     text: Pull...
-action.Git.Rebase.Abort.text:
-    text: Abort Rebase
-action.Git.Rebase.Continue.text:
-    text: Continue Rebase
-action.Git.Rebase.Skip.text:
-    text: Skip Commit
-action.Git.Rebase.text:
-    text: Rebase...
-action.Git.Reset.text:
-    text: Reset HEAD...
-action.Git.ResolveConflicts.text:
-    text: Resolve Conflicts...
 action.Git.Stash.Silently.text:
     text: Stash Silently
 action.Git.Stash.UnstashAs.description:
     text: Pop or apply selected stash as new branch with or without index
 action.Git.Stash.UnstashAs.text:
     text: Unstash...
-action.Git.Stash.text:
-    text: Stash Changes...
-action.Git.Tag.text:
-    text: New Tag...
-action.Git.Unstash.text:
-    text: Unstash Changes...
+action.add.text:
+    text: Add
+action.branches.text:
+    text: _Branches...
 action.checkout.revision.text:
     text: Checkout Revision
 action.create.new.branch.description:
@@ -42,18 +22,58 @@ action.create.new.tag.description:
     text: Create new tag pointing to this commit
 action.create.new.tag.text:
     text: New Tag...
+action.fetch.text:
+    text: Fetch
 action.log.deep.compare.description:
     text: Dims those commits which have equivalent changes in the current branch
 action.log.deep.compare.text:
     text: Highlight Non-picked Commits
 action.log.reset.text:
     text: Reset Current Branch to Here...
+action.merge.name:
+    text: Merge
+action.merge.text:
+    text: Merge...
+action.pull.text:
+    text: Pull...
+action.rebase.abort.progress.title:
+    text: Aborting rebase process...
+action.rebase.abort.text:
+    text: Abort Rebase
+action.rebase.continue.progress.title:
+    text: Continue rebase process...
+action.rebase.continue.text:
+    text: Continue Rebase
+action.rebase.skip.name:
+    text: Skip Commit in Rebasing
+action.rebase.skip.progress.title:
+    text: Skip commit during rebase...
+action.rebase.skip.text:
+    text: Skip Commit
+action.rebase.text:
+    text: Rebase...
+action.reset.text:
+    text: Reset HEAD...
+action.resolve.conflicts.text:
+    text: Resolve Conflicts...
 action.selected.directory.text:
     text: Selected {0,choice,1#Directory|2#Directories}
 action.selected.file.text:
     text: Selected {0,choice,1#File|2#Files}
+action.stash.name:
+    text: Stash
+action.stash.text:
+    text: Stash Changes...
+action.tag.name:
+    text: Tag
+action.tag.text:
+    text: New Tag...
 action.text.show.all.submitted:
     text: Show all files changed by this commit
+action.unstash.name:
+    text: Unstash
+action.unstash.text:
+    text: Unstash Changes...
 add.action.name:
     text: Add
 add.adding:
@@ -439,20 +459,20 @@ git.vcs.config.test.label:
     text: 'Test '
 git4idea.vcs.name:
     text: Git
-group.Git.MainMenu.LocalChanges.text:
-    text: _Uncommitted Changes
 group.Git.MainMenu.MergeActions.text:
     text: _Merge
-group.Git.MainMenu.RebaseActions.text:
-    text: _Rebase
-group.Patch.MainMenu.text:
-    text: Patch
 group.log.context.menu.text:
     text: Git Log Context Menu
 group.log.toolbar.text:
     text: Git Log Toolbar
-group.mainmenu.vcs.current.file.text:
+group.main.menu.current.file.text:
     text: Current File
+group.main.menu.patch.text:
+    text: Patch
+group.main.menu.rebase.actions.text:
+    text: _Rebase
+group.main.menu.uncommitted.changes.text:
+    text: _Uncommitted Changes
 index.file.error:
     text: Updating file in the index failed
 init.add.root.message:
@@ -469,8 +489,6 @@ init.warning.title:
     text: Git Init
 initializing.title:
     text: Initializing repository...
-merge.action.name:
-    text: Merge
 merge.add.log.information:
     text: Add &log information
 merge.add.log.information.tooltip:
@@ -677,8 +695,6 @@ rebase.branch.tooltip:
     text: Select branch to rebase (if branch is different from the current branch, it will be checked out first)
 rebase.button:
     text: Rebase
-rebase.continue.action.name:
-    text: Continue Rebasing
 rebase.editor.action.column:
     text: Action
 rebase.editor.button:
@@ -767,8 +783,6 @@ rebase.show.remote.branches.tooltip:
     text: If selected, remote branches are shown in drop down as well.
 rebase.show.tags.tooltip:
     text: Show tags in "from" and "onto" comboboxes.
-rebase.skip.action.name:
-    text: Skip Commit in Rebasing
 rebase.title:
     text: Rebase branch
 rebase.unstructured.editor.button:
@@ -795,8 +809,6 @@ rebase.validate.from:
     text: Va&lidate
 rebase.validate.from.tooltip:
     text: Validate "from" reference
-rebasing.title:
-    text: Rebasing...
 refspec.add.all.branches:
     text: Add A&ll Branches
 refspec.add.all.branches.tooltip:
@@ -927,8 +939,6 @@ ssh.password.message:
     text: Please enter password for user {0}
 ssh.password.title:
     text: SSH Password Login
-stash.action.name:
-    text: Stash
 stash.button:
     text: Create Stash
 stash.keep.index:
@@ -943,8 +953,6 @@ stash.title:
     text: Stash
 stashing.title:
     text: Stashing changes...
-tag.action.name:
-    text: Tag
 tag.button:
     text: Create Tag
 tag.commit.label:
@@ -989,10 +997,10 @@ tagging.title:
     text: Tagging files...
 task.queue.title:
     text: Git Operations
+task.rebasing.title:
+    text: Rebasing...
 unindexed.files.changlelist.name:
     text: Unindexed Files
-unstash.action.name:
-    text: UnStash
 unstash.branch.label:
     text: 'As new &branch:'
 unstash.branch.tooltip:

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package git4idea.actions;
+package consulo.git.action;
 
 import consulo.project.Project;
 import consulo.versionControlSystem.distributed.action.VcsLogSingleCommitAction;

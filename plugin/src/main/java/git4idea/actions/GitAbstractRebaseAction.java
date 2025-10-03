@@ -18,6 +18,7 @@ package git4idea.actions;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.ProgressManager;
 import consulo.application.progress.Task;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
@@ -33,23 +34,22 @@ import jakarta.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
-import static consulo.util.collection.ContainerUtil.newArrayList;
 import static consulo.util.lang.ObjectUtil.assertNotNull;
 import static git4idea.GitUtil.*;
 
-abstract class GitAbstractRebaseAction extends DumbAwareAction {
+public abstract class GitAbstractRebaseAction extends DumbAwareAction {
+    protected GitAbstractRebaseAction(@Nonnull LocalizeValue text) {
+        super(text);
+    }
+
     @Override
     @RequiredUIAccess
     public void update(@Nonnull AnActionEvent e) {
         super.update(e);
         Project project = e.getData(Project.KEY);
-        if (project == null || !hasGitRepositories(project)) {
-            e.getPresentation().setEnabledAndVisible(false);
-        }
-        else {
-            e.getPresentation().setEnabledAndVisible(hasRebaseInProgress(project));
-        }
+        e.getPresentation().setEnabledAndVisible(project != null && hasGitRepositories(project) && hasRebaseInProgress(project));
     }
 
     @Override
@@ -57,7 +57,7 @@ abstract class GitAbstractRebaseAction extends DumbAwareAction {
     public final void actionPerformed(AnActionEvent e) {
         final Project project = e.getRequiredData(Project.KEY);
         ProgressManager progressManager = ProgressManager.getInstance();
-        String progressTitle = getProgressTitle();
+        LocalizeValue progressTitle = getProgressTitle();
         if (getRepositoryManager(project).hasOngoingRebase()) {
             progressManager.run(new Task.Backgroundable(project, progressTitle) {
                 @Override
@@ -80,7 +80,7 @@ abstract class GitAbstractRebaseAction extends DumbAwareAction {
     }
 
     @Nonnull
-    protected abstract String getProgressTitle();
+    protected abstract LocalizeValue getProgressTitle();
 
     protected abstract void performActionForProject(@Nonnull Project project, @Nonnull ProgressIndicator indicator);
 
@@ -101,7 +101,7 @@ abstract class GitAbstractRebaseAction extends DumbAwareAction {
         if (repositories.size() == 1) {
             return firstRepo;
         }
-        ArrayList<VirtualFile> roots = newArrayList(getRootsFromRepositories(repositories));
+        List<VirtualFile> roots = new ArrayList<>(getRootsFromRepositories(repositories));
         GitRebaseActionDialog dialog = new GitRebaseActionDialog(project, getTemplatePresentation().getText(), roots, firstRepo.getRoot());
         dialog.show();
         VirtualFile root = dialog.selectRoot();

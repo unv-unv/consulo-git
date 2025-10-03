@@ -1,5 +1,7 @@
 package git4idea.actions;
 
+import consulo.annotation.component.ActionImpl;
+import consulo.annotation.component.ActionRef;
 import consulo.application.dumb.DumbAware;
 import consulo.codeEditor.Editor;
 import consulo.ui.ex.action.DefaultActionGroup;
@@ -16,13 +18,19 @@ import java.util.Arrays;
 import java.util.List;
 
 // from kotlin
+@ActionImpl(
+    id = "Git.MainMenu.FileActions",
+    children = @ActionRef(id = "Git.FileActions")
+)
 public class GitFileActionGroup extends DefaultActionGroup implements DumbAware {
-    @RequiredUIAccess
+    public GitFileActionGroup() {
+        super(GitLocalize.groupMainMenuCurrentFileText(), true);
+    }
+
     @Override
+    @RequiredUIAccess
     public void update(@Nonnull AnActionEvent e) {
         Presentation presentation = e.getPresentation();
-
-        presentation.setTextValue(GitLocalize.groupMainmenuVcsCurrentFileText());
 
         VirtualFile[] data = e.getData(VirtualFile.KEY_OF_ARRAY);
         if (data == null) {
