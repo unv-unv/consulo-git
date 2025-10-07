@@ -4,7 +4,10 @@ import consulo.annotation.component.ActionImpl;
 import consulo.annotation.component.ActionRef;
 import consulo.git.localize.GitLocalize;
 import consulo.versionControlSystem.distributed.repository.Repository;
-import git4idea.actions.GitRebaseAbort;import git4idea.actions.GitRebaseContinue;import git4idea.actions.GitRebaseSkip;import git4idea.actions.GitRepositoryStateActionGroup;
+import git4idea.actions.GitRebaseAbort;
+import git4idea.actions.GitRebaseContinue;
+import git4idea.actions.GitRebaseSkip;
+import git4idea.actions.GitRepositoryStateActionGroup;
 
 /**
  * @author UNV
