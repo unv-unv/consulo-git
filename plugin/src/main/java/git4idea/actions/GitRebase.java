@@ -15,14 +15,15 @@
  */
 package git4idea.actions;
 
+import consulo.annotation.component.ActionImpl;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.ProgressManager;
 import consulo.application.progress.Task;
+import consulo.git.localize.GitLocalize;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.action.DumbAwareAction;
-import consulo.util.collection.ContainerUtil;
 import consulo.versionControlSystem.distributed.DvcsUtil;
 import consulo.virtualFileSystem.VirtualFile;
 import git4idea.rebase.GitRebaseDialog;
@@ -37,7 +38,12 @@ import static consulo.versionControlSystem.distributed.DvcsUtil.sortRepositories
 import static git4idea.GitUtil.*;
 import static git4idea.rebase.GitRebaseUtils.getRebasingRepositories;
 
+@ActionImpl(id = "Git.Rebase")
 public class GitRebase extends DumbAwareAction {
+    public GitRebase() {
+        super(GitLocalize.actionRebaseText());
+    }
+
     @Override
     @RequiredUIAccess
     public void update(@Nonnull AnActionEvent e) {
@@ -56,13 +62,13 @@ public class GitRebase extends DumbAwareAction {
     @RequiredUIAccess
     public void actionPerformed(@Nonnull AnActionEvent e) {
         final Project project = e.getRequiredData(Project.KEY);
-        ArrayList<GitRepository> repositories = ContainerUtil.newArrayList(getRepositories(project));
+        List<GitRepository> repositories = new ArrayList<>(getRepositories(project));
         repositories.removeAll(getRebasingRepositories(project));
-        List<VirtualFile> roots = ContainerUtil.newArrayList(getRootsFromRepositories(sortRepositories(repositories)));
+        List<VirtualFile> roots = new ArrayList<>(getRootsFromRepositories(sortRepositories(repositories)));
         VirtualFile defaultRoot = DvcsUtil.guessVcsRoot(project, e.getData(VirtualFile.KEY));
         final GitRebaseDialog dialog = new GitRebaseDialog(project, roots, defaultRoot);
         if (dialog.showAndGet()) {
-            ProgressManager.getInstance().run(new Task.Backgroundable(project, "Rebasing...") {
+            ProgressManager.getInstance().run(new Task.Backgroundable(project, GitLocalize.taskRebasingTitle()) {
                 @Override
                 public void run(@Nonnull ProgressIndicator indicator) {
                     GitRebaseUtils.rebase(project, List.of(dialog.getSelectedRepository()), dialog.getSelectedParams(), indicator);

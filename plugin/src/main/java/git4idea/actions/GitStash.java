@@ -15,6 +15,7 @@
  */
 package git4idea.actions;
 
+import consulo.annotation.component.ActionImpl;
 import consulo.git.localize.GitLocalize;
 import consulo.localize.LocalizeValue;
 import consulo.ui.annotation.RequiredUIAccess;
@@ -23,7 +24,7 @@ import consulo.virtualFileSystem.VirtualFile;
 import consulo.project.Project;
 import consulo.versionControlSystem.VcsException;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
-import git4idea.commands.GitHandlerUtil;
+import git4idea.actions.GitRepositoryAction;import git4idea.commands.GitHandlerUtil;
 import git4idea.commands.GitLineHandler;
 import git4idea.ui.GitStashDialog;
 
@@ -35,20 +36,25 @@ import java.util.Set;
 /**
  * Git stash action
  */
+@ActionImpl(id = "Git.Stash")
 public class GitStash extends GitRepositoryAction {
+    public GitStash() {
+        super(GitLocalize.actionStashText());
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
     @RequiredUIAccess
     protected void perform(
-        @Nonnull final Project project,
-        @Nonnull final List<VirtualFile> gitRoots,
-        @Nonnull final VirtualFile defaultRoot,
-        final Set<VirtualFile> affectedRoots,
-        final List<VcsException> exceptions
+        @Nonnull Project project,
+        @Nonnull List<VirtualFile> gitRoots,
+        @Nonnull VirtualFile defaultRoot,
+        Set<VirtualFile> affectedRoots,
+        List<VcsException> exceptions
     ) throws VcsException {
-        final ChangeListManager changeListManager = ChangeListManager.getInstance(project);
+        ChangeListManager changeListManager = ChangeListManager.getInstance(project);
         if (changeListManager.isFreezedWithNotification("Can not stash changes now")) {
             return;
         }
@@ -59,7 +65,7 @@ public class GitStash extends GitRepositoryAction {
         }
         VirtualFile root = d.getGitRoot();
         affectedRoots.add(root);
-        final GitLineHandler h = d.handler();
+        GitLineHandler h = d.handler();
         GitHandlerUtil.doSynchronously(h, GitLocalize.stashingTitle(), LocalizeValue.ofNullable(h.printableCommandLine()));
         VirtualFileUtil.markDirtyAndRefresh(true, true, false, root);
     }
@@ -70,6 +76,6 @@ public class GitStash extends GitRepositoryAction {
     @Nonnull
     @Override
     protected LocalizeValue getActionName() {
-        return GitLocalize.stashActionName();
+        return GitLocalize.actionStashName();
     }
 }

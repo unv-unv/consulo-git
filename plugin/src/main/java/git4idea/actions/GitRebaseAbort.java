@@ -15,17 +15,26 @@
  */
 package git4idea.actions;
 
+import consulo.annotation.component.ActionImpl;
 import consulo.application.progress.ProgressIndicator;
+import consulo.git.localize.GitLocalize;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
+import git4idea.actions.GitAbstractRebaseAction;
 import git4idea.rebase.GitRebaseUtils;
 import git4idea.repo.GitRepository;
 import jakarta.annotation.Nonnull;
 
+@ActionImpl(id = "Git.Rebase.Abort")
 public class GitRebaseAbort extends GitAbstractRebaseAction {
+    public GitRebaseAbort() {
+        super(GitLocalize.actionRebaseAbortText());
+    }
+
     @Nonnull
     @Override
-    protected String getProgressTitle() {
-        return "Aborting Rebase Process...";
+    protected LocalizeValue getProgressTitle() {
+        return GitLocalize.actionRebaseAbortProgressTitle();
     }
 
     @Override

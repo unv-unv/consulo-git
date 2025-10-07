@@ -15,6 +15,10 @@
  */
 package git4idea.ui.branch;
 
+import consulo.annotation.component.ActionImpl;
+import consulo.git.localize.GitLocalize;
+import consulo.localize.LocalizeValue;
+import consulo.platform.base.icon.PlatformIconGroup;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
@@ -29,7 +33,12 @@ import jakarta.annotation.Nonnull;
  * Invokes a {@link GitBranchPopup} to checkout and control Git branches.
  * </p>
  */
+@ActionImpl(id = "Git.Branches")
 public class GitBranchesAction extends DumbAwareAction {
+    public GitBranchesAction() {
+        super(GitLocalize.actionBranchesText(), LocalizeValue.empty(), PlatformIconGroup.vcsBranch());
+    }
+
     @Override
     @RequiredUIAccess
     public void actionPerformed(@Nonnull AnActionEvent e) {

@@ -15,6 +15,7 @@
  */
 package git4idea.actions;
 
+import consulo.annotation.component.ActionImpl;
 import consulo.git.localize.GitLocalize;
 import consulo.localize.LocalizeValue;
 import consulo.project.Project;
@@ -22,7 +23,7 @@ import consulo.ui.annotation.RequiredUIAccess;
 import consulo.versionControlSystem.VcsException;
 import consulo.versionControlSystem.change.ChangeListManager;
 import consulo.virtualFileSystem.VirtualFile;
-import git4idea.ui.GitUnstashDialog;
+import git4idea.actions.GitRepositoryAction;import git4idea.ui.GitUnstashDialog;
 import jakarta.annotation.Nonnull;
 
 import java.util.List;
@@ -31,14 +32,19 @@ import java.util.Set;
 /**
  * Git unstash action
  */
+@ActionImpl(id = "Git.Unstash")
 public class GitUnstash extends GitRepositoryAction {
+    public GitUnstash() {
+        super(GitLocalize.actionUnstashText());
+    }
+
     /**
      * {@inheritDoc}
      */
     @Nonnull
     @Override
     protected LocalizeValue getActionName() {
-        return GitLocalize.unstashActionName();
+        return GitLocalize.actionUnstashName();
     }
 
     /**
@@ -47,13 +53,13 @@ public class GitUnstash extends GitRepositoryAction {
     @Override
     @RequiredUIAccess
     protected void perform(
-        @Nonnull final Project project,
-        @Nonnull final List<VirtualFile> gitRoots,
-        @Nonnull final VirtualFile defaultRoot,
-        final Set<VirtualFile> affectedRoots,
-        final List<VcsException> exceptions
+        @Nonnull Project project,
+        @Nonnull List<VirtualFile> gitRoots,
+        @Nonnull VirtualFile defaultRoot,
+        Set<VirtualFile> affectedRoots,
+        List<VcsException> exceptions
     ) throws VcsException {
-        final ChangeListManager changeListManager = ChangeListManager.getInstance(project);
+        ChangeListManager changeListManager = ChangeListManager.getInstance(project);
         if (changeListManager.isFreezedWithNotification("Can not unstash changes now")) {
             return;
         }

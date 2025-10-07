@@ -24,6 +24,7 @@ import consulo.ui.ex.action.ActionPlaces;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.action.DumbAwareAction;
 import consulo.ui.ex.awt.Messages;
+import consulo.ui.image.Image;
 import consulo.util.collection.ArrayUtil;
 import consulo.versionControlSystem.ProjectLevelVcsManager;
 import consulo.versionControlSystem.TransactionRunnable;
@@ -56,20 +57,31 @@ public abstract class GitRepositoryAction extends DumbAwareAction {
      */
     final List<TransactionRunnable> myDelayedTasks = new ArrayList<>();
 
+    protected GitRepositoryAction() {
+    }
+
+    protected GitRepositoryAction(@Nonnull LocalizeValue text) {
+        super(text);
+    }
+
+    protected GitRepositoryAction(@Nonnull LocalizeValue text, @Nonnull LocalizeValue description, @Nullable Image icon) {
+        super(text, description, icon);
+    }
+
     @Override
     @RequiredUIAccess
-    public void actionPerformed(@Nonnull final AnActionEvent e) {
+    public void actionPerformed(@Nonnull AnActionEvent e) {
         myDelayedTasks.clear();
         FileDocumentManager.getInstance().saveAllDocuments();
-        final Project project = e.getRequiredData(Project.KEY);
+        Project project = e.getRequiredData(Project.KEY);
         GitVcs vcs = GitVcs.getInstance(project);
-        final List<VirtualFile> roots = getGitRoots(project, vcs);
+        List<VirtualFile> roots = getGitRoots(project, vcs);
         if (roots == null) {
             return;
         }
 
-        final VirtualFile defaultRoot = getDefaultRoot(project, roots, e.getData(VirtualFile.KEY_OF_ARRAY));
-        final Set<VirtualFile> affectedRoots = new HashSet<>();
+        VirtualFile defaultRoot = getDefaultRoot(project, roots, e.getData(VirtualFile.KEY_OF_ARRAY));
+        Set<VirtualFile> affectedRoots = new HashSet<>();
 
         List<VcsException> exceptions = new ArrayList<>();
         try {
@@ -98,11 +110,11 @@ public abstract class GitRepositoryAction extends DumbAwareAction {
     }
 
     protected final void runFinalTasks(
-        @Nonnull final Project project,
-        @Nonnull final GitVcs vcs,
-        @Nonnull final Set<VirtualFile> affectedRoots,
-        @Nonnull final LocalizeValue actionName,
-        @Nonnull final List<VcsException> exceptions
+        @Nonnull Project project,
+        @Nonnull GitVcs vcs,
+        @Nonnull Set<VirtualFile> affectedRoots,
+        @Nonnull LocalizeValue actionName,
+        @Nonnull List<VcsException> exceptions
     ) {
         VirtualFileUtil.markDirty(true, false, ArrayUtil.toObjectArray(affectedRoots, VirtualFile.class));
         LocalFileSystem.getInstance().refreshFiles(
@@ -130,9 +142,9 @@ public abstract class GitRepositoryAction extends DumbAwareAction {
     }
 
     protected static boolean isRebasing(AnActionEvent e) {
-        final Project project = e.getData(Project.KEY);
+        Project project = e.getData(Project.KEY);
         if (project != null) {
-            final VirtualFile[] files = e.getData(VirtualFile.KEY_OF_ARRAY);
+            VirtualFile[] files = e.getData(VirtualFile.KEY_OF_ARRAY);
             if (files != null) {
                 for (VirtualFile file : files) {
                     GitRepositoryManager manager = GitUtil.getRepositoryManager(project);
@@ -199,28 +211,24 @@ public abstract class GitRepositoryAction extends DumbAwareAction {
      * @param defaultRoot   a guessed default root (based on the currently selected file list)
      * @param affectedRoots a set of roots affected by the action
      * @param exceptions    a list of exceptions from running git
-     * @throws VcsException if there is a problem with running git (this exception is considered to be added to the end of the exception list)
+     * @throws VcsException if there is a problem with running git
+     *                      (this exception is considered to be added to the end of the exception list)
      */
     protected abstract void perform(
         @Nonnull Project project,
         @Nonnull List<VirtualFile> gitRoots,
         @Nonnull VirtualFile defaultRoot,
-        final Set<VirtualFile> affectedRoots,
+        Set<VirtualFile> affectedRoots,
         List<VcsException> exceptions
     ) throws VcsException;
 
     @Override
     @RequiredUIAccess
-    public void update(@Nonnull final AnActionEvent e) {
+    public void update(@Nonnull AnActionEvent e) {
         super.update(e);
         boolean enabled = isEnabled(e);
         e.getPresentation().setEnabled(enabled);
-        if (ActionPlaces.isPopupPlace(e.getPlace())) {
-            e.getPresentation().setVisible(enabled);
-        }
-        else {
-            e.getPresentation().setVisible(true);
-        }
+        e.getPresentation().setVisible(!ActionPlaces.isPopupPlace(e.getPlace()) || enabled);
     }
 
     protected boolean isEnabled(AnActionEvent e) {
@@ -229,7 +237,7 @@ public abstract class GitRepositoryAction extends DumbAwareAction {
             return false;
         }
         GitVcs vcs = GitVcs.getInstance(project);
-        final VirtualFile[] roots = ProjectLevelVcsManager.getInstance(project).getRootsUnderVcs(vcs);
+        VirtualFile[] roots = ProjectLevelVcsManager.getInstance(project).getRootsUnderVcs(vcs);
         return roots != null && roots.length != 0;
     }
 }

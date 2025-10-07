@@ -15,12 +15,14 @@
  */
 package git4idea.actions;
 
+import consulo.annotation.component.ActionImpl;
 import consulo.git.localize.GitLocalize;
 import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.versionControlSystem.VcsException;
 import consulo.virtualFileSystem.VirtualFile;
+import git4idea.actions.GitRepositoryAction;
 import git4idea.ui.GitTagDialog;
 import jakarta.annotation.Nonnull;
 
@@ -30,14 +32,19 @@ import java.util.Set;
 /**
  * Git "tag" action
  */
+@ActionImpl(id = "Git.Tag")
 public class GitTag extends GitRepositoryAction {
+    public GitTag() {
+        super(GitLocalize.actionTagText());
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
     @Nonnull
     protected LocalizeValue getActionName() {
-        return GitLocalize.tagActionName();
+        return GitLocalize.actionTagName();
     }
 
     /**
@@ -46,11 +53,11 @@ public class GitTag extends GitRepositoryAction {
     @Override
     @RequiredUIAccess
     protected void perform(
-        @Nonnull final Project project,
-        @Nonnull final List<VirtualFile> gitRoots,
-        @Nonnull final VirtualFile defaultRoot,
-        final Set<VirtualFile> affectedRoots,
-        final List<VcsException> exceptions
+        @Nonnull Project project,
+        @Nonnull List<VirtualFile> gitRoots,
+        @Nonnull VirtualFile defaultRoot,
+        Set<VirtualFile> affectedRoots,
+        List<VcsException> exceptions
     ) throws VcsException {
         GitTagDialog d = new GitTagDialog(project, gitRoots, defaultRoot);
         d.show();

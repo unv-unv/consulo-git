@@ -15,6 +15,10 @@
  */
 package git4idea.actions;
 
+import consulo.annotation.component.ActionImpl;
+import consulo.git.localize.GitLocalize;
+import consulo.localize.LocalizeValue;
+import git4idea.actions.GitAbstractRebaseAction;
 import jakarta.annotation.Nonnull;
 
 import consulo.application.progress.ProgressIndicator;
@@ -22,11 +26,16 @@ import consulo.project.Project;
 import git4idea.rebase.GitRebaseUtils;
 import git4idea.repo.GitRepository;
 
+@ActionImpl(id = "Git.Rebase.Skip")
 public class GitRebaseSkip extends GitAbstractRebaseAction {
+    public GitRebaseSkip() {
+        super(GitLocalize.actionRebaseSkipText());
+    }
+
     @Nonnull
     @Override
-    protected String getProgressTitle() {
-        return "Skip Commit during Rebase...";
+    protected LocalizeValue getProgressTitle() {
+        return GitLocalize.actionRebaseSkipProgressTitle();
     }
 
     @Override
