@@ -15,8 +15,10 @@
  */
 package git4idea.actions;
 
+import consulo.annotation.component.ActionImpl;
+import consulo.git.localize.GitLocalize;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
-import consulo.util.collection.ContainerUtil;
 import consulo.versionControlSystem.FilePath;
 import consulo.versionControlSystem.VcsException;
 import consulo.versionControlSystem.change.Change;
@@ -38,7 +40,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+@ActionImpl(id = "Git.CompareWithBranch")
 public class GitCompareWithBranchAction extends DvcsCompareWithBranchAction<GitRepository> {
+    public GitCompareWithBranchAction() {
+        getTemplatePresentation().setTextValue(GitLocalize.actionCompareWithBranchText());
+    }
+
     @Override
     protected boolean noBranchesToCompare(@Nonnull GitRepository repository) {
         int locals = repository.getBranches().getLocalBranches().size();
@@ -61,7 +68,7 @@ public class GitCompareWithBranchAction extends DvcsCompareWithBranchAction<GitR
             localBranches.remove(repository.getCurrentBranch());
         }
 
-        List<String> branchNames = ContainerUtil.newArrayList();
+        List<String> branchNames = new ArrayList<>();
         for (GitBranch branch : localBranches) {
             branchNames.add(branch.getName());
         }
@@ -85,11 +92,11 @@ public class GitCompareWithBranchAction extends DvcsCompareWithBranchAction<GitR
         @Nonnull String branchToCompare
     ) throws VcsException {
         FilePath filePath = VcsUtil.getFilePath(file);
-        final GitRepository gitRepository = GitUtil.getRepositoryManager(project).getRepositoryForFile(file);
+        GitRepository gitRepository = GitUtil.getRepositoryManager(project).getRepositoryForFile(file);
         if (gitRepository == null) {
             throw new VcsException("Couldn't find Git Repository for " + file.getName());
         }
-        final VirtualFile gitRepositoryRoot = gitRepository.getRoot();
+        VirtualFile gitRepositoryRoot = gitRepository.getRoot();
         GitRevisionNumber compareRevisionNumber = new GitRevisionNumber(branchToCompare);
         Collection<Change> changes =
             GitChangeUtils.getDiffWithWorkingDir(project, gitRepositoryRoot, branchToCompare, Collections.singletonList(filePath), false);
@@ -100,8 +107,8 @@ public class GitCompareWithBranchAction extends DvcsCompareWithBranchAction<GitR
         }
         return changes.isEmpty() && !filePath.isDirectory()
             ? VcsUtil.createChangesWithCurrentContentForFile(
-                filePath,
-                GitContentRevision.createRevision(filePath, compareRevisionNumber, project, null)
-            ) : changes;
+            filePath,
+            GitContentRevision.createRevision(filePath, compareRevisionNumber, project, null)
+        ) : changes;
     }
 }

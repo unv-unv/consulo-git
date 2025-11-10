@@ -14,6 +14,10 @@ action.branches.text:
     text: _Branches...
 action.checkout.revision.text:
     text: Checkout Revision
+action.init.text:
+    text: Create Git Repository...
+action.compare.with.branch.text:
+    text: Compare with Branch or Tag...
 action.create.new.branch.description:
     text: Create new branch starting from the selected commit
 action.create.new.branch.text:
@@ -461,6 +465,8 @@ git4idea.vcs.name:
     text: Git
 group.Git.MainMenu.MergeActions.text:
     text: _Merge
+group.context.menu.text:
+    text: _Git
 group.log.context.menu.text:
     text: Git Log Context Menu
 group.log.toolbar.text:
@@ -473,6 +479,10 @@ group.main.menu.rebase.actions.text:
     text: _Rebase
 group.main.menu.uncommitted.changes.text:
     text: _Uncommitted Changes
+group.repository.context.menu.text:
+    text: _Repository
+group.vcs.menu.text:
+    text: _Git
 index.file.error:
     text: Updating file in the index failed
 init.add.root.message:

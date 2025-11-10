@@ -15,6 +15,9 @@
  */
 package git4idea.actions;
 
+import consulo.annotation.component.ActionImpl;
+import consulo.annotation.component.ActionParentRef;
+import consulo.annotation.component.ActionRef;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.Task;
 import consulo.fileChooser.FileChooserDescriptor;
@@ -22,8 +25,10 @@ import consulo.fileChooser.FileChooserDescriptorFactory;
 import consulo.fileChooser.IdeaFileChooser;
 import consulo.git.localize.GitLocalize;
 import consulo.ide.ServiceManager;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.project.ProjectManager;
+import consulo.project.ui.notification.NotificationService;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.action.DumbAwareAction;
@@ -45,10 +50,15 @@ import jakarta.annotation.Nonnull;
 /**
  * Initialize git repository action
  */
+@ActionImpl(id = "Git.Init", parents = @ActionParentRef(@ActionRef(id = "Vcs.Import")))
 public class GitInit extends DumbAwareAction {
+    public GitInit() {
+        super(GitLocalize.actionInitText());
+    }
+
     @Override
     @RequiredUIAccess
-    public void actionPerformed(final AnActionEvent e) {
+    public void actionPerformed(AnActionEvent e) {
         Project project = e.getData(Project.KEY);
         if (project == null) {
             project = ProjectManager.getInstance().getDefaultProject();
@@ -66,7 +76,7 @@ public class GitInit extends DumbAwareAction {
     }
 
     @RequiredUIAccess
-    private static void doInit(final Project project, FileChooserDescriptor fcd, VirtualFile baseDir, final VirtualFile finalBaseDir) {
+    private static void doInit(final Project project, FileChooserDescriptor fcd, VirtualFile baseDir, VirtualFile finalBaseDir) {
         IdeaFileChooser.chooseFile(
             fcd,
             project,
@@ -86,7 +96,10 @@ public class GitInit extends DumbAwareAction {
                 if (!result.success()) {
                     GitVcs vcs = GitVcs.getInstance(project);
                     if (vcs != null && vcs.getExecutableValidator().checkExecutableAndNotifyIfNeeded()) {
-                        VcsNotifier.getInstance(project).notifyError("Git init failed", result.getErrorOutputAsHtmlString());
+                        NotificationService.getInstance().newError(VcsNotifier.IMPORTANT_ERROR_NOTIFICATION)
+                            .title(LocalizeValue.localizeTODO("Git init failed"))
+                            .content(LocalizeValue.localizeTODO(result.getErrorOutputAsHtmlString()))
+                            .notify(project);
                     }
                     return;
                 }
@@ -105,7 +118,7 @@ public class GitInit extends DumbAwareAction {
         );
     }
 
-    public static void refreshAndConfigureVcsMappings(final Project project, final VirtualFile root, final String path) {
+    public static void refreshAndConfigureVcsMappings(Project project, VirtualFile root, String path) {
         VirtualFileUtil.markDirtyAndRefresh(false, true, false, root);
         ProjectLevelVcsManager manager = ProjectLevelVcsManager.getInstance(project);
         manager.setDirectoryMappings(VcsUtil.addMapping(manager.getDirectoryMappings(), path, GitVcs.NAME));
