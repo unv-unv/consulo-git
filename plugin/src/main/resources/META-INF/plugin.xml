@@ -11,67 +11,6 @@
   </tags>
 
   <actions>
-    <action id="Git.Init" class="git4idea.actions.GitInit" text="Create Git Repository...">
-      <add-to-group group-id="Vcs.Import"/>
-    </action>
-
-    <group id="Git.FileActions">
-      <reference ref="CheckinFiles"/>
-      <reference ref="Git.Add"/>
-      <separator/>
-      <reference ref="Annotate"/>
-      <reference ref="Show.Current.Revision"/>
-      <reference ref="Compare.SameVersion"/>
-      <reference ref="Compare.LastVersion"/>
-      <reference ref="Compare.Selected"/>
-      <action id="Git.CompareWithBranch" class="git4idea.actions.GitCompareWithBranchAction" text="Compare with Branch..."/>
-      <reference ref="Vcs.ShowTabbedFileHistory"/>
-      <reference ref="Vcs.ShowHistoryForBlock"/>
-      <separator/>
-      <reference ref="ChangesView.Revert"/>
-      <reference ref="Git.ResolveConflicts"/>
-    </group>
-
-    <group id="GitRepositoryActions">
-      <reference ref="Git.Branches"/>
-      <reference ref="Git.Tag"/>
-      <reference ref="Git.Merge"/>
-      <reference ref="Git.Stash"/>
-      <reference ref="Git.Unstash"/>
-      <reference ref="Git.Reset"/>
-      <separator/>
-      <reference ref="Git.Fetch"/>
-      <reference ref="Git.Pull"/>
-      <reference ref="Vcs.Push"/>
-      <separator/>
-      <reference ref="Git.Rebase"/>
-      <reference ref="Git.Rebase.Abort"/>
-      <reference ref="Git.Rebase.Continue"/>
-      <reference ref="Git.Rebase.Skip"/>
-      <separator/>
-    </group>
-
-    <group id="Git.Menu" class="git4idea.actions.GitMenu" popup="true" text="_Git">
-      <reference ref="Git.FileActions"/>
-      <separator/>
-      <reference ref="GitRepositoryActions"/>
-
-      <add-to-group group-id="VcsGlobalGroup" anchor="after" relative-to-action="Vcs.Specific"/>
-    </group>
-
-    <group id="Git.ContextMenu" class="git4idea.actions.GitMenu" popup="true" text="_Git">
-      <reference ref="Git.FileActions"/>
-      <separator/>
-      <group id="Git.RepositoryContextMenu" popup="true" text="_Repository">
-        <reference ref="GitRepositoryActions"/>
-      </group>
-      <add-to-group group-id="VcsGroup" anchor="last"/>
-    </group>
-
-    <group id="Git.LogContextMenu">
-      <separator/>
-    </group>
-
     <action id="Git.Branches" class="git4idea.ui.branch.GitBranchesAction">
       <keyboard-shortcut first-keystroke="control shift BACK_QUOTE" keymap="$default"/>
       <keyboard-shortcut first-keystroke="meta shift BACK_QUOTE" keymap="Mac OS X" remove="true"/>

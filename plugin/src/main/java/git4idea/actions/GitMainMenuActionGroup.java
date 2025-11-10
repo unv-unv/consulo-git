@@ -41,7 +41,7 @@ import java.util.Objects;
         @ActionRef(id = "Vcs.Show.Log"),
         @ActionRef(type = MainMenuPatchGroup.class),
         @ActionRef(type = MainMenuUncommittedChangesGroup.class),
-        @ActionRef(id = "Git.MainMenu.FileActions"),
+        @ActionRef(type = GitFileActionGroup.class),
         @ActionRef(type = AnSeparator.class),
         //@ActionRef(type = GitConfigureRemotesAction.class),
         //@ActionRef(type = GitCloneAction.class),

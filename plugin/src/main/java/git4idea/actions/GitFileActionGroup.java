@@ -4,6 +4,7 @@ import consulo.annotation.component.ActionImpl;
 import consulo.annotation.component.ActionRef;
 import consulo.application.dumb.DumbAware;
 import consulo.codeEditor.Editor;
+import consulo.git.action.FileActionsGroup;
 import consulo.ui.ex.action.DefaultActionGroup;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.util.collection.JBIterable;
@@ -20,7 +21,7 @@ import java.util.List;
 // from kotlin
 @ActionImpl(
     id = "Git.MainMenu.FileActions",
-    children = @ActionRef(id = "Git.FileActions")
+    children = @ActionRef(type = FileActionsGroup.class)
 )
 public class GitFileActionGroup extends DefaultActionGroup implements DumbAware {
     public GitFileActionGroup() {
