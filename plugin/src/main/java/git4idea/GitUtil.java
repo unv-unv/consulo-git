@@ -865,14 +865,14 @@ public class GitUtil {
      * @param file       the file affected by the revision
      * @param local      pass true to let the diff be editable, i.e. making the revision "at the right" be a local (current) revision.
      *                   pass false to let both sides of the diff be non-editable.
-     * @param revertable pass true to let "Revert" action be active.
+     * @param revertible pass true to let "Revert" action be active.
      */
     public static void showSubmittedFiles(
         final Project project,
         final String revision,
         final VirtualFile file,
         final boolean local,
-        final boolean revertable
+        final boolean revertible
     ) {
         new Task.Backgroundable(project, GitLocalize.changesRetrieving(revision)) {
             @Override
@@ -881,7 +881,7 @@ public class GitUtil {
                 try {
                     VirtualFile vcsRoot = getGitRoot(file);
                     final CommittedChangeList changeList =
-                        GitChangeUtils.getRevisionChanges(project, vcsRoot, revision, true, local, revertable);
+                        GitChangeUtils.getRevisionChanges(project, vcsRoot, revision, true, local, revertible);
                     if (changeList != null) {
                         UIUtil.invokeLaterIfNeeded(
                             () -> AbstractVcsHelper.getInstance(project)
@@ -936,7 +936,7 @@ public class GitUtil {
      * @param staged  if true checks the staging area, if false checks unstaged files.
      * @param project
      * @param root
-     * @return true if there is anything in the unstaged/staging area, false if the unstraed/staging area is empty.
+     * @return true if there is anything in the unstaged/staging area, false if the unstaged/staging area is empty.
      */
     public static boolean hasLocalChanges(boolean staged, Project project, VirtualFile root) throws VcsException {
         final GitSimpleHandler diff = new GitSimpleHandler(project, root, GitCommand.DIFF);

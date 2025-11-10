@@ -46,7 +46,7 @@ public class GitHeavyCommit {
   private final Date myDate;
 
   private final String myAuthorEmail;
-  private final String myComitterEmail;
+  private final String myCommitterEmail;
 
   private final List<String> myTags;
   private final List<String> myLocalBranches;
@@ -76,7 +76,7 @@ public class GitHeavyCommit {
                         final Set<String> parentsHashes,
                         final List<FilePath> pathsList,
                         final String authorEmail,
-                        final String comitterEmail,
+                        final String committerEmail,
                         List<String> tags,
                         final List<String> localBranches,
                         final List<String> remoteBranches,
@@ -93,7 +93,7 @@ public class GitHeavyCommit {
     myParentsHashes = parentsHashes;
     myPathsList = pathsList;
     myAuthorEmail = authorEmail;
-    myComitterEmail = comitterEmail;
+    myCommitterEmail = committerEmail;
     myTags = tags;
     myChanges = changes;
     myLocalBranches = localBranches;
@@ -176,7 +176,7 @@ public class GitHeavyCommit {
   }
 
   public String getCommitterEmail() {
-    return myComitterEmail;
+    return myCommitterEmail;
   }
 
   public List<FilePath> getPathsList() {
@@ -209,8 +209,9 @@ public class GitHeavyCommit {
     return myAuthorTime;
   }
 
+  @Deprecated(forRemoval = true)
   public String getComitterEmail() {
-    return myComitterEmail;
+    return getCommitterEmail();
   }
 
   public boolean isOnLocal() {
