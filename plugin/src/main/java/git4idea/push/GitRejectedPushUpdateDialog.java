@@ -47,7 +47,7 @@ class GitRejectedPushUpdateDialog extends DialogWrapper {
   static final int MERGE_EXIT_CODE = NEXT_USER_EXIT_CODE;
   static final int REBASE_EXIT_CODE = MERGE_EXIT_CODE + 1;
 
-  private static final String HTML_IDENT = "&nbsp;&nbsp;&nbsp;&nbsp;";
+  private static final String HTML_INDENT = "&nbsp;&nbsp;&nbsp;&nbsp;";
   public static final String DESCRIPTION_START = "Push of current branch ";
 
   private final Project myProject;
@@ -148,7 +148,7 @@ class GitRejectedPushUpdateDialog extends DialogWrapper {
         String branchName = currentBranches.values().iterator().next().getName();
         StringBuilder sb = new StringBuilder(DESCRIPTION_START + code(branchName) + " was rejected in repositories <br/>");
         for (GitRepository repository : DvcsUtil.sortRepositories(currentBranches.keySet())) {
-          sb.append(HTML_IDENT).append(code(repository.getPresentableUrl())).append("<br/>");
+          sb.append(HTML_INDENT).append(code(repository.getPresentableUrl())).append("<br/>");
         }
         sb.append(descriptionEnding());
         return sb.toString();
@@ -158,7 +158,8 @@ class GitRejectedPushUpdateDialog extends DialogWrapper {
         for (Map.Entry<GitRepository, GitBranch> entry : currentBranches.entrySet()) {
           GitRepository repository = entry.getKey();
           GitBranch currentBranch = entry.getValue();
-          sb.append(HTML_IDENT + code(currentBranch.getName()) + " in " + code(repository.getPresentableUrl()) + "<br/>");
+          sb.append(HTML_INDENT).append(code(currentBranch.getName()))
+              .append(" in ").append(code(repository.getPresentableUrl())).append("<br/>");
         }
         sb.append(descriptionEnding());
         return sb.toString();

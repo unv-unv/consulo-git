@@ -24,6 +24,7 @@ import consulo.versionControlSystem.FilePath;
 import consulo.versionControlSystem.VcsException;
 import consulo.versionControlSystem.change.Change;
 import consulo.versionControlSystem.change.ContentRevision;
+import consulo.versionControlSystem.change.CurrentContentRevision;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.status.FileStatus;
 import git4idea.GitContentRevision;
@@ -262,18 +263,18 @@ public class GitChangeUtils
 	 * @param revisionName      the name of revision (might be tag)
 	 * @param skipDiffsForMerge
 	 * @param local
-	 * @param revertable
+	 * @param revertible
 	 * @return change list for the respective revision
 	 * @throws VcsException in case of problem with running git
 	 */
-	public static GitCommittedChangeList getRevisionChanges(Project project, VirtualFile root, String revisionName, boolean skipDiffsForMerge, boolean local, boolean revertable) throws VcsException
+	public static GitCommittedChangeList getRevisionChanges(Project project, VirtualFile root, String revisionName, boolean skipDiffsForMerge, boolean local, boolean revertible) throws VcsException
 	{
 		GitSimpleHandler h = new GitSimpleHandler(project, root, GitCommand.SHOW);
 		h.setSilent(true);
 		h.addParameters("--name-status", "--first-parent", "--no-abbrev", "-M", "--pretty=format:" + COMMITTED_CHANGELIST_FORMAT, "--encoding=UTF-8", revisionName, "--");
 		String output = h.run();
 		StringScanner s = new StringScanner(output);
-		return parseChangeList(project, root, s, skipDiffsForMerge, h, local, revertable);
+		return parseChangeList(project, root, s, skipDiffsForMerge, h, local, revertible);
 	}
 
 	@Nullable
@@ -311,9 +312,9 @@ public class GitChangeUtils
 	 * @param skipDiffsForMerge
 	 * @param handler           the handler that produced the output to parse. - for debugging purposes.
 	 * @param local             pass {@code true} to indicate that this revision should be an editable
-	 *                          {@link consulo.versionControlSystem.change.CurrentContentRevision}.
+	 *                          {@link CurrentContentRevision}.
 	 *                          Pass {@code false} for
-	 * @param revertable
+	 * @param revertible
 	 * @return the parsed changelist
 	 * @throws VcsException if there is a problem with running git
 	 */
@@ -323,7 +324,7 @@ public class GitChangeUtils
 			boolean skipDiffsForMerge,
 			GitHandler handler,
 			boolean local,
-			boolean revertable) throws VcsException
+			boolean revertible) throws VcsException
 	{
 		ArrayList<Change> changes = new ArrayList<>();
 		// parse commit information
@@ -382,7 +383,7 @@ public class GitChangeUtils
 			}
 		}
 		String changeListName = String.format("%s(%s)", commentSubject, revisionNumber);
-		return new GitCommittedChangeList(changeListName, fullComment, committerName, thisRevision, commitDate, changes, assertNotNull(GitVcs.getInstance(project)), revertable);
+		return new GitCommittedChangeList(changeListName, fullComment, committerName, thisRevision, commitDate, changes, assertNotNull(GitVcs.getInstance(project)), revertible);
 	}
 
 	public static long longForSHAHash(String revisionNumber)

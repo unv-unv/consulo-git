@@ -63,12 +63,12 @@ public class GitUIUtil {
         if (messages != null && !messages.isEmpty()) {
             desc += StringUtil.join(messages, "<hr/><br/>");
         }
-        VcsNotifier notificator = VcsNotifier.getInstance(project);
+        VcsNotifier notifier = VcsNotifier.getInstance(project);
         if (important) {
-            notificator.notifyError(title, desc);
+            notifier.notifyError(title, desc);
         }
         else {
-            notificator.notifyImportantWarning(title, desc, null);
+            notifier.notifyImportantWarning(title, desc, null);
         }
     }
 

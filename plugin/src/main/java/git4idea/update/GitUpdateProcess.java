@@ -79,7 +79,7 @@ public class GitUpdateProcess {
   @Nonnull
   private final List<GitRepository> myRepositories;
   private final boolean myCheckRebaseOverMergeProblem;
-  private final boolean myCheckForTrackedBranchExistance;
+  private final boolean myCheckForTrackedBranchExistence;
   private final UpdatedFiles myUpdatedFiles;
   @Nonnull
   private final ProgressIndicator myProgressIndicator;
@@ -91,10 +91,10 @@ public class GitUpdateProcess {
                           @Nonnull Collection<GitRepository> repositories,
                           @Nonnull UpdatedFiles updatedFiles,
                           boolean checkRebaseOverMergeProblem,
-                          boolean checkForTrackedBranchExistance) {
+                          boolean checkForTrackedBranchExistence) {
     myProject = project;
     myCheckRebaseOverMergeProblem = checkRebaseOverMergeProblem;
-    myCheckForTrackedBranchExistance = checkForTrackedBranchExistance;
+    myCheckForTrackedBranchExistence = checkForTrackedBranchExistence;
     myGit = Git.getInstance();
     myChangeListManager = ChangeListManager.getInstance(project);
     myVcsManager = ProjectLevelVcsManager.getInstance(project);
@@ -352,7 +352,7 @@ public class GitUpdateProcess {
       GitBranchTrackInfo trackInfo = GitBranchUtil.getTrackInfoForBranch(repository, branch);
       if (trackInfo == null) {
         LOG.info(String.format("checkTrackedBranchesConfigured: no track info for current branch %s in %s", branch, repository));
-        if (myCheckForTrackedBranchExistance) {
+        if (myCheckForTrackedBranchExistence) {
           notifyImportantError(repository.getProject(), "Can't Update", getNoTrackedBranchError(repository, branch.getName()));
           return null;
         }
