@@ -1,0 +1,48 @@
+action.checkout.as.new.branch.text:
+    text: Checkout as New Branch
+action.checkout.as.new.local.branch.text:
+    text: Checkout as New Local Branch
+action.checkout.tag.or.revision.impossible.description:
+    text: Checkout is not possible before the first commit
+action.checkout.tag.or.revision.text:
+    text: Checkout Tag or Revision…
+action.checkout.text:
+    text: Checkout
+action.checkout.with.rebase.0.description:
+    text: Checkout the given branch, and rebase it on current branch in one step, just like `git rebase HEAD {0}` would do.
+action.checkout.with.rebase.text:
+    text: Checkout with Rebase
+action.common.local.branches.text:
+    text: Common Local Branches
+action.common.remote.branches.text:
+    text: Common Remote Branches
+action.compare.text:
+    text: Compare
+action.delete.text:
+    text: Delete
+action.local.branches.0.text:
+    text: Local Branches{0}
+action.merge.text:
+    text: Merge
+action.rebase.onto.text:
+    text: Rebase onto
+action.remote.branches.0.text:
+    text: Remote Branches{0}
+action.repositories.text:
+    text: Repositories
+dialog.message.enter.reference.branch.tag.name.or.commit.hash:
+    text: 'Enter reference (branch, tag) name or commit hash:'
+dialog.message.new.branch.name:
+    text: 'New branch name:'
+dialog.message.new.name.for.the.branch.0:
+    text: 'New name for the branch ''''{0}'''':'
+dialog.title.checkout:
+    text: Checkout
+dialog.title.checkout.new.branch.from.0:
+    text: Checkout New Branch From {0}
+dialog.title.checkout.remote.branch:
+    text: Checkout Remote Branch
+dialog.title.create.new.branch:
+    text: Create New Branch
+dialog.title.rename.branch.0:
+    text: Rename Branch {0}

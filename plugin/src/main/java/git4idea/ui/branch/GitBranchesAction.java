@@ -29,9 +29,7 @@ import git4idea.repo.GitRepository;
 import jakarta.annotation.Nonnull;
 
 /**
- * <p>
  * Invokes a {@link GitBranchPopup} to checkout and control Git branches.
- * </p>
  */
 @ActionImpl(id = "Git.Branches")
 public class GitBranchesAction extends DumbAwareAction {

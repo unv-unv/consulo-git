@@ -91,13 +91,11 @@ public class GitBranchManager {
             mySettings.addToFavorites(branchType, repository, branchName);
             mySettings.removeFromExcluded(branchType, repository, branchName);
         }
-        else {
-            if (mySettings.isFavorite(branchType, repository, branchName)) {
-                mySettings.removeFromFavorites(branchType, repository, branchName);
-            }
-            else if (myPredefinedFavoriteBranches.contains(branchType.toString(), repository, branchName)) {
-                mySettings.excludedFromFavorites(branchType, repository, branchName);
-            }
+        else if (mySettings.isFavorite(branchType, repository, branchName)) {
+            mySettings.removeFromFavorites(branchType, repository, branchName);
+        }
+        else if (myPredefinedFavoriteBranches.contains(branchType.toString(), repository, branchName)) {
+            mySettings.excludedFromFavorites(branchType, repository, branchName);
         }
     }
 }

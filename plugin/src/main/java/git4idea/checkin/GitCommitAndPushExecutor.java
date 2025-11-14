@@ -15,29 +15,31 @@
  */
 package git4idea.checkin;
 
+import consulo.localize.LocalizeValue;
 import consulo.versionControlSystem.change.CommitExecutor;
 import consulo.versionControlSystem.change.CommitSession;
 import jakarta.annotation.Nonnull;
-import org.jetbrains.annotations.Nls;
 
 /**
  * @author yole
  */
 public class GitCommitAndPushExecutor implements CommitExecutor {
-  private final GitCheckinEnvironment myCheckinEnvironment;
+    private final GitCheckinEnvironment myCheckinEnvironment;
 
-  public GitCommitAndPushExecutor(GitCheckinEnvironment checkinEnvironment) {
-    myCheckinEnvironment = checkinEnvironment;
-  }
+    public GitCommitAndPushExecutor(GitCheckinEnvironment checkinEnvironment) {
+        myCheckinEnvironment = checkinEnvironment;
+    }
 
-  @Nls
-  public String getActionText() {
-    return "Commit and &Push...";
-  }
+    @Nonnull
+    @Override
+    public LocalizeValue getActionText() {
+        return LocalizeValue.localizeTODO("Commit and &Push...");
+    }
 
-  @Nonnull
-  public CommitSession createCommitSession() {
-    myCheckinEnvironment.setNextCommitIsPushed(true);
-    return CommitSession.VCS_COMMIT;
-  }
+    @Nonnull
+    @Override
+    public CommitSession createCommitSession() {
+        myCheckinEnvironment.setNextCommitIsPushed(true);
+        return CommitSession.VCS_COMMIT;
+    }
 }

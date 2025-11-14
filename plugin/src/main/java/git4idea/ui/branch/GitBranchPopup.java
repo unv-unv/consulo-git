@@ -15,7 +15,7 @@
  */
 package git4idea.ui.branch;
 
-import consulo.localize.LocalizeValue;
+import consulo.git.localize.GitBranchesLocalize;
 import consulo.project.Project;
 import consulo.ui.ex.action.ActionGroup;
 import consulo.ui.ex.action.AnAction;
@@ -45,7 +45,6 @@ import static java.util.stream.Collectors.toList;
 
 /**
  * The popup which allows to quickly switch and control Git branches.
- * <p>
  */
 class GitBranchPopup extends DvcsBranchPopup<GitRepository> {
     private static final String DIMENSION_SERVICE_KEY = "Git.Branch.Popup";
@@ -58,8 +57,8 @@ class GitBranchPopup extends DvcsBranchPopup<GitRepository> {
      *                          In the case of synchronized branch operations current repository matter much less, but sometimes is used,
      *                          for example, it is preselected in the repositories combobox in the compare branches dialog.
      */
-    static GitBranchPopup getInstance(@Nonnull final Project project, @Nonnull GitRepository currentRepository) {
-        final GitVcsSettings vcsSettings = GitVcsSettings.getInstance(project);
+    static GitBranchPopup getInstance(@Nonnull Project project, @Nonnull GitRepository currentRepository) {
+        GitVcsSettings vcsSettings = GitVcsSettings.getInstance(project);
         Predicate<AnAction> preselectActionCondition = action -> {
             if (action instanceof GitBranchPopupActions.LocalBranchActions) {
                 GitBranchPopupActions.LocalBranchActions branchAction = (GitBranchPopupActions.LocalBranchActions)action;
@@ -110,7 +109,7 @@ class GitBranchPopup extends DvcsBranchPopup<GitRepository> {
 
         popupGroup.addAll(createRepositoriesActions());
 
-        popupGroup.addSeparator(LocalizeValue.localizeTODO("Common Local Branches"));
+        popupGroup.addSeparator(GitBranchesLocalize.actionCommonLocalBranchesText());
         List<BranchActionGroup> localBranchActions = myMultiRootBranchConfig.getLocalBranchNames()
             .stream()
             .map(l -> createLocalBranchActions(allRepositories, l))
@@ -123,7 +122,7 @@ class GitBranchPopup extends DvcsBranchPopup<GitRepository> {
             BranchActionUtil.getNumOfTopShownBranches(localBranchActions),
             SHOW_ALL_LOCALS_KEY
         );
-        popupGroup.addSeparator(LocalizeValue.localizeTODO("Common Remote Branches"));
+        popupGroup.addSeparator(GitBranchesLocalize.actionCommonRemoteBranchesText());
         List<BranchActionGroup> remoteBranchActions = map(
             ((GitMultiRootBranchConfig)myMultiRootBranchConfig).getRemoteBranches(),
             remoteBranch -> new GitBranchPopupActions.RemoteBranchActions(myProject, allRepositories, remoteBranch, myCurrentRepository)
@@ -143,19 +142,16 @@ class GitBranchPopup extends DvcsBranchPopup<GitRepository> {
         @Nonnull String branch
     ) {
         List<GitRepository> repositories = filterRepositoriesNotOnThisBranch(branch, allRepositories);
-        return repositories.isEmpty() ? null : new GitBranchPopupActions.LocalBranchActions(
-            myProject,
-            repositories,
-            branch,
-            myCurrentRepository
-        );
+        return repositories.isEmpty()
+            ? null
+            : new GitBranchPopupActions.LocalBranchActions(myProject, repositories, branch, myCurrentRepository);
     }
 
     @Nonnull
     @Override
     protected ActionGroup createRepositoriesActions() {
         ActionGroup.Builder popupGroup = ActionGroup.newImmutableBuilder();
-        popupGroup.addSeparator(LocalizeValue.localizeTODO("Repositories"));
+        popupGroup.addSeparator(GitBranchesLocalize.actionRepositoriesText());
         List<ActionGroup> rootActions = DvcsUtil.sortRepositories(myRepositoryManager.getRepositories())
             .stream()
             .map(repo -> new RootAction<>(
@@ -177,10 +173,7 @@ class GitBranchPopup extends DvcsBranchPopup<GitRepository> {
 
     @Override
     protected void fillPopupWithCurrentRepositoryActions(@Nonnull ActionGroup.Builder popupGroup, @Nullable ActionGroup actions) {
-        popupGroup.addAll(new GitBranchPopupActions(myCurrentRepository.getProject(), myCurrentRepository).createActions(
-            actions,
-            myRepoTitleInfo,
-            true
-        ));
+        popupGroup.addAll(new GitBranchPopupActions(myCurrentRepository.getProject(), myCurrentRepository)
+            .createActions(actions, myRepoTitleInfo, true));
     }
 }

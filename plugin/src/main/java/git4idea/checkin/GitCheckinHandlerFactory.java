@@ -28,7 +28,6 @@ import consulo.ui.ex.awt.Messages;
 import consulo.ui.ex.awt.UIUtil;
 import consulo.util.lang.Couple;
 import consulo.util.lang.StringUtil;
-import consulo.util.lang.function.PairConsumer;
 import consulo.util.lang.xml.XmlStringUtil;
 import consulo.versionControlSystem.FilePath;
 import consulo.versionControlSystem.ProjectLevelVcsManager;
@@ -52,11 +51,11 @@ import git4idea.crlf.GitCrlfUtil;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import jakarta.annotation.Nonnull;
-
 import jakarta.annotation.Nullable;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
 
 /**
  * Prohibits committing with an empty message, warns if committing into detached HEAD, checks if user name and correct CRLF attributes
@@ -74,7 +73,7 @@ public class GitCheckinHandlerFactory extends VcsCheckinHandlerFactory {
 
     @Nonnull
     @Override
-    protected CheckinHandler createVcsHandler(final CheckinProjectPanel panel) {
+    protected CheckinHandler createVcsHandler(CheckinProjectPanel panel) {
         return new MyCheckinHandler(panel);
     }
 
@@ -92,7 +91,7 @@ public class GitCheckinHandlerFactory extends VcsCheckinHandlerFactory {
 
         @Override
         @RequiredUIAccess
-        public ReturnResult beforeCheckin(@Nullable CommitExecutor executor, PairConsumer<Object, Object> additionalDataConsumer) {
+        public ReturnResult beforeCheckin(@Nullable CommitExecutor executor, BiConsumer<Object, Object> additionalDataConsumer) {
             if (emptyCommitMessage()) {
                 return ReturnResult.CANCEL;
             }
@@ -140,7 +139,7 @@ public class GitCheckinHandlerFactory extends VcsCheckinHandlerFactory {
             }
 
             if (crlfHelper.get().shouldWarn()) {
-                final GitCrlfDialog dialog = new GitCrlfDialog(myProject);
+                GitCrlfDialog dialog = new GitCrlfDialog(myProject);
                 UIUtil.invokeAndWaitIfNeeded((Runnable)dialog::show);
                 int decision = dialog.getExitCode();
                 if (decision == GitCrlfDialog.CANCEL) {
@@ -309,10 +308,10 @@ public class GitCheckinHandlerFactory extends VcsCheckinHandlerFactory {
                 return ReturnResult.COMMIT;
             }
 
-            final String title;
-            final String message;
-            final CharSequence rootPath = StringUtil.last(detachedRoot.myRoot.getPresentableUrl(), 50, true);
-            final String messageCommonStart = "The Git repository <code>" + rootPath + "</code>";
+            String title;
+            String message;
+            CharSequence rootPath = StringUtil.last(detachedRoot.myRoot.getPresentableUrl(), 50, true);
+            String messageCommonStart = "The Git repository <code>" + rootPath + "</code>";
             if (detachedRoot.myRebase) {
                 title = "Unfinished rebase process";
                 message = messageCommonStart + " <br/> has an <b>unfinished rebase</b> process. <br/>" +
@@ -328,7 +327,7 @@ public class GitCheckinHandlerFactory extends VcsCheckinHandlerFactory {
                     readMore("http://sitaramc.github.com/concepts/detached-head.html", "Read more about detached HEAD");
             }
 
-            final int choice = Messages.showOkCancelDialog(
+            int choice = Messages.showOkCancelDialog(
                 myPanel.getComponent(),
                 XmlStringUtil.wrapInHtml(message),
                 title,
@@ -395,7 +394,5 @@ public class GitCheckinHandlerFactory extends VcsCheckinHandlerFactory {
                 myRebase = rebase;
             }
         }
-
     }
-
 }

@@ -65,7 +65,7 @@ class GitCompareBranchesDiffPanel extends JPanel {
     private JComponent createCenterPanel() {
         List<Change> diff = myCompareInfo.getTotalDiff();
         ChangesBrowserFactory browserFactory = Application.get().getInstance(ChangesBrowserFactory.class);
-        final ChangesBrowser<Change> changesBrowser = browserFactory.createChangeBrowser(
+        ChangesBrowser<Change> changesBrowser = browserFactory.createChangeBrowser(
             myProject,
             null,
             diff,

@@ -35,10 +35,9 @@ import consulo.ui.ex.awt.UIUtil;
 import consulo.ui.ex.awtUnsafe.TargetAWT;
 import consulo.util.io.FileUtil;
 import consulo.util.lang.StringUtil;
-import consulo.util.lang.function.Condition;
 import consulo.util.lang.function.Functions;
 import consulo.util.lang.function.PairConsumer;
-import consulo.util.lang.ref.Ref;
+import consulo.util.lang.ref.SimpleReference;
 import consulo.versionControlSystem.FilePath;
 import consulo.versionControlSystem.VcsException;
 import consulo.versionControlSystem.change.*;
@@ -86,6 +85,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import static consulo.util.collection.ContainerUtil.*;
 import static consulo.util.lang.ObjectUtil.assertNotNull;
@@ -105,8 +105,10 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
     private static final String GIT_COMMIT_MSG_FILE_PREFIX = "git-commit-msg-"; // the file name prefix for commit message file
     private static final String GIT_COMMIT_MSG_FILE_EXT = ".txt"; // the file extension for commit message file
 
+    @Nonnull
     private final Project myProject;
     public static final SimpleDateFormat COMMIT_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    @Nonnull
     private final VcsDirtyScopeManager myDirtyScopeManager;
     private final GitVcsSettings mySettings;
 
@@ -119,8 +121,8 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
     @Inject
     public GitCheckinEnvironment(
         @Nonnull Project project,
-        @Nonnull final VcsDirtyScopeManager dirtyScopeManager,
-        final GitVcsSettings settings
+        @Nonnull VcsDirtyScopeManager dirtyScopeManager,
+        GitVcsSettings settings
     ) {
         myProject = project;
         myDirtyScopeManager = dirtyScopeManager;
@@ -190,9 +192,10 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
         return null;
     }
 
+    @Nonnull
     @Override
-    public String getCheckinOperationName() {
-        return GitLocalize.commitActionName().get();
+    public LocalizeValue getCheckinOperationName() {
+        return GitLocalize.commitActionName();
     }
 
     @Override
@@ -219,7 +222,7 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
 
             Set<FilePath> added = new HashSet<>();
             Set<FilePath> removed = new HashSet<>();
-            final Set<Change> caseOnlyRenames = new HashSet<>();
+            Set<Change> caseOnlyRenames = new HashSet<>();
             for (Change change : entry.getValue()) {
                 switch (change.getType()) {
                     case NEW:
@@ -281,8 +284,8 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
         if (myNextCommitIsPushed != null && myNextCommitIsPushed && exceptions.isEmpty()) {
             GitRepositoryManager manager = getRepositoryManager(myProject);
             Collection<GitRepository> repositories = GitUtil.getRepositoriesFromRoots(manager, sortedChanges.keySet());
-            final List<GitRepository> preselectedRepositories = newArrayList(repositories);
-            Application application = Application.get();
+            List<GitRepository> preselectedRepositories = new ArrayList<>(repositories);
+            Application application = myProject.getApplication();
             application.invokeLater(
                 () -> {
                     DistributedVersionControlHelper helper = application.getInstance(DistributedVersionControlHelper.class);
@@ -368,7 +371,7 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
             if (!excludedStagedChanges.isEmpty()) {
                 LOG.debug("Restoring changes which were unstaged before commit: " + getLogString(rootPath, excludedStagedChanges));
                 Set<FilePath> toAdd = map2SetNotNull(excludedStagedChanges, ChangesUtil::getAfterPath);
-                Condition<Change> isMovedOrDeleted =
+                Predicate<Change> isMovedOrDeleted =
                     change -> change.getType() == Change.Type.MOVED || change.getType() == Change.Type.DELETED;
                 Set<FilePath> toRemove = map2SetNotNull(filter(excludedStagedChanges, isMovedOrDeleted), ChangesUtil::getBeforePath);
                 updateIndex(project, root, toAdd, toRemove, exceptions);
@@ -396,7 +399,7 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
     private static VcsException cleanupExceptionText(VcsException original) {
         String msg = original.getMessage();
         msg = GitUtil.cleanupErrorPrefixes(msg);
-        final String DURING_EXECUTING_SUFFIX = GitSimpleHandler.DURING_EXECUTING_ERROR_MESSAGE;
+        String DURING_EXECUTING_SUFFIX = GitSimpleHandler.DURING_EXECUTING_ERROR_MESSAGE;
         int suffix = msg.indexOf(DURING_EXECUTING_SUFFIX);
         if (suffix > 0) {
             msg = msg.substring(0, suffix);
@@ -423,14 +426,14 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
      * @return true if merge commit was successful
      */
     private boolean mergeCommit(
-        final Project project,
-        final VirtualFile root,
-        final Set<FilePath> added,
-        final Set<FilePath> removed,
-        final File messageFile,
-        final String author,
+        Project project,
+        VirtualFile root,
+        Set<FilePath> added,
+        Set<FilePath> removed,
+        File messageFile,
+        String author,
         List<VcsException> exceptions,
-        @Nonnull final PartialOperation partialOperation
+        @Nonnull PartialOperation partialOperation
     ) {
         HashSet<FilePath> realAdded = new HashSet<>();
         HashSet<FilePath> realRemoved = new HashSet<>();
@@ -470,11 +473,10 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
         realAdded.removeAll(added);
         realRemoved.removeAll(removed);
         if (realAdded.size() != 0 || realRemoved.size() != 0) {
-
-            final List<FilePath> files = new ArrayList<>();
+            List<FilePath> files = new ArrayList<>();
             files.addAll(realAdded);
             files.addAll(realRemoved);
-            final Ref<Boolean> mergeAll = new Ref<>();
+            SimpleReference<Boolean> mergeAll = new SimpleReference<>();
             try {
                 LegacyComponentFactory legacyComponentFactory = project.getApplication().getInstance(LegacyComponentFactory.class);
 
@@ -552,7 +554,7 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
      * @param ex an exception to examine
      * @return true if exception means that there is a partial commit during merge
      */
-    private static PartialOperation isMergeCommit(final VcsException ex) {
+    private static PartialOperation isMergeCommit(VcsException ex) {
         String message = ex.getMessage();
         if (message.contains("fatal: cannot do a partial commit during a merge")) {
             return PartialOperation.MERGE;
@@ -574,11 +576,11 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
      * @return true if index was updated successfully
      */
     private static boolean updateIndex(
-        final Project project,
-        final VirtualFile root,
-        final Collection<FilePath> added,
-        final Collection<FilePath> removed,
-        final List<VcsException> exceptions
+        Project project,
+        VirtualFile root,
+        Collection<FilePath> added,
+        Collection<FilePath> removed,
+        List<VcsException> exceptions
     ) {
         boolean rc = true;
         if (!added.isEmpty()) {
@@ -610,7 +612,7 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
      * @return a file reference
      * @throws IOException if file cannot be created
      */
-    private File createMessageFile(VirtualFile root, final String message) throws IOException {
+    private File createMessageFile(VirtualFile root, String message) throws IOException {
         // filter comment lines
         File file = FileUtil.createTempFile(GIT_COMMIT_MSG_FILE_PREFIX, GIT_COMMIT_MSG_FILE_EXT);
         file.deleteOnExit();
@@ -634,7 +636,7 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
         }
         for (Map.Entry<VirtualFile, List<FilePath>> e : sortedFiles.entrySet()) {
             try {
-                final VirtualFile root = e.getKey();
+                VirtualFile root = e.getKey();
                 GitFileUtils.delete(myProject, root, e.getValue());
                 markRootDirty(root);
             }
@@ -694,7 +696,7 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
         }
         for (Map.Entry<VirtualFile, List<VirtualFile>> e : sortedFiles.entrySet()) {
             try {
-                final VirtualFile root = e.getKey();
+                VirtualFile root = e.getKey();
                 GitFileUtils.addFiles(myProject, root, e.getValue());
                 markRootDirty(root);
             }
@@ -724,13 +726,13 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
     private static Map<VirtualFile, Collection<Change>> sortChangesByGitRoot(@Nonnull List<Change> changes, List<VcsException> exceptions) {
         Map<VirtualFile, Collection<Change>> result = new HashMap<>();
         for (Change change : changes) {
-            final ContentRevision afterRevision = change.getAfterRevision();
-            final ContentRevision beforeRevision = change.getBeforeRevision();
+            ContentRevision afterRevision = change.getAfterRevision();
+            ContentRevision beforeRevision = change.getBeforeRevision();
             // nothing-to-nothing change cannot happen.
             assert beforeRevision != null || afterRevision != null;
             // note that any path will work, because changes could happen within single vcs root
-            final FilePath filePath = afterRevision != null ? afterRevision.getFile() : beforeRevision.getFile();
-            final VirtualFile vcsRoot;
+            FilePath filePath = afterRevision != null ? afterRevision.getFile() : beforeRevision.getFile();
+            VirtualFile vcsRoot;
             try {
                 // the parent paths for calculating roots in order to account for submodules that contribute
                 // to the parent change. The path "." is never is valid change, so there should be no problem

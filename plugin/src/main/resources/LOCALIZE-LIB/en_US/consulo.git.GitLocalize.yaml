@@ -14,8 +14,6 @@ action.branches.text:
     text: _Branches...
 action.checkout.revision.text:
     text: Checkout Revision
-action.init.text:
-    text: Create Git Repository...
 action.compare.with.branch.text:
     text: Compare with Branch or Tag...
 action.create.new.branch.description:
@@ -28,6 +26,8 @@ action.create.new.tag.text:
     text: New Tag...
 action.fetch.text:
     text: Fetch
+action.init.text:
+    text: Create Git Repository...
 action.log.deep.compare.description:
     text: Dims those commits which have equivalent changes in the current branch
 action.log.deep.compare.text:
@@ -294,10 +294,12 @@ debug.git.exec:
     text: 'DEBUG: work-dir: [{0}] exec: [{1}]'
 delete.action.name:
     text: Delete
-dialog.checkout.new.branch.from.0.title:
-    text: Checkout New Branch From {0}
-dialog.reset.title:
+dialog.message.enter.the.name.of.new.branch:
+    text: 'Enter the name of new branch:'
+dialog.title.reset:
     text: Git Reset
+dialog.title.checkout.new.branch.from.0:
+    text: Checkout New Branch From {0}
 diff.find.error:
     text: 'Finding revision for diff: {0}'
 error.commit.cant.create.message.file:

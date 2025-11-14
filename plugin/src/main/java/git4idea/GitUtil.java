@@ -20,6 +20,7 @@ import consulo.application.progress.Task;
 import consulo.git.localize.GitLocalize;
 import consulo.logging.Logger;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.DialogBuilder;
 import consulo.ui.ex.awt.MultiLineLabel;
 import consulo.ui.ex.awt.UIUtil;
@@ -202,7 +203,7 @@ public class GitUtil {
      */
     @Nonnull
     public static String readFile(@Nonnull VirtualFile file) throws IOException {
-        final int ATTEMPTS = 3;
+        int ATTEMPTS = 3;
         for (int attempt = 0; attempt < ATTEMPTS; attempt++) {
             try {
                 return new String(file.contentsToByteArray());
@@ -244,7 +245,7 @@ public class GitUtil {
         Map<VirtualFile, List<VirtualFile>> result = new HashMap<>();
         for (VirtualFile file : virtualFiles) {
             // directory is reported only when it is a submodule => it should be treated in the context of super-root
-            final VirtualFile vcsRoot = gitRootOrNull(file.isDirectory() ? file.getParent() : file);
+            VirtualFile vcsRoot = gitRootOrNull(file.isDirectory() ? file.getParent() : file);
             if (vcsRoot == null) {
                 if (ignoreNonGit) {
                     continue;
@@ -270,7 +271,7 @@ public class GitUtil {
      * @return the map from root to the files under the root
      * @throws VcsException if non git files are passed
      */
-    public static Map<VirtualFile, List<FilePath>> sortFilePathsByGitRoot(final Collection<FilePath> files) throws VcsException {
+    public static Map<VirtualFile, List<FilePath>> sortFilePathsByGitRoot(Collection<FilePath> files) throws VcsException {
         return sortFilePathsByGitRoot(files, false);
     }
 
@@ -315,7 +316,7 @@ public class GitUtil {
      * @return timestamp as {@link Date} object
      */
     public static Date parseTimestamp(String value) {
-        final long parsed;
+        long parsed;
         parsed = Long.parseLong(value.trim());
         return new Date(parsed * 1000);
     }
@@ -346,7 +347,7 @@ public class GitUtil {
      * @param roots git content roots
      * @return a content root
      */
-    public static Set<VirtualFile> gitRootsForPaths(final Collection<VirtualFile> roots) {
+    public static Set<VirtualFile> gitRootsForPaths(Collection<VirtualFile> roots) {
         HashSet<VirtualFile> rc = new HashSet<>();
         for (VirtualFile root : roots) {
             VirtualFile f = root;
@@ -390,7 +391,7 @@ public class GitUtil {
      */
     @Deprecated
     @Nullable
-    public static VirtualFile getGitRootOrNull(@Nonnull final FilePath filePath) {
+    public static VirtualFile getGitRootOrNull(@Nonnull FilePath filePath) {
         return getGitRootOrNull(filePath.getIOFile());
     }
 
@@ -404,7 +405,7 @@ public class GitUtil {
      */
     @Deprecated
     @Nullable
-    public static VirtualFile getGitRootOrNull(final File file) {
+    public static VirtualFile getGitRootOrNull(File file) {
         File root = file;
         while (root != null && (!root.exists() || !root.isDirectory() || !new File(root, DOT_GIT).exists())) {
             root = root.getParentFile();
@@ -421,8 +422,8 @@ public class GitUtil {
      * @use GitRepositoryManager#getRepositoryForFile().
      * @deprecated because uses the java.io.File.
      */
-    public static VirtualFile getGitRoot(@Nonnull final VirtualFile file) throws VcsException {
-        final VirtualFile root = gitRootOrNull(file);
+    public static VirtualFile getGitRoot(@Nonnull VirtualFile file) throws VcsException {
+        VirtualFile root = gitRootOrNull(file);
         if (root != null) {
             return root;
         }
@@ -440,7 +441,7 @@ public class GitUtil {
      * @deprecated because uses the java.io.File.
      */
     @Nullable
-    public static VirtualFile gitRootOrNull(final VirtualFile file) {
+    public static VirtualFile gitRootOrNull(VirtualFile file) {
         if (file instanceof AbstractVcsVirtualFile) {
             return getGitRootOrNull(VcsUtil.getFilePath(file.getPath()));
         }
@@ -466,11 +467,11 @@ public class GitUtil {
      */
     @Nonnull
     public static List<VirtualFile> getGitRoots(Project project, GitVcs vcs) throws VcsException {
-        final VirtualFile[] contentRoots = ProjectLevelVcsManager.getInstance(project).getRootsUnderVcs(vcs);
+        VirtualFile[] contentRoots = ProjectLevelVcsManager.getInstance(project).getRootsUnderVcs(vcs);
         if (contentRoots == null || contentRoots.length == 0) {
             throw new VcsException(GitLocalize.repositoryActionMissingRootsUnconfiguredMessage());
         }
-        final List<VirtualFile> sortedRoots = DvcsUtil.sortVirtualFilesByPresentation(gitRootsForPaths(Arrays.asList(contentRoots)));
+        List<VirtualFile> sortedRoots = DvcsUtil.sortVirtualFilesByPresentation(gitRootsForPaths(Arrays.asList(contentRoots)));
         if (sortedRoots.size() == 0) {
             throw new VcsException(GitLocalize.repositoryActionMissingRootsMisconfigured());
         }
@@ -483,7 +484,7 @@ public class GitUtil {
      * @param vFile a virtual file
      * @return true if the file is under git
      */
-    public static boolean isUnderGit(final VirtualFile vFile) {
+    public static boolean isUnderGit(VirtualFile vFile) {
         return gitRootOrNull(vFile) != null;
     }
 
@@ -494,7 +495,7 @@ public class GitUtil {
      * @param committerName the name of committer
      * @return just a name if they are equal, or name that includes both author and committer
      */
-    public static String adjustAuthorName(final String authorName, String committerName) {
+    public static String adjustAuthorName(String authorName, String committerName) {
         if (!authorName.equals(committerName)) {
             //noinspection HardCodedStringLiteral
             committerName = authorName + ", via " + committerName;
@@ -508,7 +509,7 @@ public class GitUtil {
      * @param path the path
      * @return true if the file path is under git
      */
-    public static boolean isUnderGit(final FilePath path) {
+    public static boolean isUnderGit(FilePath path) {
         return getGitRootOrNull(path) != null;
     }
 
@@ -518,10 +519,10 @@ public class GitUtil {
      * @param filePaths the context paths
      * @return a set of git roots
      */
-    public static Set<VirtualFile> gitRoots(final Collection<FilePath> filePaths) {
+    public static Set<VirtualFile> gitRoots(Collection<FilePath> filePaths) {
         HashSet<VirtualFile> rc = new HashSet<>();
         for (FilePath path : filePaths) {
-            final VirtualFile root = getGitRootOrNull(path);
+            VirtualFile root = getGitRootOrNull(path);
             if (root != null) {
                 rc.add(root);
             }
@@ -551,10 +552,10 @@ public class GitUtil {
     }
 
     public static void getLocalCommittedChanges(
-        final Project project,
-        final VirtualFile root,
-        final Consumer<GitSimpleHandler> parametersSpecifier,
-        final Consumer<GitCommittedChangeList> consumer,
+        Project project,
+        VirtualFile root,
+        Consumer<GitSimpleHandler> parametersSpecifier,
+        Consumer<GitCommittedChangeList> consumer,
         boolean skipDiffsForMerge
     ) throws VcsException {
         GitSimpleHandler h = new GitSimpleHandler(project, root, GitCommand.LOG);
@@ -565,13 +566,13 @@ public class GitUtil {
         String output = h.run();
         LOG.debug("getLocalCommittedChanges output: '" + output + "'");
         StringScanner s = new StringScanner(output);
-        final StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         boolean firstStep = true;
         while (s.hasMoreData()) {
-            final String line = s.line();
-            final boolean lineIsAStart = line.startsWith("\u0004\u0001");
-            if ((!firstStep) && lineIsAStart) {
-                final StringScanner innerScanner = new StringScanner(sb.toString());
+            String line = s.line();
+            boolean lineIsAStart = line.startsWith("\u0004\u0001");
+            if (!firstStep && lineIsAStart) {
+                StringScanner innerScanner = new StringScanner(sb.toString());
                 sb.setLength(0);
                 consumer.accept(GitChangeUtils.parseChangeList(project, root, innerScanner, skipDiffsForMerge, h, false, false));
             }
@@ -579,21 +580,21 @@ public class GitUtil {
             firstStep = false;
         }
         if (sb.length() > 0) {
-            final StringScanner innerScanner = new StringScanner(sb.toString());
+            StringScanner innerScanner = new StringScanner(sb.toString());
             sb.setLength(0);
             consumer.accept(GitChangeUtils.parseChangeList(project, root, innerScanner, skipDiffsForMerge, h, false, false));
         }
         if (s.hasMoreData()) {
-            throw new IllegalStateException("More input is avaialble: " + s.line());
+            throw new IllegalStateException("More input is available: " + s.line());
         }
     }
 
     public static List<GitCommittedChangeList> getLocalCommittedChanges(
-        final Project project,
-        final VirtualFile root,
-        final Consumer<GitSimpleHandler> parametersSpecifier
+        Project project,
+        VirtualFile root,
+        Consumer<GitSimpleHandler> parametersSpecifier
     ) throws VcsException {
-        final List<GitCommittedChangeList> rc = new ArrayList<>();
+        List<GitCommittedChangeList> rc = new ArrayList<>();
 
         getLocalCommittedChanges(project, root, parametersSpecifier, rc::add, false);
 
@@ -616,12 +617,12 @@ public class GitUtil {
      */
     @Nonnull
     public static String unescapePath(@Nonnull String path) throws VcsException {
-        final String QUOTE = "\"";
+        String QUOTE = "\"";
         if (path.startsWith(QUOTE) && path.endsWith(QUOTE)) {
             path = path.substring(1, path.length() - 1);
         }
 
-        final int l = path.length();
+        int l = path.length();
         StringBuilder rc = new StringBuilder(l);
         for (int i = 0; i < path.length(); i++) {
             char c = path.charAt(i);
@@ -631,7 +632,7 @@ public class GitUtil {
                 if (i >= l) {
                     throw new VcsException("Unterminated escape sequence in the path: " + path);
                 }
-                final char e = path.charAt(i);
+                char e = path.charAt(i);
                 switch (e) {
                     case '\\':
                         rc.append('\\');
@@ -675,7 +676,7 @@ public class GitUtil {
                                         //noinspection AssignmentToForLoopParameter
                                         i++;
                                     }
-                                    b[n++] = (byte)code;
+                                    b[n++] = (byte) code;
                                 }
                                 if (i + 1 >= l || path.charAt(i) != '\\' || !VcsFileUtil.isOctal(path.charAt(i + 1))) {
                                     break;
@@ -687,12 +688,12 @@ public class GitUtil {
                             i--;
                             assert n == b.length;
                             // add them to string
-                            final String encoding = GitConfigUtil.getFileNameEncoding();
+                            String encoding = GitConfigUtil.getFileNameEncoding();
                             try {
                                 rc.append(new String(b, encoding));
                             }
                             catch (UnsupportedEncodingException e1) {
-                                throw new IllegalStateException("The file name encoding is unsuported: " + encoding);
+                                throw new IllegalStateException("The file name encoding is unsupported: " + encoding);
                             }
                         }
                         else {
@@ -716,20 +717,20 @@ public class GitUtil {
     }
 
     @Nullable
-    public static GitRemote findRemoteByName(@Nonnull GitRepository repository, @Nonnull final String name) {
+    public static GitRemote findRemoteByName(@Nonnull GitRepository repository, @Nonnull String name) {
         return findRemoteByName(repository.getRemotes(), name);
     }
 
     @Nullable
-    public static GitRemote findRemoteByName(Collection<GitRemote> remotes, @Nonnull final String name) {
+    public static GitRemote findRemoteByName(Collection<GitRemote> remotes, @Nonnull String name) {
         return ContainerUtil.find(remotes, remote -> remote.getName().equals(name));
     }
 
     @Nullable
     public static GitRemoteBranch findRemoteBranch(
         @Nonnull GitRepository repository,
-        @Nonnull final GitRemote remote,
-        @Nonnull final String nameAtRemote
+        @Nonnull GitRemote remote,
+        @Nonnull String nameAtRemote
     ) {
         return ContainerUtil.find(
             repository.getBranches().getRemoteBranches(),
@@ -825,13 +826,13 @@ public class GitUtil {
             return Collections.emptyList();
         }
 
-        final Collection<String> remoteChanges = new HashSet<>();
+        Collection<String> remoteChanges = new HashSet<>();
         for (StringScanner s = new StringScanner(result.getOutputAsJoinedString()); s.hasMoreData(); ) {
-            final String relative = s.line();
+            String relative = s.line();
             if (StringUtil.isEmptyOrSpaces(relative)) {
                 continue;
             }
-            final String path = repository.getRoot().getPath() + "/" + unescapePath(relative);
+            String path = repository.getRoot().getPath() + "/" + unescapePath(relative);
             remoteChanges.add(path);
         }
         return remoteChanges;
@@ -880,16 +881,13 @@ public class GitUtil {
                 indicator.setIndeterminate(true);
                 try {
                     VirtualFile vcsRoot = getGitRoot(file);
-                    final CommittedChangeList changeList =
-                        GitChangeUtils.getRevisionChanges(project, vcsRoot, revision, true, local, revertible);
-                    if (changeList != null) {
-                        UIUtil.invokeLaterIfNeeded(
-                            () -> AbstractVcsHelper.getInstance(project)
-                                .showChangesListBrowser(changeList, GitLocalize.pathsAffectedTitle(revision))
-                        );
-                    }
+                    CommittedChangeList changeList = GitChangeUtils.getRevisionChanges(project, vcsRoot, revision, true, local, revertible);
+                    UIUtil.invokeLaterIfNeeded(
+                        () -> AbstractVcsHelper.getInstance(project)
+                            .showChangesListBrowser(changeList, GitLocalize.pathsAffectedTitle(revision))
+                    );
                 }
-                catch (final VcsException e) {
+                catch (VcsException e) {
                     UIUtil.invokeLaterIfNeeded(() -> GitUIUtil.showOperationError(project, e, "git show"));
                 }
             }
@@ -911,7 +909,7 @@ public class GitUtil {
 
     @Nonnull
     public static Collection<GitRepository> getRepositoriesForFiles(@Nonnull Project project, @Nonnull Collection<VirtualFile> files) {
-        final GitRepositoryManager manager = getRepositoryManager(project);
+        GitRepositoryManager manager = getRepositoryManager(project);
         Function<VirtualFile, GitRepository> rootToRepo = root -> root != null ? manager.getRepositoryForRoot(root) : null;
         return ContainerUtil.filter(
             ContainerUtil.map(sortFilesByGitRootsIgnoringOthers(files).keySet(), rootToRepo),
@@ -939,7 +937,7 @@ public class GitUtil {
      * @return true if there is anything in the unstaged/staging area, false if the unstaged/staging area is empty.
      */
     public static boolean hasLocalChanges(boolean staged, Project project, VirtualFile root) throws VcsException {
-        final GitSimpleHandler diff = new GitSimpleHandler(project, root, GitCommand.DIFF);
+        GitSimpleHandler diff = new GitSimpleHandler(project, root, GitCommand.DIFF);
         diff.addParameters("--name-only");
         if (staged) {
             diff.addParameters("--cached");
@@ -947,7 +945,7 @@ public class GitUtil {
         diff.setStdoutSuppressed(true);
         diff.setStderrSuppressed(true);
         diff.setSilent(true);
-        final String output = diff.run();
+        String output = diff.run();
         return !output.trim().isEmpty();
     }
 
@@ -969,7 +967,7 @@ public class GitUtil {
     }
 
     @Nonnull
-    public static Collection<String> toAbsolute(@Nonnull final VirtualFile root, @Nonnull Collection<String> relativePaths) {
+    public static Collection<String> toAbsolute(@Nonnull VirtualFile root, @Nonnull Collection<String> relativePaths) {
         return ContainerUtil.map(relativePaths, s -> toAbsolute(root, s));
     }
 
@@ -1011,6 +1009,7 @@ public class GitUtil {
         return affectedChanges;
     }
 
+    @RequiredUIAccess
     public static void showPathsInDialog(
         @Nonnull Project project,
         @Nonnull Collection<String> absolutePaths,
@@ -1029,7 +1028,7 @@ public class GitUtil {
 
     @Nonnull
     public static String cleanupErrorPrefixes(@Nonnull String msg) {
-        final String[] PREFIXES = {
+        String[] PREFIXES = {
             "fatal:",
             "error:"
         };
@@ -1111,21 +1110,21 @@ public class GitUtil {
 
     @Nonnull
     public static String getLogString(@Nonnull String root, @Nonnull Collection<Change> changes) {
-        return StringUtil.join(changes, change ->
-        {
-            ContentRevision after = change.getAfterRevision();
-            ContentRevision before = change.getBeforeRevision();
-            switch (change.getType()) {
-                case NEW:
-                    return "A: " + getRelativePath(root, assertNotNull(after));
-                case DELETED:
-                    return "D: " + getRelativePath(root, assertNotNull(before));
-                case MOVED:
-                    return "M: " + getRelativePath(root, assertNotNull(before)) + " -> " + getRelativePath(root, assertNotNull(after));
-                default:
-                    return "M: " + getRelativePath(root, assertNotNull(after));
-            }
-        }, ", ");
+        return StringUtil.join(
+            changes,
+            change -> {
+                ContentRevision after = change.getAfterRevision();
+                ContentRevision before = change.getBeforeRevision();
+                return switch (change.getType()) {
+                    case NEW -> "A: " + getRelativePath(root, assertNotNull(after));
+                    case DELETED -> "D: " + getRelativePath(root, assertNotNull(before));
+                    case MOVED ->
+                        "M: " + getRelativePath(root, assertNotNull(before)) + " -> " + getRelativePath(root, assertNotNull(after));
+                    default -> "M: " + getRelativePath(root, assertNotNull(after));
+                };
+            },
+            ", "
+        );
     }
 
     @Nullable

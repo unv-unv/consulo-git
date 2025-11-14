@@ -41,10 +41,15 @@ import java.util.Collections;
  * @author Kirill Likhodedov
  */
 class GitCompareBranchesLogPanel extends JPanel {
+    @Nonnull
     private final Project myProject;
+    @Nonnull
     private final String myBranchName;
+    @Nonnull
     private final String myCurrentBranchName;
+    @Nonnull
     private final GitCommitCompareInfo myCompareInfo;
+    @Nonnull
     private final GitRepository myInitialRepo;
 
     private GitCommitListPanel myHeadToBranchListPanel;
@@ -71,7 +76,7 @@ class GitCompareBranchesLogPanel extends JPanel {
     private JComponent createCenterPanel() {
         ChangesBrowserFactory browserFactory = Application.get().getInstance(ChangesBrowserFactory.class);
 
-        final ChangesBrowser changesBrowser = browserFactory.createChangeBrowser(
+        ChangesBrowser changesBrowser = browserFactory.createChangeBrowser(
             myProject,
             null,
             Collections.<Change>emptyList(),
@@ -101,20 +106,16 @@ class GitCompareBranchesLogPanel extends JPanel {
         JPanel htb = layoutCommitListPanel(myCurrentBranchName, true);
         JPanel bth = layoutCommitListPanel(myCurrentBranchName, false);
 
-        JPanel listPanel = null;
-        switch (getInfoType()) {
-            case HEAD_TO_BRANCH:
-                listPanel = htb;
-                break;
-            case BRANCH_TO_HEAD:
-                listPanel = bth;
-                break;
-            case BOTH:
+        JPanel listPanel = switch (getInfoType()) {
+            case HEAD_TO_BRANCH -> htb;
+            case BRANCH_TO_HEAD -> bth;
+            case BOTH -> {
                 Splitter lists = new Splitter(true, 0.5f);
                 lists.setFirstComponent(htb);
                 lists.setSecondComponent(bth);
-                listPanel = lists;
-        }
+                yield lists;
+            }
+        };
 
         Splitter rootPanel = new Splitter(false, 0.7f);
         rootPanel.setSecondComponent(changesBrowser.getComponent());
@@ -123,7 +124,7 @@ class GitCompareBranchesLogPanel extends JPanel {
     }
 
     private JComponent createNorthPanel() {
-        final JComboBox<GitRepository> repoSelector =
+        JComboBox<GitRepository> repoSelector =
             new JComboBox<>(ArrayUtil.toObjectArray(myCompareInfo.getRepositories(), GitRepository.class));
         repoSelector.setRenderer(new GitRepositoryComboboxListCellRenderer(repoSelector));
         repoSelector.setSelectedItem(myInitialRepo);
@@ -161,8 +162,8 @@ class GitCompareBranchesLogPanel extends JPanel {
 
     private static void addSelectionListener(
         @Nonnull GitCommitListPanel sourcePanel,
-        @Nonnull final GitCommitListPanel otherPanel,
-        @Nonnull final ChangesBrowser changesBrowser
+        @Nonnull GitCommitListPanel otherPanel,
+        @Nonnull ChangesBrowser changesBrowser
     ) {
         sourcePanel.addListMultipleSelectionListener(changes -> {
             changesBrowser.setChangesToDisplay(changes);
