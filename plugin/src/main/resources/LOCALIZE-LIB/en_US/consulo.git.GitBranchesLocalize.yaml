@@ -20,16 +20,24 @@ action.compare.text:
     text: Compare
 action.delete.text:
     text: Delete
-action.local.branches.0.text:
-    text: Local Branches{0}
+action.local.branches.in.repo.text:
+    text: Local Branches in {0}
+action.local.branches.text:
+    text: Local Branches
 action.merge.text:
     text: Merge
 action.rebase.onto.text:
     text: Rebase onto
-action.remote.branches.0.text:
-    text: Remote Branches{0}
+action.remote.branches.in.repo.text:
+    text: Remote Branches in {0}
+action.remote.branches.text:
+    text: Remote Branches
+action.rename.text:
+    text: Rename
 action.repositories.text:
     text: Repositories
+action.tags.in.repo.text:
+    text: Tags in {0}
 dialog.message.enter.reference.branch.tag.name.or.commit.hash:
     text: 'Enter reference (branch, tag) name or commit hash:'
 dialog.message.new.branch.name:

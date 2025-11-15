@@ -25,6 +25,7 @@ import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.action.DumbAwareAction;
 import consulo.ui.ex.awt.Messages;
 import consulo.util.collection.ContainerUtil;
+import consulo.versionControlSystem.distributed.DvcsUtil;
 import consulo.versionControlSystem.distributed.branch.BranchActionGroup;
 import consulo.versionControlSystem.distributed.branch.BranchActionUtil;
 import consulo.versionControlSystem.distributed.branch.NewBranchAction;
@@ -54,10 +55,10 @@ class GitBranchPopupActions {
     }
 
     ActionGroup createActions() {
-        return createActions(null, "", false);
+        return createActions(null, null, false);
     }
 
-    ActionGroup createActions(@Nullable ActionGroup toInsert, @Nonnull String repoInfo, boolean firstLevelGroup) {
+    ActionGroup createActions(@Nullable ActionGroup toInsert, @Nullable GitRepository specificRepository, boolean firstLevelGroup) {
         ActionGroup.Builder popupGroup = ActionGroup.newImmutableBuilder();
         List<GitRepository> repositoryList = List.of(myRepository);
 
@@ -68,7 +69,11 @@ class GitBranchPopupActions {
             popupGroup.addAll(toInsert);
         }
 
-        popupGroup.addSeparator(GitBranchesLocalize.actionLocalBranches0Text(repoInfo));
+        popupGroup.addSeparator(
+            specificRepository == null
+                ? GitBranchesLocalize.actionLocalBranchesText()
+                : GitBranchesLocalize.actionLocalBranchesInRepoText(DvcsUtil.getShortRepositoryName(specificRepository))
+        );
         List<BranchActionGroup> localBranchActions = myRepository.getBranches()
             .getLocalBranches()
             .stream()
@@ -86,7 +91,11 @@ class GitBranchPopupActions {
             firstLevelGroup
         );
 
-        popupGroup.addSeparator(GitBranchesLocalize.actionRemoteBranches0Text(repoInfo));
+        popupGroup.addSeparator(
+            specificRepository == null
+                ? GitBranchesLocalize.actionRemoteBranchesText()
+                : GitBranchesLocalize.actionRemoteBranchesInRepoText(DvcsUtil.getShortRepositoryName(specificRepository))
+        );
         List<BranchActionGroup> remoteBranchActions =
             myRepository.getBranches()
                 .getRemoteBranches()
@@ -117,7 +126,8 @@ class GitBranchPopupActions {
         @Override
         @RequiredUIAccess
         public void actionPerformed(@Nonnull AnActionEvent e) {
-            String name = GitBranchUtil.getNewBranchNameFromUser(myProject, myRepositories, GitBranchesLocalize.dialogTitleCreateNewBranch());
+            String name =
+                GitBranchUtil.getNewBranchNameFromUser(myProject, myRepositories, GitBranchesLocalize.dialogTitleCreateNewBranch());
             if (name != null) {
                 GitBrancher brancher = myProject.getInstance(GitBrancher.class);
                 brancher.checkoutNewBranch(name, myRepositories);
@@ -355,7 +365,7 @@ class GitBranchPopupActions {
 
         private class RenameBranchAction extends DumbAwareAction {
             public RenameBranchAction() {
-                super("Rename");
+                super(GitBranchesLocalize.actionRenameText());
             }
 
             @Override

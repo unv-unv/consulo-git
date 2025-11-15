@@ -60,8 +60,7 @@ class GitBranchPopup extends DvcsBranchPopup<GitRepository> {
     static GitBranchPopup getInstance(@Nonnull Project project, @Nonnull GitRepository currentRepository) {
         GitVcsSettings vcsSettings = GitVcsSettings.getInstance(project);
         Predicate<AnAction> preselectActionCondition = action -> {
-            if (action instanceof GitBranchPopupActions.LocalBranchActions) {
-                GitBranchPopupActions.LocalBranchActions branchAction = (GitBranchPopupActions.LocalBranchActions)action;
+            if (action instanceof GitBranchPopupActions.LocalBranchActions branchAction) {
                 String branchName = branchAction.getBranchName();
 
                 String recentBranch;
@@ -124,7 +123,7 @@ class GitBranchPopup extends DvcsBranchPopup<GitRepository> {
         );
         popupGroup.addSeparator(GitBranchesLocalize.actionCommonRemoteBranchesText());
         List<BranchActionGroup> remoteBranchActions = map(
-            ((GitMultiRootBranchConfig)myMultiRootBranchConfig).getRemoteBranches(),
+            ((GitMultiRootBranchConfig) myMultiRootBranchConfig).getRemoteBranches(),
             remoteBranch -> new GitBranchPopupActions.RemoteBranchActions(myProject, allRepositories, remoteBranch, myCurrentRepository)
         );
         BranchActionUtil.wrapWithMoreActionIfNeeded(
@@ -174,6 +173,6 @@ class GitBranchPopup extends DvcsBranchPopup<GitRepository> {
     @Override
     protected void fillPopupWithCurrentRepositoryActions(@Nonnull ActionGroup.Builder popupGroup, @Nullable ActionGroup actions) {
         popupGroup.addAll(new GitBranchPopupActions(myCurrentRepository.getProject(), myCurrentRepository)
-            .createActions(actions, myRepoTitleInfo, true));
+            .createActions(actions, myIsInSpecificRepository ? myCurrentRepository : null, true));
     }
 }
