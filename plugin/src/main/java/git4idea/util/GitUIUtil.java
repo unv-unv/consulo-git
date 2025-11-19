@@ -19,6 +19,8 @@ import consulo.annotation.DeprecationInfo;
 import consulo.git.localize.GitLocalize;
 import consulo.localize.LocalizeValue;
 import consulo.project.Project;
+import consulo.project.ui.notification.NotificationService;
+import consulo.project.ui.notification.NotificationType;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.ListCellRendererWrapper;
 import consulo.ui.ex.awt.Messages;
@@ -54,28 +56,28 @@ public class GitUIUtil {
 
     public static void notifyMessages(
         @Nonnull Project project,
-        @Nonnull String title,
-        @Nullable String description,
+        @Nonnull LocalizeValue title,
+        @Nonnull LocalizeValue description,
         boolean important,
         @Nullable Collection<String> messages
     ) {
-        String desc = (description != null ? description.replace("\n", "<br/>") : "");
+        LocalizeValue desc = description.map((localizeManager, string) -> string.replace("\n", "<br/>"));
         if (messages != null && !messages.isEmpty()) {
-            desc += StringUtil.join(messages, "<hr/><br/>");
+            desc = LocalizeValue.join(desc, LocalizeValue.of(StringUtil.join(messages, "<hr/><br/>")));
         }
-        VcsNotifier notifier = VcsNotifier.getInstance(project);
-        if (important) {
-            notifier.notifyError(title, desc);
-        }
-        else {
-            notifier.notifyImportantWarning(title, desc, null);
-        }
+        NotificationService.getInstance().newOfType(
+                VcsNotifier.IMPORTANT_ERROR_NOTIFICATION,
+                important ? NotificationType.ERROR : NotificationType.WARNING
+            )
+            .title(title)
+            .content(desc)
+            .notify(project);
     }
 
     public static void notifyMessage(
         Project project,
-        @Nonnull String title,
-        @Nullable String description,
+        @Nonnull LocalizeValue title,
+        @Nonnull LocalizeValue description,
         boolean important,
         @Nullable Collection<? extends Exception> errors
     ) {
@@ -86,8 +88,8 @@ public class GitUIUtil {
         else {
             errorMessages = new HashSet<>(errors.size());
             for (Exception error : errors) {
-                if (error instanceof VcsException) {
-                    for (String message : ((VcsException)error).getMessages()) {
+                if (error instanceof VcsException vcsException) {
+                    for (String message : vcsException.getMessages()) {
                         errorMessages.add(message.replace("\n", "<br/>"));
                     }
                 }
@@ -99,7 +101,13 @@ public class GitUIUtil {
         notifyMessages(project, title, description, important, errorMessages);
     }
 
-    public static void notifyError(Project project, String title, String description, boolean important, @Nullable Exception error) {
+    public static void notifyError(
+        Project project,
+        @Nonnull LocalizeValue title,
+        @Nonnull LocalizeValue description,
+        boolean important,
+        @Nullable Exception error
+    ) {
         notifyMessage(project, title, description, important, error == null ? null : Collections.singleton(error));
     }
 
@@ -122,13 +130,18 @@ public class GitUIUtil {
         return content.toString();
     }
 
-    public static void notifyImportantError(Project project, String title, String description) {
+    public static void notifyImportantError(Project project, @Nonnull LocalizeValue title, @Nonnull LocalizeValue description) {
         notifyMessage(project, title, description, true, null);
     }
 
-    public static void notifyGitErrors(Project project, String title, String description, Collection<VcsException> gitErrors) {
+    public static void notifyGitErrors(
+        Project project,
+        @Nonnull LocalizeValue title,
+        @Nonnull LocalizeValue description,
+        Collection<VcsException> gitErrors
+    ) {
         StringBuilder content = new StringBuilder();
-        if (!StringUtil.isEmptyOrSpaces(description)) {
+        if (description != LocalizeValue.empty()) {
             content.append(description);
         }
         if (!gitErrors.isEmpty()) {
@@ -137,7 +150,7 @@ public class GitUIUtil {
         for (VcsException e : gitErrors) {
             content.append(e.getLocalizedMessage()).append("<br/>");
         }
-        notifyMessage(project, title, content.toString(), false, null);
+        notifyMessage(project, title, LocalizeValue.of(content.toString()), false, null);
     }
 
     /**
@@ -147,11 +160,11 @@ public class GitUIUtil {
         return new ListCellRendererWrapper<>() {
             @Override
             public void customize(
-                final JList list,
-                final VirtualFile file,
-                final int index,
-                final boolean selected,
-                final boolean hasFocus
+                JList list,
+                VirtualFile file,
+                int index,
+                boolean selected,
+                boolean hasFocus
             ) {
                 setText(file == null ? "(invalid)" : file.getPresentableUrl());
             }
@@ -165,7 +178,7 @@ public class GitUIUtil {
      * @return the text field reference
      */
     public static JTextField getTextField(JComboBox comboBox) {
-        return (JTextField)comboBox.getEditor().getEditorComponent();
+        return (JTextField) comboBox.getEditor().getEditorComponent();
     }
 
     /**
@@ -178,11 +191,11 @@ public class GitUIUtil {
      * @param currentBranchLabel current branch label (might be null)
      */
     public static void setupRootChooser(
-        @Nonnull final Project project,
-        @Nonnull final List<VirtualFile> roots,
-        @Nullable final VirtualFile defaultRoot,
-        @Nonnull final JComboBox gitRootChooser,
-        @Nullable final JLabel currentBranchLabel
+        @Nonnull Project project,
+        @Nonnull List<VirtualFile> roots,
+        @Nullable VirtualFile defaultRoot,
+        @Nonnull JComboBox gitRootChooser,
+        @Nullable JLabel currentBranchLabel
     ) {
         for (VirtualFile root : roots) {
             gitRootChooser.addItem(root);
@@ -190,8 +203,8 @@ public class GitUIUtil {
         gitRootChooser.setRenderer(getVirtualFileListCellRenderer());
         gitRootChooser.setSelectedItem(defaultRoot != null ? defaultRoot : roots.get(0));
         if (currentBranchLabel != null) {
-            final ActionListener listener = e -> {
-                VirtualFile root = (VirtualFile)gitRootChooser.getSelectedItem();
+            ActionListener listener = e -> {
+                VirtualFile root = (VirtualFile) gitRootChooser.getSelectedItem();
                 assert root != null : "The root must not be null";
                 GitRepository repo = GitUtil.getRepositoryManager(project).getRepositoryForRoot(root);
                 assert repo != null : "The repository must not be null";
@@ -216,7 +229,7 @@ public class GitUIUtil {
      * @param operation the operation name
      */
     @RequiredUIAccess
-    public static void showOperationError(final Project project, final VcsException ex, @Nonnull final String operation) {
+    public static void showOperationError(Project project, VcsException ex, @Nonnull String operation) {
         showOperationError(project, operation, ex.getMessage());
     }
 
@@ -229,9 +242,9 @@ public class GitUIUtil {
      */
     @RequiredUIAccess
     public static void showOperationErrors(
-        final Project project,
-        final Collection<VcsException> exs,
-        @Nonnull final LocalizeValue operation
+        Project project,
+        Collection<VcsException> exs,
+        @Nonnull LocalizeValue operation
     ) {
         if (exs.size() == 1) {
             //noinspection ThrowableResultOfMethodCallIgnored
@@ -269,7 +282,7 @@ public class GitUIUtil {
     @Deprecated
     @DeprecationInfo("Use variant with LocalizeValue")
     @RequiredUIAccess
-    public static void showOperationError(final Project project, final String operation, final String message) {
+    public static void showOperationError(Project project, String operation, String message) {
         Messages.showErrorDialog(project, message, GitLocalize.errorOccurredDuring(operation).get());
     }
 
@@ -339,7 +352,7 @@ public class GitUIUtil {
              * @param changed the changed control
              * @param impliedState the implied state
              */
-            private void check(final JCheckBox checked, final boolean checkedState, final JCheckBox changed, final boolean impliedState) {
+            private void check(JCheckBox checked, boolean checkedState, JCheckBox changed, boolean impliedState) {
                 if (checked.isSelected() == checkedState) {
                     changed.setSelected(impliedState);
                     changed.setEnabled(false);

@@ -21,6 +21,7 @@ import consulo.git.localize.GitLocalize;
 import consulo.localize.LocalizeValue;
 import consulo.ui.annotation.RequiredUIAccess;
 import git4idea.config.GitVcsSettings;
+import jakarta.annotation.Nonnull;
 
 import javax.swing.*;
 
@@ -43,6 +44,7 @@ public class GitUpdateConfigurable implements Configurable {
     /**
      * {@inheritDoc}
      */
+    @Nonnull
     @Override
     public LocalizeValue getDisplayName() {
         return GitLocalize.updateOptionsDisplayName();

@@ -15,6 +15,7 @@
  */
 package git4idea.update;
 
+import consulo.localize.LocalizeValue;
 import jakarta.annotation.Nonnull;
 
 import java.util.ArrayList;
@@ -28,85 +29,85 @@ import static consulo.util.lang.StringUtil.pluralize;
  * @author Kirill Likhodedov
  */
 public final class GitFetchResult {
+    private final Type myType;
+    private Collection<Exception> myErrors = new ArrayList<Exception>();
+    private Collection<String> myPrunedRefs = new ArrayList<String>();
 
-  private final Type myType;
-  private Collection<Exception> myErrors = new ArrayList<Exception>();
-  private Collection<String> myPrunedRefs = new ArrayList<String>();
-
-  public enum Type {
-    SUCCESS,
-    CANCELLED,
-    NOT_AUTHORIZED,
-    ERROR
-  }
-
-  public GitFetchResult(@Nonnull Type type) {
-    myType = type;
-  }
-
-  @Nonnull
-  public static GitFetchResult success() {
-    return new GitFetchResult(Type.SUCCESS);
-  }
-
-  @Nonnull
-  public static GitFetchResult cancel() {
-    return new GitFetchResult(Type.CANCELLED);
-  }
-
-  @Nonnull
-  public static GitFetchResult error(Collection<Exception> errors) {
-    GitFetchResult result = new GitFetchResult(Type.ERROR);
-    result.myErrors = errors;
-    return result;
-  }
-
-  @Nonnull
-  public static GitFetchResult error(Exception error) {
-    return error(Collections.singletonList(error));
-  }
-
-  @Nonnull
-  public static GitFetchResult error(@Nonnull String errorMessage) {
-    return error(new Exception(errorMessage));
-  }
-  
-  public boolean isSuccess() {
-    return myType == Type.SUCCESS;
-  }
-
-  public boolean isCancelled() {
-    return myType == Type.CANCELLED;
-  }
-
-  public boolean isNotAuthorized() {
-    return myType == Type.NOT_AUTHORIZED;
-  }
-
-  public boolean isError() {
-    return myType == Type.ERROR;
-  }
-
-  @Nonnull
-  public Collection<? extends Exception> getErrors() {
-    return myErrors;
-  }
-
-  public void addPruneInfo(@Nonnull Collection<String> prunedRefs) {
-    myPrunedRefs.addAll(prunedRefs);
-  }
-
-  @Nonnull
-  public Collection<String> getPrunedRefs() {
-    return myPrunedRefs;
-  }
-
-  @Nonnull
-  public String getAdditionalInfo() {
-    if (!myPrunedRefs.isEmpty()) {
-      return "Pruned obsolete remote " + pluralize("reference", myPrunedRefs.size()) + ": " + join(myPrunedRefs, ", ");
+    public enum Type {
+        SUCCESS,
+        CANCELLED,
+        NOT_AUTHORIZED,
+        ERROR
     }
-    return "";
-  }
 
+    public GitFetchResult(@Nonnull Type type) {
+        myType = type;
+    }
+
+    @Nonnull
+    public static GitFetchResult success() {
+        return new GitFetchResult(Type.SUCCESS);
+    }
+
+    @Nonnull
+    public static GitFetchResult cancel() {
+        return new GitFetchResult(Type.CANCELLED);
+    }
+
+    @Nonnull
+    public static GitFetchResult error(Collection<Exception> errors) {
+        GitFetchResult result = new GitFetchResult(Type.ERROR);
+        result.myErrors = errors;
+        return result;
+    }
+
+    @Nonnull
+    public static GitFetchResult error(Exception error) {
+        return error(Collections.singletonList(error));
+    }
+
+    @Nonnull
+    public static GitFetchResult error(@Nonnull String errorMessage) {
+        return error(new Exception(errorMessage));
+    }
+
+    public boolean isSuccess() {
+        return myType == Type.SUCCESS;
+    }
+
+    public boolean isCancelled() {
+        return myType == Type.CANCELLED;
+    }
+
+    public boolean isNotAuthorized() {
+        return myType == Type.NOT_AUTHORIZED;
+    }
+
+    public boolean isError() {
+        return myType == Type.ERROR;
+    }
+
+    @Nonnull
+    public Collection<? extends Exception> getErrors() {
+        return myErrors;
+    }
+
+    public void addPruneInfo(@Nonnull Collection<String> prunedRefs) {
+        myPrunedRefs.addAll(prunedRefs);
+    }
+
+    @Nonnull
+    public Collection<String> getPrunedRefs() {
+        return myPrunedRefs;
+    }
+
+    @Nonnull
+    public LocalizeValue getAdditionalInfo() {
+        if (!myPrunedRefs.isEmpty()) {
+            return LocalizeValue.localizeTODO(
+                "Pruned obsolete remote " + pluralize("reference", myPrunedRefs.size()) + ": " + join(myPrunedRefs, ", ")
+            );
+        }
+        return LocalizeValue.empty();
+    }
 }

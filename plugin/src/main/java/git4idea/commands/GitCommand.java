@@ -18,6 +18,7 @@ package git4idea.commands;
 import consulo.application.util.registry.Registry;
 import org.jetbrains.annotations.NonNls;
 import jakarta.annotation.Nonnull;
+
 import java.lang.Runnable;
 
 /**
@@ -34,121 +35,108 @@ import java.lang.Runnable;
  * write lock), which {@code git stash list} doesn't (and therefore no lock is needed).
  * </p>
  */
-public class GitCommand
-{
+public class GitCommand {
+    public static final GitCommand ADD = write("add");
+    public static final GitCommand BLAME = read("blame");
+    public static final GitCommand BRANCH = read("branch");
+    public static final GitCommand CHECKOUT = write("checkout");
+    public static final GitCommand CHECK_ATTR = read("check-attr");
+    public static final GitCommand COMMIT = write("commit");
+    public static final GitCommand CONFIG = read("config");
+    public static final GitCommand CHERRY = read("cherry");
+    public static final GitCommand CHERRY_PICK = write("cherry-pick");
+    public static final GitCommand CLONE = write("clone");
+    public static final GitCommand DIFF = read("diff");
+    public static final GitCommand FETCH = read("fetch");  // fetch is a read-command, because it doesn't modify the index
+    public static final GitCommand INIT = write("init");
+    public static final GitCommand LOG = read("log");
+    public static final GitCommand LS_FILES = read("ls-files");
+    public static final GitCommand LS_TREE = read("ls-tree");
+    public static final GitCommand LS_REMOTE = read("ls-remote");
+    public static final GitCommand MERGE = write("merge");
+    public static final GitCommand MERGE_BASE = read("merge-base");
+    public static final GitCommand MV = write("mv");
+    public static final GitCommand PULL = write("pull");
+    public static final GitCommand PUSH = write("push");
+    public static final GitCommand REBASE = write("rebase");
+    public static final GitCommand REMOTE = read("remote");
+    public static final GitCommand RESET = write("reset");
+    public static final GitCommand REV_LIST = read("rev-list");
+    public static final GitCommand REV_PARSE = read("rev-parse");
+    public static final GitCommand RM = write("rm");
+    public static final GitCommand SHOW = read("show");
+    public static final GitCommand STASH = write("stash");
+    public static final GitCommand STATUS = Registry.is("git.status.write", true) ? write("status") : read("status");
+    public static final GitCommand TAG = read("tag");
+    public static final GitCommand UPDATE_INDEX = write("update-index");
 
-	public static final GitCommand ADD = write("add");
-	public static final GitCommand BLAME = read("blame");
-	public static final GitCommand BRANCH = read("branch");
-	public static final GitCommand CHECKOUT = write("checkout");
-	public static final GitCommand CHECK_ATTR = read("check-attr");
-	public static final GitCommand COMMIT = write("commit");
-	public static final GitCommand CONFIG = read("config");
-	public static final GitCommand CHERRY = read("cherry");
-	public static final GitCommand CHERRY_PICK = write("cherry-pick");
-	public static final GitCommand CLONE = write("clone");
-	public static final GitCommand DIFF = read("diff");
-	public static final GitCommand FETCH = read("fetch");  // fetch is a read-command, because it doesn't modify the index
-	public static final GitCommand INIT = write("init");
-	public static final GitCommand LOG = read("log");
-	public static final GitCommand LS_FILES = read("ls-files");
-	public static final GitCommand LS_TREE = read("ls-tree");
-	public static final GitCommand LS_REMOTE = read("ls-remote");
-	public static final GitCommand MERGE = write("merge");
-	public static final GitCommand MERGE_BASE = read("merge-base");
-	public static final GitCommand MV = write("mv");
-	public static final GitCommand PULL = write("pull");
-	public static final GitCommand PUSH = write("push");
-	public static final GitCommand REBASE = write("rebase");
-	public static final GitCommand REMOTE = read("remote");
-	public static final GitCommand RESET = write("reset");
-	public static final GitCommand REV_LIST = read("rev-list");
-	public static final GitCommand REV_PARSE = read("rev-parse");
-	public static final GitCommand RM = write("rm");
-	public static final GitCommand SHOW = read("show");
-	public static final GitCommand STASH = write("stash");
-	public static final GitCommand STATUS = Registry.is("git.status.write", true) ? write("status") : read("status");
-	public static final GitCommand TAG = read("tag");
-	public static final GitCommand UPDATE_INDEX = write("update-index");
+    /**
+     * Name of environment variable that specifies editor for the git
+     */
+    public static final String GIT_EDITOR_ENV = "GIT_EDITOR";
 
-	/**
-	 * Name of environment variable that specifies editor for the git
-	 */
-	public static final String GIT_EDITOR_ENV = "GIT_EDITOR";
+    enum LockingPolicy {
+        READ,
+        WRITE
+    }
 
-	enum LockingPolicy
-	{
-		READ,
-		WRITE
-	}
+    @Nonnull
+    private final String myName; // command name passed to git
+    @Nonnull
+    private final LockingPolicy myLocking; // Locking policy for the command
 
-	@Nonnull
-	@NonNls
-	private final String myName; // command name passed to git
-	@Nonnull
-	private final LockingPolicy myLocking; // Locking policy for the command
+    private GitCommand(@Nonnull String name, @Nonnull LockingPolicy lockingPolicy) {
+        myLocking = lockingPolicy;
+        myName = name;
+    }
 
-	private GitCommand(@Nonnull String name, @Nonnull LockingPolicy lockingPolicy)
-	{
-		myLocking = lockingPolicy;
-		myName = name;
-	}
+    /**
+     * Copy constructor with other locking policy.
+     */
+    private GitCommand(@Nonnull GitCommand command, @Nonnull LockingPolicy lockingPolicy) {
+        myName = command.name();
+        myLocking = lockingPolicy;
+    }
 
-	/**
-	 * Copy constructor with other locking policy.
-	 */
-	private GitCommand(@Nonnull GitCommand command, @Nonnull LockingPolicy lockingPolicy)
-	{
-		myName = command.name();
-		myLocking = lockingPolicy;
-	}
+    /**
+     * <p>Creates the clone of this git command, but with LockingPolicy different from the default one.</p>
+     * <p>This can be used for commands, which are considered to be "write" commands in general, but can be "read" commands when a certain
+     * set of arguments is given ({@code git stash list}, for instance).</p>
+     * <p>Use this constructor with care: specifying read-policy on a write operation may result in a conflict during simultaneous
+     * modification of index.</p>
+     */
+    @Nonnull
+    public GitCommand readLockingCommand() {
+        return new GitCommand(this, LockingPolicy.READ);
+    }
 
-	/**
-	 * <p>Creates the clone of this git command, but with LockingPolicy different from the default one.</p>
-	 * <p>This can be used for commands, which are considered to be "write" commands in general, but can be "read" commands when a certain
-	 * set of arguments is given ({@code git stash list}, for instance).</p>
-	 * <p>Use this constructor with care: specifying read-policy on a write operation may result in a conflict during simultaneous
-	 * modification of index.</p>
-	 */
-	@Nonnull
-	public GitCommand readLockingCommand()
-	{
-		return new GitCommand(this, LockingPolicy.READ);
-	}
+    @Nonnull
+    public GitCommand writeLockingCommand() {
+        return new GitCommand(this, LockingPolicy.WRITE);
+    }
 
-	@Nonnull
-	public GitCommand writeLockingCommand()
-	{
-		return new GitCommand(this, LockingPolicy.WRITE);
-	}
+    @Nonnull
+    public static GitCommand read(@Nonnull String name) {
+        return new GitCommand(name, LockingPolicy.READ);
+    }
 
-	@Nonnull
-	public static GitCommand read(@Nonnull String name)
-	{
-		return new GitCommand(name, LockingPolicy.READ);
-	}
+    @Nonnull
+    public static GitCommand write(@Nonnull String name) {
+        return new GitCommand(name, LockingPolicy.WRITE);
+    }
 
-	@Nonnull
-	public static GitCommand write(@Nonnull String name)
-	{
-		return new GitCommand(name, LockingPolicy.WRITE);
-	}
+    @Nonnull
+    public String name() {
+        return myName;
+    }
 
-	@Nonnull
-	public String name()
-	{
-		return myName;
-	}
+    @Nonnull
+    public LockingPolicy lockingPolicy() {
+        return myLocking;
+    }
 
-	@Nonnull
-	public LockingPolicy lockingPolicy()
-	{
-		return myLocking;
-	}
-
-	@Override
-	public String toString()
-	{
-		return myName;
-	}
+    @Override
+    public String toString() {
+        return myName;
+    }
 }

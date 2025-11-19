@@ -130,7 +130,12 @@ public class GitPull extends GitRepositoryAction {
 
                         @Override
                         protected void onFailure() {
-                            GitUIUtil.notifyGitErrors(project, "Error pulling " + dialog.getRemote(), "", handler.errors());
+                            GitUIUtil.notifyGitErrors(
+                                project,
+                                LocalizeValue.localizeTODO("Error pulling " + dialog.getRemote()),
+                                LocalizeValue.empty(),
+                                handler.errors()
+                            );
                             repositoryManager.updateRepository(root);
                         }
                     }

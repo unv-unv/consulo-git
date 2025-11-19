@@ -18,6 +18,8 @@ package git4idea.util;
 import consulo.application.Application;
 import consulo.localize.LocalizeValue;
 import consulo.project.Project;
+import consulo.project.ui.notification.NotificationService;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.DialogWrapper;
 import consulo.ui.ex.awt.JBLabel;
 import consulo.ui.ex.awt.ScrollPaneFactory;
@@ -25,7 +27,7 @@ import consulo.ui.ex.awt.VerticalFlowLayout;
 import consulo.ui.ex.awt.internal.laf.MultiLineLabelUI;
 import consulo.util.collection.ContainerUtil;
 import consulo.util.lang.StringUtil;
-import consulo.util.lang.ref.Ref;
+import consulo.util.lang.ref.SimpleReference;
 import consulo.util.lang.xml.XmlStringUtil;
 import consulo.versionControlSystem.VcsNotifier;
 import consulo.versionControlSystem.ui.awt.LegacyComponentFactory;
@@ -44,7 +46,6 @@ import java.util.Collection;
 import java.util.List;
 
 public class GitUntrackedFilesHelper {
-
     private GitUntrackedFilesHelper() {
     }
 
@@ -58,25 +59,23 @@ public class GitUntrackedFilesHelper {
      * @param description   the content of the notification or null if the default content is to be used.
      */
     public static void notifyUntrackedFilesOverwrittenBy(
-        @Nonnull final Project project,
-        @Nonnull final VirtualFile root,
+        @Nonnull Project project,
+        @Nonnull VirtualFile root,
         @Nonnull Collection<String> relativePaths,
-        @Nonnull final String operation,
+        @Nonnull String operation,
         @Nullable String description
     ) {
-        final String notificationTitle = StringUtil.capitalize(operation) + " failed";
-        final String notificationDesc = description == null ? createUntrackedFilesOverwrittenDescription(operation, true) : description;
+        Collection<String> absolutePaths = GitUtil.toAbsolute(root, relativePaths);
+        List<VirtualFile> untrackedFiles = ContainerUtil.mapNotNull(absolutePaths, GitUtil::findRefreshFileOrLog);
 
-        final Collection<String> absolutePaths = GitUtil.toAbsolute(root, relativePaths);
-        final List<VirtualFile> untrackedFiles =
-            ContainerUtil.mapNotNull(absolutePaths, GitUtil::findRefreshFileOrLog);
-
-        VcsNotifier.getInstance(project).notifyError(
-            notificationTitle,
-            notificationDesc,
-            (notification, event) -> {
+        NotificationService.getInstance().newError(VcsNotifier.IMPORTANT_ERROR_NOTIFICATION)
+            .title(LocalizeValue.localizeTODO(StringUtil.capitalize(operation) + " failed"))
+            .content(LocalizeValue.localizeTODO(
+                description == null ? createUntrackedFilesOverwrittenDescription(operation, true) : description
+            ))
+            .optionalHyperlinkListener((notification, event) -> {
                 if (event.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
-                    final String dialogDesc = createUntrackedFilesOverwrittenDescription(operation, false);
+                    String dialogDesc = createUntrackedFilesOverwrittenDescription(operation, false);
                     String title = "Untracked Files Preventing " + StringUtil.capitalize(operation);
                     if (untrackedFiles.isEmpty()) {
                         GitUtil.showPathsInDialog(project, absolutePaths, title, dialogDesc);
@@ -84,22 +83,29 @@ public class GitUntrackedFilesHelper {
                     else {
                         LegacyComponentFactory componentFactory = Application.get().getInstance(LegacyComponentFactory.class);
 
-                        LegacyDialog legacyDialog =
-                            componentFactory.createSelectFilesDialogOnlyOk(project, new ArrayList<>(untrackedFiles), StringUtil.stripHtml(dialogDesc, true), null, false, false, true);
+                        LegacyDialog legacyDialog = componentFactory.createSelectFilesDialogOnlyOk(
+                            project,
+                            new ArrayList<>(untrackedFiles),
+                            StringUtil.stripHtml(dialogDesc, true),
+                            null,
+                            false,
+                            false,
+                            true
+                        );
 
                         legacyDialog.setTitle(LocalizeValue.localizeTODO(title));
                         legacyDialog.show();
                     }
                 }
-            }
-        );
+            })
+            .notify(project);
     }
 
     @Nonnull
-    public static String createUntrackedFilesOverwrittenDescription(@Nonnull final String operation, boolean addLinkToViewFiles) {
-        final String description1 = " untracked working tree files would be overwritten by " + operation + ".";
-        final String description2 = "Please move or remove them before you can " + operation + ".";
-        final String notificationDesc;
+    public static String createUntrackedFilesOverwrittenDescription(@Nonnull String operation, boolean addLinkToViewFiles) {
+        String description1 = " untracked working tree files would be overwritten by " + operation + ".";
+        String description2 = "Please move or remove them before you can " + operation + ".";
+        String notificationDesc;
         if (addLinkToViewFiles) {
             notificationDesc = "Some" + description1 + "<br/>" + description2 + " <a href='view'>View them</a>";
         }
@@ -119,19 +125,19 @@ public class GitUntrackedFilesHelper {
      *
      * @return true if the user agrees to rollback, false if the user decides to keep things as is and simply close the dialog.
      */
+    @RequiredUIAccess
     public static boolean showUntrackedFilesDialogWithRollback(
-        @Nonnull final Project project,
-        @Nonnull final String operationName,
-        @Nonnull final String rollbackProposal,
+        @Nonnull Project project,
+        @Nonnull String operationName,
+        @Nonnull String rollbackProposal,
         @Nonnull VirtualFile root,
-        @Nonnull final Collection<String> relativePaths
+        @Nonnull Collection<String> relativePaths
     ) {
-        final Collection<String> absolutePaths = GitUtil.toAbsolute(root, relativePaths);
-        final List<VirtualFile> untrackedFiles =
-            ContainerUtil.mapNotNull(absolutePaths, GitUtil::findRefreshFileOrLog);
+        Collection<String> absolutePaths = GitUtil.toAbsolute(root, relativePaths);
+        List<VirtualFile> untrackedFiles = ContainerUtil.mapNotNull(absolutePaths, GitUtil::findRefreshFileOrLog);
 
-        final Ref<Boolean> rollback = Ref.create();
-        Application application = Application.get();
+        SimpleReference<Boolean> rollback = SimpleReference.create();
+        Application application = project.getApplication();
         application.invokeAndWait(
             () -> {
                 JComponent filesBrowser;
@@ -141,8 +147,9 @@ public class GitUntrackedFilesHelper {
                 else {
                     LegacyComponentFactory componentFactory = application.getInstance(LegacyComponentFactory.class);
 
-                    filesBrowser =
-                        ScrollPaneFactory.createScrollPane(componentFactory.createVirtualFileList(project, untrackedFiles, false, false).getComponent());
+                    filesBrowser = ScrollPaneFactory.createScrollPane(
+                        componentFactory.createVirtualFileList(project, untrackedFiles, false, false).getComponent()
+                    );
                 }
                 String title = "Could not " + StringUtil.capitalize(operationName);
                 String description = StringUtil.stripHtml(createUntrackedFilesOverwrittenDescription(operationName, false), true);
@@ -157,7 +164,6 @@ public class GitUntrackedFilesHelper {
     }
 
     private static class UntrackedFilesRollBackDialog extends DialogWrapper {
-
         @Nonnull
         private final JComponent myFilesBrowser;
         @Nonnull
@@ -181,6 +187,7 @@ public class GitUntrackedFilesHelper {
         }
 
         @Override
+        @RequiredUIAccess
         protected JComponent createSouthPanel() {
             JComponent buttons = super.createSouthPanel();
             JPanel panel = new JPanel(new VerticalFlowLayout());

@@ -19,7 +19,9 @@ import consulo.annotation.component.ExtensionImpl;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.Task;
 import consulo.git.localize.GitLocalize;
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
+import consulo.project.ui.notification.NotificationService;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.versionControlSystem.VcsNotifier;
 import consulo.versionControlSystem.change.VcsDirtyScopeManager;
@@ -51,6 +53,7 @@ public class GitCheckoutProvider implements CheckoutProvider {
         myGit = git;
     }
 
+    @Nonnull
     @Override
     public String getVcsName() {
         return "_Git";
@@ -58,7 +61,7 @@ public class GitCheckoutProvider implements CheckoutProvider {
 
     @Override
     @RequiredUIAccess
-    public void doCheckout(@Nonnull final Project project, @Nullable final Listener listener) {
+    public void doCheckout(@Nonnull Project project, @Nullable Listener listener) {
         BasicAction.saveAll();
         GitCloneDialog dialog = new GitCloneDialog(project);
         dialog.show();
@@ -66,8 +69,8 @@ public class GitCheckoutProvider implements CheckoutProvider {
             return;
         }
         dialog.rememberSettings();
-        final LocalFileSystem lfs = LocalFileSystem.getInstance();
-        final File parent = new File(dialog.getParentDirectory());
+        LocalFileSystem lfs = LocalFileSystem.getInstance();
+        File parent = new File(dialog.getParentDirectory());
         VirtualFile destinationParent = lfs.findFileByIoFile(parent);
         if (destinationParent == null) {
             destinationParent = lfs.refreshAndFindFileByIoFile(parent);
@@ -75,10 +78,10 @@ public class GitCheckoutProvider implements CheckoutProvider {
         if (destinationParent == null) {
             return;
         }
-        final String sourceRepositoryURL = dialog.getSourceRepositoryURL();
-        final String directoryName = dialog.getDirectoryName();
-        final String parentDirectory = dialog.getParentDirectory();
-        final String puttyKey = dialog.getPuttyKeyFile();
+        String sourceRepositoryURL = dialog.getSourceRepositoryURL();
+        String directoryName = dialog.getDirectoryName();
+        String parentDirectory = dialog.getParentDirectory();
+        String puttyKey = dialog.getPuttyKeyFile();
         clone(project, myGit, listener, destinationParent, sourceRepositoryURL, directoryName, parentDirectory, puttyKey);
     }
 
@@ -111,7 +114,7 @@ public class GitCheckoutProvider implements CheckoutProvider {
                     true,
                     () -> {
                         if (project.isOpen() && (!project.isDisposed()) && (!project.isDefault())) {
-                            final VcsDirtyScopeManager mgr = VcsDirtyScopeManager.getInstance(project);
+                            VcsDirtyScopeManager mgr = VcsDirtyScopeManager.getInstance(project);
                             mgr.fileDirty(destinationParent);
                         }
                     }
@@ -136,7 +139,7 @@ public class GitCheckoutProvider implements CheckoutProvider {
 
     private static boolean cloneNatively(
         @Nonnull Project project,
-        @Nonnull final ProgressIndicator indicator,
+        @Nonnull ProgressIndicator indicator,
         @Nonnull Git git,
         @Nonnull File directory,
         @Nonnull String url,
@@ -149,7 +152,10 @@ public class GitCheckoutProvider implements CheckoutProvider {
         if (result.success()) {
             return true;
         }
-        VcsNotifier.getInstance(project).notifyError("Clone failed", result.getErrorOutputAsHtmlString());
+        NotificationService.getInstance().newError(VcsNotifier.IMPORTANT_ERROR_NOTIFICATION)
+            .title(LocalizeValue.localizeTODO("Clone failed"))
+            .content(result.getErrorOutputAsHtmlValue())
+            .notify(project);
         return false;
     }
 }

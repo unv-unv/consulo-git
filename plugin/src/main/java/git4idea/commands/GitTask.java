@@ -94,12 +94,12 @@ public class GitTask {
      * @param resultHandler callback called after the task has finished or was cancelled by user or automatically.
      */
     @RequiredUIAccess
-    public void executeAsync(final GitTaskResultHandler resultHandler) {
+    public void executeAsync(GitTaskResultHandler resultHandler) {
         execute(false, false, resultHandler);
     }
 
     @RequiredUIAccess
-    public void executeInBackground(boolean sync, final GitTaskResultHandler resultHandler) {
+    public void executeInBackground(boolean sync, GitTaskResultHandler resultHandler) {
         execute(sync, false, resultHandler);
     }
 
@@ -132,7 +132,7 @@ public class GitTask {
         final AtomicBoolean completed = new AtomicBoolean();
 
         if (modal) {
-            final ModalTask task = new ModalTask(myProject, myHandler, myTitle) {
+            ModalTask task = new ModalTask(myProject, myHandler, myTitle) {
                 @Override
                 @RequiredUIAccess
                 public void onSuccess() {
@@ -151,7 +151,7 @@ public class GitTask {
             application.invokeAndWait(() -> ProgressManager.getInstance().run(task), application.getDefaultModalityState());
         }
         else {
-            final BackgroundableTask task = new BackgroundableTask(myProject, myHandler, myTitle) {
+            BackgroundableTask task = new BackgroundableTask(myProject, myHandler, myTitle) {
                 @Override
                 @RequiredUIAccess
                 public void onSuccess() {
@@ -188,7 +188,7 @@ public class GitTask {
         }
     }
 
-    private void commonOnSuccess(final Object LOCK, final GitTaskResultHandler resultHandler) {
+    private void commonOnSuccess(Object LOCK, GitTaskResultHandler resultHandler) {
         GitTaskResult res = !myHandler.errors().isEmpty() ? GitTaskResult.GIT_ERROR : GitTaskResult.OK;
         resultHandler.run(res);
         synchronized (LOCK) {
@@ -196,7 +196,7 @@ public class GitTask {
         }
     }
 
-    private void commonOnCancel(final Object LOCK, final GitTaskResultHandler resultHandler) {
+    private void commonOnCancel(Object LOCK, GitTaskResultHandler resultHandler) {
         resultHandler.run(GitTaskResult.CANCELLED);
         synchronized (LOCK) {
             LOCK.notifyAll();
@@ -208,7 +208,7 @@ public class GitTask {
             indicator.setIndeterminate(myProgressAnalyzer == null);
         }
         // When receives an error line, adds a VcsException to the GitHandler.
-        final GitLineHandlerListener listener = new GitLineHandlerListener() {
+        GitLineHandlerListener listener = new GitLineHandlerListener() {
             @Override
             public void processTerminated(int exitCode) {
                 if (exitCode != 0 && !myHandler.isIgnoredErrorCode(exitCode)) {
@@ -235,7 +235,7 @@ public class GitTask {
                     indicator.setText2(line);
                 }
                 if (myProgressAnalyzer != null && indicator != null) {
-                    final double fraction = myProgressAnalyzer.analyzeProgress(line);
+                    double fraction = myProgressAnalyzer.analyzeProgress(line);
                     if (fraction >= 0) {
                         indicator.setFraction(fraction);
                     }
@@ -243,8 +243,8 @@ public class GitTask {
             }
         };
 
-        if (myHandler instanceof GitLineHandler) {
-            ((GitLineHandler)myHandler).addLineListener(listener);
+        if (myHandler instanceof GitLineHandler lineHandler) {
+            lineHandler.addLineListener(listener);
         }
         else {
             myHandler.addListener(listener);
@@ -289,7 +289,7 @@ public class GitTask {
     private abstract class BackgroundableTask extends Task.Backgroundable implements TaskExecution {
         private GitTaskDelegate myDelegate;
 
-        public BackgroundableTask(@Nullable final Project project, @Nonnull GitHandler handler, @Nonnull final LocalizeValue processTitle) {
+        public BackgroundableTask(@Nullable Project project, @Nonnull GitHandler handler, @Nonnull LocalizeValue processTitle) {
             super(project, processTitle, true);
             myDelegate = new GitTaskDelegate(project, handler, this);
         }
@@ -303,7 +303,7 @@ public class GitTask {
         public final void runAlone() {
             Application application = Application.get();
             if (application.isDispatchThread()) {
-                application.executeOnPooledThread((Runnable)this::justRun);
+                application.executeOnPooledThread((Runnable) this::justRun);
             }
             else {
                 justRun();
@@ -339,7 +339,7 @@ public class GitTask {
     private abstract class ModalTask extends Task.Modal implements TaskExecution {
         private GitTaskDelegate myDelegate;
 
-        public ModalTask(@Nullable final Project project, @Nonnull GitHandler handler, @Nonnull final LocalizeValue processTitle) {
+        public ModalTask(@Nullable Project project, @Nonnull GitHandler handler, @Nonnull LocalizeValue processTitle) {
             super(project, processTitle, true);
             myDelegate = new GitTaskDelegate(project, handler, this);
         }
@@ -362,7 +362,7 @@ public class GitTask {
     }
 
     /**
-     * Does the work which is common for BackgrounableTask and ModalTask.
+     * Does the work which is common for BackgroundableTask and ModalTask.
      * Actually - starts a timer which checks if current progress indicator is cancelled.
      * If yes, kills the GitHandler.
      */

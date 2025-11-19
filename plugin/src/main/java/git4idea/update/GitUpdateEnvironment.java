@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
 
+import consulo.ui.annotation.RequiredUIAccess;
 import jakarta.annotation.Nonnull;
 
 import consulo.application.progress.ProgressIndicator;
@@ -42,51 +43,56 @@ import git4idea.repo.GitRepositoryManager;
 
 import jakarta.annotation.Nullable;
 
-public class GitUpdateEnvironment implements UpdateEnvironment
-{
-	private final Project myProject;
-	private final GitVcsSettings mySettings;
+public class GitUpdateEnvironment implements UpdateEnvironment {
+    private final Project myProject;
+    private final GitVcsSettings mySettings;
 
-	public GitUpdateEnvironment(@Nonnull Project project, @Nonnull GitVcsSettings settings)
-	{
-		myProject = project;
-		mySettings = settings;
-	}
+    public GitUpdateEnvironment(@Nonnull Project project, @Nonnull GitVcsSettings settings) {
+        myProject = project;
+        mySettings = settings;
+    }
 
-	public void fillGroups(UpdatedFiles updatedFiles)
-	{
-		//unused, there are no custom categories yet
-	}
+    @Override
+    public void fillGroups(UpdatedFiles updatedFiles) {
+        //unused, there are no custom categories yet
+    }
 
-	@Nonnull
-	public UpdateSession updateDirectories(@Nonnull FilePath[] filePaths,
-                                           UpdatedFiles updatedFiles,
-                                           ProgressIndicator progressIndicator,
-                                           @Nonnull Ref<SequentialUpdatesContext> sequentialUpdatesContextRef) throws ProcessCanceledException
-	{
-		Set<VirtualFile> roots = gitRoots(Arrays.asList(filePaths));
-		GitRepositoryManager repositoryManager = getRepositoryManager(myProject);
-		final GitUpdateProcess gitUpdateProcess = new GitUpdateProcess(myProject, progressIndicator, getRepositoriesFromRoots(repositoryManager, roots), updatedFiles, true, true);
-		boolean result = gitUpdateProcess.update(mySettings.getUpdateType()).isSuccess();
-		return new GitUpdateSession(result);
-	}
+    @Nonnull
+    @Override
+    @RequiredUIAccess
+    public UpdateSession updateDirectories(
+        @Nonnull FilePath[] filePaths,
+        UpdatedFiles updatedFiles,
+        ProgressIndicator progressIndicator,
+        @Nonnull Ref<SequentialUpdatesContext> sequentialUpdatesContextRef
+    ) throws ProcessCanceledException {
+        Set<VirtualFile> roots = gitRoots(Arrays.asList(filePaths));
+        GitRepositoryManager repositoryManager = getRepositoryManager(myProject);
+        GitUpdateProcess gitUpdateProcess = new GitUpdateProcess(
+            myProject,
+            progressIndicator,
+            getRepositoriesFromRoots(repositoryManager, roots),
+            updatedFiles,
+            true,
+            true
+        );
+        boolean result = gitUpdateProcess.update(mySettings.getUpdateType()).isSuccess();
+        return new GitUpdateSession(result);
+    }
 
+    @Override
+    public boolean validateOptions(Collection<FilePath> filePaths) {
+        for (FilePath p : filePaths) {
+            if (!isUnderGit(p)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
-	public boolean validateOptions(Collection<FilePath> filePaths)
-	{
-		for(FilePath p : filePaths)
-		{
-			if(!isUnderGit(p))
-			{
-				return false;
-			}
-		}
-		return true;
-	}
-
-	@Nullable
-	public Configurable createConfigurable(Collection<FilePath> files)
-	{
-		return new GitUpdateConfigurable(mySettings);
-	}
+    @Nullable
+    @Override
+    public Configurable createConfigurable(Collection<FilePath> files) {
+        return new GitUpdateConfigurable(mySettings);
+    }
 }

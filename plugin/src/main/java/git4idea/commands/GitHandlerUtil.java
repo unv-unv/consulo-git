@@ -81,7 +81,7 @@ public class GitHandlerUtil {
      * @return An exit code
      */
     public static int doSynchronously(
-        final GitLineHandler handler,
+        GitLineHandler handler,
         @Nonnull LocalizeValue operationTitle,
         @Nonnull LocalizeValue operationName
     ) {
@@ -123,10 +123,10 @@ public class GitHandlerUtil {
         final boolean showErrors,
         final boolean setIndeterminateFlag
     ) {
-        final ProgressManager manager = ProgressManager.getInstance();
+        ProgressManager manager = ProgressManager.getInstance();
         manager.run(new Task.Modal(handler.project(), operationTitle, false) {
             @Override
-            public void run(@Nonnull final ProgressIndicator indicator) {
+            public void run(@Nonnull ProgressIndicator indicator) {
                 handler.addLineListener(new GitLineHandlerListenerProgress(indicator, handler, operationName, showErrors));
                 runInCurrentThread(handler, indicator, setIndeterminateFlag, operationTitle);
             }
@@ -165,10 +165,10 @@ public class GitHandlerUtil {
      * @param operationName
      */
     public static void runInCurrentThread(
-        final GitHandler handler,
-        final ProgressIndicator indicator,
-        final boolean setIndeterminateFlag,
-        @Nonnull final LocalizeValue operationName
+        GitHandler handler,
+        ProgressIndicator indicator,
+        boolean setIndeterminateFlag,
+        @Nonnull LocalizeValue operationName
     ) {
         runInCurrentThread(
             handler,
@@ -194,7 +194,7 @@ public class GitHandlerUtil {
      * @param handler         a handler to run
      * @param postStartAction an action that is executed
      */
-    public static void runInCurrentThread(final GitHandler handler, @Nullable final Runnable postStartAction) {
+    public static void runInCurrentThread(GitHandler handler, @Nullable Runnable postStartAction) {
         handler.runInCurrentThread(postStartAction);
     }
 
@@ -204,8 +204,8 @@ public class GitHandlerUtil {
      * @param handler a handler to use
      * @return the collection of exception collected during operation
      */
-    public static Collection<VcsException> doSynchronouslyWithExceptions(final GitLineHandler handler) {
-        final ProgressIndicator progressIndicator = ProgressManager.getInstance().getProgressIndicator();
+    public static Collection<VcsException> doSynchronouslyWithExceptions(GitLineHandler handler) {
+        ProgressIndicator progressIndicator = ProgressManager.getInstance().getProgressIndicator();
         return doSynchronouslyWithExceptions(handler, progressIndicator, LocalizeValue.empty());
     }
 
@@ -218,8 +218,8 @@ public class GitHandlerUtil {
      * @return the collection of exception collected during operation
      */
     public static Collection<VcsException> doSynchronouslyWithExceptions(
-        final GitLineHandler handler,
-        final ProgressIndicator progressIndicator,
+        GitLineHandler handler,
+        ProgressIndicator progressIndicator,
         @Nonnull LocalizeValue operationName
     ) {
         handler.addLineListener(new GitLineHandlerListenerProgress(progressIndicator, handler, operationName, false));
@@ -254,7 +254,7 @@ public class GitHandlerUtil {
          * @param handler       a handler instance
          * @param operationName an operation name
          */
-        public GitHandlerListenerBase(final GitHandler handler, @Nonnull LocalizeValue operationName) {
+        public GitHandlerListenerBase(GitHandler handler, @Nonnull LocalizeValue operationName) {
             this(handler, operationName, true);
         }
 
@@ -275,7 +275,7 @@ public class GitHandlerUtil {
          * {@inheritDoc}
          */
         @Override
-        public void processTerminated(final int exitCode) {
+        public void processTerminated(int exitCode) {
             if (exitCode != 0 && !myHandler.isIgnoredErrorCode(exitCode)) {
                 ensureError(exitCode);
                 if (myShowErrors) {
@@ -289,7 +289,7 @@ public class GitHandlerUtil {
          *
          * @param exitCode the exit code of the process
          */
-        protected void ensureError(final int exitCode) {
+        protected void ensureError(int exitCode) {
             if (myHandler.errors().isEmpty()) {
                 String text = getErrorText();
                 if (StringUtil.isEmpty(text) && myHandler.errors().isEmpty()) {
@@ -312,7 +312,7 @@ public class GitHandlerUtil {
          * {@inheritDoc}
          */
         @Override
-        public void startFailed(final Throwable exception) {
+        public void startFailed(Throwable exception) {
             //noinspection ThrowableInstanceNeverThrown
             myHandler.addError(new VcsException("Git start failed: " + exception.getMessage(), exception));
             if (myShowErrors) {
@@ -359,7 +359,7 @@ public class GitHandlerUtil {
          * @param showErrors    if true, the errors are shown when process is terminated
          */
         public GitLineHandlerListenerProgress(
-            final ProgressIndicator manager,
+            ProgressIndicator manager,
             GitHandler handler,
             @Nonnull LocalizeValue operationName,
             boolean showErrors
@@ -381,7 +381,7 @@ public class GitHandlerUtil {
          * {@inheritDoc}
          */
         @Override
-        public void onLineAvailable(final String line, final Key outputType) {
+        public void onLineAvailable(String line, Key outputType) {
             if (isErrorLine(line.trim())) {
                 //noinspection ThrowableInstanceNeverThrown
                 myHandler.addError(new VcsException(line));

@@ -24,53 +24,52 @@ import jakarta.annotation.Nonnull;
  * The utilities for update policy
  */
 public class UpdatePolicyUtils {
-  /**
-   * The private constructor
-   */
-  private UpdatePolicyUtils() {
-  }
-
-  /**
-   * Set policy value to radio buttons
-   *
-   * @param updateChangesPolicy the policy value to set
-   * @param stashRadioButton    the stash radio button
-   * @param shelveRadioButton   the shelve radio button
-   */
-  @RequiredUIAccess
-  public static void updatePolicyItem(GitVcsSettings.UpdateChangesPolicy updateChangesPolicy,
-                                      RadioButton stashRadioButton,
-                                      RadioButton shelveRadioButton) {
-    switch (updateChangesPolicy == null ? GitVcsSettings.UpdateChangesPolicy.STASH : updateChangesPolicy) {
-      case STASH:
-        stashRadioButton.setValue(true);
-        return;
-      case SHELVE:
-        shelveRadioButton.setValue(true);
-        return;
-      default:
-        assert false : "Unknown policy value: " + updateChangesPolicy;
+    /**
+     * The private constructor
+     */
+    private UpdatePolicyUtils() {
     }
-  }
 
-  /**
-   * Get policy value from radio buttons
-   *
-   * @param stashRadioButton  the stash radio button
-   * @param shelveRadioButton the shelve radio button
-   * @return the policy value
-   */
-  @RequiredUIAccess
-  public static GitVcsSettings.UpdateChangesPolicy getUpdatePolicy(@Nonnull RadioButton stashRadioButton,
-                                                                   @Nonnull RadioButton shelveRadioButton) {
-
-    if (stashRadioButton.getValueOrError()) {
-      return GitVcsSettings.UpdateChangesPolicy.STASH;
-    } else if (shelveRadioButton.getValueOrError()) {
-      return GitVcsSettings.UpdateChangesPolicy.SHELVE;
-    } else {
-      // the stash is a default policy, in case if the policy could not be determined
-      return GitVcsSettings.UpdateChangesPolicy.STASH;
+    /**
+     * Set policy value to radio buttons
+     *
+     * @param updateChangesPolicy the policy value to set
+     * @param stashRadioButton    the stash radio button
+     * @param shelveRadioButton   the shelve radio button
+     */
+    @RequiredUIAccess
+    public static void updatePolicyItem(
+        GitVcsSettings.UpdateChangesPolicy updateChangesPolicy,
+        RadioButton stashRadioButton,
+        RadioButton shelveRadioButton
+    ) {
+        switch (updateChangesPolicy == null ? GitVcsSettings.UpdateChangesPolicy.STASH : updateChangesPolicy) {
+            case STASH -> stashRadioButton.setValue(true);
+            case SHELVE -> shelveRadioButton.setValue(true);
+        }
     }
-  }
+
+    /**
+     * Get policy value from radio buttons
+     *
+     * @param stashRadioButton  the stash radio button
+     * @param shelveRadioButton the shelve radio button
+     * @return the policy value
+     */
+    @RequiredUIAccess
+    public static GitVcsSettings.UpdateChangesPolicy getUpdatePolicy(
+        @Nonnull RadioButton stashRadioButton,
+        @Nonnull RadioButton shelveRadioButton
+    ) {
+        if (stashRadioButton.getValueOrError()) {
+            return GitVcsSettings.UpdateChangesPolicy.STASH;
+        }
+        else if (shelveRadioButton.getValueOrError()) {
+            return GitVcsSettings.UpdateChangesPolicy.SHELVE;
+        }
+        else {
+            // the stash is a default policy, in case if the policy could not be determined
+            return GitVcsSettings.UpdateChangesPolicy.STASH;
+        }
+    }
 }

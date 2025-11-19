@@ -16,11 +16,12 @@
 package git4idea.rebase;
 
 import consulo.application.progress.ProgressIndicator;
+import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.project.Project;
+import consulo.project.ui.notification.NotificationService;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.util.collection.ContainerUtil;
-import consulo.util.io.CharsetToolkit;
-import consulo.util.lang.function.Condition;
 import consulo.versionControlSystem.VcsNotifier;
 import consulo.versionControlSystem.distributed.repository.Repository;
 import consulo.virtualFileSystem.VirtualFile;
@@ -29,7 +30,6 @@ import git4idea.GitUtil;
 import git4idea.branch.GitRebaseParams;
 import git4idea.repo.GitRepository;
 import git4idea.stash.GitChangesSaver;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
@@ -79,7 +79,10 @@ public class GitRebaseUtils {
         }
         else {
             LOG.warn("Refusing to continue: no rebase spec");
-            VcsNotifier.getInstance(project).notifyError("Can't Continue Rebase", "No rebase in progress");
+            NotificationService.getInstance().newError(VcsNotifier.IMPORTANT_ERROR_NOTIFICATION)
+                .title(LocalizeValue.localizeTODO("Can't Continue Rebase"))
+                .content(LocalizeValue.localizeTODO("No rebase in progress"))
+                .notify(project);
         }
     }
 
@@ -90,7 +93,10 @@ public class GitRebaseUtils {
         }
         else {
             LOG.warn("Refusing to continue: no rebase spec");
-            VcsNotifier.getInstance(project).notifyError("Can't Continue Rebase", "No rebase in progress");
+            NotificationService.getInstance().newError(VcsNotifier.IMPORTANT_ERROR_NOTIFICATION)
+                .title(LocalizeValue.localizeTODO("Can't Continue Rebase"))
+                .content(LocalizeValue.localizeTODO("No rebase in progress"))
+                .notify(project);
         }
     }
 
@@ -101,7 +107,10 @@ public class GitRebaseUtils {
         }
         else {
             LOG.warn("Refusing to skip: no rebase spec");
-            VcsNotifier.getInstance(project).notifyError("Can't Continue Rebase", "No rebase in progress");
+            NotificationService.getInstance().newError(VcsNotifier.IMPORTANT_ERROR_NOTIFICATION)
+                .title(LocalizeValue.localizeTODO("Can't Continue Rebase"))
+                .content(LocalizeValue.localizeTODO("No rebase in progress"))
+                .notify(project);
         }
     }
 
@@ -112,7 +121,10 @@ public class GitRebaseUtils {
         }
         else {
             LOG.warn("Refusing to skip: no rebase spec");
-            VcsNotifier.getInstance(project).notifyError("Can't Continue Rebase", "No rebase in progress");
+            NotificationService.getInstance().newError(VcsNotifier.IMPORTANT_ERROR_NOTIFICATION)
+                .title(LocalizeValue.localizeTODO("Can't Continue Rebase"))
+                .content(LocalizeValue.localizeTODO("No rebase in progress"))
+                .notify(project);
         }
     }
 
@@ -122,6 +134,7 @@ public class GitRebaseUtils {
      * <p>
      * Does nothing if no information about ongoing rebase is available, or if this information has become obsolete.
      */
+    @RequiredUIAccess
     public static void abort(@Nonnull Project project, @Nonnull ProgressIndicator indicator) {
         GitRebaseSpec spec = GitUtil.getRepositoryManager(project).getOngoingRebaseSpec();
         if (spec != null) {
@@ -136,13 +149,17 @@ public class GitRebaseUtils {
         }
         else {
             LOG.warn("Refusing to abort: no rebase spec");
-            VcsNotifier.getInstance(project).notifyError("Can't Abort Rebase", "No rebase in progress");
+            NotificationService.getInstance().newError(VcsNotifier.IMPORTANT_ERROR_NOTIFICATION)
+                .title(LocalizeValue.localizeTODO("Can't Abort Rebase"))
+                .content(LocalizeValue.localizeTODO("No rebase in progress"))
+                .notify(project);
         }
     }
 
     /**
      * Abort the ongoing rebase process in the given repository.
      */
+    @RequiredUIAccess
     public static void abort(@Nonnull Project project, @Nullable GitRepository repository, @Nonnull ProgressIndicator indicator) {
         new GitAbortRebaseProcess(
             project,
@@ -183,7 +200,10 @@ public class GitRebaseUtils {
                     message = "Rebase is not possible" + in;
             }
             if (message != null) {
-                VcsNotifier.getInstance(project).notifyError("Rebase not Allowed", message);
+                NotificationService.getInstance().newError(VcsNotifier.IMPORTANT_ERROR_NOTIFICATION)
+                    .title(LocalizeValue.localizeTODO("Rebase not Allowed"))
+                    .content(LocalizeValue.localizeTODO(message))
+                    .notify(project);
                 return false;
             }
         }
@@ -249,7 +269,7 @@ public class GitRebaseUtils {
         String hash = null;
         String subject = null;
         try {
-            BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(commitFile), CharsetToolkit.UTF8_CHARSET));
+            BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(commitFile), StandardCharsets.UTF_8));
             try {
                 String line;
                 while ((line = in.readLine()) != null) {
@@ -281,7 +301,8 @@ public class GitRebaseUtils {
 
     @Nonnull
     static String mentionLocalChangesRemainingInStash(@Nullable GitChangesSaver saver) {
-        return saver != null && saver.wereChangesSaved() ? "<br/>Note that some local changes were <a href='stash'>" + toPast(saver.getOperationName()) + "</a> before rebase." : "";
+        return saver != null && saver.wereChangesSaved()
+            ? "<br/>Note that some local changes were <a href='stash'>" + toPast(saver.getOperationName()) + "</a> before rebase." : "";
     }
 
     @Nonnull

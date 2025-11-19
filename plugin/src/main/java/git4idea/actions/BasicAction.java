@@ -54,13 +54,12 @@ public abstract class BasicAction extends DumbAwareAction {
     @Override
     @RequiredUIAccess
     public void actionPerformed(@Nonnull AnActionEvent event) {
-        final Project project = event.getData(Project.KEY);
-        Application.get().runWriteAction(() -> FileDocumentManager.getInstance().saveAllDocuments());
-        final VirtualFile[] vFiles = event.getData(VirtualFile.KEY_OF_ARRAY);
+        final Project project = event.getRequiredData(Project.KEY);
+        project.getApplication().runWriteAction(() -> FileDocumentManager.getInstance().saveAllDocuments());
+        VirtualFile[] vFiles = event.getData(VirtualFile.KEY_OF_ARRAY);
         assert vFiles != null : "The action is only available when files are selected";
 
-        assert project != null;
-        final GitVcs vcs = GitVcs.getInstance(project);
+        GitVcs vcs = GitVcs.getInstance(project);
         if (!ProjectLevelVcsManager.getInstance(project).checkAllFilesAreUnder(vcs, vFiles)) {
             return;
         }
@@ -68,7 +67,7 @@ public abstract class BasicAction extends DumbAwareAction {
 
         final VirtualFile[] affectedFiles = collectAffectedFiles(project, vFiles);
         final List<VcsException> exceptions = new ArrayList<>();
-        final boolean background = perform(project, vcs, exceptions, affectedFiles);
+        boolean background = perform(project, vcs, exceptions, affectedFiles);
         if (!background) {
             GitVcs.runInBackground(new Task.Backgroundable(project, actionName) {
                 @Override
@@ -176,14 +175,12 @@ public abstract class BasicAction extends DumbAwareAction {
      * @param e The update event
      */
     @Override
-    @RequiredUIAccess
     public void update(@Nonnull AnActionEvent e) {
         super.update(e);
         Presentation presentation = e.getPresentation();
         Project project = e.getData(Project.KEY);
         if (project == null) {
-            presentation.setEnabled(false);
-            presentation.setVisible(false);
+            presentation.setEnabledAndVisible(false);
             return;
         }
 

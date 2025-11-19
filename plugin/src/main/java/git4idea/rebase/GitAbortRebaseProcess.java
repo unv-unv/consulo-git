@@ -17,14 +17,15 @@ package git4idea.rebase;
 
 import consulo.application.AccessToken;
 import consulo.application.Application;
-import consulo.application.ApplicationManager;
 import consulo.application.progress.ProgressIndicator;
 import consulo.ide.ServiceManager;
+import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.project.Project;
+import consulo.project.ui.notification.NotificationService;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.Messages;
-import consulo.util.collection.ContainerUtil;
-import consulo.util.lang.ref.Ref;
+import consulo.util.lang.ref.SimpleReference;
 import consulo.versionControlSystem.VcsNotifier;
 import consulo.versionControlSystem.distributed.DvcsUtil;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
@@ -39,6 +40,7 @@ import git4idea.util.GitFreezingProcess;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -49,173 +51,187 @@ import static git4idea.GitUtil.getRootsFromRepositories;
 import static git4idea.rebase.GitRebaseUtils.mentionLocalChangesRemainingInStash;
 
 class GitAbortRebaseProcess {
-  private static final Logger LOG = Logger.getInstance(GitAbortRebaseProcess.class);
+    private static final Logger LOG = Logger.getInstance(GitAbortRebaseProcess.class);
 
-  @Nonnull
-  private final Project myProject;
-  @Nonnull
-  private final Git myGit;
-  @Nonnull
-  private final VcsNotifier myNotifier;
+    @Nonnull
+    private final Project myProject;
+    @Nonnull
+    private final Git myGit;
+    @Nonnull
+    protected final NotificationService myNotificationService;
 
-  @Nullable
-  private final GitRepository myRepositoryToAbort;
-  @Nonnull
-  private final Map<GitRepository, String> myRepositoriesToRollback;
-  @Nonnull
-  private final Map<GitRepository, String> myInitialCurrentBranches;
-  @Nonnull
-  private final ProgressIndicator myIndicator;
-  @Nullable
-  private final GitChangesSaver mySaver;
+    @Nullable
+    private final GitRepository myRepositoryToAbort;
+    @Nonnull
+    private final Map<GitRepository, String> myRepositoriesToRollback;
+    @Nonnull
+    private final Map<GitRepository, String> myInitialCurrentBranches;
+    @Nonnull
+    private final ProgressIndicator myIndicator;
+    @Nullable
+    private final GitChangesSaver mySaver;
 
-  GitAbortRebaseProcess(@Nonnull Project project,
-                        @Nullable GitRepository repositoryToAbort,
-                        @Nonnull Map<GitRepository, String> repositoriesToRollback,
-                        @Nonnull Map<GitRepository, String> initialCurrentBranches,
-                        @Nonnull ProgressIndicator progressIndicator,
-                        @Nullable GitChangesSaver changesSaver) {
-    myProject = project;
-    myRepositoryToAbort = repositoryToAbort;
-    myRepositoriesToRollback = repositoriesToRollback;
-    myInitialCurrentBranches = initialCurrentBranches;
-    myIndicator = progressIndicator;
-    mySaver = changesSaver;
+    GitAbortRebaseProcess(
+        @Nonnull Project project,
+        @Nullable GitRepository repositoryToAbort,
+        @Nonnull Map<GitRepository, String> repositoriesToRollback,
+        @Nonnull Map<GitRepository, String> initialCurrentBranches,
+        @Nonnull ProgressIndicator progressIndicator,
+        @Nullable GitChangesSaver changesSaver
+    ) {
+        myProject = project;
+        myNotificationService = NotificationService.getInstance();
+        myRepositoryToAbort = repositoryToAbort;
+        myRepositoriesToRollback = repositoriesToRollback;
+        myInitialCurrentBranches = initialCurrentBranches;
+        myIndicator = progressIndicator;
+        mySaver = changesSaver;
 
-    myGit = ServiceManager.getService(Git.class);
-    myNotifier = VcsNotifier.getInstance(myProject);
-  }
-
-  void abortWithConfirmation() {
-    LOG.info("Abort rebase. " + (myRepositoryToAbort == null ? "Nothing to abort" : getShortRepositoryName(myRepositoryToAbort)) +
-               ". Roots to rollback: " + DvcsUtil.joinShortNames(myRepositoriesToRollback.keySet()));
-    final Ref<AbortChoice> ref = Ref.create();
-    Application application = ApplicationManager.getApplication();
-    application.invokeAndWait(new Runnable() {
-      @Override
-      public void run() {
-        ref.set(confirmAbort());
-      }
-    }, application.getDefaultModalityState());
-
-    LOG.info("User choice: " + ref.get());
-    if (ref.get() == AbortChoice.ROLLBACK_AND_ABORT) {
-      doAbort(true);
+        myGit = ServiceManager.getService(Git.class);
     }
-    else if (ref.get() == AbortChoice.ABORT) {
-      doAbort(false);
+
+    @RequiredUIAccess
+    void abortWithConfirmation() {
+        LOG.info("Abort rebase. " + (myRepositoryToAbort == null ? "Nothing to abort" : getShortRepositoryName(myRepositoryToAbort)) +
+            ". Roots to rollback: " + DvcsUtil.joinShortNames(myRepositoriesToRollback.keySet()));
+        SimpleReference<AbortChoice> ref = SimpleReference.create();
+        Application application = myProject.getApplication();
+        application.invokeAndWait(() -> ref.set(confirmAbort()), application.getDefaultModalityState());
+
+        LOG.info("User choice: " + ref.get());
+        if (ref.get() == AbortChoice.ROLLBACK_AND_ABORT) {
+            doAbort(true);
+        }
+        else if (ref.get() == AbortChoice.ABORT) {
+            doAbort(false);
+        }
     }
-  }
 
-  @Nonnull
-  private AbortChoice confirmAbort() {
-    String title = "Abort Rebase";
-    if (myRepositoryToAbort != null) {
-      if (myRepositoriesToRollback.isEmpty()) {
-        String message = "Are you sure you want to abort rebase" + GitUtil.mention(myRepositoryToAbort) + "?";
-        int choice = DialogManager.showOkCancelDialog(myProject, message, title, "Abort", getCancelButtonText(), getQuestionIcon());
-        if (choice == Messages.OK) {
-          return AbortChoice.ABORT;
-        }
-      }
-      else {
-        String message = "Do you want just to abort rebase" + GitUtil.mention(myRepositoryToAbort) + ",\n" +
-          "or also rollback the successful rebase" + GitUtil.mention(myRepositoriesToRollback.keySet()) + "?";
-        int choice = DialogManager.showYesNoCancelDialog(myProject,
-                                                         message,
-                                                         title,
-                                                         "Abort & Rollback",
-                                                         "Abort",
-                                                         getCancelButtonText(),
-                                                         getQuestionIcon());
-        if (choice == Messages.YES) {
-          return AbortChoice.ROLLBACK_AND_ABORT;
-        }
-        else if (choice == Messages.NO) {
-          return AbortChoice.ABORT;
-        }
-      }
-    }
-    else {
-      if (myRepositoriesToRollback.isEmpty()) {
-        LOG.error(new Throwable());
-      }
-      else {
-        String description = "Do you want to rollback the successful rebase" + GitUtil.mention(myRepositoriesToRollback.keySet()) + "?";
-        int choice = DialogManager.showOkCancelDialog(myProject, description, title, "Rollback", getCancelButtonText(), getQuestionIcon());
-        if (choice == Messages.YES) {
-          return AbortChoice.ROLLBACK_AND_ABORT;
-        }
-      }
-    }
-    return AbortChoice.CANCEL;
-  }
-
-  enum AbortChoice {
-    ABORT,
-    ROLLBACK_AND_ABORT,
-    CANCEL
-  }
-
-  private void doAbort(final boolean rollback) {
-    new GitFreezingProcess(myProject, "rebase", new Runnable() {
-      public void run() {
-        AccessToken token = DvcsUtil.workingTreeChangeStarted(myProject, "Rebase");
-        List<GitRepository> repositoriesToRefresh = ContainerUtil.newArrayList();
-        try {
-          if (myRepositoryToAbort != null) {
-            myIndicator.setText2("git rebase --abort" + GitUtil.mention(myRepositoryToAbort));
-            GitCommandResult result = myGit.rebaseAbort(myRepositoryToAbort);
-            repositoriesToRefresh.add(myRepositoryToAbort);
-            if (!result.success()) {
-              myNotifier.notifyError("Rebase Abort Failed",
-                                     result.getErrorOutputAsHtmlString() + mentionLocalChangesRemainingInStash(mySaver));
-              return;
-            }
-          }
-
-          if (rollback) {
-            for (GitRepository repo : myRepositoriesToRollback.keySet()) {
-              myIndicator.setText2("git reset --keep" + GitUtil.mention(repo));
-              GitCommandResult res = myGit.reset(repo, GitResetMode.KEEP, myRepositoriesToRollback.get(repo));
-              repositoriesToRefresh.add(repo);
-
-              if (res.success()) {
-                String initialBranchPosition = myInitialCurrentBranches.get(repo);
-                if (initialBranchPosition != null && !initialBranchPosition.equals(repo.getCurrentBranchName())) {
-                  myIndicator.setText2("git checkout " + initialBranchPosition + GitUtil.mention(repo));
-                  res = myGit.checkout(repo, initialBranchPosition, null, true, false);
+    @Nonnull
+    private AbortChoice confirmAbort() {
+        String title = "Abort Rebase";
+        if (myRepositoryToAbort != null) {
+            if (myRepositoriesToRollback.isEmpty()) {
+                String message = "Are you sure you want to abort rebase" + GitUtil.mention(myRepositoryToAbort) + "?";
+                int choice = DialogManager.showOkCancelDialog(myProject, message, title, "Abort", getCancelButtonText(), getQuestionIcon());
+                if (choice == Messages.OK) {
+                    return AbortChoice.ABORT;
                 }
-              }
-
-              if (!res.success()) {
-                String description =
-                  myRepositoryToAbort != null ? "Rebase abort was successful" + GitUtil.mention(myRepositoryToAbort) + ", but rollback failed" : "Rollback failed";
-                description += GitUtil.mention(repo) + ":" + res.getErrorOutputAsHtmlString() +
-                  mentionLocalChangesRemainingInStash(mySaver);
-                myNotifier.notifyImportantWarning("Rebase Rollback Failed", description);
-                return;
-              }
             }
-          }
-
-          if (mySaver != null) {
-            mySaver.load();
-          }
-          myNotifier.notifySuccess("Rebase abort succeeded");
+            else {
+                String message = "Do you want just to abort rebase" + GitUtil.mention(myRepositoryToAbort) + ",\n" +
+                    "or also rollback the successful rebase" + GitUtil.mention(myRepositoriesToRollback.keySet()) + "?";
+                int choice = DialogManager.showYesNoCancelDialog(
+                    myProject,
+                    message,
+                    title,
+                    "Abort & Rollback",
+                    "Abort",
+                    getCancelButtonText(),
+                    getQuestionIcon()
+                );
+                if (choice == Messages.YES) {
+                    return AbortChoice.ROLLBACK_AND_ABORT;
+                }
+                else if (choice == Messages.NO) {
+                    return AbortChoice.ABORT;
+                }
+            }
         }
-        finally {
-          refresh(repositoriesToRefresh);
-          token.finish();
+        else {
+            if (myRepositoriesToRollback.isEmpty()) {
+                LOG.error(new Throwable());
+            }
+            else {
+                String description =
+                    "Do you want to rollback the successful rebase" + GitUtil.mention(myRepositoriesToRollback.keySet()) + "?";
+                int choice =
+                    DialogManager.showOkCancelDialog(myProject, description, title, "Rollback", getCancelButtonText(), getQuestionIcon());
+                if (choice == Messages.YES) {
+                    return AbortChoice.ROLLBACK_AND_ABORT;
+                }
+            }
         }
-      }
-    }).execute();
-  }
-
-  private static void refresh(@Nonnull List<GitRepository> toRefresh) {
-    for (GitRepository repository : toRefresh) {
-      repository.update();
+        return AbortChoice.CANCEL;
     }
-    VirtualFileUtil.markDirtyAndRefresh(false, true, false, VirtualFileUtil.toVirtualFileArray(getRootsFromRepositories(toRefresh)));
-  }
+
+    enum AbortChoice {
+        ABORT,
+        ROLLBACK_AND_ABORT,
+        CANCEL
+    }
+
+    private void doAbort(boolean rollback) {
+        new GitFreezingProcess(
+            myProject,
+            "rebase",
+            () -> {
+                AccessToken token = DvcsUtil.workingTreeChangeStarted(myProject, "Rebase");
+                List<GitRepository> repositoriesToRefresh = new ArrayList<>();
+                try {
+                    if (myRepositoryToAbort != null) {
+                        myIndicator.setText2("git rebase --abort" + GitUtil.mention(myRepositoryToAbort));
+                        GitCommandResult result = myGit.rebaseAbort(myRepositoryToAbort);
+                        repositoriesToRefresh.add(myRepositoryToAbort);
+                        if (!result.success()) {
+                            myNotificationService.newError(VcsNotifier.IMPORTANT_ERROR_NOTIFICATION)
+                                .title(LocalizeValue.localizeTODO("Rebase Abort Failed"))
+                                .content(LocalizeValue.localizeTODO(
+                                    result.getErrorOutputAsHtmlValue() + mentionLocalChangesRemainingInStash(mySaver)
+                                ))
+                                .notify(myProject);
+                            return;
+                        }
+                    }
+
+                    if (rollback) {
+                        for (GitRepository repo : myRepositoriesToRollback.keySet()) {
+                            myIndicator.setText2("git reset --keep" + GitUtil.mention(repo));
+                            GitCommandResult res = myGit.reset(repo, GitResetMode.KEEP, myRepositoriesToRollback.get(repo));
+                            repositoriesToRefresh.add(repo);
+
+                            if (res.success()) {
+                                String initialBranchPosition = myInitialCurrentBranches.get(repo);
+                                if (initialBranchPosition != null && !initialBranchPosition.equals(repo.getCurrentBranchName())) {
+                                    myIndicator.setText2("git checkout " + initialBranchPosition + GitUtil.mention(repo));
+                                    res = myGit.checkout(repo, initialBranchPosition, null, true, false);
+                                }
+                            }
+
+                            if (!res.success()) {
+                                String description = myRepositoryToAbort != null
+                                    ? "Rebase abort was successful" + GitUtil.mention(myRepositoryToAbort) + ", but rollback failed"
+                                    : "Rollback failed";
+                                description += GitUtil.mention(repo) + ":" + res.getErrorOutputAsHtmlValue() +
+                                    mentionLocalChangesRemainingInStash(mySaver);
+                                myNotificationService.newWarn(VcsNotifier.IMPORTANT_ERROR_NOTIFICATION)
+                                    .title(LocalizeValue.localizeTODO("Rebase Rollback Failed"))
+                                    .content(LocalizeValue.localizeTODO(description))
+                                    .notify(myProject);
+                                return;
+                            }
+                        }
+                    }
+
+                    if (mySaver != null) {
+                        mySaver.load();
+                    }
+                    myNotificationService.newInfo(VcsNotifier.NOTIFICATION_GROUP_ID)
+                        .content(LocalizeValue.localizeTODO("Rebase abort succeeded"))
+                        .notify(myProject);
+                }
+                finally {
+                    refresh(repositoriesToRefresh);
+                    token.finish();
+                }
+            }
+        ).execute();
+    }
+
+    private static void refresh(@Nonnull List<GitRepository> toRefresh) {
+        for (GitRepository repository : toRefresh) {
+            repository.update();
+        }
+        VirtualFileUtil.markDirtyAndRefresh(false, true, false, VirtualFileUtil.toVirtualFileArray(getRootsFromRepositories(toRefresh)));
+    }
 }

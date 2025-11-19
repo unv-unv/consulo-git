@@ -15,9 +15,12 @@
  */
 package git4idea.util;
 
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.project.ui.notification.Notification;
+import consulo.project.ui.notification.NotificationService;
 import consulo.project.ui.notification.event.NotificationListener;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.DialogBuilder;
 import consulo.ui.ex.awt.MultiLineLabel;
 import consulo.util.lang.StringUtil;
@@ -33,10 +36,9 @@ import java.util.Collection;
 import java.util.List;
 
 public class LocalChangesWouldBeOverwrittenHelper {
-
     @Nonnull
-    private static String getErrorNotificationDescription() {
-        return getErrorDescription(true);
+    private static LocalizeValue getErrorNotificationDescription() {
+        return LocalizeValue.localizeTODO(getErrorDescription(true));
     }
 
     @Nonnull
@@ -56,34 +58,46 @@ public class LocalChangesWouldBeOverwrittenHelper {
         }
     }
 
-    public static void showErrorNotification(@Nonnull final Project project,
-                                             @Nonnull final VirtualFile root,
-                                             @Nonnull final String operationName,
-                                             @Nonnull final Collection<String> relativeFilePaths) {
+    public static void showErrorNotification(
+        @Nonnull final Project project,
+        @Nonnull VirtualFile root,
+        @Nonnull final String operationName,
+        @Nonnull Collection<String> relativeFilePaths
+    ) {
         final Collection<String> absolutePaths = GitUtil.toAbsolute(root, relativeFilePaths);
         final List<Change> changes = GitUtil.findLocalChangesForPaths(project, root, absolutePaths, false);
-        String notificationTitle = "Git " + StringUtil.capitalize(operationName) + " Failed";
-        VcsNotifier.getInstance(project).notifyError(notificationTitle, getErrorNotificationDescription(), new NotificationListener.Adapter() {
-            @Override
-            protected void hyperlinkActivated(@Nonnull Notification notification, @Nonnull HyperlinkEvent e) {
-                showErrorDialog(project, operationName, changes, absolutePaths);
-            }
-        });
+        NotificationService.getInstance().newError(VcsNotifier.IMPORTANT_ERROR_NOTIFICATION)
+            .title(LocalizeValue.localizeTODO("Git " + StringUtil.capitalize(operationName) + " Failed"))
+            .content(getErrorNotificationDescription())
+            .optionalHyperlinkListener(new NotificationListener.Adapter() {
+                @Override
+                @RequiredUIAccess
+                protected void hyperlinkActivated(@Nonnull Notification notification, @Nonnull HyperlinkEvent e) {
+                    showErrorDialog(project, operationName, changes, absolutePaths);
+                }
+            })
+            .notify(project);
     }
 
-    public static void showErrorDialog(@Nonnull Project project,
-                                       @Nonnull VirtualFile root,
-                                       @Nonnull String operationName,
-                                       @Nonnull Collection<String> relativeFilePaths) {
+    @RequiredUIAccess
+    public static void showErrorDialog(
+        @Nonnull Project project,
+        @Nonnull VirtualFile root,
+        @Nonnull String operationName,
+        @Nonnull Collection<String> relativeFilePaths
+    ) {
         Collection<String> absolutePaths = GitUtil.toAbsolute(root, relativeFilePaths);
         List<Change> changes = GitUtil.findLocalChangesForPaths(project, root, absolutePaths, false);
         showErrorDialog(project, operationName, changes, absolutePaths);
     }
 
-    private static void showErrorDialog(@Nonnull Project project,
-                                        @Nonnull String operationName,
-                                        @Nonnull List<Change> changes,
-                                        @Nonnull Collection<String> absolutePaths) {
+    @RequiredUIAccess
+    private static void showErrorDialog(
+        @Nonnull Project project,
+        @Nonnull String operationName,
+        @Nonnull List<Change> changes,
+        @Nonnull Collection<String> absolutePaths
+    ) {
         String title = "Local Changes Prevent from " + StringUtil.capitalize(operationName);
         String description = getErrorDialogDescription();
         if (changes.isEmpty()) {
@@ -100,5 +114,4 @@ public class LocalChangesWouldBeOverwrittenHelper {
             builder.show();
         }
     }
-
 }

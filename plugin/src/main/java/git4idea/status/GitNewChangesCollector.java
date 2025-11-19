@@ -243,7 +243,7 @@ public class GitNewChangesCollector extends GitChangesCollector {
 
                 case 'U':
                     if (yStatus == 'U' || yStatus == 'A' || yStatus == 'D' || yStatus == 'T') {
-                        // UU - unmerged, both modified; UD - unmerged, deleted by them; UA - umerged, added by them
+                        // UU - unmerged, both modified; UD - unmerged, deleted by them; UA - unmerged, added by them
                         reportConflict(filepath, head);
                     }
                     else {

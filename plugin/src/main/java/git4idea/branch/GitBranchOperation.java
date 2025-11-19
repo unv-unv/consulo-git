@@ -16,11 +16,13 @@
 package git4idea.branch;
 
 import consulo.application.Application;
-import consulo.application.ApplicationManager;
 import consulo.application.progress.ProgressIndicator;
 import consulo.document.FileDocumentManager;
+import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.project.Project;
+import consulo.project.ui.notification.NotificationService;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.util.collection.ContainerUtil;
 import consulo.util.collection.MultiMap;
 import consulo.util.lang.Pair;
@@ -54,6 +56,8 @@ abstract class GitBranchOperation {
     @Nonnull
     protected final Project myProject;
     @Nonnull
+    protected final NotificationService myNotificationService;
+    @Nonnull
     protected final Git myGit;
     @Nonnull
     protected final GitBranchUiHandler myUiHandler;
@@ -73,12 +77,21 @@ abstract class GitBranchOperation {
     @Nonnull
     private final Collection<GitRepository> myRemainingRepositories;
 
-    protected GitBranchOperation(@Nonnull Project project, @Nonnull Git git, @Nonnull GitBranchUiHandler uiHandler, @Nonnull Collection<GitRepository> repositories) {
+    protected GitBranchOperation(
+        @Nonnull Project project,
+        @Nonnull Git git,
+        @Nonnull GitBranchUiHandler uiHandler,
+        @Nonnull Collection<GitRepository> repositories
+    ) {
         myProject = project;
+        myNotificationService = NotificationService.getInstance();
         myGit = git;
         myUiHandler = uiHandler;
         myRepositories = repositories;
-        myCurrentHeads = ContainerUtil.map2Map(repositories, it -> Pair.create(it, chooseNotNull(it.getCurrentBranchName(), it.getCurrentRevision())));
+        myCurrentHeads = ContainerUtil.map2Map(
+            repositories,
+            it -> Pair.create(it, chooseNotNull(it.getCurrentBranchName(), it.getCurrentRevision()))
+        );
         myInitialRevisions = ContainerUtil.map2Map(repositories, it -> Pair.create(it, it.getCurrentRevision()));
         mySuccessfulRepositories = new ArrayList<>();
         mySkippedRepositories = new ArrayList<>();
@@ -91,7 +104,7 @@ abstract class GitBranchOperation {
     protected abstract void rollback();
 
     @Nonnull
-    public abstract String getSuccessMessage();
+    public abstract LocalizeValue getSuccessMessage();
 
     @Nonnull
     protected abstract String getRollbackProposal();
@@ -176,28 +189,32 @@ abstract class GitBranchOperation {
     }
 
     @Nonnull
-    protected List<GitRepository> getRemainingRepositoriesExceptGiven(@Nonnull final GitRepository currentRepository) {
+    protected List<GitRepository> getRemainingRepositoriesExceptGiven(@Nonnull GitRepository currentRepository) {
         List<GitRepository> repositories = new ArrayList<>(myRemainingRepositories);
         repositories.remove(currentRepository);
         return repositories;
     }
 
-    protected void notifySuccess(@Nonnull String message) {
-        VcsNotifier.getInstance(myProject).notifySuccess(message);
+    protected void notifySuccess(@Nonnull LocalizeValue message) {
+        myNotificationService.newInfo(VcsNotifier.NOTIFICATION_GROUP_ID)
+            .content(message)
+            .notify(myProject);
     }
 
     protected void notifySuccess() {
         notifySuccess(getSuccessMessage());
     }
 
+    @RequiredUIAccess
     protected final void saveAllDocuments() {
-        ApplicationManager.getApplication().invokeAndWait(() -> FileDocumentManager.getInstance().saveAllDocuments(), Application.get().getDefaultModalityState());
+        Application application = myProject.getApplication();
+        application.invokeAndWait(() -> FileDocumentManager.getInstance().saveAllDocuments(), application.getDefaultModalityState());
     }
 
     /**
      * Show fatal error as a notification or as a dialog with rollback proposal.
      */
-    protected void fatalError(@Nonnull String title, @Nonnull String message) {
+    protected void fatalError(@Nonnull LocalizeValue title, @Nonnull LocalizeValue message) {
         if (wereSuccessful()) {
             showFatalErrorDialogWithRollback(title, message);
         }
@@ -206,19 +223,22 @@ abstract class GitBranchOperation {
         }
     }
 
-    protected void showFatalErrorDialogWithRollback(@Nonnull final String title, @Nonnull final String message) {
-        boolean rollback = myUiHandler.notifyErrorWithRollbackProposal(title, message, getRollbackProposal());
+    protected void showFatalErrorDialogWithRollback(@Nonnull LocalizeValue title, @Nonnull LocalizeValue message) {
+        boolean rollback = myUiHandler.notifyErrorWithRollbackProposal(title.get(), message.get(), getRollbackProposal());
         if (rollback) {
             rollback();
         }
     }
 
-    protected void showFatalNotification(@Nonnull String title, @Nonnull String message) {
+    protected void showFatalNotification(@Nonnull LocalizeValue title, @Nonnull LocalizeValue message) {
         notifyError(title, message);
     }
 
-    protected void notifyError(@Nonnull String title, @Nonnull String message) {
-        VcsNotifier.getInstance(myProject).notifyError(title, message);
+    protected void notifyError(@Nonnull LocalizeValue title, @Nonnull LocalizeValue message) {
+        myNotificationService.newError(VcsNotifier.IMPORTANT_ERROR_NOTIFICATION)
+            .title(title)
+            .content(message)
+            .notify(myProject);
     }
 
     @Nonnull
@@ -310,9 +330,9 @@ abstract class GitBranchOperation {
     }
 
     protected void fatalLocalChangesError(@Nonnull String reference) {
-        String title = String.format("Couldn't %s %s", getOperationName(), reference);
+        LocalizeValue title = LocalizeValue.localizeTODO(String.format("Couldn't %s %s", getOperationName(), reference));
         if (wereSuccessful()) {
-            showFatalErrorDialogWithRollback(title, "");
+            showFatalErrorDialogWithRollback(title, LocalizeValue.empty());
         }
     }
 
@@ -348,7 +368,11 @@ abstract class GitBranchOperation {
      * local changes.
      */
     @Nonnull
-    Map<GitRepository, List<Change>> collectLocalChangesConflictingWithBranch(@Nonnull Collection<GitRepository> repositories, @Nonnull String currentBranch, @Nonnull String otherBranch) {
+    Map<GitRepository, List<Change>> collectLocalChangesConflictingWithBranch(
+        @Nonnull Collection<GitRepository> repositories,
+        @Nonnull String currentBranch,
+        @Nonnull String otherBranch
+    ) {
         Map<GitRepository, List<Change>> changes = new HashMap<>();
         for (GitRepository repository : repositories) {
             try {
@@ -361,7 +385,10 @@ abstract class GitBranchOperation {
             catch (VcsException e) {
                 // ignoring the exception: this is not fatal if we won't collect such a diff from other repositories.
                 // At worst, use will get double dialog proposing the smart checkout.
-                LOG.warn(String.format("Couldn't collect diff between %s and %s in %s", currentBranch, otherBranch, repository.getRoot()), e);
+                LOG.warn(
+                    String.format("Couldn't collect diff between %s and %s in %s", currentBranch, otherBranch, repository.getRoot()),
+                    e
+                );
             }
         }
         return changes;
@@ -380,17 +407,26 @@ abstract class GitBranchOperation {
      * @return Repositories that have failed or would fail with the "local changes" error, together with these local changes.
      */
     @Nonnull
-    protected Pair<List<GitRepository>, List<Change>> getConflictingRepositoriesAndAffectedChanges(@Nonnull GitRepository currentRepository,
-                                                                                                   @Nonnull GitMessageWithFilesDetector localChangesOverwrittenBy,
-                                                                                                   String currentBranch,
-                                                                                                   String nextBranch) {
-
+    protected Pair<List<GitRepository>, List<Change>> getConflictingRepositoriesAndAffectedChanges(
+        @Nonnull GitRepository currentRepository,
+        @Nonnull GitMessageWithFilesDetector localChangesOverwrittenBy,
+        String currentBranch,
+        String nextBranch
+    ) {
         // get changes overwritten by checkout from the error message captured from Git
-        List<Change> affectedChanges = GitUtil.findLocalChangesForPaths(myProject, currentRepository.getRoot(), localChangesOverwrittenBy.getRelativeFilePaths(), true);
+        List<Change> affectedChanges = GitUtil.findLocalChangesForPaths(
+            myProject,
+            currentRepository.getRoot(),
+            localChangesOverwrittenBy.getRelativeFilePaths(),
+            true
+        );
         // get all other conflicting changes
         // get changes in all other repositories (except those which already have succeeded) to avoid multiple dialogs proposing smart checkout
-        Map<GitRepository, List<Change>> conflictingChangesInRepositories = collectLocalChangesConflictingWithBranch(getRemainingRepositoriesExceptGiven(currentRepository), currentBranch,
-            nextBranch);
+        Map<GitRepository, List<Change>> conflictingChangesInRepositories = collectLocalChangesConflictingWithBranch(
+            getRemainingRepositoriesExceptGiven(currentRepository),
+            currentBranch,
+            nextBranch
+        );
 
         Set<GitRepository> otherProblematicRepositories = conflictingChangesInRepositories.keySet();
         List<GitRepository> allConflictingRepositories = new ArrayList<>(otherProblematicRepositories);
@@ -408,11 +444,14 @@ abstract class GitBranchOperation {
         if (grouped.size() == 1) {
             return grouped.keySet().iterator().next();
         }
-        return StringUtil.join(grouped.entrySet(), entry ->
-        {
-            String roots = StringUtil.join(entry.getValue(), file -> file.getName(), ", ");
-            return entry.getKey() + " (in " + roots + ")";
-        }, "<br/>");
+        return StringUtil.join(
+            grouped.entrySet(),
+            entry -> {
+                String roots = StringUtil.join(entry.getValue(), VirtualFile::getName, ", ");
+                return entry.getKey() + " (in " + roots + ")";
+            },
+            "<br/>"
+        );
     }
 
     @Nonnull

@@ -98,7 +98,7 @@ public class GitInit extends DumbAwareAction {
                     if (vcs != null && vcs.getExecutableValidator().checkExecutableAndNotifyIfNeeded()) {
                         NotificationService.getInstance().newError(VcsNotifier.IMPORTANT_ERROR_NOTIFICATION)
                             .title(LocalizeValue.localizeTODO("Git init failed"))
-                            .content(LocalizeValue.localizeTODO(result.getErrorOutputAsHtmlString()))
+                            .content(result.getErrorOutputAsHtmlValue())
                             .notify(project);
                     }
                     return;

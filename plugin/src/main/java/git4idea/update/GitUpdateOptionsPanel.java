@@ -15,24 +15,19 @@
  */
 package git4idea.update;
 
-import com.intellij.uiDesigner.core.GridConstraints;
-import com.intellij.uiDesigner.core.GridLayoutManager;
 import consulo.application.Application;
 import consulo.git.localize.GitLocalize;
 import consulo.ui.RadioButton;
-import consulo.ui.StaticPosition;
 import consulo.ui.ValueGroups;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awtUnsafe.TargetAWT;
-import consulo.ui.layout.*;
+import consulo.ui.layout.LabeledLayout;
+import consulo.ui.layout.VerticalLayout;
 import git4idea.config.GitVcsSettings;
 import git4idea.config.UpdateMethod;
-import git4idea.i18n.GitBundle;
 import jakarta.annotation.Nonnull;
 
 import javax.swing.*;
-import java.awt.*;
-import java.util.ResourceBundle;
 
 /**
  * Update options panel
@@ -64,22 +59,27 @@ public class GitUpdateOptionsPanel {
         myStashRadioButton.setToolTipText(GitLocalize.updateOptionsSaveStashTooltip());
         myShelveRadioButton.setValue(false);
 
-        VerticalLayout leftGroup = VerticalLayout.create();
-        leftGroup.add(myForceMergeRadioButton);
-        leftGroup.add(myForceRebaseRadioButton);
-        leftGroup.add(myBranchDefaultRadioButton);
+        VerticalLayout leftGroup = VerticalLayout.create()
+            .add(myForceMergeRadioButton)
+            .add(myForceRebaseRadioButton)
+            .add(myBranchDefaultRadioButton);
 
         myPanel.add(LabeledLayout.create(GitLocalize.updateOptionsType(), leftGroup));
 
-        VerticalLayout rightGroup = VerticalLayout.create();
-        rightGroup.add(myStashRadioButton);
-        rightGroup.add(myShelveRadioButton);
+        VerticalLayout rightGroup = VerticalLayout.create()
+            .add(myStashRadioButton)
+            .add(myShelveRadioButton);
 
         myPanel.add(LabeledLayout.create(GitLocalize.updateOptionsSaveBeforeUpdate(), rightGroup));
 
-        ValueGroups.boolGroup().add(myBranchDefaultRadioButton).add(myForceRebaseRadioButton).add(myForceMergeRadioButton);
+        ValueGroups.boolGroup()
+            .add(myBranchDefaultRadioButton)
+            .add(myForceRebaseRadioButton)
+            .add(myForceMergeRadioButton);
 
-        ValueGroups.boolGroup().add(myStashRadioButton).add(myShelveRadioButton);
+        ValueGroups.boolGroup()
+            .add(myStashRadioButton)
+            .add(myShelveRadioButton);
     }
 
     @Nonnull
@@ -106,18 +106,17 @@ public class GitUpdateOptionsPanel {
      */
     @RequiredUIAccess
     private UpdateMethod getUpdateType() {
-        UpdateMethod type = null;
         if (myForceRebaseRadioButton.getValueOrError()) {
-            type = UpdateMethod.REBASE;
+            return UpdateMethod.REBASE;
         }
         else if (myForceMergeRadioButton.getValueOrError()) {
-            type = UpdateMethod.MERGE;
+            return UpdateMethod.MERGE;
         }
         else if (myBranchDefaultRadioButton.getValueOrError()) {
-            type = UpdateMethod.BRANCH_DEFAULT;
+            return UpdateMethod.BRANCH_DEFAULT;
         }
-        assert type != null;
-        return type;
+        assert false;
+        return null;
     }
 
     /**
@@ -135,17 +134,9 @@ public class GitUpdateOptionsPanel {
     @RequiredUIAccess
     public void updateFrom(GitVcsSettings settings) {
         switch (settings.getUpdateType()) {
-            case REBASE:
-                myForceRebaseRadioButton.setValue(true);
-                break;
-            case MERGE:
-                myForceMergeRadioButton.setValue(true);
-                break;
-            case BRANCH_DEFAULT:
-                myBranchDefaultRadioButton.setValue(true);
-                break;
-            default:
-                assert false : "Unknown value of update type: " + settings.getUpdateType();
+            case REBASE -> myForceRebaseRadioButton.setValue(true);
+            case MERGE -> myForceMergeRadioButton.setValue(true);
+            case BRANCH_DEFAULT -> myBranchDefaultRadioButton.setValue(true);
         }
         UpdatePolicyUtils.updatePolicyItem(settings.updateChangesPolicy(), myStashRadioButton, myShelveRadioButton);
     }

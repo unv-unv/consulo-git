@@ -21,13 +21,14 @@ import consulo.versionControlSystem.VcsNotifier;
 import jakarta.annotation.Nonnull;
 
 public class GitTaskResultNotificationHandler extends GitTaskResultHandlerAdapter {
+    @Nonnull
     private final Project myProject;
     private final LocalizeValue mySuccessMessage;
     private final LocalizeValue myCancelMessage;
     private final LocalizeValue myErrorMessage;
 
     public GitTaskResultNotificationHandler(
-        Project project,
+        @Nonnull Project project,
         @Nonnull LocalizeValue successMessage,
         @Nonnull LocalizeValue cancelMessage,
         @Nonnull LocalizeValue errorMessage

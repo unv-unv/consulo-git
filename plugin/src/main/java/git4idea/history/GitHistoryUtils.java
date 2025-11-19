@@ -191,7 +191,7 @@ public class GitHistoryUtils {
 
   /*
    === Smart full log with renames ===
-   'git log --follow' does detect renames, but it has a bug - merge commits aren't handled properly: they just dissapear from the history.
+   'git log --follow' does detect renames, but it has a bug - merge commits aren't handled properly: they just disappear from the history.
    See http://kerneltrap.org/mailarchive/git/2009/1/30/4861054 and the whole thread about that: --follow is buggy, but maybe it won't be fixed.
    To get the whole history through renames we do the following:
    1. 'git log <file>' - and we get the history since the first rename, if there was one.

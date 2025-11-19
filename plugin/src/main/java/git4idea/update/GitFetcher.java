@@ -19,6 +19,7 @@ import consulo.application.progress.ProgressIndicator;
 import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.project.Project;
+import consulo.project.ui.notification.NotificationService;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.util.dataholder.Key;
 import consulo.util.lang.StringUtil;
@@ -58,7 +59,10 @@ import static git4idea.GitBranch.REFS_REMOTES_PREFIX;
 public class GitFetcher {
     private static final Logger LOG = Logger.getInstance(GitFetcher.class);
 
+    @Nonnull
     private final Project myProject;
+    @Nonnull
+    private final NotificationService myNotificationService;
     private final GitRepositoryManager myRepositoryManager;
     private final ProgressIndicator myProgressIndicator;
     private final boolean myFetchAll;
@@ -72,6 +76,7 @@ public class GitFetcher {
      */
     public GitFetcher(@Nonnull Project project, @Nonnull ProgressIndicator progressIndicator, boolean fetchAll) {
         myProject = project;
+        myNotificationService = NotificationService.getInstance();
         myProgressIndicator = progressIndicator;
         myFetchAll = fetchAll;
         myRepositoryManager = GitUtil.getRepositoryManager(myProject);
@@ -225,7 +230,7 @@ public class GitFetcher {
             h.addParameters(getFetchSpecForBranch(branch, remoteName));
         }
 
-        final GitTask fetchTask = new GitTask(myProject, h, LocalizeValue.localizeTODO("Fetching " + remote.getFirstUrl()));
+        GitTask fetchTask = new GitTask(myProject, h, LocalizeValue.localizeTODO("Fetching " + remote.getFirstUrl()));
         fetchTask.setProgressIndicator(myProgressIndicator);
         fetchTask.setProgressAnalyzer(new GitStandardProgressAnalyzer());
 
@@ -252,7 +257,7 @@ public class GitFetcher {
                     myErrors.addAll(h.errors());
                 }
                 else {
-                    myErrors.add(new VcsException("Authentication failed"));
+                    myErrors.add(new VcsException(LocalizeValue.localizeTODO("Authentication failed")));
                 }
                 result.set(GitFetchResult.error(myErrors));
             }
@@ -287,29 +292,32 @@ public class GitFetcher {
         @Nonnull Collection<? extends Exception> errors
     ) {
         if (result.isSuccess()) {
-            VcsNotifier.getInstance(project).notifySuccess("Fetched successfully" + result.getAdditionalInfo());
+            NotificationService.getInstance().newInfo(VcsNotifier.NOTIFICATION_GROUP_ID)
+                .content(LocalizeValue.localizeTODO("Fetched successfully" + result.getAdditionalInfo()))
+                .notify(project);
         }
         else if (result.isCancelled()) {
-            VcsNotifier.getInstance(project).notifyMinorWarning("", "Fetch cancelled by user" + result.getAdditionalInfo());
+            NotificationService.getInstance().newWarn(VcsNotifier.STANDARD_NOTIFICATION)
+                .content(LocalizeValue.localizeTODO("Fetch cancelled by user" + result.getAdditionalInfo()))
+                .notify(project);
         }
         else if (result.isNotAuthorized()) {
-            String title;
-            String description;
+            LocalizeValue title;
+            LocalizeValue description;
             if (errorNotificationTitle != null) {
-                title = errorNotificationTitle;
-                description = "Fetch failed: couldn't authorize";
+                title = LocalizeValue.localizeTODO(errorNotificationTitle);
+                description = LocalizeValue.localizeTODO("Fetch failed: couldn't authorize" + result.getAdditionalInfo());
             }
             else {
-                title = "Fetch failed";
-                description = "Couldn't authorize";
+                title = LocalizeValue.localizeTODO("Fetch failed");
+                description = LocalizeValue.localizeTODO("Couldn't authorize" + result.getAdditionalInfo());
             }
-            description += result.getAdditionalInfo();
             GitUIUtil.notifyMessage(project, title, description, true, null);
         }
         else {
             GitVcs instance = GitVcs.getInstance(project);
             if (instance != null && instance.getExecutableValidator().isExecutableValid()) {
-                GitUIUtil.notifyMessage(project, "Fetch failed", result.getAdditionalInfo(), true, errors);
+                GitUIUtil.notifyMessage(project, LocalizeValue.localizeTODO("Fetch failed"), result.getAdditionalInfo(), true, errors);
             }
         }
     }
@@ -335,9 +343,9 @@ public class GitFetcher {
         for (GitRepository repository : roots) {
             LOG.info("fetching " + repository);
             GitFetchResult result = fetch(repository);
-            String ai = result.getAdditionalInfo();
-            if (!StringUtil.isEmptyOrSpaces(ai)) {
-                additionalInfo.put(repository.getRoot(), ai);
+            LocalizeValue ai = result.getAdditionalInfo();
+            if (ai != LocalizeValue.empty()) {
+                additionalInfo.put(repository.getRoot(), ai.get());
             }
             if (!result.isSuccess()) {
                 Collection<Exception> errors = new ArrayList<>(getErrors());
@@ -347,12 +355,17 @@ public class GitFetcher {
             }
         }
         if (notifySuccess) {
-            VcsNotifier.getInstance(myProject).notifySuccess("Fetched successfully");
+            myNotificationService.newInfo(VcsNotifier.NOTIFICATION_GROUP_ID)
+                .content(LocalizeValue.localizeTODO("Fetched successfully"))
+                .notify(myProject);
         }
 
         String addInfo = makeAdditionalInfoByRoot(additionalInfo);
         if (!StringUtil.isEmptyOrSpaces(addInfo)) {
-            VcsNotifier.getInstance(myProject).notifyMinorInfo("Fetch details", addInfo);
+            myNotificationService.newInfo(VcsNotifier.STANDARD_NOTIFICATION)
+                .title(LocalizeValue.localizeTODO("Fetch details"))
+                .content(LocalizeValue.localizeTODO(addInfo))
+                .notify(myProject);
         }
 
         return true;

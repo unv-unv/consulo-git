@@ -15,7 +15,9 @@
  */
 package git4idea.roots;
 
+import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
+import consulo.project.ui.notification.NotificationService;
 import consulo.versionControlSystem.VcsNotifier;
 import consulo.versionControlSystem.root.VcsIntegrationEnabler;
 import consulo.virtualFileSystem.VirtualFile;
@@ -26,41 +28,35 @@ import git4idea.commands.GitCommandResult;
 
 import jakarta.annotation.Nonnull;
 
-public class GitIntegrationEnabler extends VcsIntegrationEnabler<GitVcs>
-{
+public class GitIntegrationEnabler extends VcsIntegrationEnabler<GitVcs> {
+    @Nonnull
+    private final Git myGit;
 
-	private final
-	@Nonnull
-	Git myGit;
+    private static final Logger LOG = Logger.getInstance(GitIntegrationEnabler.class);
 
-	private static final Logger LOG = Logger.getInstance(GitIntegrationEnabler.class);
+    public GitIntegrationEnabler(@Nonnull GitVcs vcs, @Nonnull Git git) {
+        super(vcs);
+        myGit = git;
+    }
 
-	public GitIntegrationEnabler(@Nonnull GitVcs vcs, @Nonnull Git git)
-	{
-		super(vcs);
-		myGit = git;
-	}
-
-	@Override
-	protected boolean initOrNotifyError(@Nonnull final VirtualFile projectDir)
-	{
-		VcsNotifier vcsNotifier = VcsNotifier.getInstance(myProject);
-		GitCommandResult result = myGit.init(myProject, projectDir);
-		if(result.success())
-		{
-			refreshVcsDir(projectDir, GitUtil.DOT_GIT);
-			vcsNotifier.notifySuccess("Created Git repository in " + projectDir.getPresentableUrl());
-			return true;
-		}
-		else
-		{
-			if(myVcs.getExecutableValidator().checkExecutableAndNotifyIfNeeded())
-			{
-				vcsNotifier.notifyError("Couldn't git init " + projectDir.getPresentableUrl(), result.getErrorOutputAsHtmlString());
-				LOG.info(result.getErrorOutputAsHtmlString());
-			}
-			return false;
-		}
-	}
-
+    @Override
+    protected boolean initOrNotifyError(@Nonnull VirtualFile projectDir) {
+        NotificationService notificationService = NotificationService.getInstance();
+        GitCommandResult result = myGit.init(myProject, projectDir);
+        if (result.success()) {
+            refreshVcsDir(projectDir, GitUtil.DOT_GIT);
+            notificationService.newInfo(VcsNotifier.NOTIFICATION_GROUP_ID)
+                .content(LocalizeValue.localizeTODO("Created Git repository in " + projectDir.getPresentableUrl()))
+                .notify(myProject);
+            return true;
+        }
+        else if (myVcs.getExecutableValidator().checkExecutableAndNotifyIfNeeded()) {
+            notificationService.newError(VcsNotifier.IMPORTANT_ERROR_NOTIFICATION)
+                .title(LocalizeValue.localizeTODO("Couldn't git init " + projectDir.getPresentableUrl()))
+                .content(result.getErrorOutputAsHtmlValue())
+                .notify(myProject);
+            LOG.info(result.getErrorOutputAsHtmlString());
+        }
+        return false;
+    }
 }

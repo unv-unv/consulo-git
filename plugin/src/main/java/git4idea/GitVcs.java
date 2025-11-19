@@ -18,20 +18,19 @@ package git4idea;
 import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
-import consulo.application.Application;
 import consulo.application.progress.Task;
 import consulo.configurable.Configurable;
 import consulo.disposer.Disposer;
 import consulo.execution.ui.console.ConsoleViewContentType;
 import consulo.git.icon.GitIconGroup;
 import consulo.git.localize.GitLocalize;
-import consulo.ide.ServiceManager;
 import consulo.ide.setting.ShowSettingsUtil;
 import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.platform.Platform;
 import consulo.project.Project;
 import consulo.project.ui.notification.Notification;
+import consulo.project.ui.notification.NotificationService;
 import consulo.project.ui.notification.NotificationType;
 import consulo.project.ui.notification.event.NotificationListener;
 import consulo.ui.annotation.RequiredUIAccess;
@@ -100,6 +99,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList> {
 
     private static final Logger log = Logger.getInstance(GitVcs.class);
     private static final VcsKey ourKey = createKey(NAME);
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss.SSS");
 
     @Nullable
     private final ChangeProvider myChangeProvider;
@@ -110,6 +110,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList> {
     private final GitAnnotationProvider myAnnotationProvider;
     private final DiffProvider myDiffProvider;
     private final VcsHistoryProvider myHistoryProvider;
+    private final NotificationService myNotificationService;
     @Nonnull
     private final Git myGit;
     private final GitVcsApplicationSettings myAppSettings;
@@ -133,20 +134,21 @@ public class GitVcs extends AbstractVcs<CommittedChangeList> {
         if (project == null || project.isDisposed()) {
             return null;
         }
-        return (GitVcs)ProjectLevelVcsManager.getInstance(project).findVcsByName(NAME);
+        return (GitVcs) ProjectLevelVcsManager.getInstance(project).findVcsByName(NAME);
     }
 
     @Inject
     public GitVcs(
         @Nonnull Project project,
         @Nonnull Git git,
-        @Nonnull final GitAnnotationProvider gitAnnotationProvider,
-        @Nonnull final GitDiffProvider gitDiffProvider,
-        @Nonnull final GitHistoryProvider gitHistoryProvider,
-        @Nonnull final GitRollbackEnvironment gitRollbackEnvironment,
-        @Nonnull final GitVcsApplicationSettings gitSettings,
-        @Nonnull final GitVcsSettings gitProjectSettings,
-        @Nonnull GitExecutableManager gitExecutableManager
+        @Nonnull GitAnnotationProvider gitAnnotationProvider,
+        @Nonnull GitDiffProvider gitDiffProvider,
+        @Nonnull GitHistoryProvider gitHistoryProvider,
+        @Nonnull GitRollbackEnvironment gitRollbackEnvironment,
+        @Nonnull GitVcsApplicationSettings gitSettings,
+        @Nonnull GitVcsSettings gitProjectSettings,
+        @Nonnull GitExecutableManager gitExecutableManager,
+        @Nonnull NotificationService notificationService
     ) {
         super(project, NAME);
         myGit = git;
@@ -165,6 +167,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList> {
         myTreeDiffProvider = new GitTreeDiffProvider(myProject);
         myCommitAndPushExecutor = myCheckinEnvironment != null ? new GitCommitAndPushExecutor(myCheckinEnvironment) : null;
         myExecutableValidator = new GitExecutableValidator(myProject);
+        myNotificationService = notificationService;
     }
 
 
@@ -362,11 +365,11 @@ public class GitVcs extends AbstractVcs<CommittedChangeList> {
             StringBuilder buffer = new StringBuilder();
             buffer.append("\n");
             buffer.append(GitLocalize.errorListTitle(action));
-            for (final VcsException exception : list) {
+            for (VcsException exception : list) {
                 buffer.append("\n");
                 buffer.append(exception.getMessage());
             }
-            final String msg = buffer.toString();
+            String msg = buffer.toString();
             UIUtil.invokeLaterIfNeeded(() -> Messages.showErrorDialog(myProject, msg, GitLocalize.errorDialogTitle().get()));
         }
     }
@@ -375,10 +378,10 @@ public class GitVcs extends AbstractVcs<CommittedChangeList> {
      * Shows a plain message in the Version Control Console.
      */
     public void showMessages(@Nonnull String message) {
-        if (message.length() == 0) {
+        if (message.isEmpty()) {
             return;
         }
-        showMessage(message, ConsoleViewContentType.NORMAL_OUTPUT);
+        showMessage(LocalizeValue.of(message), ConsoleViewContentType.NORMAL_OUTPUT);
     }
 
     /**
@@ -392,22 +395,12 @@ public class GitVcs extends AbstractVcs<CommittedChangeList> {
     }
 
     /**
-     * Show message in the Version Control Console
-     *
-     * @param message     a message to show
-     * @param contentType a style to use
-     */
-    private void showMessage(@Nonnull String message, @Nonnull ConsoleViewContentType contentType) {
-        GitVcsConsoleWriter.getInstance(myProject).showMessage(message, contentType);
-    }
-
-    /**
      * Checks Git version and updates the myVersion variable.
      * In the case of exception or unsupported version reports the problem.
      * Note that unsupported version is also applied - some functionality might not work (we warn about that), but no need to disable at all.
      */
     public void checkVersion() {
-        final String executable = myGitExecutableManager.getPathToGit(myProject);
+        String executable = myGitExecutableManager.getPathToGit(myProject);
         try {
             myVersion = GitVersion.identifyVersion(executable);
             if (!myVersion.isSupported()) {
@@ -420,10 +413,10 @@ public class GitVcs extends AbstractVcs<CommittedChangeList> {
                     myVersion,
                     GitVersion.MIN
                 );
-                VcsNotifier.getInstance(myProject).notifyError(
-                    "Unsupported Git version",
-                    message,
-                    new NotificationListener.Adapter() {
+                myNotificationService.newError(VcsNotifier.IMPORTANT_ERROR_NOTIFICATION)
+                    .title(LocalizeValue.localizeTODO("Unsupported Git version"))
+                    .content(LocalizeValue.localizeTODO(message))
+                    .optionalHyperlinkListener(new NotificationListener.Adapter() {
                         @Override
                         protected void hyperlinkActivated(@Nonnull Notification notification, @Nonnull HyperlinkEvent e) {
                             if (SETTINGS_LINK.equals(e.getDescription())) {
@@ -433,13 +426,13 @@ public class GitVcs extends AbstractVcs<CommittedChangeList> {
                                 Platform.current().openInBrowser("http://git-scm.com");
                             }
                         }
-                    }
-                );
+                    })
+                    .notify(myProject);
             }
         }
         catch (Exception e) {
             if (getExecutableValidator().checkExecutableAndNotifyIfNeeded()) { // check executable before notifying error
-                final String reason = (e.getCause() != null ? e.getCause() : e).getMessage();
+                String reason = (e.getCause() != null ? e.getCause() : e).getMessage();
                 LocalizeValue message = GitLocalize.vcsUnableToRunGit(executable, reason);
                 if (!myProject.isDefault()) {
                     showMessage(message, ConsoleViewContentType.SYSTEM_OUTPUT);
@@ -466,16 +459,15 @@ public class GitVcs extends AbstractVcs<CommittedChangeList> {
     /**
      * Shows a command line message in the Version Control Console
      */
-    public void showCommandLine(final String cmdLine) {
-        SimpleDateFormat f = new SimpleDateFormat("HH:mm:ss.SSS");
-        showMessage(f.format(new Date()) + ": " + cmdLine, ConsoleViewContentType.SYSTEM_OUTPUT);
+    public void showCommandLine(String cmdLine) {
+        showMessage(LocalizeValue.of(DATE_FORMAT.format(new Date()) + ": " + cmdLine), ConsoleViewContentType.SYSTEM_OUTPUT);
     }
 
     /**
      * Shows error message in the Version Control Console
      */
-    public void showErrorMessages(final String line) {
-        showMessage(line, ConsoleViewContentType.ERROR_OUTPUT);
+    public void showErrorMessages(String line) {
+        showMessage(LocalizeValue.of(line), ConsoleViewContentType.ERROR_OUTPUT);
     }
 
     @Override
@@ -485,20 +477,20 @@ public class GitVcs extends AbstractVcs<CommittedChangeList> {
 
     @Nonnull
     @Override
-    public <S> List<S> filterUniqueRoots(@Nonnull List<S> in, @Nonnull Function<S, VirtualFile> convertor) {
-        Collections.sort(in, Comparator.comparing(convertor, FilePathComparator.getInstance()));
+    public <S> List<S> filterUniqueRoots(@Nonnull List<S> in, @Nonnull Function<S, VirtualFile> converter) {
+        Collections.sort(in, Comparator.comparing(converter, FilePathComparator.getInstance()));
 
         for (int i = 1; i < in.size(); i++) {
-            final S sChild = in.get(i);
-            final VirtualFile child = convertor.apply(sChild);
-            final VirtualFile childRoot = GitUtil.gitRootOrNull(child);
+            S sChild = in.get(i);
+            VirtualFile child = converter.apply(sChild);
+            VirtualFile childRoot = GitUtil.gitRootOrNull(child);
             if (childRoot == null) {
                 // non-git file actually, skip it
                 continue;
             }
             for (int j = i - 1; j >= 0; --j) {
-                final S sParent = in.get(j);
-                final VirtualFile parent = convertor.apply(sParent);
+                S sParent = in.get(j);
+                VirtualFile parent = converter.apply(sParent);
                 // the method check both that parent is an ancestor of the child and that they share common git root
                 if (VirtualFileUtil.isAncestor(parent, child, false) && VirtualFileUtil.isAncestor(childRoot, parent, false)) {
                     in.remove(i);
@@ -562,8 +554,8 @@ public class GitVcs extends AbstractVcs<CommittedChangeList> {
     @Override
     @RequiredUIAccess
     public void enableIntegration() {
-        Application.get().executeOnPooledThread((Runnable)() -> {
-            Collection<VcsRoot> roots = ServiceManager.getService(myProject, VcsRootDetector.class).detect();
+        myProject.getApplication().executeOnPooledThread((Runnable) () -> {
+            Collection<VcsRoot> roots = myProject.getInstance(VcsRootDetector.class).detect();
             new GitIntegrationEnabler(GitVcs.this, myGit).enable(roots);
         });
     }
@@ -584,8 +576,8 @@ public class GitVcs extends AbstractVcs<CommittedChangeList> {
         return true;
     }
 
-    @Override
     @Nonnull
+    @Override
     public VcsDirtyScopeBuilder createDirtyScope() {
         return new GitVcsDirtyScope(this, myProject);
     }

@@ -76,17 +76,17 @@ public class GitRebaser {
     public GitUpdateResult rebase(
         @Nonnull VirtualFile root,
         @Nonnull List<String> parameters,
-        @Nullable final Runnable onCancel,
+        @Nullable Runnable onCancel,
         @Nullable GitLineHandlerListener lineListener
     ) {
-        final GitLineHandler rebaseHandler = createHandler(root);
+        GitLineHandler rebaseHandler = createHandler(root);
         rebaseHandler.setStdoutSuppressed(false);
         rebaseHandler.addParameters(parameters);
         if (lineListener != null) {
             rebaseHandler.addLineListener(lineListener);
         }
 
-        final GitRebaseProblemDetector rebaseConflictDetector = new GitRebaseProblemDetector();
+        GitRebaseProblemDetector rebaseConflictDetector = new GitRebaseProblemDetector();
         rebaseHandler.addLineListener(rebaseConflictDetector);
         GitUntrackedFilesOverwrittenByOperationDetector untrackedFilesDetector = new GitUntrackedFilesOverwrittenByOperationDetector(root);
         GitLocalChangesWouldBeOverwrittenDetector localChangesDetector = new GitLocalChangesWouldBeOverwrittenDetector(root, CHECKOUT);
@@ -122,7 +122,7 @@ public class GitRebaser {
     @RequiredUIAccess
     public void abortRebase(@Nonnull VirtualFile root) {
         LOG.info("abortRebase " + root);
-        final GitLineHandler rh = new GitLineHandler(myProject, root, GitCommand.REBASE);
+        GitLineHandler rh = new GitLineHandler(myProject, root, GitCommand.REBASE);
         rh.setStdoutSuppressed(false);
         rh.addParameters("--abort");
         GitTask task = new GitTask(myProject, rh, GitLocalize.rebaseUpdateProjectAbortTaskTitle());
@@ -158,17 +158,17 @@ public class GitRebaser {
 
     // start operation may be "--continue" or "--skip" depending on the situation.
     @RequiredUIAccess
-    private boolean continueRebase(final @Nonnull VirtualFile root, @Nonnull String startOperation) {
+    private boolean continueRebase(@Nonnull VirtualFile root, @Nonnull String startOperation) {
         LOG.info("continueRebase " + root + " " + startOperation);
-        final GitLineHandler rh = new GitLineHandler(myProject, root, GitCommand.REBASE);
+        GitLineHandler rh = new GitLineHandler(myProject, root, GitCommand.REBASE);
         rh.setStdoutSuppressed(false);
         rh.addParameters(startOperation);
-        final GitRebaseProblemDetector rebaseConflictDetector = new GitRebaseProblemDetector();
+        GitRebaseProblemDetector rebaseConflictDetector = new GitRebaseProblemDetector();
         rh.addLineListener(rebaseConflictDetector);
 
         makeContinueRebaseInteractiveEditor(root, rh);
 
-        final GitTask rebaseTask = new GitTask(myProject, rh, LocalizeValue.localizeTODO("git rebase " + startOperation));
+        GitTask rebaseTask = new GitTask(myProject, rh, LocalizeValue.localizeTODO("git rebase " + startOperation));
         rebaseTask.setProgressAnalyzer(new GitStandardProgressAnalyzer());
         rebaseTask.setProgressIndicator(myProgressIndicator);
         return executeRebaseTaskInBackground(root, rh, rebaseConflictDetector, rebaseTask);
@@ -188,7 +188,7 @@ public class GitRebaser {
     public
     @Nonnull
     Collection<VirtualFile> getRebasingRoots() {
-        final Collection<VirtualFile> rebasingRoots = new HashSet<>();
+        Collection<VirtualFile> rebasingRoots = new HashSet<>();
         for (VirtualFile root : ProjectLevelVcsManager.getInstance(myProject).getRootsUnderVcs(myVcs)) {
             if (GitRebaseUtils.isRebaseInTheProgress(myProject, root)) {
                 rebasingRoots.add(root);
@@ -206,7 +206,7 @@ public class GitRebaser {
      */
     @RequiredUIAccess
     public boolean reoderCommitsIfNeeded(
-        @Nonnull final VirtualFile root,
+        @Nonnull VirtualFile root,
         @Nonnull String parentCommit,
         @Nonnull List<String> olderCommits
     ) throws VcsException {
@@ -216,7 +216,7 @@ public class GitRebaser {
             return true;
         }
 
-        final GitLineHandler h = new GitLineHandler(myProject, root, GitCommand.REBASE);
+        GitLineHandler h = new GitLineHandler(myProject, root, GitCommand.REBASE);
         h.setStdoutSuppressed(false);
         Integer rebaseEditorNo = null;
         GitRebaseEditorService rebaseEditorService = GitRebaseEditorService.getInstance();
@@ -224,14 +224,14 @@ public class GitRebaser {
             h.addParameters("-i", "-m", "-v");
             h.addParameters(parentCommit);
 
-            final GitRebaseProblemDetector rebaseConflictDetector = new GitRebaseProblemDetector();
+            GitRebaseProblemDetector rebaseConflictDetector = new GitRebaseProblemDetector();
             h.addLineListener(rebaseConflictDetector);
 
-            final PushRebaseEditor pushRebaseEditor = new PushRebaseEditor(rebaseEditorService, root, olderCommits, false, h);
+            PushRebaseEditor pushRebaseEditor = new PushRebaseEditor(rebaseEditorService, root, olderCommits, false, h);
             rebaseEditorNo = pushRebaseEditor.getHandlerNo();
             rebaseEditorService.configureHandler(h, rebaseEditorNo);
 
-            final GitTask rebaseTask = new GitTask(myProject, h, LocalizeValue.localizeTODO("Reordering commits"));
+            GitTask rebaseTask = new GitTask(myProject, h, LocalizeValue.localizeTODO("Reordering commits"));
             rebaseTask.setProgressIndicator(myProgressIndicator);
             return executeRebaseTaskInBackground(root, h, rebaseConflictDetector, rebaseTask);
         }
@@ -281,7 +281,7 @@ public class GitRebaser {
      * @return true if the failure situation was resolved successfully, false if we failed to resolve the problem.
      */
     @RequiredUIAccess
-    private boolean handleRebaseFailure(final VirtualFile root, final GitLineHandler h, GitRebaseProblemDetector rebaseConflictDetector) {
+    private boolean handleRebaseFailure(final VirtualFile root, GitLineHandler h, GitRebaseProblemDetector rebaseConflictDetector) {
         if (rebaseConflictDetector.isMergeConflict()) {
             LOG.info("handleRebaseFailure merge conflict");
             return new GitConflictResolver(myProject, myGit, Collections.singleton(root), makeParamsForRebaseConflict()) {
@@ -319,14 +319,18 @@ public class GitRebaser {
             }
             catch (VcsException e) {
                 LOG.info("Failed to work around 'no changes' error.", e);
-                String message = "Couldn't proceed with rebase. " + e.getMessage();
-                GitUIUtil.notifyImportantError(myProject, "Error rebasing", message);
+                LocalizeValue message = LocalizeValue.localizeTODO("Couldn't proceed with rebase. " + e.getMessage());
+                GitUIUtil.notifyImportantError(myProject, LocalizeValue.localizeTODO("Error rebasing"), message);
                 return false;
             }
         }
         else {
             LOG.info("handleRebaseFailure error " + h.errors());
-            GitUIUtil.notifyImportantError(myProject, "Error rebasing", GitUIUtil.stringifyErrors(h.errors()));
+            GitUIUtil.notifyImportantError(
+                myProject,
+                LocalizeValue.localizeTODO("Error rebasing"),
+                LocalizeValue.localizeTODO(GitUIUtil.stringifyErrors(h.errors()))
+            );
             return false;
         }
     }
@@ -375,7 +379,7 @@ public class GitRebaser {
     ) {
         if (rebaseConflictDetector.isMergeConflict()) {
             LOG.info("handleRebaseFailure merge conflict");
-            final boolean allMerged = new GitRebaser.ConflictResolver(myProject, myGit, root, this).merge();
+            boolean allMerged = new GitRebaser.ConflictResolver(myProject, myGit, root, this).merge();
             return allMerged ? GitUpdateResult.SUCCESS_WITH_RESOLVED_CONFLICTS : GitUpdateResult.INCOMPLETE;
         }
         else if (untrackedWouldBeOverwrittenDetector.wasMessageDetected()) {
@@ -400,7 +404,11 @@ public class GitRebaser {
         }
         else {
             LOG.info("handleRebaseFailure error " + handler.errors());
-            GitUIUtil.notifyImportantError(myProject, "Rebase error", GitUIUtil.stringifyErrors(handler.errors()));
+            GitUIUtil.notifyImportantError(
+                myProject,
+                LocalizeValue.localizeTODO("Rebase error"),
+                LocalizeValue.localizeTODO(GitUIUtil.stringifyErrors(handler.errors()))
+            );
             return GitUpdateResult.ERROR;
         }
     }
@@ -461,7 +469,7 @@ public class GitRebaser {
          */
         public PushRebaseEditor(
             GitRebaseEditorService rebaseEditorService,
-            final VirtualFile root,
+            VirtualFile root,
             List<String> commits,
             boolean hasMerges,
             GitHandler h

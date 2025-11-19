@@ -15,7 +15,7 @@
  */
 package git4idea.push;
 
-import consulo.application.ApplicationManager;
+import consulo.application.Application;
 import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.project.Project;
@@ -37,6 +37,7 @@ import git4idea.update.GitUpdateResult;
 
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+
 import java.util.List;
 import java.util.Map;
 
@@ -44,20 +45,22 @@ class GitPushResultNotification extends Notification {
     public static final LocalizeValue VIEW_FILES_UPDATED_DURING_THE_PUSH = LocalizeValue.localizeTODO("View files updated during the push");
 
     public static final String UPDATE_WITH_RESOLVED_CONFLICTS =
-        "push has been cancelled, because there were conflicts during update.<br/>" + "Check that conflicts were resolved correctly, and " +
-            "invoke push again.";
+        "push has been cancelled, because there were conflicts during update.<br/>" +
+            "Check that conflicts were resolved correctly, and invoke push again.";
     public static final String INCOMPLETE_UPDATE =
-        "push has been cancelled, because not all conflicts were resolved during update.<br/>" + "Resolve the conflicts and " +
-            "invoke push again.";
+        "push has been cancelled, because not all conflicts were resolved during update.<br/>" +
+            "Resolve the conflicts and invoke push again.";
     public static final String UPDATE_WITH_ERRORS = "push was rejected, and update failed with error.";
     public static final String UPDATE_CANCELLED = "push was rejected, and update was cancelled.";
 
     private static final Logger LOG = Logger.getInstance(GitPushResultNotification.class);
 
-    public GitPushResultNotification(@Nonnull NotificationGroup groupDisplayId,
-                                     @Nonnull String title,
-                                     @Nonnull String content,
-                                     @Nonnull NotificationType type) {
+    public GitPushResultNotification(
+        @Nonnull NotificationGroup groupDisplayId,
+        @Nonnull String title,
+        @Nonnull String content,
+        @Nonnull NotificationType type
+    ) {
         super(groupDisplayId, title, content, type);
     }
 
@@ -99,50 +102,58 @@ class GitPushResultNotification extends Notification {
 
         UpdatedFiles updatedFiles = pushResult.getUpdatedFiles();
         if (!updatedFiles.isEmpty()) {
-            ApplicationManager.getApplication().invokeLater(() -> {
-                UpdateInfoTree tree = ProjectLevelVcsManager.getInstance(project)
-                    .showUpdateProjectInfo(updatedFiles,
-                        "Update",
-                        ActionInfo.UPDATE,
-                        false);
+            Application.get().invokeLater(() -> {
+                UpdateInfoTree tree = ProjectLevelVcsManager.getInstance(project).showUpdateProjectInfo(
+                    updatedFiles,
+                    "Update",
+                    ActionInfo.UPDATE,
+                    false
+                );
                 if (tree != null) {
                     tree.setBefore(pushResult.getBeforeUpdateLabel());
                     tree.setAfter(pushResult.getAfterUpdateLabel());
-                    notification.addAction(new ViewUpdateInfoNotification(project,
+                    notification.addAction(new ViewUpdateInfoNotification(
+                        project,
                         tree,
                         VIEW_FILES_UPDATED_DURING_THE_PUSH,
-                        notification));
+                        notification
+                    ));
                 }
             });
         }
         return notification;
     }
 
-    private static String formDescription(@Nonnull Map<GitRepository, GitPushRepoResult> results, final boolean multiRepoProject) {
-        List<Map.Entry<GitRepository, GitPushRepoResult>> entries = ContainerUtil.sorted(results.entrySet(), (o1, o2) ->
-        {
-            // successful first
-            int compareResultTypes = GitPushRepoResult.TYPE_COMPARATOR.compare(o1.getValue().getType(), o2.getValue().getType());
-            if (compareResultTypes != 0) {
-                return compareResultTypes;
+    private static String formDescription(@Nonnull Map<GitRepository, GitPushRepoResult> results, boolean multiRepoProject) {
+        List<Map.Entry<GitRepository, GitPushRepoResult>> entries = ContainerUtil.sorted(
+            results.entrySet(),
+            (o1, o2) -> {
+                // successful first
+                int compareResultTypes = GitPushRepoResult.TYPE_COMPARATOR.compare(o1.getValue().getType(), o2.getValue().getType());
+                if (compareResultTypes != 0) {
+                    return compareResultTypes;
+                }
+                return DvcsUtil.REPOSITORY_COMPARATOR.compare(o1.getKey(), o2.getKey());
             }
-            return DvcsUtil.REPOSITORY_COMPARATOR.compare(o1.getKey(), o2.getKey());
-        });
+        );
 
-        return StringUtil.join(entries, entry ->
-        {
-            GitRepository repository = entry.getKey();
-            GitPushRepoResult result = entry.getValue();
+        return StringUtil.join(
+            entries,
+            entry -> {
+                GitRepository repository = entry.getKey();
+                GitPushRepoResult result = entry.getValue();
 
-            String description = formRepoDescription(result);
-            if (!multiRepoProject) {
-                description = StringUtil.capitalize(description);
-            }
-            else {
-                description = DvcsUtil.getShortRepositoryName(repository) + ": " + description;
-            }
-            return description;
-        }, "<br/>");
+                String description = formRepoDescription(result);
+                if (!multiRepoProject) {
+                    description = StringUtil.capitalize(description);
+                }
+                else {
+                    description = DvcsUtil.getShortRepositoryName(repository) + ": " + description;
+                }
+                return description;
+            },
+            "<br/>"
+        );
     }
 
     private static String formRepoDescription(@Nonnull GitPushRepoResult result) {

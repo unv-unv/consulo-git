@@ -15,6 +15,9 @@
  */
 package git4idea.checkout;
 
+import com.intellij.uiDesigner.core.GridConstraints;
+import com.intellij.uiDesigner.core.GridLayoutManager;
+import com.intellij.uiDesigner.core.Spacer;
 import consulo.container.boot.ContainerPathManager;
 import consulo.fileChooser.FileChooserDescriptor;
 import consulo.fileChooser.FileChooserDescriptorFactory;
@@ -38,6 +41,7 @@ import git4idea.remote.GitRememberedInputs;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import java.awt.*;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -56,10 +60,10 @@ public class GitCloneDialog extends DialogWrapper {
 
     static {
         // TODO make real URL pattern
-        final String ch = "[\\p{ASCII}&&[\\p{Graph}]&&[^@:/]]";
-        final String host = ch + "+(?:\\." + ch + "+)*";
-        final String path = "/?" + ch + "+(?:/" + ch + "+)*/?";
-        final String all = "(?:" + ch + "+@)?" + host + ":" + path;
+        String ch = "[\\p{ASCII}&&[\\p{Graph}]&&[^@:/]]";
+        String host = ch + "+(?:\\." + ch + "+)*";
+        String path = "/?" + ch + "+(?:/" + ch + "+)*/?";
+        String all = "(?:" + ch + "+@)?" + host + ":" + path;
         SSH_URL_PATTERN = Pattern.compile(all);
     }
 
@@ -79,6 +83,7 @@ public class GitCloneDialog extends DialogWrapper {
     public GitCloneDialog(Project project) {
         super(project, true);
         myProject = project;
+        $$$setupUI$$$();
         setTitle(GitLocalize.cloneTitle());
         setOKButtonText(GitLocalize.cloneButton());
 
@@ -126,8 +131,8 @@ public class GitCloneDialog extends DialogWrapper {
             .withHideIgnored(false);
 
         myParentDirectory.addActionListener(new ComponentWithBrowseButton.BrowseFolderActionListener<>(
-            fcd.getTitle(),
-            fcd.getDescription(),
+            fcd.getTitleValue(),
+            fcd.getDescriptionValue(),
             myParentDirectory,
             myProject,
             fcd,
@@ -147,7 +152,7 @@ public class GitCloneDialog extends DialogWrapper {
             }
         });
 
-        final DocumentListener updateOkButtonListener = new DocumentAdapter() {
+        DocumentListener updateOkButtonListener = new DocumentAdapter() {
             @Override
             protected void textChanged(DocumentEvent e) {
                 updateButtons();
@@ -168,6 +173,7 @@ public class GitCloneDialog extends DialogWrapper {
         myTestButton.setEnabled(false);
     }
 
+    @RequiredUIAccess
     private void test() {
         myTestURL = getCurrentUrlText();
         boolean testResult = test(myTestURL);
@@ -188,11 +194,12 @@ public class GitCloneDialog extends DialogWrapper {
 
     /*
      * JGit doesn't have ls-remote command independent from repository yet.
-     * That way, we have a hack here: if http response asked for a password, then the url is at least valid and existant, and we consider
+     * That way, we have a hack here: if http response asked for a password, then the url is at least valid and existent, and we consider
      * that the test passed.
      */
+    @RequiredUIAccess
     private boolean test(String url) {
-        final GitLineHandlerPasswordRequestAware handler =
+        GitLineHandlerPasswordRequestAware handler =
             new GitLineHandlerPasswordRequestAware(myProject, new File("."), GitCommand.LS_REMOTE);
         handler.setPuttyKey(getPuttyKeyFile());
         handler.setUrl(url);
@@ -300,13 +307,13 @@ public class GitCloneDialog extends DialogWrapper {
 
     private void createUIComponents() {
         myRepositoryURL = new EditorComboBox("");
-        final GitRememberedInputs rememberedInputs = GitRememberedInputs.getInstance();
+        GitRememberedInputs rememberedInputs = GitRememberedInputs.getInstance();
         myRepositoryURL.setHistory(ArrayUtil.toObjectArray(rememberedInputs.getVisitedUrls(), String.class));
         myRepositoryURL.addDocumentListener(new consulo.document.event.DocumentAdapter() {
             @Override
             public void documentChanged(consulo.document.event.DocumentEvent e) {
                 // enable test button only if something is entered in repository URL
-                final String url = getCurrentUrlText();
+                String url = getCurrentUrlText();
                 myTestButton.setEnabled(url.length() != 0);
                 if (myDefaultDirectoryName.equals(myDirectoryName.getText()) || myDirectoryName.getText().length() == 0) {
                     // modify field if it was unmodified or blank
@@ -318,12 +325,12 @@ public class GitCloneDialog extends DialogWrapper {
         });
     }
 
-    public void prependToHistory(final String item) {
+    public void prependToHistory(String item) {
         myRepositoryURL.prependItem(item);
     }
 
     public void rememberSettings() {
-        final GitRememberedInputs rememberedInputs = GitRememberedInputs.getInstance();
+        GitRememberedInputs rememberedInputs = GitRememberedInputs.getInstance();
         rememberedInputs.addUrl(getSourceRepositoryURL());
         rememberedInputs.setCloneParentDir(getParentDirectory());
         rememberedInputs.setPuttyKey(getPuttyKeyFile());
@@ -335,7 +342,7 @@ public class GitCloneDialog extends DialogWrapper {
      * @param url an URL to checkout
      * @return a default repository name
      */
-    private static String defaultDirectoryName(final String url) {
+    private static String defaultDirectoryName(String url) {
         String nonSystemName;
         if (url.endsWith("/" + GitUtil.DOT_GIT) || url.endsWith(File.separator + GitUtil.DOT_GIT)) {
             nonSystemName = url.substring(0, url.length() - 5);
@@ -374,5 +381,306 @@ public class GitCloneDialog extends DialogWrapper {
     @Override
     protected String getHelpId() {
         return "reference.VersionControl.Git.CloneRepository";
+    }
+
+    /**
+     * Method generated by Consulo GUI Designer
+     * >>> IMPORTANT!! <<<
+     * DO NOT edit this method OR call it in your code!
+     */
+    private void $$$setupUI$$$() {
+        createUIComponents();
+        myRootPanel = new JPanel();
+        myRootPanel.setLayout(new GridLayoutManager(5, 4, JBUI.emptyInsets(), -1, -1));
+        JLabel label1 = new JLabel();
+        this.$$$loadLabelText$$$(label1, GitLocalize.cloneRepositoryUrl().get());
+        myRootPanel.add(
+            label1,
+            new GridConstraints(
+                0,
+                0,
+                1,
+                1,
+                GridConstraints.ANCHOR_WEST,
+                GridConstraints.FILL_NONE,
+                GridConstraints.SIZEPOLICY_FIXED,
+                GridConstraints.SIZEPOLICY_FIXED,
+                null,
+                null,
+                null,
+                0,
+                false
+            )
+        );
+        Spacer spacer1 = new Spacer();
+        myRootPanel.add(
+            spacer1,
+            new GridConstraints(
+                4,
+                0,
+                1,
+                1,
+                GridConstraints.ANCHOR_CENTER,
+                GridConstraints.FILL_VERTICAL,
+                1,
+                GridConstraints.SIZEPOLICY_WANT_GROW,
+                null,
+                null,
+                null,
+                0,
+                false
+            )
+        );
+        Spacer spacer2 = new Spacer();
+        myRootPanel.add(
+            spacer2,
+            new GridConstraints(
+                4,
+                1,
+                1,
+                3,
+                GridConstraints.ANCHOR_CENTER,
+                GridConstraints.FILL_HORIZONTAL,
+                GridConstraints.SIZEPOLICY_WANT_GROW,
+                1,
+                null,
+                null,
+                null,
+                0,
+                false
+            )
+        );
+        myRootPanel.add(
+            myRepositoryURL,
+            new GridConstraints(
+                0,
+                1,
+                1,
+                2,
+                GridConstraints.ANCHOR_WEST,
+                GridConstraints.FILL_HORIZONTAL,
+                GridConstraints.SIZEPOLICY_WANT_GROW,
+                GridConstraints.SIZEPOLICY_FIXED,
+                null,
+                new Dimension(150, -1),
+                null,
+                0,
+                false
+            )
+        );
+        JLabel label2 = new JLabel();
+        this.$$$loadLabelText$$$(label2, GitLocalize.cloneParentDir().get());
+        myRootPanel.add(
+            label2,
+            new GridConstraints(
+                2,
+                0,
+                1,
+                1,
+                GridConstraints.ANCHOR_WEST,
+                GridConstraints.FILL_NONE,
+                GridConstraints.SIZEPOLICY_FIXED,
+                GridConstraints.SIZEPOLICY_FIXED,
+                null,
+                null,
+                null,
+                0,
+                false
+            )
+        );
+        myParentDirectory = new TextFieldWithBrowseButton();
+        myRootPanel.add(
+            myParentDirectory,
+            new GridConstraints(
+                2,
+                1,
+                1,
+                3,
+                GridConstraints.ANCHOR_CENTER,
+                GridConstraints.FILL_HORIZONTAL,
+                GridConstraints.SIZEPOLICY_WANT_GROW,
+                GridConstraints.SIZEPOLICY_FIXED,
+                null,
+                null,
+                null,
+                0,
+                false
+            )
+        );
+        JLabel label3 = new JLabel();
+        this.$$$loadLabelText$$$(label3, GitLocalize.cloneDirName().get());
+        myRootPanel.add(
+            label3,
+            new GridConstraints(
+                3,
+                0,
+                1,
+                1,
+                GridConstraints.ANCHOR_WEST,
+                GridConstraints.FILL_NONE,
+                GridConstraints.SIZEPOLICY_FIXED,
+                GridConstraints.SIZEPOLICY_FIXED,
+                null,
+                null,
+                null,
+                0,
+                false
+            )
+        );
+        myTestButton = new JButton();
+        this.$$$loadButtonText$$$(myTestButton, GitLocalize.cloneTest().get());
+        myRootPanel.add(
+            myTestButton,
+            new GridConstraints(
+                0,
+                3,
+                1,
+                1,
+                GridConstraints.ANCHOR_CENTER,
+                GridConstraints.FILL_HORIZONTAL,
+                GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
+                GridConstraints.SIZEPOLICY_FIXED,
+                null,
+                null,
+                null,
+                0,
+                false
+            )
+        );
+        myDirectoryName = new JTextField();
+        myRootPanel.add(
+            myDirectoryName,
+            new GridConstraints(
+                3,
+                1,
+                1,
+                1,
+                GridConstraints.ANCHOR_WEST,
+                GridConstraints.FILL_HORIZONTAL,
+                GridConstraints.SIZEPOLICY_WANT_GROW,
+                GridConstraints.SIZEPOLICY_FIXED,
+                null,
+                new Dimension(150, -1),
+                null,
+                0,
+                false
+            )
+        );
+        Spacer spacer3 = new Spacer();
+        myRootPanel.add(
+            spacer3,
+            new GridConstraints(
+                3,
+                2,
+                1,
+                2,
+                GridConstraints.ANCHOR_CENTER,
+                GridConstraints.FILL_HORIZONTAL,
+                GridConstraints.SIZEPOLICY_WANT_GROW,
+                1,
+                null,
+                null,
+                null,
+                0,
+                false
+            )
+        );
+        myPuttyLabel = new JLabel();
+        this.$$$loadLabelText$$$(myPuttyLabel, GitLocalize.cloneRepositoryPuttyKey().get());
+        myRootPanel.add(
+            myPuttyLabel,
+            new GridConstraints(
+                1,
+                0,
+                1,
+                1,
+                GridConstraints.ANCHOR_WEST,
+                GridConstraints.FILL_NONE,
+                GridConstraints.SIZEPOLICY_FIXED,
+                GridConstraints.SIZEPOLICY_FIXED,
+                null,
+                null,
+                null,
+                0,
+                false
+            )
+        );
+        myPuttyKeyChooser = new TextFieldWithBrowseButton();
+        myRootPanel.add(
+            myPuttyKeyChooser,
+            new GridConstraints(
+                1,
+                1,
+                1,
+                3,
+                GridConstraints.ANCHOR_CENTER,
+                GridConstraints.FILL_HORIZONTAL,
+                GridConstraints.SIZEPOLICY_WANT_GROW,
+                GridConstraints.SIZEPOLICY_FIXED,
+                null,
+                null,
+                null,
+                0,
+                false
+            )
+        );
+        label1.setLabelFor(myRepositoryURL);
+        label3.setLabelFor(myDirectoryName);
+    }
+
+    private void $$$loadLabelText$$$(JLabel component, String text) {
+        StringBuilder result = new StringBuilder();
+        boolean haveMnemonic = false;
+        char mnemonic = '\0';
+        int mnemonicIndex = -1;
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) == '&') {
+                i++;
+                if (i == text.length()) {
+                    break;
+                }
+                if (!haveMnemonic && text.charAt(i) != '&') {
+                    haveMnemonic = true;
+                    mnemonic = text.charAt(i);
+                    mnemonicIndex = result.length();
+                }
+            }
+            result.append(text.charAt(i));
+        }
+        component.setText(result.toString());
+        if (haveMnemonic) {
+            component.setDisplayedMnemonic(mnemonic);
+            component.setDisplayedMnemonicIndex(mnemonicIndex);
+        }
+    }
+
+    private void $$$loadButtonText$$$(AbstractButton component, String text) {
+        StringBuilder result = new StringBuilder();
+        boolean haveMnemonic = false;
+        char mnemonic = '\0';
+        int mnemonicIndex = -1;
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) == '&') {
+                i++;
+                if (i == text.length()) {
+                    break;
+                }
+                if (!haveMnemonic && text.charAt(i) != '&') {
+                    haveMnemonic = true;
+                    mnemonic = text.charAt(i);
+                    mnemonicIndex = result.length();
+                }
+            }
+            result.append(text.charAt(i));
+        }
+        component.setText(result.toString());
+        if (haveMnemonic) {
+            component.setMnemonic(mnemonic);
+            component.setDisplayedMnemonicIndex(mnemonicIndex);
+        }
+    }
+
+    public JComponent $$$getRootComponent$$$() {
+        return myRootPanel;
     }
 }

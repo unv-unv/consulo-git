@@ -26,21 +26,24 @@ import java.util.List;
  * Git update session implementation
  */
 public class GitUpdateSession implements UpdateSession {
-  private final boolean myResult;
+    private final boolean myResult;
 
-  public GitUpdateSession(boolean result) {
-    myResult = result;
-  }
+    public GitUpdateSession(boolean result) {
+        myResult = result;
+    }
 
-  @Nonnull
-  public List<VcsException> getExceptions() {
-    return Collections.emptyList();
-  }
+    @Nonnull
+    @Override
+    public List<VcsException> getExceptions() {
+        return Collections.emptyList();
+    }
 
-  public void onRefreshFilesCompleted() {
-  }
+    @Override
+    public void onRefreshFilesCompleted() {
+    }
 
-  public boolean isCanceled() {
-    return !myResult;
-  }
+    @Override
+    public boolean isCanceled() {
+        return !myResult;
+    }
 }

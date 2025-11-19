@@ -4,6 +4,7 @@ import consulo.annotation.component.ExtensionImpl;
 import consulo.git.localize.GitLocalize;
 import consulo.localize.LocalizeValue;
 import consulo.project.Project;
+import consulo.project.ui.notification.NotificationService;
 import consulo.versionControlSystem.AbstractVcs;
 import consulo.versionControlSystem.VcsFactory;
 import git4idea.GitVcs;
@@ -35,6 +36,7 @@ public class GitVcsFactory implements VcsFactory {
     private final Provider<GitVcsApplicationSettings> myGitVcsApplicationSettings;
     private final Provider<GitVcsSettings> myGitVcsSettings;
     private final Provider<GitExecutableManager> myGitExecutableManager;
+    private final Provider<NotificationService> myNotificationService;
 
     @Inject
     public GitVcsFactory(
@@ -46,7 +48,8 @@ public class GitVcsFactory implements VcsFactory {
         @Nonnull Provider<GitRollbackEnvironment> gitRollbackEnvironment,
         @Nonnull Provider<GitVcsApplicationSettings> gitSettings,
         @Nonnull Provider<GitVcsSettings> gitProjectSettings,
-        @Nonnull Provider<GitExecutableManager> gitExecutableManager
+        @Nonnull Provider<GitExecutableManager> gitExecutableManager,
+        @Nonnull Provider<NotificationService> notificationService
     ) {
         myProject = project;
         myGit = git;
@@ -57,6 +60,7 @@ public class GitVcsFactory implements VcsFactory {
         myGitVcsApplicationSettings = gitSettings;
         myGitVcsSettings = gitProjectSettings;
         myGitExecutableManager = gitExecutableManager;
+        myNotificationService = notificationService;
     }
 
     @Nonnull
@@ -90,7 +94,8 @@ public class GitVcsFactory implements VcsFactory {
             myGitRollbackEnvironment.get(),
             myGitVcsApplicationSettings.get(),
             myGitVcsSettings.get(),
-            myGitExecutableManager.get()
+            myGitExecutableManager.get(),
+            myNotificationService.get()
         );
     }
 }

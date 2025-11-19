@@ -20,6 +20,5 @@ import consulo.versionControlSystem.ProcessEventListener;
 /**
  * Listener for event common for all handlers
  */
-public interface GitHandlerListener extends ProcessEventListener
-{
+public interface GitHandlerListener extends ProcessEventListener {
 }

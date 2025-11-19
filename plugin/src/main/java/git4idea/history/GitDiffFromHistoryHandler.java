@@ -18,7 +18,7 @@ package git4idea.history;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.Task;
 import consulo.dataContext.DataContext;
-import consulo.ide.ServiceManager;
+import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.project.Project;
 import consulo.project.ui.notification.NotificationType;
@@ -28,7 +28,6 @@ import consulo.ui.ex.action.*;
 import consulo.ui.ex.popup.JBPopupFactory;
 import consulo.ui.ex.popup.ListPopup;
 import consulo.util.collection.ArrayUtil;
-import consulo.util.collection.ContainerUtil;
 import consulo.util.io.FileUtil;
 import consulo.versionControlSystem.FilePath;
 import consulo.versionControlSystem.VcsException;
@@ -84,7 +83,13 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
     }
 
     @Override
-    public void showDiffForOne(@Nonnull AnActionEvent e, @Nonnull Project project, @Nonnull FilePath filePath, @Nonnull VcsFileRevision previousRevision, @Nonnull VcsFileRevision revision) {
+    public void showDiffForOne(
+        @Nonnull AnActionEvent e,
+        @Nonnull Project project,
+        @Nonnull FilePath filePath,
+        @Nonnull VcsFileRevision previousRevision,
+        @Nonnull VcsFileRevision revision
+    ) {
         GitFileRevision rev = (GitFileRevision) revision;
         Collection<String> parents = rev.getParents();
         if (parents.size() < 2) {
@@ -97,12 +102,22 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
 
     @Nonnull
     @Override
-    protected List<Change> getChangesBetweenRevisions(@Nonnull FilePath path, @Nonnull GitFileRevision rev1, @Nullable GitFileRevision rev2) throws VcsException {
+    protected List<Change> getChangesBetweenRevisions(
+        @Nonnull FilePath path,
+        @Nonnull GitFileRevision rev1,
+        @Nullable GitFileRevision rev2
+    ) throws VcsException {
         GitRepository repository = getRepository(path);
         String hash1 = rev1.getHash();
         String hash2 = rev2 != null ? rev2.getHash() : null;
 
-        return ContainerUtil.newArrayList(GitChangeUtils.getDiff(repository.getProject(), repository.getRoot(), hash1, hash2, Collections.singletonList(path)));
+        return new ArrayList<>(GitChangeUtils.getDiff(
+            repository.getProject(),
+            repository.getRoot(),
+            hash1,
+            hash2,
+            Collections.singletonList(path)
+        ));
     }
 
     @Nonnull
@@ -110,7 +125,14 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
     protected List<Change> getAffectedChanges(@Nonnull FilePath path, @Nonnull GitFileRevision rev) throws VcsException {
         GitRepository repository = getRepository(path);
 
-        return ContainerUtil.newArrayList(GitChangeUtils.getRevisionChanges(repository.getProject(), repository.getRoot(), rev.getHash(), false, true, true).getChanges());
+        return new ArrayList<>(GitChangeUtils.getRevisionChanges(
+            repository.getProject(),
+            repository.getRoot(),
+            rev.getHash(),
+            false,
+            true,
+            true
+        ).getChanges());
     }
 
     @Nonnull
@@ -126,18 +148,31 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
         return repository;
     }
 
-    private void showDiffForMergeCommit(@Nonnull final AnActionEvent event, @Nonnull final FilePath filePath, @Nonnull final GitFileRevision rev, @Nonnull final Collection<String> parents) {
-
-        checkIfFileWasTouchedAndFindParentsInBackground(filePath, rev, parents, new Consumer<>() {
-            @Override
-            public void accept(MergeCommitPreCheckInfo info) {
+    private void showDiffForMergeCommit(
+        @Nonnull AnActionEvent event,
+        @Nonnull FilePath filePath,
+        @Nonnull GitFileRevision rev,
+        @Nonnull Collection<String> parents
+    ) {
+        checkIfFileWasTouchedAndFindParentsInBackground(
+            filePath,
+            rev,
+            parents,
+            info -> {
                 if (!info.wasFileTouched()) {
-                    String message = String.format("There were no changes in %s in this merge commit, besides those which were made in both branches", filePath.getName());
-                    VcsBalloonProblemNotifier.showOverVersionControlView(GitDiffFromHistoryHandler.this.myProject, message, NotificationType.INFORMATION);
+                    String message = String.format(
+                        "There were no changes in %s in this merge commit, besides those which were made in both branches",
+                        filePath.getName()
+                    );
+                    VcsBalloonProblemNotifier.showOverVersionControlView(
+                        GitDiffFromHistoryHandler.this.myProject,
+                        message,
+                        NotificationType.INFORMATION
+                    );
                 }
                 showPopup(event, rev, filePath, info.getParents());
             }
-        });
+        );
     }
 
     private static class MergeCommitPreCheckInfo {
@@ -158,11 +193,13 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
         }
     }
 
-    private void checkIfFileWasTouchedAndFindParentsInBackground(@Nonnull final FilePath filePath,
-                                                                 @Nonnull final GitFileRevision rev,
-                                                                 @Nonnull final Collection<String> parentHashes,
-                                                                 @Nonnull final Consumer<MergeCommitPreCheckInfo> resultHandler) {
-        new Task.Backgroundable(myProject, "Loading changes...", true) {
+    private void checkIfFileWasTouchedAndFindParentsInBackground(
+        @Nonnull final FilePath filePath,
+        @Nonnull final GitFileRevision rev,
+        @Nonnull final Collection<String> parentHashes,
+        @Nonnull final Consumer<MergeCommitPreCheckInfo> resultHandler
+    ) {
+        new Task.Backgroundable(myProject, LocalizeValue.localizeTODO("Loading changes..."), true) {
             private MergeCommitPreCheckInfo myInfo;
 
             @Override
@@ -190,7 +227,11 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
     }
 
     @Nonnull
-    private Collection<GitFileRevision> findParentRevisions(@Nonnull GitRepository repository, @Nonnull GitFileRevision currentRevision, @Nonnull Collection<String> parentHashes) throws VcsException {
+    private Collection<GitFileRevision> findParentRevisions(
+        @Nonnull GitRepository repository,
+        @Nonnull GitFileRevision currentRevision,
+        @Nonnull Collection<String> parentHashes
+    ) throws VcsException {
         // currentRevision is a merge revision.
         // the file could be renamed in one of the branches, i.e. the name in one of the parent revisions may be different from the name
         // in currentRevision. It can be different even in both parents, but it would a rename-rename conflict, and we don't handle such anyway.
@@ -203,7 +244,11 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
     }
 
     @Nonnull
-    private GitFileRevision createParentRevision(@Nonnull GitRepository repository, @Nonnull GitFileRevision currentRevision, @Nonnull String parentHash) throws VcsException {
+    private GitFileRevision createParentRevision(
+        @Nonnull GitRepository repository,
+        @Nonnull GitFileRevision currentRevision,
+        @Nonnull String parentHash
+    ) throws VcsException {
         FilePath currentRevisionPath = currentRevision.getPath();
         if (currentRevisionPath.isDirectory()) {
             // for directories the history doesn't follow renames
@@ -221,21 +266,37 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
                 return new GitFileRevision(myProject, path, new GitRevisionNumber(parentHash));
             }
         }
-        LOG.error(String.format("Could not find parent revision. Will use the path from parent revision. Current revision: %s, parent hash: %s", currentRevision, parentHash));
+        LOG.error(String.format(
+            "Could not find parent revision. Will use the path from parent revision. Current revision: %s, parent hash: %s",
+            currentRevision,
+            parentHash
+        ));
         return makeRevisionFromHash(currentRevisionPath, parentHash);
     }
 
-    private void showPopup(@Nonnull AnActionEvent event, @Nonnull GitFileRevision rev, @Nonnull FilePath filePath, @Nonnull Collection<GitFileRevision> parents) {
+    private void showPopup(
+        @Nonnull AnActionEvent event,
+        @Nonnull GitFileRevision rev,
+        @Nonnull FilePath filePath,
+        @Nonnull Collection<GitFileRevision> parents
+    ) {
         ActionGroup parentActions = createActionGroup(rev, filePath, parents);
         DataContext dataContext = DataContext.builder().add(Project.KEY, myProject).build();
-        ListPopup popup = JBPopupFactory.getInstance().createActionGroupPopup("Choose parent to compare", parentActions, dataContext, JBPopupFactory.ActionSelectionAid.NUMBERING, true);
+        ListPopup popup = JBPopupFactory.getInstance()
+            .createActionGroupPopup(
+                "Choose parent to compare",
+                parentActions,
+                dataContext,
+                JBPopupFactory.ActionSelectionAid.NUMBERING,
+                true
+            );
         showPopupInBestPosition(popup, event, dataContext);
     }
 
     private static void showPopupInBestPosition(@Nonnull ListPopup popup, @Nonnull AnActionEvent event, @Nonnull DataContext dataContext) {
-        if (event.getInputEvent() instanceof MouseEvent) {
+        if (event.getInputEvent() instanceof MouseEvent mouseEvent) {
             if (!event.getPlace().equals(ActionPlaces.UPDATE_POPUP)) {
-                popup.show(new RelativePoint((MouseEvent) event.getInputEvent()));
+                popup.show(new RelativePoint(mouseEvent));
             }
             else { // quick fix for invoking from the context menu: coordinates are calculated incorrectly there.
                 popup.showInBestPositionFor(dataContext);
@@ -247,7 +308,11 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
     }
 
     @Nonnull
-    private ActionGroup createActionGroup(@Nonnull GitFileRevision rev, @Nonnull FilePath filePath, @Nonnull Collection<GitFileRevision> parents) {
+    private ActionGroup createActionGroup(
+        @Nonnull GitFileRevision rev,
+        @Nonnull FilePath filePath,
+        @Nonnull Collection<GitFileRevision> parents
+    ) {
         Collection<AnAction> actions = new ArrayList<>(2);
         for (GitFileRevision parent : parents) {
             actions.add(createParentAction(rev, filePath, parent));
@@ -270,7 +335,7 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
         if (result.success()) {
             return isFilePresentInOutput(repository, rev.getPath(), result.getOutput());
         }
-        throw new VcsException(result.getErrorOutputAsJoinedString());
+        throw new VcsException(result.getErrorOutputAsJoinedValue());
     }
 
     private static boolean isFilePresentInOutput(@Nonnull GitRepository repository, @Nonnull FilePath path, @Nonnull List<String> output) {
@@ -306,11 +371,10 @@ public class GitDiffFromHistoryHandler extends BaseDiffFromHistoryHandler<GitFil
             myParentRevision = parent;
         }
 
-        @RequiredUIAccess
         @Override
-        public void actionPerformed(AnActionEvent e) {
+        @RequiredUIAccess
+        public void actionPerformed(@Nonnull AnActionEvent e) {
             doShowDiff(myFilePath, myParentRevision, myRevision);
         }
-
     }
 }

@@ -15,11 +15,13 @@
  */
 package git4idea.update;
 
+import com.intellij.uiDesigner.core.GridConstraints;
+import com.intellij.uiDesigner.core.GridLayoutManager;
 import consulo.application.Application;
 import consulo.git.localize.GitLocalize;
 import consulo.project.Project;
-import consulo.ui.ex.awt.DialogWrapper;
-import consulo.ui.ex.awt.UIUtil;
+import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.ex.awt.*;
 import consulo.versionControlSystem.FilePath;
 import consulo.versionControlSystem.VcsException;
 import consulo.versionControlSystem.util.VcsUtil;
@@ -34,6 +36,7 @@ import git4idea.util.StringScanner;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -70,12 +73,13 @@ public class GitUpdateLocallyModifiedDialog extends DialogWrapper {
      * @param root                 the vcs root
      * @param locallyModifiedFiles the collection of locally modified files to use
      */
-    protected GitUpdateLocallyModifiedDialog(final Project project, final VirtualFile root, List<String> locallyModifiedFiles) {
+    @RequiredUIAccess
+    protected GitUpdateLocallyModifiedDialog(Project project, VirtualFile root, List<String> locallyModifiedFiles) {
         super(project, true);
         myLocallyModifiedFiles = locallyModifiedFiles;
         setTitle(GitLocalize.updateLocallyModifiedTitle());
         myGitRoot.setText(root.getPresentableUrl());
-        myFilesList.setModel(new DefaultListModel());
+        myFilesList.setModel(new DefaultListModel<>());
         setOKButtonText(GitLocalize.updateLocallyModifiedRevert());
         syncListModel();
         myRescanButton.addActionListener(e -> {
@@ -96,7 +100,7 @@ public class GitUpdateLocallyModifiedDialog extends DialogWrapper {
      */
     @SuppressWarnings("unchecked")
     private void syncListModel() {
-        DefaultListModel<String> listModel = (DefaultListModel)myFilesList.getModel();
+        DefaultListModel<String> listModel = (DefaultListModel) myFilesList.getModel();
         listModel.removeAllElements();
         for (String p : myLocallyModifiedFiles) {
             listModel.addElement(p);
@@ -149,7 +153,6 @@ public class GitUpdateLocallyModifiedDialog extends DialogWrapper {
         }
     }
 
-
     /**
      * Show the dialog if needed
      *
@@ -157,27 +160,25 @@ public class GitUpdateLocallyModifiedDialog extends DialogWrapper {
      * @param root    the vcs root
      * @return true if showing is not needed or operation completed successfully
      */
-    public static boolean showIfNeeded(final Project project, final VirtualFile root) {
-        final ArrayList<String> files = new ArrayList<>();
+    public static boolean showIfNeeded(Project project, VirtualFile root) {
+        List<String> files = new ArrayList<>();
         try {
             scanFiles(project, root, files);
-            final AtomicBoolean rc = new AtomicBoolean(true);
+            AtomicBoolean rc = new AtomicBoolean(true);
             if (!files.isEmpty()) {
-                UIUtil.invokeAndWaitIfNeeded((Runnable)() -> {
+                UIUtil.invokeAndWaitIfNeeded((Runnable) () -> {
                     GitUpdateLocallyModifiedDialog d = new GitUpdateLocallyModifiedDialog(project, root, files);
                     d.show();
                     rc.set(d.isOK());
                 });
-                if (rc.get()) {
-                    if (!files.isEmpty()) {
-                        revertFiles(project, root, files);
-                    }
+                if (rc.get() && !files.isEmpty()) {
+                    revertFiles(project, root, files);
                 }
             }
             return rc.get();
         }
-        catch (final VcsException e) {
-            UIUtil.invokeAndWaitIfNeeded((Runnable)() -> GitUIUtil.showOperationError(project, e, "Checking for locally modified files"));
+        catch (VcsException e) {
+            UIUtil.invokeAndWaitIfNeeded((Runnable) () -> GitUIUtil.showOperationError(project, e, "Checking for locally modified files"));
             return false;
         }
     }
@@ -189,13 +190,211 @@ public class GitUpdateLocallyModifiedDialog extends DialogWrapper {
      * @param root    the vcs root
      * @param files   the files to revert
      */
-    private static void revertFiles(Project project, VirtualFile root, ArrayList<String> files) throws VcsException {
+    private static void revertFiles(Project project, VirtualFile root, List<String> files) throws VcsException {
         // TODO consider deleted files
         GitRollbackEnvironment rollback = GitRollbackEnvironment.getInstance(project);
-        ArrayList<FilePath> list = new ArrayList<>(files.size());
+        List<FilePath> list = new ArrayList<>(files.size());
         for (String p : files) {
             list.add(VcsUtil.getFilePath(p));
         }
         rollback.revert(root, list);
+    }
+
+    {
+// GUI initializer generated by Consulo GUI Designer
+// >>> IMPORTANT!! <<<
+// DO NOT EDIT OR ADD ANY CODE HERE!
+        $$$setupUI$$$();
+    }
+
+    /**
+     * Method generated by Consulo GUI Designer
+     * >>> IMPORTANT!! <<<
+     * DO NOT edit this method OR call it in your code!
+     */
+    private void $$$setupUI$$$() {
+        myRootPanel = new JPanel();
+        myRootPanel.setLayout(new GridLayoutManager(3, 3, JBUI.emptyInsets(), -1, -1));
+        JLabel label1 = new JLabel();
+        this.$$$loadLabelText$$$(label1, GitLocalize.updateLocallyModifiedGitRoot().get());
+        myRootPanel.add(
+            label1,
+            new GridConstraints(
+                0,
+                0,
+                1,
+                1,
+                GridConstraints.ANCHOR_WEST,
+                GridConstraints.FILL_NONE,
+                GridConstraints.SIZEPOLICY_FIXED,
+                GridConstraints.SIZEPOLICY_FIXED,
+                null,
+                null,
+                null,
+                0,
+                false
+            )
+        );
+        myGitRoot = new JLabel();
+        myGitRoot.setText("");
+        myRootPanel.add(
+            myGitRoot,
+            new GridConstraints(
+                0,
+                1,
+                1,
+                2,
+                GridConstraints.ANCHOR_CENTER,
+                GridConstraints.FILL_BOTH,
+                GridConstraints.SIZEPOLICY_FIXED,
+                GridConstraints.SIZEPOLICY_FIXED,
+                null,
+                null,
+                null,
+                0,
+                false
+            )
+        );
+        myDescriptionLabel = new JLabel();
+        myDescriptionLabel.setText("");
+        myRootPanel.add(
+            myDescriptionLabel,
+            new GridConstraints(
+                1,
+                0,
+                1,
+                3,
+                GridConstraints.ANCHOR_WEST,
+                GridConstraints.FILL_NONE,
+                GridConstraints.SIZEPOLICY_FIXED,
+                GridConstraints.SIZEPOLICY_FIXED,
+                null,
+                null,
+                null,
+                0,
+                false
+            )
+        );
+        JBScrollPane jBScrollPane1 = new JBScrollPane();
+        myRootPanel.add(
+            jBScrollPane1,
+            new GridConstraints(
+                2,
+                1,
+                1,
+                1,
+                GridConstraints.ANCHOR_CENTER,
+                GridConstraints.FILL_BOTH,
+                GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW,
+                GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW,
+                null,
+                null,
+                null,
+                0,
+                false
+            )
+        );
+        myFilesList = new JBList<>();
+        myFilesList.setToolTipText(GitLocalize.updateLocallyModifiedFilesTooltip().get());
+        jBScrollPane1.setViewportView(myFilesList);
+        myRescanButton = new JButton();
+        this.$$$loadButtonText$$$(myRescanButton, GitLocalize.updateLocallyModifiedRescan().get());
+        myRescanButton.setToolTipText(GitLocalize.updateLocallyModifiedRescanTooltip().get());
+        myRootPanel.add(
+            myRescanButton,
+            new GridConstraints(
+                2,
+                2,
+                1,
+                1,
+                GridConstraints.ANCHOR_NORTH,
+                GridConstraints.FILL_HORIZONTAL,
+                GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
+                GridConstraints.SIZEPOLICY_FIXED,
+                null,
+                null,
+                null,
+                0,
+                false
+            )
+        );
+        JLabel label2 = new JLabel();
+        this.$$$loadLabelText$$$(label2, GitLocalize.updateLocallyModifiedFiles().get());
+        label2.setVerticalAlignment(0);
+        myRootPanel.add(
+            label2,
+            new GridConstraints(
+                2,
+                0,
+                1,
+                1,
+                GridConstraints.ANCHOR_NORTHWEST,
+                GridConstraints.FILL_NONE,
+                GridConstraints.SIZEPOLICY_FIXED,
+                GridConstraints.SIZEPOLICY_FIXED,
+                null,
+                null,
+                null,
+                0,
+                false
+            )
+        );
+        label2.setLabelFor(jBScrollPane1);
+    }
+
+    private void $$$loadLabelText$$$(JLabel component, String text) {
+        StringBuilder result = new StringBuilder();
+        boolean haveMnemonic = false;
+        char mnemonic = '\0';
+        int mnemonicIndex = -1;
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) == '&') {
+                i++;
+                if (i == text.length()) {
+                    break;
+                }
+                if (!haveMnemonic && text.charAt(i) != '&') {
+                    haveMnemonic = true;
+                    mnemonic = text.charAt(i);
+                    mnemonicIndex = result.length();
+                }
+            }
+            result.append(text.charAt(i));
+        }
+        component.setText(result.toString());
+        if (haveMnemonic) {
+            component.setDisplayedMnemonic(mnemonic);
+            component.setDisplayedMnemonicIndex(mnemonicIndex);
+        }
+    }
+
+    private void $$$loadButtonText$$$(AbstractButton component, String text) {
+        StringBuilder result = new StringBuilder();
+        boolean haveMnemonic = false;
+        char mnemonic = '\0';
+        int mnemonicIndex = -1;
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) == '&') {
+                i++;
+                if (i == text.length()) {
+                    break;
+                }
+                if (!haveMnemonic && text.charAt(i) != '&') {
+                    haveMnemonic = true;
+                    mnemonic = text.charAt(i);
+                    mnemonicIndex = result.length();
+                }
+            }
+            result.append(text.charAt(i));
+        }
+        component.setText(result.toString());
+        if (haveMnemonic) {
+            component.setMnemonic(mnemonic);
+            component.setDisplayedMnemonicIndex(mnemonicIndex);
+        }
+    }
+
+    public JComponent $$$getRootComponent$$$() {
+        return myRootPanel;
     }
 }

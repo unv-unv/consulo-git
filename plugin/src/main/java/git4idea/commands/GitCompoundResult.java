@@ -15,6 +15,7 @@
  */
 package git4idea.commands;
 
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
@@ -25,67 +26,67 @@ import java.util.Map;
 
 /**
  * Compound result of the Git command execution performed on several repositories.
- * 
+ *
  * @author Kirill Likhodedov
  */
 public final class GitCompoundResult {
-  
-  private final Map<GitRepository, GitCommandResult> resultsByRepos = new HashMap<GitRepository, GitCommandResult>(1);
-  private final Project myProject;
+    private final Map<GitRepository, GitCommandResult> resultsByRepos = new HashMap<>(1);
+    private final Project myProject;
 
-  public GitCompoundResult(Project project) {
-    myProject = project;
-  }
-
-  public void append(GitRepository repository, GitCommandResult result) {
-    resultsByRepos.put(repository, result);
-  }
-
-  public boolean totalSuccess() {
-    boolean success = true;
-    for (GitCommandResult result : resultsByRepos.values()) {
-      success &= result.success();
+    public GitCompoundResult(Project project) {
+        myProject = project;
     }
-    return success;
-  }
 
-  /**
-   * @return true if at least one, but not all repositories succeeded. 
-   */
-  public boolean partialSuccess() {
-    boolean successFound = false;
-    boolean failureFound = false;
-    for (GitCommandResult result : resultsByRepos.values()) {
-      if (result.success()) {
-        successFound = true;
-      } else {
-        failureFound = true;
-      }
+    public void append(GitRepository repository, GitCommandResult result) {
+        resultsByRepos.put(repository, result);
     }
-    return successFound && failureFound;
-  }
 
-  /**
-   * Constructs the HTML-formatted message from error outputs of failed repositories.
-   * If there is only 1 repository in the project, just returns the error without writing the repository url (to avoid confusion for people
-   * with only 1 root ever).
-   * Otherwise adds repository URL to the error that repository produced.
-   */
-  @Nonnull
-  public String getErrorOutputWithReposIndication() {
-    StringBuilder sb = new StringBuilder();
-    for (Map.Entry<GitRepository, GitCommandResult> entry : resultsByRepos.entrySet()) {
-      GitRepository repository = entry.getKey();
-      GitCommandResult result = entry.getValue();
-      if (!result.success()) {
-        sb.append("<p>");
-        if (!GitUtil.justOneGitRepository(myProject)) {
-          sb.append("<code>" + repository.getPresentableUrl() + "</code>:<br/>");
+    public boolean totalSuccess() {
+        boolean success = true;
+        for (GitCommandResult result : resultsByRepos.values()) {
+            success &= result.success();
         }
-        sb.append(result.getErrorOutputAsHtmlString());
-        sb.append("</p>");
-      }
+        return success;
     }
-    return sb.toString();
-  }
+
+    /**
+     * @return true if at least one, but not all repositories succeeded.
+     */
+    public boolean partialSuccess() {
+        boolean successFound = false;
+        boolean failureFound = false;
+        for (GitCommandResult result : resultsByRepos.values()) {
+            if (result.success()) {
+                successFound = true;
+            }
+            else {
+                failureFound = true;
+            }
+        }
+        return successFound && failureFound;
+    }
+
+    /**
+     * Constructs the HTML-formatted message from error outputs of failed repositories.
+     * If there is only 1 repository in the project, just returns the error without writing the repository url (to avoid confusion for people
+     * with only 1 root ever).
+     * Otherwise adds repository URL to the error that repository produced.
+     */
+    @Nonnull
+    public LocalizeValue getErrorOutputWithReposIndication() {
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<GitRepository, GitCommandResult> entry : resultsByRepos.entrySet()) {
+            GitRepository repository = entry.getKey();
+            GitCommandResult result = entry.getValue();
+            if (!result.success()) {
+                sb.append("<p>");
+                if (!GitUtil.justOneGitRepository(myProject)) {
+                    sb.append("<code>").append(repository.getPresentableUrl()).append("</code>:<br/>");
+                }
+                sb.append(result.getErrorOutputAsHtmlValue());
+                sb.append("</p>");
+            }
+        }
+        return LocalizeValue.localizeTODO(sb.toString());
+    }
 }

@@ -80,7 +80,7 @@ public interface GitBrancher {
 
   /**
    * Creates and checks out a new local branch starting from the given reference:
-   * {@code git checkout -b <branchname> <start-point>}. <br/>
+   * {@code git checkout -b <branch-name> <start-point>}. <br/>
    * Provides the "smart checkout" procedure the same as in {@link #checkout(String, boolean, List, Runnable)}.
    *
    * @param newBranchName  the name of the new local branch.

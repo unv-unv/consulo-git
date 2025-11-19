@@ -15,13 +15,13 @@
  */
 package consulo.git.config;
 
-import consulo.application.AllIcons;
 import consulo.application.progress.Task;
 import consulo.disposer.Disposable;
 import consulo.fileChooser.FileChooserDescriptorFactory;
 import consulo.fileChooser.FileChooserTextBoxBuilder;
 import consulo.git.localize.GitLocalize;
 import consulo.localize.LocalizeValue;
+import consulo.platform.base.icon.PlatformIconGroup;
 import consulo.process.cmd.ParametersListUtil;
 import consulo.project.Project;
 import consulo.ui.*;
@@ -33,8 +33,8 @@ import consulo.ui.layout.HorizontalLayout;
 import consulo.ui.layout.VerticalLayout;
 import consulo.ui.util.LabeledBuilder;
 import consulo.util.collection.ContainerUtil;
-import consulo.versionControlSystem.distributed.DvcsBundle;
 import consulo.versionControlSystem.distributed.branch.DvcsSyncSettings;
+import consulo.versionControlSystem.distributed.localize.DistributedVcsLocalize;
 import git4idea.GitVcs;
 import git4idea.config.*;
 import git4idea.repo.GitRepositoryManager;
@@ -80,7 +80,7 @@ public class GitVcsPanel {
 
         myAutoUpdateIfPushRejected = CheckBox.create(GitLocalize.settingsAutoUpdateOnPushRejected());
         myEnableForcePush = CheckBox.create(LocalizeValue.localizeTODO("Allow &force push"));
-        mySyncControl = CheckBox.create(DvcsBundle.message("sync.setting"));
+        mySyncControl = CheckBox.create(DistributedVcsLocalize.syncSetting());
         myAutoCommitOnCherryPick = CheckBox.create(GitLocalize.settingsCommitAutomaticallyOnCherryPick());
         myWarnAboutCrlf = CheckBox.create(GitLocalize.settingsCrlf());
         myWarnAboutDetachedHead = CheckBox.create(GitLocalize.settingsDetachedHead());
@@ -101,12 +101,12 @@ public class GitVcsPanel {
 
         Button testButton = Button.create(GitLocalize.cloneTest());
         testButton.addClickListener(e -> testConnection());
-        final GitRepositoryManager repositoryManager = GitRepositoryManager.getInstance(project);
+        GitRepositoryManager repositoryManager = GitRepositoryManager.getInstance(project);
         mySyncControl.setVisible(repositoryManager.moreThanOneRoot());
 
         myProtectedBranchesLabel = Label.create(GitLocalize.settingsProtectedBranched());
         myProtectedBranchesButton = TextBoxWithExpandAction.create(
-            AllIcons.Actions.ShowViewer,
+            PlatformIconGroup.actionsShow(),
             "Protected Branches",
             ParametersListUtil.COLON_LINE_PARSER,
             ParametersListUtil.COLON_LINE_JOINER
@@ -137,7 +137,7 @@ public class GitVcsPanel {
      */
     @RequiredUIAccess
     private void testConnection() {
-        final String executable = getCurrentExecutablePath();
+        String executable = getCurrentExecutablePath();
         if (myAppSettings != null) {
             myAppSettings.setPathToGit(executable);
         }
@@ -149,7 +149,7 @@ public class GitVcsPanel {
             GitLocalize.cloneDialogCheckingGitVersion(),
             true,
             indicator -> {
-                final GitVersion version;
+                GitVersion version;
                 try {
                     version = GitVersion.identifyVersion(executable);
                 }
