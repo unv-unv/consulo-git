@@ -254,16 +254,18 @@ class GitDeleteBranchOperation extends GitBranchOperation {
 
     @Nonnull
     @Override
-    protected String getRollbackProposal() {
-        return "However branch deletion has succeeded for the following " + repositories() + ":<br/>" +
+    protected LocalizeValue getRollbackProposal() {
+        return LocalizeValue.localizeTODO(
+            "However branch deletion has succeeded for the following " + repositories() + ":<br/>" +
             successfulRepositoriesJoined() +
-            "<br/>You may rollback (recreate " + myBranchName + " in these roots) not to let branches diverge.";
+            "<br/>You may rollback (recreate " + myBranchName + " in these roots) not to let branches diverge."
+        );
     }
 
     @Nonnull
     @Override
-    protected String getOperationName() {
-        return "branch deletion";
+    protected LocalizeValue getOperationName() {
+        return LocalizeValue.localizeTODO("branch deletion");
     }
 
     @Nonnull

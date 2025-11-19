@@ -123,8 +123,8 @@ public class GitUpdateProcess {
     @RequiredUIAccess
     public GitUpdateResult update(UpdateMethod updateMethod) {
         LOG.info("update started|" + updateMethod);
-        String oldText = myProgressIndicator.getText();
-        myProgressIndicator.setText("Updating...");
+        LocalizeValue oldText = myProgressIndicator.getTextValue();
+        myProgressIndicator.setTextValue(LocalizeValue.localizeTODO("Updating..."));
 
         for (GitRepository repository : myRepositories) {
             repository.update();
@@ -146,7 +146,7 @@ public class GitUpdateProcess {
         try (AccessToken ignored = DvcsUtil.workingTreeChangeStarted(myProject, "VCS Update")) {
             result = updateImpl(updateMethod);
         }
-        myProgressIndicator.setText(oldText);
+        myProgressIndicator.setTextValue(oldText);
         return result;
     }
 
@@ -407,6 +407,7 @@ public class GitUpdateProcess {
      *
      * @return true if merge is in progress, which means that update can't continue.
      */
+    @RequiredUIAccess
     private boolean isMergeInProgress() {
         LOG.info("isMergeInProgress: checking if there is an unfinished merge process...");
         Collection<VirtualFile> mergingRoots = myMerger.getMergingRoots();
@@ -414,9 +415,9 @@ public class GitUpdateProcess {
             return false;
         }
         LOG.info("isMergeInProgress: roots with unfinished merge: " + mergingRoots);
-        GitConflictResolver.Params params = new GitConflictResolver.Params();
-        params.setErrorNotificationTitle("Can't update");
-        params.setMergeDescription("You have unfinished merge. These conflicts must be resolved before update.");
+        GitConflictResolver.Params params = new GitConflictResolver.Params()
+            .setErrorNotificationTitle(LocalizeValue.localizeTODO("Can't update"))
+            .setMergeDescription(LocalizeValue.localizeTODO("You have unfinished merge. These conflicts must be resolved before update."));
         return !new GitMergeCommittingConflictResolver(myProject, myGit, myMerger, mergingRoots, params, false).merge();
     }
 
@@ -428,9 +429,9 @@ public class GitUpdateProcess {
     @RequiredUIAccess
     private boolean areUnmergedFiles() {
         LOG.info("areUnmergedFiles: checking if there are unmerged files...");
-        GitConflictResolver.Params params = new GitConflictResolver.Params();
-        params.setErrorNotificationTitle("Update was not started");
-        params.setMergeDescription("Unmerged files detected. These conflicts must be resolved before update.");
+        GitConflictResolver.Params params = new GitConflictResolver.Params()
+            .setErrorNotificationTitle(LocalizeValue.localizeTODO("Update was not started"))
+            .setMergeDescription(LocalizeValue.localizeTODO("Unmerged files detected. These conflicts must be resolved before update."));
         return !new GitMergeCommittingConflictResolver(
             myProject,
             myGit,
@@ -456,12 +457,15 @@ public class GitUpdateProcess {
         }
         LOG.info("checkRebaseInProgress: roots with unfinished rebase: " + rebasingRoots);
 
-        GitConflictResolver.Params params = new GitConflictResolver.Params();
-        params.setErrorNotificationTitle("Can't update");
-        params.setMergeDescription("You have unfinished rebase process. These conflicts must be resolved before update.");
-        params.setErrorNotificationAdditionalDescription(
-            "Then you may <b>continue rebase</b>. <br/> You also may <b>abort rebase</b> to restore the original branch and stop rebasing."
-        );
+        GitConflictResolver.Params params = new GitConflictResolver.Params()
+            .setErrorNotificationTitle(LocalizeValue.localizeTODO("Can't update"))
+            .setMergeDescription(
+                LocalizeValue.localizeTODO("You have unfinished rebase process. These conflicts must be resolved before update.")
+            )
+            .setErrorNotificationAdditionalDescription(LocalizeValue.localizeTODO(
+                "Then you may <b>continue rebase</b>.<br/>" +
+                    "You also may <b>abort rebase</b> to restore the original branch and stop rebasing."
+            ));
         params.setReverse(true);
         return !new GitConflictResolver(myProject, myGit, rebasingRoots, params) {
             @Override

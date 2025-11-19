@@ -16,9 +16,9 @@
 package git4idea.stash;
 
 import consulo.application.Application;
-import consulo.application.ApplicationManager;
 import consulo.document.DocumentReference;
 import consulo.document.DocumentReferenceManager;
+import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
@@ -41,111 +41,115 @@ import java.util.HashSet;
 import java.util.List;
 
 public class GitShelveUtils {
-  private static final Logger LOG = Logger.getInstance(GitShelveUtils.class);
+    private static final Logger LOG = Logger.getInstance(GitShelveUtils.class);
 
-  public static void doSystemUnshelve(final Project project,
-                                      final ShelvedChangeList shelvedChangeList,
-                                      final ShelveChangesManager shelveManager,
-                                      @Nullable final String leftConflictTitle,
-                                      @Nullable final String rightConflictTitle) {
-    VirtualFile baseDir = project.getBaseDir();
-    assert baseDir != null;
-    final String projectPath = baseDir.getPath() + "/";
+    @RequiredUIAccess
+    public static void doSystemUnshelve(
+        @Nonnull Project project,
+        ShelvedChangeList shelvedChangeList,
+        ShelveChangesManager shelveManager,
+        @Nonnull LocalizeValue leftConflictTitle,
+        @Nonnull LocalizeValue rightConflictTitle
+    ) {
+        VirtualFile baseDir = project.getBaseDir();
+        assert baseDir != null;
+        String projectPath = baseDir.getPath() + "/";
 
-    LOG.info("refreshing files ");
-    // The changes are temporary copied to the first local change list, the next operation will restore them back
-    // Refresh files that might be affected by unshelve
-    refreshFilesBeforeUnshelve(project, shelvedChangeList, projectPath);
+        LOG.info("refreshing files ");
+        // The changes are temporary copied to the first local change list, the next operation will restore them back
+        // Refresh files that might be affected by unshelve
+        refreshFilesBeforeUnshelve(project, shelvedChangeList, projectPath);
 
-    LOG.info("Unshelving shelvedChangeList: " + shelvedChangeList);
-    final List<? extends ShelvedChange> changes = shelvedChangeList.getChanges(project);
-    // we pass null as target change list for Patch Applier to do NOTHING with change lists
-    shelveManager.unshelveChangeList(shelvedChangeList,
-                                     changes,
-                                     shelvedChangeList.getBinaryFiles(),
-                                     null,
-                                     false,
-                                     true,
-                                     true,
-                                     leftConflictTitle,
-                                     rightConflictTitle);
-    ApplicationManager.getApplication().invokeAndWait(new Runnable() {
-      @Override
-      public void run() {
-        markUnshelvedFilesNonUndoable(project, changes);
-      }
-    }, Application.get().getDefaultModalityState());
-  }
+        LOG.info("Unshelving shelvedChangeList: " + shelvedChangeList);
+        List<? extends ShelvedChange> changes = shelvedChangeList.getChanges(project);
+        // we pass null as target change list for Patch Applier to do NOTHING with change lists
+        shelveManager.unshelveChangeList(
+            shelvedChangeList,
+            changes,
+            shelvedChangeList.getBinaryFiles(),
+            null,
+            false,
+            true,
+            true,
+            leftConflictTitle.get(),
+            rightConflictTitle.get()
+        );
+        Application application = project.getApplication();
+        application.invokeAndWait(() -> markUnshelvedFilesNonUndoable(project, changes), application.getDefaultModalityState());
+    }
 
-  @RequiredUIAccess
-  private static void markUnshelvedFilesNonUndoable(@Nonnull final Project project, @Nonnull List<? extends ShelvedChange> changes) {
-    final UndoManager undoManager = ProjectUndoManager.getInstance(project);
-    if (undoManager != null && !changes.isEmpty()) {
-      ContainerUtil.process(changes, change -> {
-        final VirtualFile vfUnderProject = VirtualFileUtil.findFileByIoFile(new File(project.getBasePath(), change.getAfterPath()), false);
-        if (vfUnderProject != null) {
-          final DocumentReference documentReference = DocumentReferenceManager.getInstance().create(vfUnderProject);
-          undoManager.nonundoableActionPerformed(documentReference, false);
-          undoManager.invalidateActionsFor(documentReference);
+    @RequiredUIAccess
+    private static void markUnshelvedFilesNonUndoable(@Nonnull Project project, @Nonnull List<? extends ShelvedChange> changes) {
+        UndoManager undoManager = ProjectUndoManager.getInstance(project);
+        if (undoManager != null && !changes.isEmpty()) {
+            ContainerUtil.process(changes, change -> {
+                VirtualFile vfUnderProject =
+                    VirtualFileUtil.findFileByIoFile(new File(project.getBasePath(), change.getAfterPath()), false);
+                if (vfUnderProject != null) {
+                    DocumentReference documentReference = DocumentReferenceManager.getInstance().create(vfUnderProject);
+                    undoManager.nonundoableActionPerformed(documentReference, false);
+                    undoManager.invalidateActionsFor(documentReference);
+                }
+                return true;
+            });
         }
-        return true;
-      });
     }
-  }
 
-  private static void refreshFilesBeforeUnshelve(final Project project, ShelvedChangeList shelvedChangeList, String projectPath) {
-    HashSet<File> filesToRefresh = new HashSet<>();
-    for (ShelvedChange c : shelvedChangeList.getChanges(project)) {
-      if (c.getBeforePath() != null) {
-        filesToRefresh.add(new File(projectPath + c.getBeforePath()));
-      }
-      if (c.getAfterPath() != null) {
-        filesToRefresh.add(new File(projectPath + c.getAfterPath()));
-      }
+    private static void refreshFilesBeforeUnshelve(Project project, ShelvedChangeList shelvedChangeList, String projectPath) {
+        HashSet<File> filesToRefresh = new HashSet<>();
+        for (ShelvedChange c : shelvedChangeList.getChanges(project)) {
+            if (c.getBeforePath() != null) {
+                filesToRefresh.add(new File(projectPath + c.getBeforePath()));
+            }
+            if (c.getAfterPath() != null) {
+                filesToRefresh.add(new File(projectPath + c.getAfterPath()));
+            }
+        }
+        for (ShelvedBinaryFile f : shelvedChangeList.getBinaryFiles()) {
+            if (f.getBeforePath() != null) {
+                filesToRefresh.add(new File(projectPath + f.getBeforePath()));
+            }
+            if (f.getAfterPath() != null) {
+                filesToRefresh.add(new File(projectPath + f.getAfterPath()));
+            }
+        }
+        LocalFileSystem.getInstance().refreshIoFiles(filesToRefresh);
     }
-    for (ShelvedBinaryFile f : shelvedChangeList.getBinaryFiles()) {
-      if (f.getBeforePath() != null) {
-        filesToRefresh.add(new File(projectPath + f.getBeforePath()));
-      }
-      if (f.getAfterPath() != null) {
-        filesToRefresh.add(new File(projectPath + f.getAfterPath()));
-      }
-    }
-    LocalFileSystem.getInstance().refreshIoFiles(filesToRefresh);
-  }
 
-  /**
-   * Shelve changes
-   *
-   * @param project       the context project
-   * @param shelveManager the shelve manager
-   * @param changes       the changes to process
-   * @param description   the description of for the shelve
-   * @param exceptions    the generated exceptions
-   * @param rollback
-   * @return created shelved change list or null in case failure
-   */
-  @Nullable
-  public static ShelvedChangeList shelveChanges(final Project project,
-                                                final ShelveChangesManager shelveManager,
-                                                Collection<Change> changes,
-                                                final String description,
-                                                final List<VcsException> exceptions,
-                                                boolean rollback,
-                                                boolean markToBeDeleted) {
-    try {
-      ShelvedChangeList shelve = shelveManager.shelveChanges(changes, description, rollback, markToBeDeleted);
-      project.getMessageBus().syncPublisher(ShelveChangesListener.class).changeChanged(shelveManager);
-      return shelve;
+    /**
+     * Shelve changes
+     *
+     * @param project       the context project
+     * @param shelveManager the shelve manager
+     * @param changes       the changes to process
+     * @param description   the description of for the shelve
+     * @param exceptions    the generated exceptions
+     * @param rollback
+     * @return created shelved change list or null in case failure
+     */
+    @Nullable
+    public static ShelvedChangeList shelveChanges(
+        @Nonnull Project project,
+        ShelveChangesManager shelveManager,
+        Collection<Change> changes,
+        String description,
+        List<VcsException> exceptions,
+        boolean rollback,
+        boolean markToBeDeleted
+    ) {
+        try {
+            ShelvedChangeList shelve = shelveManager.shelveChanges(changes, description, rollback, markToBeDeleted);
+            project.getMessageBus().syncPublisher(ShelveChangesListener.class).changeChanged(shelveManager);
+            return shelve;
+        }
+        catch (IOException e) {
+            //noinspection ThrowableInstanceNeverThrown
+            exceptions.add(new VcsException("Shelving changes failed: " + description, e));
+            return null;
+        }
+        catch (VcsException e) {
+            exceptions.add(e);
+            return null;
+        }
     }
-    catch (IOException e) {
-      //noinspection ThrowableInstanceNeverThrown
-      exceptions.add(new VcsException("Shelving changes failed: " + description, e));
-      return null;
-    }
-    catch (VcsException e) {
-      exceptions.add(e);
-      return null;
-    }
-  }
 }

@@ -214,8 +214,8 @@ public class GitCherryPicker extends VcsCherryPicker {
                     myProject,
                     repository.getRoot(),
                     untrackedFilesDetector.getRelativeFilePaths(),
-                    "cherry-pick",
-                    description
+                    LocalizeValue.localizeTODO("cherry-pick"),
+                    LocalizeValue.localizeTODO(description)
                 );
                 return false;
             }
@@ -289,7 +289,7 @@ public class GitCherryPicker extends VcsCherryPicker {
         myNotificationService.newWarn(VcsNotifier.IMPORTANT_ERROR_NOTIFICATION)
             .title(LocalizeValue.localizeTODO("Cherry-picked with conflicts"))
             .content(LocalizeValue.localizeTODO(description))
-            .optionalHyperlinkListener(resolveLinkListener)
+            .hyperlinkListener(resolveLinkListener)
             .notify(myProject);
     }
 
@@ -678,10 +678,9 @@ public class GitCherryPicker extends VcsCherryPicker {
         }
 
         private static Params makeParams(String commitHash, String commitAuthor, String commitMessage) {
-            Params params = new Params();
-            params.setErrorNotificationTitle("Cherry-picked with conflicts");
-            params.setMergeDialogCustomizer(new CherryPickMergeDialogCustomizer(commitHash, commitAuthor, commitMessage));
-            return params;
+            return new Params()
+                .setErrorNotificationTitle(LocalizeValue.localizeTODO("Cherry-picked with conflicts"))
+                .setMergeDialogCustomizer(new CherryPickMergeDialogCustomizer(commitHash, commitAuthor, commitMessage));
         }
 
         @Override

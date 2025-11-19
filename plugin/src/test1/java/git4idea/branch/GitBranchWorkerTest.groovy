@@ -23,6 +23,7 @@ import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vcs.FilePathImpl
+import consulo.localize.LocalizeValue
 import consulo.versionControlSystem.change.Change
 import com.intellij.openapi.vcs.changes.CurrentContentRevision
 import com.intellij.openapi.vfs.VirtualFile
@@ -34,7 +35,6 @@ import git4idea.config.GitVersionSpecialty
 import git4idea.history.browser.GitCommit
 import git4idea.repo.GitRepository
 import git4idea.test.GitLightTest
-import org.jetbrains.annotations.NotNull
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -770,66 +770,65 @@ class GitBranchWorkerTest extends GitLightTest {
   class AgreeToSmartOperationTestUiHandler implements GitBranchUiHandler {
     String mySuccessMessage
 
-    @NotNull
+    @Nonnull
     @Override
     ProgressIndicator getProgressIndicator() {
       new ProgressIndicatorBase()
     }
 
     @Override
-    int showSmartOperationDialog(@NotNull Project project, @NotNull List<Change> changes, @NotNull String operation, boolean force) {
+    int showSmartOperationDialog(@Nonnull Project project, @Nonnull List<Change> changes, @Nonnull String operation, boolean force) {
       GitSmartOperationDialog.SMART_EXIT_CODE
     }
 
     @Override
-    boolean showBranchIsNotFullyMergedDialog(@NotNull Project project, @NotNull Map<GitRepository, List<GitCommit>> history, @NotNull String unmergedBranch, @NotNull List<String> mergedToBranches, @NotNull String baseBranch) {
+    boolean showBranchIsNotFullyMergedDialog(@Nonnull Project project, @Nonnull Map<GitRepository, List<GitCommit>> history, @Nonnull String unmergedBranch, @Nonnull List<String> mergedToBranches, @Nonnull String baseBranch) {
       throw new UnsupportedOperationException()
     }
 
     @Override
-    void notifySuccess(@NotNull String message) {
+    void notifySuccess(@Nonnull String message) {
       mySuccessMessage = message
     }
 
     @Override
-    void notifySuccess(@NotNull String title, @NotNull String message, NotificationListener listener) {
+    void notifySuccess(@Nonnull String title, @Nonnull String message, NotificationListener listener) {
       mySuccessMessage = message
     }
 
     @Override
-    void notifyError(@NotNull String title, @NotNull String message) {
+    void notifyError(@Nonnull String title, @Nonnull String message) {
       throw new UnsupportedOperationException()
     }
 
     @Override
-    boolean notifyErrorWithRollbackProposal(@NotNull String title, @NotNull String message, @NotNull String rollbackProposal) {
+    boolean notifyErrorWithRollbackProposal(@Nonnull LocalizeValue title, @Nonnull LocalizeValue message, @Nonnull LocalizeValue rollbackProposal) {
       throw new UnsupportedOperationException()
     }
 
     @Override
-    void showUnmergedFilesNotification(@NotNull String operationName, @NotNull Collection<GitRepository> repositories) {
+    void showUnmergedFilesNotification(@Nonnull LocalizeValue operationName, @Nonnull Collection<GitRepository> repositories) {
       throw new UnsupportedOperationException()
     }
 
     @Override
-    boolean showUnmergedFilesMessageWithRollback(@NotNull String operationName, @NotNull String rollbackProposal) {
+    boolean showUnmergedFilesMessageWithRollback(@Nonnull LocalizeValue operationName, @Nonnull LocalizeValue rollbackProposal) {
       throw new UnsupportedOperationException()
     }
 
     @Override
-    void showUntrackedFilesNotification(@NotNull String operationName, @NotNull Collection<VirtualFile> untrackedFiles) {
+    void showUntrackedFilesNotification(@Nonnull String operationName, @Nonnull Collection<VirtualFile> untrackedFiles) {
       throw new UnsupportedOperationException()
     }
 
     @Override
-    boolean showUntrackedFilesDialogWithRollback(@NotNull String operationName, @NotNull String rollbackProposal, @NotNull Collection<VirtualFile> untrackedFiles) {
+    boolean showUntrackedFilesDialogWithRollback(@Nonnull String operationName, @Nonnull String rollbackProposal, @Nonnull Collection<VirtualFile> untrackedFiles) {
       throw new UnsupportedOperationException()
     }
 
     @Override
-    void notifySuccess(@NotNull String title, @NotNull String message) {
+    void notifySuccess(@Nonnull String title, @Nonnull String message) {
       mySuccessMessage = message
     }
   }
-
 }

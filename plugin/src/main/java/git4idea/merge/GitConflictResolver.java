@@ -77,13 +77,16 @@ public class GitConflictResolver {
      */
     public static class Params {
         private boolean reverse;
-        private String myErrorNotificationTitle = "";
-        private String myErrorNotificationAdditionalDescription = "";
-        private String myMergeDescription = "";
+        @Nonnull
+        private LocalizeValue myErrorNotificationTitle = LocalizeValue.empty();
+        @Nonnull
+        private LocalizeValue myErrorNotificationAdditionalDescription = LocalizeValue.empty();
+        @Nonnull
+        private LocalizeValue myMergeDescription = LocalizeValue.empty();
         private MergeDialogCustomizer myMergeDialogCustomizer = new MergeDialogCustomizer() {
             @Override
             public String getMultipleFileMergeDescription(@Nonnull Collection<VirtualFile> files) {
-                return myMergeDescription;
+                return myMergeDescription.get();
             }
         };
 
@@ -95,17 +98,17 @@ public class GitConflictResolver {
             return this;
         }
 
-        public Params setErrorNotificationTitle(String errorNotificationTitle) {
+        public Params setErrorNotificationTitle(@Nonnull LocalizeValue errorNotificationTitle) {
             myErrorNotificationTitle = errorNotificationTitle;
             return this;
         }
 
-        public Params setErrorNotificationAdditionalDescription(String errorNotificationAdditionalDescription) {
+        public Params setErrorNotificationAdditionalDescription(@Nonnull LocalizeValue errorNotificationAdditionalDescription) {
             myErrorNotificationAdditionalDescription = errorNotificationAdditionalDescription;
             return this;
         }
 
-        public Params setMergeDescription(String mergeDescription) {
+        public Params setMergeDescription(@Nonnull LocalizeValue mergeDescription) {
             myMergeDescription = mergeDescription;
             return this;
         }
@@ -183,10 +186,13 @@ public class GitConflictResolver {
      * Shows notification that not all conflicts were resolved.
      */
     protected void notifyUnresolvedRemain() {
-        notifyWarning(
-            myParams.myErrorNotificationTitle,
-            "You have to <a href='resolve'>resolve</a> all conflicts first." + myParams.myErrorNotificationAdditionalDescription
-        );
+        myNotificationService.newWarn(VcsNotifier.IMPORTANT_ERROR_NOTIFICATION)
+            .title(myParams.myErrorNotificationTitle)
+            .content(LocalizeValue.localizeTODO(
+                "You have to <a href='resolve'>resolve</a> all conflicts first." + myParams.myErrorNotificationAdditionalDescription
+            ))
+            .hyperlinkListener(new ResolveNotificationListener())
+            .notify(myProject);
     }
 
     /**
@@ -194,17 +200,13 @@ public class GitConflictResolver {
      * notification.
      */
     private void notifyUnresolvedRemainAfterNotification() {
-        notifyWarning(
-            "Not all conflicts resolved",
-            "You should <a href='resolve'>resolve</a> all conflicts before update. <br>" + myParams.myErrorNotificationAdditionalDescription
-        );
-    }
-
-    private void notifyWarning(String title, String content) {
         myNotificationService.newWarn(VcsNotifier.IMPORTANT_ERROR_NOTIFICATION)
-            .title(LocalizeValue.localizeTODO(title))
-            .content(LocalizeValue.localizeTODO(content))
-            .optionalHyperlinkListener(new ResolveNotificationListener())
+            .title(LocalizeValue.localizeTODO("Not all conflicts resolved"))
+            .content(LocalizeValue.localizeTODO(
+                "You should <a href='resolve'>resolve</a> all conflicts before update.<br/>" +
+                    myParams.myErrorNotificationAdditionalDescription
+            ))
+            .hyperlinkListener(new ResolveNotificationListener())
             .notify(myProject);
     }
 
@@ -241,7 +243,6 @@ public class GitConflictResolver {
             }
         }
         return false;
-
     }
 
     @RequiredUIAccess
@@ -259,12 +260,12 @@ public class GitConflictResolver {
     private void notifyException(VcsException e) {
         LOG.info("mergeFiles ", e);
         myNotificationService.newError(VcsNotifier.IMPORTANT_ERROR_NOTIFICATION)
-            .title(LocalizeValue.localizeTODO(myParams.myErrorNotificationTitle))
+            .title(myParams.myErrorNotificationTitle)
             .content(LocalizeValue.localizeTODO(
                 "Couldn't check the working tree for unmerged files because of an error." +
                     myParams.myErrorNotificationAdditionalDescription + "<br/>" + e.getLocalizedMessage()
             ))
-            .optionalHyperlinkListener(new ResolveNotificationListener())
+            .hyperlinkListener(new ResolveNotificationListener())
             .notify(myProject);
     }
 
@@ -343,5 +344,4 @@ public class GitConflictResolver {
             return sortVirtualFilesByPresentation(findVirtualFilesWithRefresh(files));
         }
     }
-
 }

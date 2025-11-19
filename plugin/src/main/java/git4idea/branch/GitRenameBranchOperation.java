@@ -101,16 +101,18 @@ public class GitRenameBranchOperation extends GitBranchOperation {
 
     @Nonnull
     @Override
-    protected String getRollbackProposal() {
-        return "However rename has succeeded for the following " + repositories() + ":<br/>" +
+    protected LocalizeValue getRollbackProposal() {
+        return LocalizeValue.localizeTODO(
+            "However rename has succeeded for the following " + repositories() + ":<br/>" +
             successfulRepositoriesJoined() +
-            "<br/>You may rollback (rename branch back to " + myCurrentName + ") not to let branches diverge.";
+            "<br/>You may rollback (rename branch back to " + myCurrentName + ") not to let branches diverge."
+        );
     }
 
     @Nonnull
     @Override
-    protected String getOperationName() {
-        return "rename";
+    protected LocalizeValue getOperationName() {
+        return LocalizeValue.localizeTODO("rename");
     }
 
     private static void refresh(@Nonnull GitRepository repository) {

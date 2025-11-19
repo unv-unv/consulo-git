@@ -18,6 +18,7 @@ package git4idea;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.Task;
 import consulo.git.localize.GitLocalize;
+import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
@@ -1013,13 +1014,13 @@ public class GitUtil {
     public static void showPathsInDialog(
         @Nonnull Project project,
         @Nonnull Collection<String> absolutePaths,
-        @Nonnull String title,
-        @Nullable String description
+        @Nonnull LocalizeValue title,
+        @Nonnull LocalizeValue description
     ) {
         DialogBuilder builder = new DialogBuilder(project);
         builder.setCenterPanel(new GitSimplePathsBrowser(project, absolutePaths));
-        if (description != null) {
-            builder.setNorthPanel(new MultiLineLabel(description));
+        if (description != LocalizeValue.empty()) {
+            builder.setNorthPanel(new MultiLineLabel(description.get()));
         }
         builder.addOkAction();
         builder.setTitle(title);

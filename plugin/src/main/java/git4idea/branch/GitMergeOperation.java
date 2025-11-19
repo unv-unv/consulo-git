@@ -83,7 +83,7 @@ class GitMergeOperation extends GitBranchOperation {
         saveAllDocuments();
         boolean fatalErrorHappened = false;
         int alreadyUpToDateRepositories = 0;
-        try (AccessToken token = DvcsUtil.workingTreeChangeStarted(myProject, getOperationName())) {
+        try (AccessToken token = DvcsUtil.workingTreeChangeStarted(myProject, getOperationName().get())) {
             while (hasMoreRepositories() && !fatalErrorHappened) {
                 GitRepository repository = next();
                 LOG.info("next repository: " + repository);
@@ -185,7 +185,7 @@ class GitMergeOperation extends GitBranchOperation {
             case PROPOSE:
                 myNotificationService.newInfo(VcsNotifier.NOTIFICATION_GROUP_ID)
                     .content(LocalizeValue.localizeTODO(message + "<br/><a href='delete'>Delete " + myBranchToMerge + "</a>"))
-                    .optionalHyperlinkListener(new DeleteMergedLocalBranchNotificationListener())
+                    .hyperlinkListener(new DeleteMergedLocalBranchNotificationListener())
                     .notify(myProject);
                 break;
             case NOTHING:
@@ -194,6 +194,7 @@ class GitMergeOperation extends GitBranchOperation {
         }
     }
 
+    @RequiredUIAccess
     private boolean resolveConflicts() {
         return myConflictedRepositories.isEmpty() || new MyMergeConflictResolver().merge();
     }
@@ -371,16 +372,17 @@ class GitMergeOperation extends GitBranchOperation {
 
     @Nonnull
     @Override
-    protected String getRollbackProposal() {
-        return "However merge has succeeded for the following " + repositories() + ":<br/>" +
-            successfulRepositoriesJoined() +
-            "<br/>" + ROLLBACK_PROPOSAL;
+    protected LocalizeValue getRollbackProposal() {
+        return LocalizeValue.localizeTODO(
+            "However merge has succeeded for the following " + repositories() + ":<br/>" +
+                successfulRepositoriesJoined() + "<br/>" + ROLLBACK_PROPOSAL
+        );
     }
 
     @Nonnull
     @Override
-    protected String getOperationName() {
-        return "merge";
+    protected LocalizeValue getOperationName() {
+        return LocalizeValue.localizeTODO("merge");
     }
 
     private void refresh(GitRepository... repositories) {
@@ -408,7 +410,7 @@ class GitMergeOperation extends GitBranchOperation {
             myNotificationService.newWarn(VcsNotifier.IMPORTANT_ERROR_NOTIFICATION)
                 .title(LocalizeValue.localizeTODO("Merged branch " + myBranchToMerge + " with conflicts"))
                 .content(LocalizeValue.localizeTODO("Unresolved conflicts remain in the project. <a href='resolve'>Resolve now.</a>"))
-                .optionalHyperlinkListener(getResolveLinkListener())
+                .hyperlinkListener(getResolveLinkListener())
                 .notify(myProject);
         }
     }

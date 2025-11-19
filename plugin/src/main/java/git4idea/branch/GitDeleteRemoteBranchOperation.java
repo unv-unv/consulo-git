@@ -108,13 +108,13 @@ class GitDeleteRemoteBranchOperation extends GitBranchOperation {
 
     @Nonnull
     @Override
-    protected String getRollbackProposal() {
+    protected LocalizeValue getRollbackProposal() {
         throw new UnsupportedOperationException();
     }
 
     @Nonnull
     @Override
-    protected String getOperationName() {
+    protected LocalizeValue getOperationName() {
         throw new UnsupportedOperationException();
     }
 

@@ -38,23 +38,23 @@ import java.util.List;
 public class LocalChangesWouldBeOverwrittenHelper {
     @Nonnull
     private static LocalizeValue getErrorNotificationDescription() {
-        return LocalizeValue.localizeTODO(getErrorDescription(true));
+        return getErrorDescription(true);
     }
 
     @Nonnull
-    private static String getErrorDialogDescription() {
+    private static LocalizeValue getErrorDialogDescription() {
         return getErrorDescription(false);
     }
 
     @Nonnull
-    private static String getErrorDescription(boolean forNotification) {
+    private static LocalizeValue getErrorDescription(boolean forNotification) {
         String line1 = "Your local changes would be overwritten by merge.";
         String line2 = "Commit, stash or revert them to proceed.";
         if (forNotification) {
-            return line1 + "<br/>" + line2 + " <a href='view'>View them</a>";
+            return LocalizeValue.localizeTODO(line1 + "<br/>" + line2 + " <a href='view'>View them</a>");
         }
         else {
-            return line1 + "\n" + line2;
+            return LocalizeValue.localizeTODO(line1 + "\n" + line2);
         }
     }
 
@@ -69,7 +69,7 @@ public class LocalChangesWouldBeOverwrittenHelper {
         NotificationService.getInstance().newError(VcsNotifier.IMPORTANT_ERROR_NOTIFICATION)
             .title(LocalizeValue.localizeTODO("Git " + StringUtil.capitalize(operationName) + " Failed"))
             .content(getErrorNotificationDescription())
-            .optionalHyperlinkListener(new NotificationListener.Adapter() {
+            .hyperlinkListener(new NotificationListener.Adapter() {
                 @Override
                 @RequiredUIAccess
                 protected void hyperlinkActivated(@Nonnull Notification notification, @Nonnull HyperlinkEvent e) {
@@ -98,16 +98,15 @@ public class LocalChangesWouldBeOverwrittenHelper {
         @Nonnull List<Change> changes,
         @Nonnull Collection<String> absolutePaths
     ) {
-        String title = "Local Changes Prevent from " + StringUtil.capitalize(operationName);
-        String description = getErrorDialogDescription();
+        LocalizeValue title = LocalizeValue.localizeTODO("Local Changes Prevent from " + StringUtil.capitalize(operationName));
+        LocalizeValue description = getErrorDialogDescription();
         if (changes.isEmpty()) {
             GitUtil.showPathsInDialog(project, absolutePaths, title, description);
         }
         else {
             DialogBuilder builder = new DialogBuilder(project);
-            builder.setNorthPanel(new MultiLineLabel(description));
+            builder.setNorthPanel(new MultiLineLabel(description.get()));
             ChangesBrowserFactory browserFactory = project.getApplication().getInstance(ChangesBrowserFactory.class);
-
             builder.setCenterPanel(browserFactory.createChangeBrowserWithRollback(project, changes).getComponent());
             builder.addOkAction();
             builder.setTitle(title);

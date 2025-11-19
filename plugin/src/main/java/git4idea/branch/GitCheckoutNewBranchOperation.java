@@ -100,16 +100,18 @@ class GitCheckoutNewBranchOperation extends GitBranchOperation {
 
     @Nonnull
     @Override
-    protected String getRollbackProposal() {
-        return "However checkout has succeeded for the following " + repositories() + ":<br/>" +
+    protected LocalizeValue getRollbackProposal() {
+        return LocalizeValue.localizeTODO(
+            "However checkout has succeeded for the following " + repositories() + ":<br/>" +
             successfulRepositoriesJoined() +
-            "<br/>You may rollback (checkout previous branch back, and delete " + myNewBranchName + ") not to let branches diverge.";
+            "<br/>You may rollback (checkout previous branch back, and delete " + myNewBranchName + ") not to let branches diverge."
+        );
     }
 
     @Nonnull
     @Override
-    protected String getOperationName() {
-        return "checkout";
+    protected LocalizeValue getOperationName() {
+        return LocalizeValue.localizeTODO("checkout");
     }
 
     @Override

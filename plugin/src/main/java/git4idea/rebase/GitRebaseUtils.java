@@ -300,9 +300,10 @@ public class GitRebaseUtils {
     }
 
     @Nonnull
-    static String mentionLocalChangesRemainingInStash(@Nullable GitChangesSaver saver) {
+    static LocalizeValue mentionLocalChangesRemainingInStash(@Nullable GitChangesSaver saver) {
         return saver != null && saver.wereChangesSaved()
-            ? "<br/>Note that some local changes were <a href='stash'>" + toPast(saver.getOperationName()) + "</a> before rebase." : "";
+            ? LocalizeValue.localizeTODO("<br/>Note that some local changes were <a href='stash'>" + toPast(saver.getOperationName()) + "</a> before rebase.")
+            : LocalizeValue.empty();
     }
 
     @Nonnull

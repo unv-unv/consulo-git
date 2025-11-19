@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import consulo.application.progress.ProgressIndicator;
+import consulo.localize.LocalizeValue;
 import org.intellij.lang.annotations.MagicConstant;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -35,59 +36,73 @@ import git4idea.repo.GitRepository;
  * Some methods return the choice selected by user to the calling code, if it is needed.</p>
  * <p>The purpose of this class is to separate UI interaction from the main code, which would in particular simplify testing.</p>
  */
-public interface GitBranchUiHandler
-{
-
-	@Nonnull
+public interface GitBranchUiHandler {
+    @Nonnull
     ProgressIndicator getProgressIndicator();
 
-	boolean notifyErrorWithRollbackProposal(@Nonnull String title, @Nonnull String message, @Nonnull String rollbackProposal);
+    boolean notifyErrorWithRollbackProposal(@Nonnull LocalizeValue title, @Nonnull LocalizeValue message, @Nonnull LocalizeValue rollbackProposal);
 
-	/**
-	 * Shows notification about unmerged files preventing checkout, merge, etc.
-	 *
-	 * @param operationName
-	 * @param repositories
-	 */
-	void showUnmergedFilesNotification(@Nonnull String operationName, @Nonnull Collection<GitRepository> repositories);
+    /**
+     * Shows notification about unmerged files preventing checkout, merge, etc.
+     *
+     * @param operationName
+     * @param repositories
+     */
+    void showUnmergedFilesNotification(@Nonnull LocalizeValue operationName, @Nonnull Collection<GitRepository> repositories);
 
-	/**
-	 * Shows a modal notification about unmerged files preventing an operation, with "Rollback" button.
-	 * Pressing "Rollback" would should the operation which has already successfully executed on other repositories.
-	 *
-	 * @param operationName
-	 * @param rollbackProposal
-	 * @return true if user has agreed to rollback, false if user denied the rollback proposal.
-	 */
-	boolean showUnmergedFilesMessageWithRollback(@Nonnull String operationName, @Nonnull String rollbackProposal);
+    /**
+     * Shows a modal notification about unmerged files preventing an operation, with "Rollback" button.
+     * Pressing "Rollback" would should the operation which has already successfully executed on other repositories.
+     *
+     * @param operationName
+     * @param rollbackProposal
+     * @return true if user has agreed to rollback, false if user denied the rollback proposal.
+     */
+    boolean showUnmergedFilesMessageWithRollback(@Nonnull LocalizeValue operationName, @Nonnull LocalizeValue rollbackProposal);
 
-	/**
-	 * Show notification about "untracked files would be overwritten by merge/checkout".
-	 */
-	void showUntrackedFilesNotification(@Nonnull String operationName, @Nonnull VirtualFile root, @Nonnull Collection<String> relativePaths);
+    /**
+     * Show notification about "untracked files would be overwritten by merge/checkout".
+     */
+    void showUntrackedFilesNotification(
+        @Nonnull LocalizeValue operationName,
+        @Nonnull VirtualFile root,
+        @Nonnull Collection<String> relativePaths
+    );
 
-	boolean showUntrackedFilesDialogWithRollback(@Nonnull String operationName, @Nonnull String rollbackProposal, @Nonnull VirtualFile root, @Nonnull Collection<String> relativePaths);
+    boolean showUntrackedFilesDialogWithRollback(
+        @Nonnull LocalizeValue operationName,
+        @Nonnull LocalizeValue rollbackProposal,
+        @Nonnull VirtualFile root,
+        @Nonnull Collection<String> relativePaths
+    );
 
-	/**
-	 * Shows the dialog proposing to execute the operation (checkout or merge) smartly, i.e. stash-execute-unstash.
-	 *
-	 * @param project
-	 * @param changes          local changes that would be overwritten by checkout or merge.
-	 * @param paths            paths reported by Git (in most cases this is covered by {@code changes}.
-	 * @param operation        operation name: checkout or merge
-	 * @param forceButtonTitle if the operation can be executed force (force checkout is possible),
-	 *                         specify the title of the force button; otherwise (force merge is not possible) pass null.
-	 * @return the code of the decision.
-	 */
-	@MagicConstant(valuesFromClass = GitSmartOperationDialog.class)
-	int showSmartOperationDialog(@Nonnull Project project, @Nonnull List<Change> changes, @Nonnull Collection<String> paths, @Nonnull String operation, @Nullable String forceButtonTitle);
+    /**
+     * Shows the dialog proposing to execute the operation (checkout or merge) smartly, i.e. stash-execute-unstash.
+     *
+     * @param project
+     * @param changes          local changes that would be overwritten by checkout or merge.
+     * @param paths            paths reported by Git (in most cases this is covered by {@code changes}.
+     * @param operation        operation name: checkout or merge
+     * @param forceButtonTitle if the operation can be executed force (force checkout is possible),
+     *                         specify the title of the force button; otherwise (force merge is not possible) pass null.
+     * @return the code of the decision.
+     */
+    @MagicConstant(valuesFromClass = GitSmartOperationDialog.class)
+    int showSmartOperationDialog(
+        @Nonnull Project project,
+        @Nonnull List<Change> changes,
+        @Nonnull Collection<String> paths,
+        @Nonnull String operation,
+        @Nullable String forceButtonTitle
+    );
 
-	/**
-	 * @return true if user decided to restore the branch.
-	 */
-	boolean showBranchIsNotFullyMergedDialog(@Nonnull Project project,
-			@Nonnull Map<GitRepository, List<GitCommit>> history,
-			@Nonnull Map<GitRepository, String> baseBranches,
-			@Nonnull String removedBranch);
-
+    /**
+     * @return true if user decided to restore the branch.
+     */
+    boolean showBranchIsNotFullyMergedDialog(
+        @Nonnull Project project,
+        @Nonnull Map<GitRepository, List<GitCommit>> history,
+        @Nonnull Map<GitRepository, String> baseBranches,
+        @Nonnull String removedBranch
+    );
 }

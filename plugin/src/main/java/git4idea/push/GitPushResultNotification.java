@@ -15,7 +15,6 @@
  */
 package git4idea.push;
 
-import consulo.application.Application;
 import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.project.Project;
@@ -34,7 +33,6 @@ import consulo.versionControlSystem.update.UpdatedFiles;
 import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitRepository;
 import git4idea.update.GitUpdateResult;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
@@ -102,7 +100,7 @@ class GitPushResultNotification extends Notification {
 
         UpdatedFiles updatedFiles = pushResult.getUpdatedFiles();
         if (!updatedFiles.isEmpty()) {
-            Application.get().invokeLater(() -> {
+            project.getApplication().invokeLater(() -> {
                 UpdateInfoTree tree = ProjectLevelVcsManager.getInstance(project).showUpdateProjectInfo(
                     updatedFiles,
                     "Update",

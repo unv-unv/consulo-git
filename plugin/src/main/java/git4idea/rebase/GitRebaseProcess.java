@@ -386,7 +386,7 @@ public class GitRebaseProcess {
         myNotificationService.newInfo(VcsNotifier.STANDARD_NOTIFICATION)
             .title(LocalizeValue.localizeTODO("Rebase Successful"))
             .content(LocalizeValue.localizeTODO(message))
-            .optionalHyperlinkListener(new NotificationListener.Adapter() {
+            .hyperlinkListener(new NotificationListener.Adapter() {
                 @Override
                 protected void hyperlinkActivated(@Nonnull Notification notification, @Nonnull HyperlinkEvent e) {
                     handlePossibleCommitLinks(e.getDescription(), skippedCommits);
@@ -411,12 +411,14 @@ public class GitRebaseProcess {
     ) {
         myNotificationService.newWarn(VcsNotifier.IMPORTANT_ERROR_NOTIFICATION)
             .title(LocalizeValue.localizeTODO("Rebase Suspended"))
-            .content(LocalizeValue.localizeTODO(
-                "You have to <a href='resolve'>resolve</a> the conflicts and <a href='continue'>continue</a> rebase.<br/>" +
-                    "If you want to start from the beginning, you can <a href='abort'>abort</a> rebase." +
-                    GitRebaseUtils.mentionLocalChangesRemainingInStash(mySaver)
+            .content(LocalizeValue.join(
+                LocalizeValue.localizeTODO(
+                    "You have to <a href='resolve'>resolve</a> the conflicts and <a href='continue'>continue</a> rebase.<br/>" +
+                        "If you want to start from the beginning, you can <a href='abort'>abort</a> rebase."
+                ),
+                GitRebaseUtils.mentionLocalChangesRemainingInStash(mySaver)
             ))
-            .optionalHyperlinkListener(new RebaseNotificationListener(conflictingRepository, skippedCommits))
+            .hyperlinkListener(new RebaseNotificationListener(conflictingRepository, skippedCommits))
             .notify(myProject);
     }
 
@@ -439,7 +441,7 @@ public class GitRebaseProcess {
         myNotificationService.newInfo(VcsNotifier.IMPORTANT_ERROR_NOTIFICATION)
             .title(LocalizeValue.localizeTODO("Rebase Stopped for Editing"))
             .content(LocalizeValue.localizeTODO("Once you are satisfied with your changes you may <a href='continue'>continue</a>"))
-            .optionalHyperlinkListener(new RebaseNotificationListener(
+            .hyperlinkListener(new RebaseNotificationListener(
                 repository,
                 MultiMap.<GitRepository, GitRebaseUtils.CommitInfo>empty()
             ))
@@ -456,13 +458,13 @@ public class GitRebaseProcess {
         String repo = myRepositoryManager.moreThanOneRoot() ? getShortRepositoryName(currentRepository) + ": " : "";
         myNotificationService.newError(VcsNotifier.IMPORTANT_ERROR_NOTIFICATION)
             .title(LocalizeValue.localizeTODO(myRebaseSpec.getOngoingRebase() == null ? "Rebase Failed" : "Continue Rebase Failed"))
-            .content(LocalizeValue.localizeTODO(
-                repo + error + "<br/>" +
-                    mentionRetryAndAbort(somethingWasRebased, successful) +
-                    mentionSkippedCommits(skippedCommits) +
-                    GitRebaseUtils.mentionLocalChangesRemainingInStash(mySaver)
+            .content(LocalizeValue.join(
+                LocalizeValue.localizeTODO(repo + error + "<br/>"),
+                mentionRetryAndAbort(somethingWasRebased, successful),
+                mentionSkippedCommits(skippedCommits),
+                GitRebaseUtils.mentionLocalChangesRemainingInStash(mySaver)
             ))
-            .optionalHyperlinkListener(new RebaseNotificationListener(currentRepository, skippedCommits))
+            .hyperlinkListener(new RebaseNotificationListener(currentRepository, skippedCommits))
             .notify(myProject);
     }
 
@@ -473,28 +475,32 @@ public class GitRebaseProcess {
         @Nonnull Collection<GitRepository> successful,
         MultiMap<GitRepository, GitRebaseUtils.CommitInfo> skippedCommits
     ) {
-        String message = GitUntrackedFilesHelper.createUntrackedFilesOverwrittenDescription("rebase", true) +
-            mentionRetryAndAbort(somethingWasRebased, successful) +
-            mentionSkippedCommits(skippedCommits) +
-            GitRebaseUtils.mentionLocalChangesRemainingInStash(mySaver);
+        LocalizeValue message = LocalizeValue.join(
+            GitUntrackedFilesHelper.createUntrackedFilesOverwrittenDescription(LocalizeValue.localizeTODO("rebase"), true),
+            mentionRetryAndAbort(somethingWasRebased, successful),
+            mentionSkippedCommits(skippedCommits),
+            GitRebaseUtils.mentionLocalChangesRemainingInStash(mySaver)
+        );
         GitUntrackedFilesHelper.notifyUntrackedFilesOverwrittenBy(
             myProject,
             currentRepository.getRoot(),
             untrackedPaths,
-            "rebase",
+            LocalizeValue.localizeTODO("rebase"),
             message
         );
     }
 
     @Nonnull
-    private static String mentionRetryAndAbort(boolean somethingWasRebased, @Nonnull Collection<GitRepository> successful) {
-        return somethingWasRebased || !successful.isEmpty() ? "You can <a href='retry'>retry</a> or <a href='abort'>abort</a> rebase." : "<a href='retry'>Retry.</a>";
+    private static LocalizeValue mentionRetryAndAbort(boolean somethingWasRebased, @Nonnull Collection<GitRepository> successful) {
+        return somethingWasRebased || !successful.isEmpty()
+            ? LocalizeValue.localizeTODO("You can <a href='retry'>retry</a> or <a href='abort'>abort</a> rebase.")
+            : LocalizeValue.localizeTODO("<a href='retry'>Retry.</a>");
     }
 
     @Nonnull
-    private static String mentionSkippedCommits(@Nonnull MultiMap<GitRepository, GitRebaseUtils.CommitInfo> skippedCommits) {
+    private static LocalizeValue mentionSkippedCommits(@Nonnull MultiMap<GitRepository, GitRebaseUtils.CommitInfo> skippedCommits) {
         if (skippedCommits.isEmpty()) {
-            return "";
+            return LocalizeValue.empty();
         }
         String message = "<br/>";
         if (skippedCommits.values().size() == 1) {
@@ -503,14 +509,18 @@ public class GitRebaseProcess {
         else {
             message += "The following commits were skipped during rebase:<br/>";
         }
-        message += StringUtil.join(skippedCommits.values(), commitInfo ->
-        {
-            String commitMessage = StringUtil.shortenPathWithEllipsis(commitInfo.subject, 72, true);
-            String hash = commitInfo.revision.asString();
-            String shortHash = DvcsUtil.getShortHash(commitInfo.revision.asString());
-            return String.format("<a href='%s'>%s</a> %s", hash, shortHash, commitMessage);
-        }, "<br/>");
-        return message;
+        message += StringUtil.join(
+            skippedCommits.values(),
+            commitInfo ->
+            {
+                String commitMessage = StringUtil.shortenPathWithEllipsis(commitInfo.subject, 72, true);
+                String hash = commitInfo.revision.asString();
+                String shortHash = DvcsUtil.getShortHash(commitInfo.revision.asString());
+                return String.format("<a href='%s'>%s</a> %s", hash, shortHash, commitMessage);
+            },
+            "<br/>"
+        );
+        return LocalizeValue.localizeTODO(message);
     }
 
     @Nonnull

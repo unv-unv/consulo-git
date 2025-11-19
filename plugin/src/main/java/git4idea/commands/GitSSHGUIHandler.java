@@ -83,7 +83,7 @@ public class GitSSHGUIHandler {
      *
      * @param resetPassword true, if last entered password was incorrect
      * @param lastError     the last error
-     * @return the error to show on the password dialo or null
+     * @return the error to show on the password dialog or null
      */
     @Nullable
     private String processLastError(boolean resetPassword, final String lastError) {

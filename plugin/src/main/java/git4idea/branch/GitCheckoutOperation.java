@@ -86,7 +86,7 @@ class GitCheckoutOperation extends GitBranchOperation {
     protected void execute() {
         saveAllDocuments();
         boolean fatalErrorHappened = false;
-        try (AccessToken token = DvcsUtil.workingTreeChangeStarted(myProject, getOperationName())) {
+        try (AccessToken token = DvcsUtil.workingTreeChangeStarted(myProject, getOperationName().get())) {
             while (hasMoreRepositories() && !fatalErrorHappened) {
                 GitRepository repository = next();
 
@@ -150,7 +150,7 @@ class GitCheckoutOperation extends GitBranchOperation {
 
                     myNotificationService.newInfo(VcsNotifier.NOTIFICATION_GROUP_ID)
                         .content(LocalizeValue.localizeTODO(mentionSuccess + mentionSkipped + "<br><a href='rollback'>Rollback</a>"))
-                        .optionalHyperlinkListener(new RollbackOperationNotificationListener())
+                        .hyperlinkListener(new RollbackOperationNotificationListener())
                         .notify(myProject);
                     updateRecentBranch();
                 }
@@ -211,15 +211,17 @@ class GitCheckoutOperation extends GitBranchOperation {
 
     @Nonnull
     @Override
-    protected String getRollbackProposal() {
-        return "However checkout has succeeded for the following " + repositories() + ":<br/>" +
-            successfulRepositoriesJoined() + "<br/>" + ROLLBACK_PROPOSAL_FORMAT;
+    protected LocalizeValue getRollbackProposal() {
+        return LocalizeValue.localizeTODO(
+            "However checkout has succeeded for the following " + repositories() + ":<br/>" +
+                successfulRepositoriesJoined() + "<br/>" + ROLLBACK_PROPOSAL_FORMAT
+        );
     }
 
     @Nonnull
     @Override
-    protected String getOperationName() {
-        return "checkout";
+    protected LocalizeValue getOperationName() {
+        return LocalizeValue.localizeTODO("checkout");
     }
 
     @Override

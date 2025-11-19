@@ -15,7 +15,9 @@
  */
 package git4idea.ui;
 
-import consulo.application.Application;
+import com.intellij.uiDesigner.core.GridConstraints;
+import com.intellij.uiDesigner.core.GridLayoutManager;
+import com.intellij.uiDesigner.core.Spacer;
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.ProgressManager;
 import consulo.application.progress.Task;
@@ -26,11 +28,10 @@ import consulo.logging.Logger;
 import consulo.platform.base.localize.CommonLocalize;
 import consulo.process.cmd.GeneralCommandLine;
 import consulo.project.Project;
+import consulo.project.ui.notification.NotificationService;
 import consulo.ui.ModalityState;
 import consulo.ui.annotation.RequiredUIAccess;
-import consulo.ui.ex.awt.DialogWrapper;
-import consulo.ui.ex.awt.Messages;
-import consulo.ui.ex.awt.UIUtil;
+import consulo.ui.ex.awt.*;
 import consulo.ui.ex.awt.event.DocumentAdapter;
 import consulo.util.dataholder.Key;
 import consulo.versionControlSystem.VcsException;
@@ -55,6 +56,7 @@ import jakarta.annotation.Nonnull;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.HyperlinkEvent;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collection;
@@ -112,9 +114,7 @@ public class GitUnstashDialog extends DialogWrapper {
      */
     private final HashSet<String> myBranches = new HashSet<>();
 
-    /**
-     * The project
-     */
+    @Nonnull
     private final Project myProject;
     private GitVcs myVcs;
     private static final Logger LOG = Logger.getInstance(GitUnstashDialog.class);
@@ -126,7 +126,7 @@ public class GitUnstashDialog extends DialogWrapper {
      * @param roots       the list of the roots
      * @param defaultRoot the default root to select
      */
-    public GitUnstashDialog(final Project project, final List<VirtualFile> roots, final VirtualFile defaultRoot) {
+    public GitUnstashDialog(@Nonnull Project project, List<VirtualFile> roots, VirtualFile defaultRoot) {
         super(project, true);
         setModal(false);
         myProject = project;
@@ -144,7 +144,7 @@ public class GitUnstashDialog extends DialogWrapper {
         myStashList.addListSelectionListener(e -> updateDialogState());
         myBranchTextField.getDocument().addDocumentListener(new DocumentAdapter() {
             @Override
-            protected void textChanged(final DocumentEvent e) {
+            protected void textChanged(DocumentEvent e) {
                 updateDialogState();
             }
         });
@@ -165,7 +165,7 @@ public class GitUnstashDialog extends DialogWrapper {
         });
         myDropButton.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(final ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 final StashInfo stash = getSelectedStash();
                 if (Messages.YES == Messages.showYesNoDialog(
                     GitUnstashDialog.this.getContentPane(),
@@ -173,23 +173,24 @@ public class GitUnstashDialog extends DialogWrapper {
                     GitLocalize.gitUnstashDropConfirmationTitle(stash.getStash()).get(),
                     UIUtil.getQuestionIcon()
                 )) {
-                    final ModalityState current = Application.get().getCurrentModalityState();
-                    ProgressManager.getInstance().run(new Task.Modal(myProject, "Removing stash " + stash.getStash(), false) {
-                        @Override
-                        public void run(@Nonnull ProgressIndicator indicator) {
-                            final GitSimpleHandler h = dropHandler(stash.getStash());
-                            try {
-                                h.run();
-                                h.unsilence();
+                    final ModalityState current = myProject.getApplication().getCurrentModalityState();
+                    ProgressManager.getInstance()
+                        .run(new Task.Modal(myProject, LocalizeValue.localizeTODO("Removing stash " + stash.getStash()), false) {
+                            @Override
+                            public void run(@Nonnull ProgressIndicator indicator) {
+                                GitSimpleHandler h = dropHandler(stash.getStash());
+                                try {
+                                    h.run();
+                                    h.unsilence();
+                                }
+                                catch (VcsException ex) {
+                                    project.getApplication().invokeLater(
+                                        () -> GitUIUtil.showOperationError((Project) myProject, ex, h.printableCommandLine()),
+                                        current
+                                    );
+                                }
                             }
-                            catch (final VcsException ex) {
-                                project.getApplication().invokeLater(
-                                    () -> GitUIUtil.showOperationError((Project)myProject, ex, h.printableCommandLine()),
-                                    current
-                                );
-                            }
-                        }
-                    });
+                        });
                     refreshStashList();
                     updateDialogState();
                 }
@@ -203,7 +204,7 @@ public class GitUnstashDialog extends DialogWrapper {
             }
         });
         myViewButton.addActionListener(e -> {
-            final VirtualFile root = getGitRoot();
+            VirtualFile root = getGitRoot();
             String resolvedStash;
             String selectedStash = getSelectedStash().getStash();
             try {
@@ -212,7 +213,7 @@ public class GitUnstashDialog extends DialogWrapper {
                 h.addParameters("--timestamp", "--max-count=1");
                 addStashParameter(h, selectedStash);
                 h.endOptions();
-                final String output = h.run();
+                String output = h.run();
                 resolvedStash = GitRevisionNumber.parseRevlistOutputAsRevisionNumber(h, output).asString();
             }
             catch (VcsException ex) {
@@ -294,7 +295,7 @@ public class GitUnstashDialog extends DialogWrapper {
      * Refresh stash list
      */
     private void refreshStashList() {
-        final DefaultListModel listModel = (DefaultListModel)myStashList.getModel();
+        DefaultListModel listModel = (DefaultListModel) myStashList.getModel();
         listModel.clear();
         VirtualFile root = getGitRoot();
         GitStashUtils.loadStashStack(myProject, root, listModel::addElement);
@@ -313,7 +314,7 @@ public class GitUnstashDialog extends DialogWrapper {
      * @return the selected git root
      */
     private VirtualFile getGitRoot() {
-        return (VirtualFile)myGitRootComboBox.getSelectedItem();
+        return (VirtualFile) myGitRootComboBox.getSelectedItem();
     }
 
     /**
@@ -341,7 +342,7 @@ public class GitUnstashDialog extends DialogWrapper {
      * @throws NullPointerException if no stash is selected
      */
     private StashInfo getSelectedStash() {
-        return (StashInfo)myStashList.getSelectedValue();
+        return (StashInfo) myStashList.getSelectedValue();
     }
 
     /**
@@ -409,6 +410,428 @@ public class GitUnstashDialog extends DialogWrapper {
         // d is not modal=> everything else in doOKAction.
     }
 
+    {
+// GUI initializer generated by Consulo GUI Designer
+// >>> IMPORTANT!! <<<
+// DO NOT EDIT OR ADD ANY CODE HERE!
+        $$$setupUI$$$();
+    }
+
+    /**
+     * Method generated by Consulo GUI Designer
+     * >>> IMPORTANT!! <<<
+     * DO NOT edit this method OR call it in your code!
+     */
+    private void $$$setupUI$$$() {
+        myPanel = new JPanel();
+        myPanel.setLayout(new GridLayoutManager(5, 3, JBUI.emptyInsets(), -1, -1));
+        JLabel label1 = new JLabel();
+        this.$$$loadLabelText$$$(label1, GitLocalize.commonGitRoot().get());
+        myPanel.add(
+            label1,
+            new GridConstraints(
+                0,
+                0,
+                1,
+                1,
+                GridConstraints.ANCHOR_WEST,
+                GridConstraints.FILL_NONE,
+                GridConstraints.SIZEPOLICY_FIXED,
+                GridConstraints.SIZEPOLICY_FIXED,
+                null,
+                null,
+                null,
+                0,
+                false
+            )
+        );
+        myGitRootComboBox = new JComboBox();
+        myGitRootComboBox.setToolTipText(GitLocalize.commonGitRootTooltip().get());
+        myPanel.add(
+            myGitRootComboBox,
+            new GridConstraints(
+                0,
+                1,
+                1,
+                2,
+                GridConstraints.ANCHOR_WEST,
+                GridConstraints.FILL_HORIZONTAL,
+                GridConstraints.SIZEPOLICY_CAN_GROW,
+                GridConstraints.SIZEPOLICY_FIXED,
+                null,
+                null,
+                null,
+                0,
+                false
+            )
+        );
+        JLabel label2 = new JLabel();
+        this.$$$loadLabelText$$$(label2, GitLocalize.commonCurrentBranch().get());
+        myPanel.add(
+            label2,
+            new GridConstraints(
+                1,
+                0,
+                1,
+                1,
+                GridConstraints.ANCHOR_WEST,
+                GridConstraints.FILL_NONE,
+                GridConstraints.SIZEPOLICY_FIXED,
+                GridConstraints.SIZEPOLICY_FIXED,
+                null,
+                null,
+                null,
+                0,
+                false
+            )
+        );
+        myCurrentBranch = new JLabel();
+        myCurrentBranch.setText("  ");
+        myCurrentBranch.setToolTipText(GitLocalize.commonCurrentBranchTooltip().get());
+        myPanel.add(
+            myCurrentBranch,
+            new GridConstraints(
+                1,
+                1,
+                1,
+                2,
+                GridConstraints.ANCHOR_CENTER,
+                GridConstraints.FILL_HORIZONTAL,
+                GridConstraints.SIZEPOLICY_FIXED,
+                GridConstraints.SIZEPOLICY_FIXED,
+                null,
+                null,
+                null,
+                0,
+                false
+            )
+        );
+        JLabel label3 = new JLabel();
+        this.$$$loadLabelText$$$(label3, GitLocalize.unstashStashes().get());
+        myPanel.add(
+            label3,
+            new GridConstraints(
+                2,
+                0,
+                1,
+                1,
+                GridConstraints.ANCHOR_NORTHWEST,
+                GridConstraints.FILL_NONE,
+                GridConstraints.SIZEPOLICY_FIXED,
+                GridConstraints.SIZEPOLICY_FIXED,
+                null,
+                null,
+                null,
+                0,
+                false
+            )
+        );
+        JPanel panel1 = new JPanel();
+        panel1.setLayout(new GridLayoutManager(4, 1, JBUI.emptyInsets(), -1, -1));
+        myPanel.add(
+            panel1,
+            new GridConstraints(
+                2,
+                2,
+                1,
+                1,
+                GridConstraints.ANCHOR_CENTER,
+                GridConstraints.FILL_BOTH,
+                GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
+                GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
+                null,
+                null,
+                null,
+                0,
+                false
+            )
+        );
+        myViewButton = new JButton();
+        this.$$$loadButtonText$$$(myViewButton, GitLocalize.unstashView().get());
+        myViewButton.setToolTipText(GitLocalize.unstashViewTooltip().get());
+        panel1.add(
+            myViewButton,
+            new GridConstraints(
+                0,
+                0,
+                1,
+                1,
+                GridConstraints.ANCHOR_CENTER,
+                GridConstraints.FILL_HORIZONTAL,
+                GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
+                GridConstraints.SIZEPOLICY_FIXED,
+                null,
+                null,
+                null,
+                0,
+                false
+            )
+        );
+        Spacer spacer1 = new Spacer();
+        panel1.add(
+            spacer1,
+            new GridConstraints(
+                3,
+                0,
+                1,
+                1,
+                GridConstraints.ANCHOR_CENTER,
+                GridConstraints.FILL_VERTICAL,
+                1,
+                GridConstraints.SIZEPOLICY_WANT_GROW,
+                null,
+                null,
+                null,
+                0,
+                false
+            )
+        );
+        myDropButton = new JButton();
+        this.$$$loadButtonText$$$(myDropButton, GitLocalize.unstashDrop().get());
+        myDropButton.setToolTipText(GitLocalize.unstashDropTooltip().get());
+        panel1.add(
+            myDropButton,
+            new GridConstraints(
+                1,
+                0,
+                1,
+                1,
+                GridConstraints.ANCHOR_CENTER,
+                GridConstraints.FILL_HORIZONTAL,
+                GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
+                GridConstraints.SIZEPOLICY_FIXED,
+                null,
+                null,
+                null,
+                0,
+                false
+            )
+        );
+        myClearButton = new JButton();
+        this.$$$loadButtonText$$$(myClearButton, GitLocalize.unstashClear().get());
+        myClearButton.setToolTipText(GitLocalize.unstashClearTooltip().get());
+        panel1.add(
+            myClearButton,
+            new GridConstraints(
+                2,
+                0,
+                1,
+                1,
+                GridConstraints.ANCHOR_CENTER,
+                GridConstraints.FILL_HORIZONTAL,
+                GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
+                GridConstraints.SIZEPOLICY_FIXED,
+                null,
+                null,
+                null,
+                0,
+                false
+            )
+        );
+        JLabel label4 = new JLabel();
+        this.$$$loadLabelText$$$(label4, GitLocalize.unstashBranchLabel().get());
+        myPanel.add(
+            label4,
+            new GridConstraints(
+                4,
+                0,
+                1,
+                1,
+                GridConstraints.ANCHOR_WEST,
+                GridConstraints.FILL_NONE,
+                GridConstraints.SIZEPOLICY_FIXED,
+                GridConstraints.SIZEPOLICY_FIXED,
+                null,
+                null,
+                null,
+                0,
+                false
+            )
+        );
+        myBranchTextField = new JTextField();
+        myBranchTextField.setToolTipText(GitLocalize.unstashBranchTooltip().get());
+        myPanel.add(
+            myBranchTextField,
+            new GridConstraints(
+                4,
+                1,
+                1,
+                2,
+                GridConstraints.ANCHOR_WEST,
+                GridConstraints.FILL_HORIZONTAL,
+                GridConstraints.SIZEPOLICY_WANT_GROW,
+                GridConstraints.SIZEPOLICY_FIXED,
+                null,
+                new Dimension(150, -1),
+                null,
+                0,
+                false
+            )
+        );
+        JBScrollPane jBScrollPane1 = new JBScrollPane();
+        myPanel.add(
+            jBScrollPane1,
+            new GridConstraints(
+                2,
+                1,
+                1,
+                1,
+                GridConstraints.ANCHOR_CENTER,
+                GridConstraints.FILL_BOTH,
+                GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW,
+                GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW,
+                null,
+                null,
+                null,
+                0,
+                false
+            )
+        );
+        myStashList = new JBList();
+        myStashList.setSelectionMode(0);
+        jBScrollPane1.setViewportView(myStashList);
+        JPanel panel2 = new JPanel();
+        panel2.setLayout(new GridLayoutManager(1, 3, JBUI.emptyInsets(), -1, -1));
+        myPanel.add(
+            panel2,
+            new GridConstraints(
+                3,
+                1,
+                1,
+                2,
+                GridConstraints.ANCHOR_CENTER,
+                GridConstraints.FILL_BOTH,
+                GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
+                GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
+                null,
+                null,
+                null,
+                0,
+                false
+            )
+        );
+        myPopStashCheckBox = new JCheckBox();
+        this.$$$loadButtonText$$$(myPopStashCheckBox, GitLocalize.unstashPopStash().get());
+        myPopStashCheckBox.setToolTipText(GitLocalize.unstashPopStashTooltip().get());
+        panel2.add(
+            myPopStashCheckBox,
+            new GridConstraints(
+                0,
+                0,
+                1,
+                1,
+                GridConstraints.ANCHOR_WEST,
+                GridConstraints.FILL_NONE,
+                GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
+                GridConstraints.SIZEPOLICY_FIXED,
+                null,
+                null,
+                null,
+                0,
+                false
+            )
+        );
+        myReinstateIndexCheckBox = new JCheckBox();
+        this.$$$loadButtonText$$$(myReinstateIndexCheckBox, GitLocalize.unstashReinstateIndex().get());
+        myReinstateIndexCheckBox.setToolTipText(GitLocalize.unstashReinstateIndexTooltip().get());
+        panel2.add(
+            myReinstateIndexCheckBox,
+            new GridConstraints(
+                0,
+                1,
+                1,
+                1,
+                GridConstraints.ANCHOR_WEST,
+                GridConstraints.FILL_NONE,
+                GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
+                GridConstraints.SIZEPOLICY_FIXED,
+                null,
+                null,
+                null,
+                0,
+                false
+            )
+        );
+        Spacer spacer2 = new Spacer();
+        panel2.add(
+            spacer2,
+            new GridConstraints(
+                0,
+                2,
+                1,
+                1,
+                GridConstraints.ANCHOR_CENTER,
+                GridConstraints.FILL_HORIZONTAL,
+                GridConstraints.SIZEPOLICY_WANT_GROW,
+                1,
+                null,
+                null,
+                null,
+                0,
+                false
+            )
+        );
+        label1.setLabelFor(myGitRootComboBox);
+        label3.setLabelFor(jBScrollPane1);
+        label4.setLabelFor(myBranchTextField);
+    }
+
+    private void $$$loadLabelText$$$(JLabel component, String text) {
+        StringBuilder result = new StringBuilder();
+        boolean haveMnemonic = false;
+        char mnemonic = '\0';
+        int mnemonicIndex = -1;
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) == '&') {
+                i++;
+                if (i == text.length()) {
+                    break;
+                }
+                if (!haveMnemonic && text.charAt(i) != '&') {
+                    haveMnemonic = true;
+                    mnemonic = text.charAt(i);
+                    mnemonicIndex = result.length();
+                }
+            }
+            result.append(text.charAt(i));
+        }
+        component.setText(result.toString());
+        if (haveMnemonic) {
+            component.setDisplayedMnemonic(mnemonic);
+            component.setDisplayedMnemonicIndex(mnemonicIndex);
+        }
+    }
+
+    private void $$$loadButtonText$$$(AbstractButton component, String text) {
+        StringBuilder result = new StringBuilder();
+        boolean haveMnemonic = false;
+        char mnemonic = '\0';
+        int mnemonicIndex = -1;
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) == '&') {
+                i++;
+                if (i == text.length()) {
+                    break;
+                }
+                if (!haveMnemonic && text.charAt(i) != '&') {
+                    haveMnemonic = true;
+                    mnemonic = text.charAt(i);
+                    mnemonicIndex = result.length();
+                }
+            }
+            result.append(text.charAt(i));
+        }
+        component.setText(result.toString());
+        if (haveMnemonic) {
+            component.setMnemonic(mnemonic);
+            component.setDisplayedMnemonicIndex(mnemonicIndex);
+        }
+    }
+
+    public JComponent $$$getRootComponent$$$() {
+        return myPanel;
+    }
+
     private static class UnstashConflictResolver extends GitConflictResolver {
         private final VirtualFile myRoot;
         private final StashInfo myStashInfo;
@@ -420,27 +843,25 @@ public class GitUnstashDialog extends DialogWrapper {
         }
 
         private static Params makeParams(StashInfo stashInfo) {
-            Params params = new Params();
-            params.setErrorNotificationTitle("Unstashed with conflicts");
-            params.setMergeDialogCustomizer(new UnstashMergeDialogCustomizer(stashInfo));
-            return params;
+            return new Params()
+                .setErrorNotificationTitle(LocalizeValue.localizeTODO("Unstashed with conflicts"))
+                .setMergeDialogCustomizer(new UnstashMergeDialogCustomizer(stashInfo));
         }
 
         @Override
         protected void notifyUnresolvedRemain() {
-            VcsNotifier.getInstance(myProject)
-                .notifyImportantWarning(
-                    "Conflicts were not resolved during unstash",
+            NotificationService.getInstance().newWarn(VcsNotifier.IMPORTANT_ERROR_NOTIFICATION)
+                .title(LocalizeValue.localizeTODO("Conflicts were not resolved during unstash"))
+                .content(LocalizeValue.localizeTODO(
                     "Unstash is not complete, you have unresolved merges in your working tree<br/>" +
-                        "<a href='resolve'>Resolve</a> conflicts.",
-                    (notification, event) -> {
-                        if (event.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
-                            if (event.getDescription().equals("resolve")) {
-                                new UnstashConflictResolver(myProject, myRoot, myStashInfo).mergeNoProceed();
-                            }
-                        }
+                        "<a href='resolve'>Resolve</a> conflicts."
+                ))
+                .hyperlinkListener((notification, event) -> {
+                    if (event.getEventType() == HyperlinkEvent.EventType.ACTIVATED && "resolve".equals(event.getDescription())) {
+                        new UnstashConflictResolver(myProject, myRoot, myStashInfo).mergeNoProceed();
                     }
-                );
+                })
+                .notify(myProject);
         }
     }
 

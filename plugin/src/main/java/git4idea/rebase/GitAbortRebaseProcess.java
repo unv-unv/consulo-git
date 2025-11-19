@@ -176,8 +176,9 @@ class GitAbortRebaseProcess {
                         if (!result.success()) {
                             myNotificationService.newError(VcsNotifier.IMPORTANT_ERROR_NOTIFICATION)
                                 .title(LocalizeValue.localizeTODO("Rebase Abort Failed"))
-                                .content(LocalizeValue.localizeTODO(
-                                    result.getErrorOutputAsHtmlValue() + mentionLocalChangesRemainingInStash(mySaver)
+                                .content(LocalizeValue.join(
+                                    result.getErrorOutputAsHtmlValue(),
+                                    mentionLocalChangesRemainingInStash(mySaver)
                                 ))
                                 .notify(myProject);
                             return;

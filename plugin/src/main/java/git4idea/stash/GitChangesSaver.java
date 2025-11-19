@@ -16,10 +16,13 @@
 package git4idea.stash;
 
 import consulo.application.progress.ProgressIndicator;
+import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.project.Project;
 import consulo.project.ui.notification.Notification;
+import consulo.project.ui.notification.NotificationService;
 import consulo.project.ui.notification.event.NotificationListener;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.versionControlSystem.VcsException;
 import consulo.versionControlSystem.VcsNotifier;
 import consulo.versionControlSystem.change.ChangeListManager;
@@ -40,145 +43,144 @@ import java.util.Collection;
  *
  * @author Kirill Likhodedov
  */
-public abstract class GitChangesSaver
-{
+public abstract class GitChangesSaver {
+    private static final Logger LOG = Logger.getInstance(GitChangesSaver.class);
 
-	private static final Logger LOG = Logger.getInstance(GitChangesSaver.class);
+    @Nonnull
+    protected final Project myProject;
+    @Nonnull
+    protected final ChangeListManager myChangeManager;
+    @Nonnull
+    protected final Git myGit;
+    @Nonnull
+    protected final ProgressIndicator myProgressIndicator;
+    @Nonnull
+    protected final String myStashMessage;
 
-	@Nonnull
-	protected final Project myProject;
-	@Nonnull
-	protected final ChangeListManager myChangeManager;
-	@Nonnull
-	protected final Git myGit;
-	@Nonnull
-	protected final ProgressIndicator myProgressIndicator;
-	@Nonnull
-	protected final String myStashMessage;
+    protected GitConflictResolver.Params myParams;
 
-	protected GitConflictResolver.Params myParams;
+    /**
+     * Returns an instance of the proper GitChangesSaver depending on the given save changes policy.
+     *
+     * @return {@link GitStashChangesSaver} or {@link GitShelveChangesSaver}.
+     */
+    @Nonnull
+    public static GitChangesSaver getSaver(
+        @Nonnull Project project,
+        @Nonnull Git git,
+        @Nonnull ProgressIndicator progressIndicator,
+        @Nonnull String stashMessage,
+        @Nonnull GitVcsSettings.UpdateChangesPolicy saveMethod
+    ) {
+        if (saveMethod == GitVcsSettings.UpdateChangesPolicy.SHELVE) {
+            return new GitShelveChangesSaver(project, git, progressIndicator, stashMessage);
+        }
+        return new GitStashChangesSaver(project, git, progressIndicator, stashMessage);
+    }
 
-	/**
-	 * Returns an instance of the proper GitChangesSaver depending on the given save changes policy.
-	 *
-	 * @return {@link GitStashChangesSaver} or {@link GitShelveChangesSaver}.
-	 */
-	@Nonnull
-	public static GitChangesSaver getSaver(@Nonnull Project project,
-			@Nonnull Git git,
-			@Nonnull ProgressIndicator progressIndicator,
-			@Nonnull String stashMessage,
-			@Nonnull GitVcsSettings.UpdateChangesPolicy saveMethod)
-	{
-		if(saveMethod == GitVcsSettings.UpdateChangesPolicy.SHELVE)
-		{
-			return new GitShelveChangesSaver(project, git, progressIndicator, stashMessage);
-		}
-		return new GitStashChangesSaver(project, git, progressIndicator, stashMessage);
-	}
+    protected GitChangesSaver(
+        @Nonnull Project project,
+        @Nonnull Git git,
+        @Nonnull ProgressIndicator indicator,
+        @Nonnull String stashMessage
+    ) {
+        myProject = project;
+        myGit = git;
+        myProgressIndicator = indicator;
+        myStashMessage = stashMessage;
+        myChangeManager = ChangeListManager.getInstance(project);
+    }
 
-	protected GitChangesSaver(@Nonnull Project project, @Nonnull Git git, @Nonnull ProgressIndicator indicator, @Nonnull String stashMessage)
-	{
-		myProject = project;
-		myGit = git;
-		myProgressIndicator = indicator;
-		myStashMessage = stashMessage;
-		myChangeManager = ChangeListManager.getInstance(project);
-	}
+    /**
+     * Saves local changes in stash or in shelf.
+     *
+     * @param rootsToSave Save changes only from these roots.
+     */
+    public void saveLocalChanges(@Nullable Collection<VirtualFile> rootsToSave) throws VcsException {
+        if (rootsToSave == null || rootsToSave.isEmpty()) {
+            return;
+        }
+        save(rootsToSave);
+    }
 
-	/**
-	 * Saves local changes in stash or in shelf.
-	 *
-	 * @param rootsToSave Save changes only from these roots.
-	 */
-	public void saveLocalChanges(@Nullable Collection<VirtualFile> rootsToSave) throws VcsException
-	{
-		if(rootsToSave == null || rootsToSave.isEmpty())
-		{
-			return;
-		}
-		save(rootsToSave);
-	}
+    public void notifyLocalChangesAreNotRestored() {
+        if (wereChangesSaved()) {
+            LOG.info("Update is incomplete, changes are not restored");
+            NotificationService.getInstance().newWarn(VcsNotifier.IMPORTANT_ERROR_NOTIFICATION)
+                .title(LocalizeValue.localizeTODO("Local changes were not restored"))
+                .content(LocalizeValue.localizeTODO(
+                    "Before update your uncommitted changes were saved to <a href='saver'>" +
+                        getSaverName() +
+                        "</a>.<br/>" +
+                        "Update is not complete, you have unresolved merges in your working tree<br/>" +
+                        "Resolve conflicts, complete update and restore changes manually."
+                ))
+                .hyperlinkListener(new ShowSavedChangesNotificationListener())
+                .notify(myProject);
+        }
+    }
 
-	public void notifyLocalChangesAreNotRestored()
-	{
-		if(wereChangesSaved())
-		{
-			LOG.info("Update is incomplete, changes are not restored");
-			VcsNotifier.getInstance(myProject).notifyImportantWarning("Local changes were not restored", "Before update your uncommitted changes were saved to <a href='saver'>" +
-					getSaverName() +
-					"</a>.<br/>" +
-					"Update is not complete, you have unresolved merges in your working tree<br/>" +
-					"Resolve conflicts, complete update and restore changes manually.", new ShowSavedChangesNotificationListener());
-		}
-	}
+    public void setConflictResolverParams(GitConflictResolver.Params params) {
+        myParams = params;
+    }
 
-	public void setConflictResolverParams(GitConflictResolver.Params params)
-	{
-		myParams = params;
-	}
+    /**
+     * Saves local changes - specific for chosen save strategy.
+     *
+     * @param rootsToSave local changes should be saved on these roots.
+     */
+    protected abstract void save(Collection<VirtualFile> rootsToSave) throws VcsException;
 
-	/**
-	 * Saves local changes - specific for chosen save strategy.
-	 *
-	 * @param rootsToSave local changes should be saved on these roots.
-	 */
-	protected abstract void save(Collection<VirtualFile> rootsToSave) throws VcsException;
+    /**
+     * Loads the changes - specific for chosen save strategy.
+     */
+    public abstract void load();
 
-	/**
-	 * Loads the changes - specific for chosen save strategy.
-	 */
-	public abstract void load();
+    /**
+     * @return true if there were local changes to save.
+     */
+    public abstract boolean wereChangesSaved();
 
-	/**
-	 * @return true if there were local changes to save.
-	 */
-	public abstract boolean wereChangesSaved();
+    /**
+     * @return name of the save capability provider - stash or shelf.
+     */
+    public abstract String getSaverName();
 
-	/**
-	 * @return name of the save capability provider - stash or shelf.
-	 */
-	public abstract String getSaverName();
+    /**
+     * @return the name of the saving operation: stash or shelve.
+     */
+    @Nonnull
+    public abstract String getOperationName();
 
-	/**
-	 * @return the name of the saving operation: stash or shelve.
-	 */
-	@Nonnull
-	public abstract String getOperationName();
+    /**
+     * Show the saved local changes in the proper viewer.
+     */
+    public abstract void showSavedChanges();
 
-	/**
-	 * Show the saved local changes in the proper viewer.
-	 */
-	public abstract void showSavedChanges();
+    /**
+     * The right panel title of the merge conflict dialog: changes that came from update.
+     */
+    @Nonnull
+    protected static LocalizeValue getConflictRightPanelTitle() {
+        return LocalizeValue.localizeTODO("Changes from remote");
+    }
 
-	/**
-	 * The right panel title of the merge conflict dialog: changes that came from update.
-	 */
-	@Nonnull
-	protected static String getConflictRightPanelTitle()
-	{
-		return "Changes from remote";
-	}
+    /**
+     * The left panel title of the merge conflict dialog: changes that were preserved in this saver during update.
+     */
+    @Nonnull
+    protected static LocalizeValue getConflictLeftPanelTitle() {
+        return LocalizeValue.localizeTODO("Your uncommitted changes");
+    }
 
-	/**
-	 * The left panel title of the merge conflict dialog: changes that were preserved in this saver during update.
-	 */
-	@Nonnull
-	protected static String getConflictLeftPanelTitle()
-	{
-		return "Your uncommitted changes";
-	}
-
-	protected class ShowSavedChangesNotificationListener implements NotificationListener
-	{
-		@Override
-		public void hyperlinkUpdate(@Nonnull Notification notification, @Nonnull HyperlinkEvent event)
-		{
-			if(event.getEventType() == HyperlinkEvent.EventType.ACTIVATED && event.getDescription().equals("saver"))
-			{
-				showSavedChanges();
-			}
-		}
-	}
+    protected class ShowSavedChangesNotificationListener implements NotificationListener {
+        @Override
+        @RequiredUIAccess
+        public void hyperlinkUpdate(@Nonnull Notification notification, @Nonnull HyperlinkEvent event) {
+            if (event.getEventType() == HyperlinkEvent.EventType.ACTIVATED && event.getDescription().equals("saver")) {
+                showSavedChanges();
+            }
+        }
+    }
 }
 

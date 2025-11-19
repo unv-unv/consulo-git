@@ -38,7 +38,7 @@ import java.util.*;
  *   <li>Checks if {@code core.autocrlf} is set to {@code true} or {@code input}.</li>
  *   <li>If not, checks if files contain CRLFs.</li>
  *   <li>
- *     For files with CRLFs checks if there are gitattributes set on them, such that would either force CRLF conversion on checkin,
+ *     For files with CRLFs checks if there are git attributes set on them, such that would either force CRLF conversion on checkin,
  *     either indicate that these CRLFs are here intentionally.
  *   </li>
  * </ul>

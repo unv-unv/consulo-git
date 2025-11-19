@@ -19,6 +19,8 @@ import consulo.application.progress.ProgressIndicator;
 import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.project.Project;
+import consulo.project.ui.notification.NotificationService;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.util.lang.StringUtil;
 import consulo.versionControlSystem.VcsException;
 import consulo.versionControlSystem.VcsNotifier;
@@ -46,7 +48,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class GitStashChangesSaver extends GitChangesSaver {
-
     private static final Logger LOG = Logger.getInstance(GitStashChangesSaver.class);
     private static final String NO_LOCAL_CHANGES_TO_SAVE = "No local changes to save";
 
@@ -72,7 +73,7 @@ public class GitStashChangesSaver extends GitChangesSaver {
         for (VirtualFile root : rootsToSave) {
             String message = GitHandlerUtil.formatOperationName("Stashing changes from", root);
             LOG.info(message);
-            String oldProgressTitle = myProgressIndicator.getText();
+            LocalizeValue oldProgressTitle = myProgressIndicator.getTextValue();
             myProgressIndicator.setText(message);
             GitRepository repository = myRepositoryManager.getRepositoryForRoot(root);
             if (repository == null) {
@@ -93,7 +94,7 @@ public class GitStashChangesSaver extends GitChangesSaver {
                     }
                 }
             }
-            myProgressIndicator.setText(oldProgressTitle);
+            myProgressIndicator.setTextValue(oldProgressTitle);
         }
     }
 
@@ -103,6 +104,7 @@ public class GitStashChangesSaver extends GitChangesSaver {
     }
 
     @Override
+    @RequiredUIAccess
     public void load() {
         for (VirtualFile root : myStashedRoots) {
             loadRoot(root);
@@ -129,6 +131,7 @@ public class GitStashChangesSaver extends GitChangesSaver {
     }
 
     @Override
+    @RequiredUIAccess
     public void showSavedChanges() {
         GitUnstashDialog.showUnstashDialog(myProject, new ArrayList<>(myStashedRoots), myStashedRoots.iterator().next());
     }
@@ -173,7 +176,6 @@ public class GitStashChangesSaver extends GitChangesSaver {
     }
 
     private static class UnstashConflictResolver extends GitConflictResolver {
-
         private final Set<VirtualFile> myStashedRoots;
 
         public UnstashConflictResolver(
@@ -190,22 +192,22 @@ public class GitStashChangesSaver extends GitChangesSaver {
             if (givenParams != null) {
                 return givenParams;
             }
-            Params params = new Params();
-            params.setErrorNotificationTitle("Local changes were not restored");
-            params.setMergeDialogCustomizer(new UnstashMergeDialogCustomizer());
-            params.setReverse(true);
-            return params;
+            return new Params()
+                .setErrorNotificationTitle(LocalizeValue.localizeTODO("Local changes were not restored"))
+                .setMergeDialogCustomizer(new UnstashMergeDialogCustomizer())
+                .setReverse(true);
         }
-
 
         @Override
         protected void notifyUnresolvedRemain() {
-            VcsNotifier.getInstance(myProject).notifyImportantWarning(
-                "Local changes were restored with conflicts",
-                "Your uncommitted changes were saved to <a href='saver'>stash</a>.<br/>" +
-                    "Unstash is not complete, you have unresolved merges in your working tree<br/>" +
-                    "<a href='resolve'>Resolve</a> conflicts and drop the stash.",
-                (notification, event) -> {
+            NotificationService.getInstance().newWarn(VcsNotifier.IMPORTANT_ERROR_NOTIFICATION)
+                .title(LocalizeValue.localizeTODO("Local changes were restored with conflicts"))
+                .content(LocalizeValue.localizeTODO(
+                    "Your uncommitted changes were saved to <a href='saver'>stash</a>.<br/>" +
+                        "Unstash is not complete, you have unresolved merges in your working tree<br/>" +
+                        "<a href='resolve'>Resolve</a> conflicts and drop the stash."
+                ))
+                .hyperlinkListener((notification, event) -> {
                     if (event.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
                         if (event.getDescription().equals("saver")) {
                             // we don't use #showSavedChanges to specify unmerged root first
@@ -219,8 +221,8 @@ public class GitStashChangesSaver extends GitChangesSaver {
                             mergeNoProceed();
                         }
                     }
-                }
-            );
+                })
+                .notify(myProject);
         }
     }
 
@@ -230,14 +232,16 @@ public class GitStashChangesSaver extends GitChangesSaver {
             return "Uncommitted changes that were stashed before update have conflicts with updated files.";
         }
 
+        @Nonnull
         @Override
         public String getLeftPanelTitle(@Nonnull VirtualFile file) {
-            return getConflictLeftPanelTitle();
+            return getConflictLeftPanelTitle().get();
         }
 
+        @Nonnull
         @Override
         public String getRightPanelTitle(@Nonnull VirtualFile file, VcsRevisionNumber revisionNumber) {
-            return getConflictRightPanelTitle();
+            return getConflictRightPanelTitle().get();
         }
     }
 }

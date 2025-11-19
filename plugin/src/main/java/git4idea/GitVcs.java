@@ -416,7 +416,7 @@ public class GitVcs extends AbstractVcs<CommittedChangeList> {
                 myNotificationService.newError(VcsNotifier.IMPORTANT_ERROR_NOTIFICATION)
                     .title(LocalizeValue.localizeTODO("Unsupported Git version"))
                     .content(LocalizeValue.localizeTODO(message))
-                    .optionalHyperlinkListener(new NotificationListener.Adapter() {
+                    .hyperlinkListener(new NotificationListener.Adapter() {
                         @Override
                         protected void hyperlinkActivated(@Nonnull Notification notification, @Nonnull HyperlinkEvent e) {
                             if (SETTINGS_LINK.equals(e.getDescription())) {

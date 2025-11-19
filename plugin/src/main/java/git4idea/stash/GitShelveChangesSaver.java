@@ -20,6 +20,7 @@ import consulo.git.localize.GitLocalize;
 import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.versionControlSystem.ProjectLevelVcsManager;
 import consulo.versionControlSystem.VcsException;
 import consulo.versionControlSystem.base.LocalChangesUnderRoots;
@@ -53,7 +54,7 @@ public class GitShelveChangesSaver extends GitChangesSaver {
     @Override
     protected void save(@Nonnull Collection<VirtualFile> rootsToSave) throws VcsException {
         LOG.info("save " + rootsToSave);
-        final Map<String, Map<VirtualFile, Collection<Change>>> lists =
+        Map<String, Map<VirtualFile, Collection<Change>>> lists =
             new LocalChangesUnderRoots(myChangeManager, myVcsManager).getChangesByLists(rootsToSave);
 
         LocalizeValue oldProgressTitle = myProgressIndicator.getTextValue();
@@ -62,13 +63,13 @@ public class GitShelveChangesSaver extends GitChangesSaver {
         myShelvedLists = new HashMap<>();
 
         for (Map.Entry<String, Map<VirtualFile, Collection<Change>>> entry : lists.entrySet()) {
-            final Map<VirtualFile, Collection<Change>> map = entry.getValue();
-            final Set<Change> changes = new HashSet<>();
+            Map<VirtualFile, Collection<Change>> map = entry.getValue();
+            Set<Change> changes = new HashSet<>();
             for (Collection<Change> changeCollection : map.values()) {
                 changes.addAll(changeCollection);
             }
             if (!changes.isEmpty()) {
-                final ShelvedChangeList list = GitShelveUtils.shelveChanges(
+                ShelvedChangeList list = GitShelveUtils.shelveChanges(
                     myProject,
                     myShelveManager,
                     changes,
@@ -94,6 +95,7 @@ public class GitShelveChangesSaver extends GitChangesSaver {
     }
 
     @Override
+    @RequiredUIAccess
     public void load() {
         if (myShelvedLists != null) {
             LOG.info("load ");

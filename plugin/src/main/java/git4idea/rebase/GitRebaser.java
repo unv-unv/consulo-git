@@ -343,14 +343,14 @@ public class GitRebaser {
     }
 
     private static GitConflictResolver.Params makeParamsForRebaseConflict() {
-        return new GitConflictResolver.Params().
-            setReverse(true).
-            setErrorNotificationTitle("Can't continue rebase").
-            setMergeDescription("Merge conflicts detected. Resolve them before continuing rebase.").
-            setErrorNotificationAdditionalDescription(
+        return new GitConflictResolver.Params()
+            .setReverse(true)
+            .setErrorNotificationTitle(LocalizeValue.localizeTODO("Can't continue rebase"))
+            .setMergeDescription(LocalizeValue.localizeTODO("Merge conflicts detected. Resolve them before continuing rebase."))
+            .setErrorNotificationAdditionalDescription(LocalizeValue.localizeTODO(
                 "Then you may <b>continue rebase</b>. <br/> " +
                     "You also may <b>abort rebase</b> to restore the original branch and stop rebasing."
-            );
+            ));
     }
 
     public static class TrivialEditor extends GitInteractiveRebaseEditorHandler {
@@ -388,8 +388,8 @@ public class GitRebaser {
                 myProject,
                 root,
                 untrackedWouldBeOverwrittenDetector.getRelativeFilePaths(),
-                "rebase",
-                null
+                LocalizeValue.localizeTODO("rebase"),
+                LocalizeValue.empty()
             );
             return GitUpdateResult.ERROR;
         }
@@ -426,15 +426,14 @@ public class GitRebaser {
         }
 
         private static Params makeParams() {
-            Params params = new Params();
-            params.setReverse(true);
-            params.setMergeDescription("Merge conflicts detected. Resolve them before continuing rebase.");
-            params.setErrorNotificationTitle("Can't continue rebase");
-            params.setErrorNotificationAdditionalDescription(
-                "Then you may <b>continue rebase</b>. <br/> " +
-                    "You also may <b>abort rebase</b> to restore the original branch and stop rebasing."
-            );
-            return params;
+            return new Params()
+                .setReverse(true)
+                .setMergeDescription(LocalizeValue.localizeTODO("Merge conflicts detected. Resolve them before continuing rebase."))
+                .setErrorNotificationTitle(LocalizeValue.localizeTODO("Can't continue rebase"))
+                .setErrorNotificationAdditionalDescription(LocalizeValue.localizeTODO(
+                    "Then you may <b>continue rebase</b>. <br/> " +
+                        "You also may <b>abort rebase</b> to restore the original branch and stop rebasing."
+                ));
         }
 
         @Override

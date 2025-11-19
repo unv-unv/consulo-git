@@ -86,8 +86,8 @@ public class GitMergeUpdater extends GitUpdater {
         GitUntrackedFilesOverwrittenByOperationDetector untrackedFilesDetector =
             new GitUntrackedFilesOverwrittenByOperationDetector(myRoot);
 
-        String originalText = myProgressIndicator.getText();
-        myProgressIndicator.setText("Merging" + GitUtil.mention(myRepository) + "...");
+        LocalizeValue originalText = myProgressIndicator.getTextValue();
+        myProgressIndicator.setTextValue(LocalizeValue.localizeTODO("Merging" + GitUtil.mention(myRepository) + "..."));
         try {
             GitCommandResult result = myGit.merge(
                 myRepository,
@@ -97,7 +97,7 @@ public class GitMergeUpdater extends GitUpdater {
                 untrackedFilesDetector,
                 GitStandardProgressAnalyzer.createListener(myProgressIndicator)
             );
-            myProgressIndicator.setText(originalText);
+            myProgressIndicator.setTextValue(originalText);
             return result.success()
                 ? GitUpdateResult.SUCCESS
                 : handleMergeFailure(mergeLineListener, untrackedFilesDetector, merger, result.getErrorOutputAsJoinedValue());
@@ -145,8 +145,8 @@ public class GitMergeUpdater extends GitUpdater {
                 myProject,
                 myRoot,
                 untrackedFilesWouldBeOverwrittenByMergeDetector.getRelativeFilePaths(),
-                "merge",
-                null
+                LocalizeValue.localizeTODO("merge"),
+                LocalizeValue.empty()
             );
             return GitUpdateResult.ERROR;
         }
@@ -178,10 +178,10 @@ public class GitMergeUpdater extends GitUpdater {
                 LOG.error("Repository is null for root " + myRoot);
                 return true; // fail safe
             }
-            final Collection<String> remotelyChanged =
+            Collection<String> remotelyChanged =
                 GitUtil.getPathsDiffBetweenRefs(Git.getInstance(), repository, currentBranch, remoteBranch);
-            final List<File> locallyChanged = myChangeListManager.getAffectedPaths();
-            for (final File localPath : locallyChanged) {
+            List<File> locallyChanged = myChangeListManager.getAffectedPaths();
+            for (File localPath : locallyChanged) {
                 if (ContainerUtil.exists(
                     remotelyChanged,
                     remotelyChangedPath -> FileUtil.pathsEqual(localPath.getPath(), remotelyChangedPath)
@@ -303,10 +303,9 @@ public class GitMergeUpdater extends GitUpdater {
         }
 
         private static Params makeParams() {
-            Params params = new Params();
-            params.setErrorNotificationTitle("Can't complete update");
-            params.setMergeDescription("Merge conflicts detected. Resolve them before continuing update.");
-            return params;
+            return new Params()
+                .setErrorNotificationTitle(LocalizeValue.localizeTODO("Can't complete update"))
+                .setMergeDescription(LocalizeValue.localizeTODO("Merge conflicts detected. Resolve them before continuing update."));
         }
 
         @Override

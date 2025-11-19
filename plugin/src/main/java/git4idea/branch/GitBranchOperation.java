@@ -107,7 +107,7 @@ abstract class GitBranchOperation {
     public abstract LocalizeValue getSuccessMessage();
 
     @Nonnull
-    protected abstract String getRollbackProposal();
+    protected abstract LocalizeValue getRollbackProposal();
 
     /**
      * Returns a short downcased name of the operation.
@@ -115,7 +115,7 @@ abstract class GitBranchOperation {
      * Some operations (like checkout new branch) can be not mentioned in these dialogs, so their operation names would be not used.
      */
     @Nonnull
-    protected abstract String getOperationName();
+    protected abstract LocalizeValue getOperationName();
 
     /**
      * @return next repository that wasn't handled (e.g. checked out) yet.
@@ -224,7 +224,7 @@ abstract class GitBranchOperation {
     }
 
     protected void showFatalErrorDialogWithRollback(@Nonnull LocalizeValue title, @Nonnull LocalizeValue message) {
-        boolean rollback = myUiHandler.notifyErrorWithRollbackProposal(title.get(), message.get(), getRollbackProposal());
+        boolean rollback = myUiHandler.notifyErrorWithRollbackProposal(title, message, getRollbackProposal());
         if (rollback) {
             rollback();
         }

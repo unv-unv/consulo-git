@@ -23,7 +23,6 @@ import consulo.project.ui.notification.NotificationService;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.Messages;
 import consulo.ui.ex.awt.UIUtil;
-import consulo.util.lang.StringUtil;
 import consulo.util.lang.xml.XmlStringUtil;
 import consulo.versionControlSystem.VcsNotifier;
 import consulo.versionControlSystem.change.Change;
@@ -66,21 +65,21 @@ public class GitBranchUiHandlerImpl implements GitBranchUiHandler {
 
     @Override
     public boolean notifyErrorWithRollbackProposal(
-        @Nonnull String title,
-        @Nonnull String message,
-        @Nonnull String rollbackProposal
+        @Nonnull LocalizeValue title,
+        @Nonnull LocalizeValue message,
+        @Nonnull LocalizeValue rollbackProposal
     ) {
         AtomicBoolean ok = new AtomicBoolean();
         UIUtil.invokeAndWaitIfNeeded((Runnable) () -> {
             StringBuilder description = new StringBuilder();
-            if (!StringUtil.isEmptyOrSpaces(message)) {
+            if (message != LocalizeValue.empty()) {
                 description.append(message).append("<br/>");
             }
             description.append(rollbackProposal);
             ok.set(Messages.YES == DialogManager.showOkCancelDialog(
                 myProject,
                 XmlStringUtil.wrapInHtml(description),
-                title,
+                title.get(),
                 "Rollback",
                 "Don't rollback",
                 UIUtil.getErrorIcon()
@@ -90,18 +89,18 @@ public class GitBranchUiHandlerImpl implements GitBranchUiHandler {
     }
 
     @Override
-    public void showUnmergedFilesNotification(@Nonnull String operationName, @Nonnull Collection<GitRepository> repositories) {
+    public void showUnmergedFilesNotification(@Nonnull LocalizeValue operationName, @Nonnull Collection<GitRepository> repositories) {
         myNotificationService.newError(VcsNotifier.IMPORTANT_ERROR_NOTIFICATION)
             .title(unmergedFilesErrorTitle(operationName))
             .content(unmergedFilesErrorNotificationDescription(operationName))
-            .optionalHyperlinkListener((notification, event) -> {
+            .hyperlinkListener((notification, event) -> {
                 if (event.getEventType() == HyperlinkEvent.EventType.ACTIVATED && event.getDescription().equals("resolve")) {
                     GitConflictResolver.Params params = new GitConflictResolver.Params()
-                        .setMergeDescription(String.format(
+                        .setMergeDescription(LocalizeValue.localizeTODO(String.format(
                             "The following files have unresolved conflicts. You need to resolve them before %s.",
                             operationName
-                        ))
-                        .setErrorNotificationTitle("Unresolved files remain.");
+                        )))
+                        .setErrorNotificationTitle(LocalizeValue.localizeTODO("Unresolved files remain."));
                     new GitConflictResolver(myProject, myGit, GitUtil.getRootsFromRepositories(repositories), params).merge();
                 }
             })
@@ -109,7 +108,7 @@ public class GitBranchUiHandlerImpl implements GitBranchUiHandler {
     }
 
     @Override
-    public boolean showUnmergedFilesMessageWithRollback(@Nonnull String operationName, @Nonnull String rollbackProposal) {
+    public boolean showUnmergedFilesMessageWithRollback(@Nonnull LocalizeValue operationName, @Nonnull LocalizeValue rollbackProposal) {
         AtomicBoolean ok = new AtomicBoolean();
         UIUtil.invokeAndWaitIfNeeded((Runnable) () -> {
             String description = String.format(
@@ -133,18 +132,18 @@ public class GitBranchUiHandlerImpl implements GitBranchUiHandler {
 
     @Override
     public void showUntrackedFilesNotification(
-        @Nonnull String operationName,
+        @Nonnull LocalizeValue operationName,
         @Nonnull VirtualFile root,
         @Nonnull Collection<String> relativePaths
     ) {
-        GitUntrackedFilesHelper.notifyUntrackedFilesOverwrittenBy(myProject, root, relativePaths, operationName, null);
+        GitUntrackedFilesHelper.notifyUntrackedFilesOverwrittenBy(myProject, root, relativePaths, operationName, LocalizeValue.empty());
     }
 
     @Override
     @RequiredUIAccess
     public boolean showUntrackedFilesDialogWithRollback(
-        @Nonnull String operationName,
-        @Nonnull String rollbackProposal,
+        @Nonnull LocalizeValue operationName,
+        @Nonnull LocalizeValue rollbackProposal,
         @Nonnull VirtualFile root,
         @Nonnull Collection<String> relativePaths
     ) {
@@ -205,12 +204,12 @@ public class GitBranchUiHandlerImpl implements GitBranchUiHandler {
     }
 
     @Nonnull
-    private static LocalizeValue unmergedFilesErrorTitle(@Nonnull String operationName) {
+    private static LocalizeValue unmergedFilesErrorTitle(@Nonnull LocalizeValue operationName) {
         return LocalizeValue.localizeTODO("Can't " + operationName + " because of unmerged files");
     }
 
     @Nonnull
-    private static LocalizeValue unmergedFilesErrorNotificationDescription(String operationName) {
+    private static LocalizeValue unmergedFilesErrorNotificationDescription(@Nonnull LocalizeValue operationName) {
         return LocalizeValue.localizeTODO(
             "You have to <a href='resolve'>resolve</a> all merge conflicts before " + operationName + ".<br/>" +
                 "After resolving conflicts you also probably would want to commit your files to the current branch."

@@ -17,14 +17,20 @@ package git4idea.commands;
 
 import consulo.localize.LocalizeValue;
 import consulo.project.Project;
+import consulo.project.ui.notification.NotificationService;
 import consulo.versionControlSystem.VcsNotifier;
 import jakarta.annotation.Nonnull;
 
 public class GitTaskResultNotificationHandler extends GitTaskResultHandlerAdapter {
     @Nonnull
     private final Project myProject;
+    @Nonnull
+    private final NotificationService myNotificationService;
+    @Nonnull
     private final LocalizeValue mySuccessMessage;
+    @Nonnull
     private final LocalizeValue myCancelMessage;
+    @Nonnull
     private final LocalizeValue myErrorMessage;
 
     public GitTaskResultNotificationHandler(
@@ -34,6 +40,7 @@ public class GitTaskResultNotificationHandler extends GitTaskResultHandlerAdapte
         @Nonnull LocalizeValue errorMessage
     ) {
         myProject = project;
+        myNotificationService = NotificationService.getInstance();
         mySuccessMessage = successMessage;
         myCancelMessage = cancelMessage;
         myErrorMessage = errorMessage;
@@ -41,16 +48,22 @@ public class GitTaskResultNotificationHandler extends GitTaskResultHandlerAdapte
 
     @Override
     protected void onSuccess() {
-        VcsNotifier.getInstance(myProject).notifySuccess(mySuccessMessage.get());
+        myNotificationService.newInfo(VcsNotifier.NOTIFICATION_GROUP_ID)
+            .content(mySuccessMessage)
+            .notify(myProject);
     }
 
     @Override
     protected void onCancel() {
-        VcsNotifier.getInstance(myProject).notifySuccess(myCancelMessage.get());
+        myNotificationService.newInfo(VcsNotifier.NOTIFICATION_GROUP_ID)
+            .content(myCancelMessage)
+            .notify(myProject);
     }
 
     @Override
     protected void onFailure() {
-        VcsNotifier.getInstance(myProject).notifyError("", myErrorMessage.get());
+        myNotificationService.newError(VcsNotifier.IMPORTANT_ERROR_NOTIFICATION)
+            .content(myErrorMessage)
+            .notify(myProject);
     }
 }

@@ -37,7 +37,7 @@ import jakarta.annotation.Nullable;
  * </p>
  * <p>
  * <p>GitBranches are equal, if their full names are equal. That means that if two GitBranch objects have different hashes, they
- * are considered equal. But in this case an error if logged, becase it means that one of this GitBranch instances is out-of-date, and
+ * are considered equal. But in this case an error if logged, because it means that one of this GitBranch instances is out-of-date, and
  * it is required to use an {@link GitRepository#update(TrackedTopic...) updated} version.</p>
  */
 public abstract class GitBranch extends GitReference

@@ -62,21 +62,23 @@ public class GitUntrackedFilesHelper {
         @Nonnull Project project,
         @Nonnull VirtualFile root,
         @Nonnull Collection<String> relativePaths,
-        @Nonnull String operation,
-        @Nullable String description
+        @Nonnull LocalizeValue operation,
+        @Nonnull LocalizeValue description
     ) {
         Collection<String> absolutePaths = GitUtil.toAbsolute(root, relativePaths);
         List<VirtualFile> untrackedFiles = ContainerUtil.mapNotNull(absolutePaths, GitUtil::findRefreshFileOrLog);
 
         NotificationService.getInstance().newError(VcsNotifier.IMPORTANT_ERROR_NOTIFICATION)
-            .title(LocalizeValue.localizeTODO(StringUtil.capitalize(operation) + " failed"))
-            .content(LocalizeValue.localizeTODO(
-                description == null ? createUntrackedFilesOverwrittenDescription(operation, true) : description
-            ))
-            .optionalHyperlinkListener((notification, event) -> {
+            .title(LocalizeValue.localizeTODO(operation.capitalize() + " failed"))
+            .content(
+                description == LocalizeValue.empty()
+                    ? createUntrackedFilesOverwrittenDescription(operation, true)
+                    : description
+            )
+            .hyperlinkListener((notification, event) -> {
                 if (event.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
-                    String dialogDesc = createUntrackedFilesOverwrittenDescription(operation, false);
-                    String title = "Untracked Files Preventing " + StringUtil.capitalize(operation);
+                    LocalizeValue dialogDesc = createUntrackedFilesOverwrittenDescription(operation, false);
+                    LocalizeValue title = LocalizeValue.localizeTODO("Untracked Files Preventing " + operation.capitalize());
                     if (untrackedFiles.isEmpty()) {
                         GitUtil.showPathsInDialog(project, absolutePaths, title, dialogDesc);
                     }
@@ -86,14 +88,14 @@ public class GitUntrackedFilesHelper {
                         LegacyDialog legacyDialog = componentFactory.createSelectFilesDialogOnlyOk(
                             project,
                             new ArrayList<>(untrackedFiles),
-                            StringUtil.stripHtml(dialogDesc, true),
+                            dialogDesc.map((localizeManager, string) -> StringUtil.stripHtml(string, true)).get(),
                             null,
                             false,
                             false,
                             true
                         );
 
-                        legacyDialog.setTitle(LocalizeValue.localizeTODO(title));
+                        legacyDialog.setTitle(title);
                         legacyDialog.show();
                     }
                 }
@@ -102,7 +104,7 @@ public class GitUntrackedFilesHelper {
     }
 
     @Nonnull
-    public static String createUntrackedFilesOverwrittenDescription(@Nonnull String operation, boolean addLinkToViewFiles) {
+    public static LocalizeValue createUntrackedFilesOverwrittenDescription(@Nonnull LocalizeValue operation, boolean addLinkToViewFiles) {
         String description1 = " untracked working tree files would be overwritten by " + operation + ".";
         String description2 = "Please move or remove them before you can " + operation + ".";
         String notificationDesc;
@@ -112,7 +114,7 @@ public class GitUntrackedFilesHelper {
         else {
             notificationDesc = "These" + description1 + "<br/>" + description2;
         }
-        return notificationDesc;
+        return LocalizeValue.localizeTODO(notificationDesc);
     }
 
     /**
@@ -128,8 +130,8 @@ public class GitUntrackedFilesHelper {
     @RequiredUIAccess
     public static boolean showUntrackedFilesDialogWithRollback(
         @Nonnull Project project,
-        @Nonnull String operationName,
-        @Nonnull String rollbackProposal,
+        @Nonnull LocalizeValue operationName,
+        @Nonnull LocalizeValue rollbackProposal,
         @Nonnull VirtualFile root,
         @Nonnull Collection<String> relativePaths
     ) {
@@ -151,8 +153,9 @@ public class GitUntrackedFilesHelper {
                         componentFactory.createVirtualFileList(project, untrackedFiles, false, false).getComponent()
                     );
                 }
-                String title = "Could not " + StringUtil.capitalize(operationName);
-                String description = StringUtil.stripHtml(createUntrackedFilesOverwrittenDescription(operationName, false), true);
+                LocalizeValue title = LocalizeValue.localizeTODO("Could not " + operationName.capitalize());
+                LocalizeValue description = createUntrackedFilesOverwrittenDescription(operationName, false)
+                    .map((localizeManager, string) -> StringUtil.stripHtml(string, true));
                 DialogWrapper dialog = new UntrackedFilesRollBackDialog(project, filesBrowser, description, rollbackProposal);
                 dialog.setTitle(title);
                 DialogManager.show(dialog);
@@ -167,22 +170,22 @@ public class GitUntrackedFilesHelper {
         @Nonnull
         private final JComponent myFilesBrowser;
         @Nonnull
-        private final String myPrompt;
+        private final LocalizeValue myPrompt;
         @Nonnull
-        private final String myRollbackProposal;
+        private final LocalizeValue myRollbackProposal;
 
         public UntrackedFilesRollBackDialog(
             @Nonnull Project project,
             @Nonnull JComponent filesBrowser,
-            @Nonnull String prompt,
-            @Nonnull String rollbackProposal
+            @Nonnull LocalizeValue prompt,
+            @Nonnull LocalizeValue rollbackProposal
         ) {
             super(project);
             myFilesBrowser = filesBrowser;
             myPrompt = prompt;
             myRollbackProposal = rollbackProposal;
-            setOKButtonText("Rollback");
-            setCancelButtonText("Don't rollback");
+            setOKButtonText(LocalizeValue.localizeTODO("Rollback"));
+            setCancelButtonText(LocalizeValue.localizeTODO("Don't rollback"));
             init();
         }
 
@@ -191,7 +194,9 @@ public class GitUntrackedFilesHelper {
         protected JComponent createSouthPanel() {
             JComponent buttons = super.createSouthPanel();
             JPanel panel = new JPanel(new VerticalFlowLayout());
-            panel.add(new JBLabel(XmlStringUtil.wrapInHtml(myRollbackProposal)));
+            panel.add(
+                new JBLabel(myRollbackProposal.map((localizeManager, string) -> XmlStringUtil.wrapInHtml(string)).get())
+            );
             if (buttons != null) {
                 panel.add(buttons);
             }
@@ -207,7 +212,7 @@ public class GitUntrackedFilesHelper {
         @Nullable
         @Override
         protected JComponent createNorthPanel() {
-            JLabel label = new JLabel(myPrompt);
+            JLabel label = new JLabel(myPrompt.get());
             label.setUI(new MultiLineLabelUI());
             label.setBorder(new EmptyBorder(5, 1, 5, 1));
             return label;

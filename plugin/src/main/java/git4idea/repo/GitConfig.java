@@ -408,7 +408,7 @@ public class GitConfig {
 
         @Nonnull
         private Collection<String> getPuttyKeys() {
-            return nonNullCollection(myRemoteBean.getPuttykeyfile());
+            return nonNullCollection(myRemoteBean.getPuttyKeyFile());
         }
 
         @Nonnull
@@ -438,7 +438,7 @@ public class GitConfig {
         String[] getPushUrl();
 
         @Nullable
-        String[] getPuttykeyfile();
+        String[] getPuttyKeyFile();
     }
 
     private static class Url {

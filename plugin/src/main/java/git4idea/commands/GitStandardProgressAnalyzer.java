@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
 public class GitStandardProgressAnalyzer implements GitProgressAnalyzer {
 
   // progress of each operation is stored here. this is an overhead since operations go one by one,
-  // but it looks simpler than storing current operation, checking that ther was no skipped, etc.
+  // but it looks simpler than storing current operation, checking that there was no skipped, etc.
   private Map<Operation, Double> myOperationsProgress = new HashMap<>();
 
   public static GitLineHandlerListener createListener(final ProgressIndicator indicator) {
