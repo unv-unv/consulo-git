@@ -15,19 +15,9 @@
  */
 package git4idea.push;
 
-import static git4idea.GitBranch.REFS_REMOTES_PREFIX;
-import static git4idea.GitUtil.findRemoteBranch;
-
-import java.text.ParseException;
-import java.util.Collection;
-import java.util.List;
-
-import jakarta.annotation.Nonnull;
-
-import consulo.versionControlSystem.distributed.push.PushTarget;
-import org.jetbrains.annotations.TestOnly;
-import consulo.util.collection.ContainerUtil;
 import consulo.logging.Logger;
+import consulo.util.collection.ContainerUtil;
+import consulo.versionControlSystem.distributed.push.PushTarget;
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
 import git4idea.GitStandardRemoteBranch;
@@ -37,178 +27,148 @@ import git4idea.repo.GitBranchTrackInfo;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import git4idea.validators.GitRefNameValidator;
-
+import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import org.jetbrains.annotations.TestOnly;
 
-public class GitPushTarget implements PushTarget
-{
+import java.text.ParseException;
+import java.util.Collection;
+import java.util.List;
 
-	private static final Logger LOG = Logger.getInstance(GitPushTarget.class);
+import static git4idea.GitBranch.REFS_REMOTES_PREFIX;
+import static git4idea.GitUtil.findRemoteBranch;
 
-	@Nonnull
-	private final GitRemoteBranch myRemoteBranch;
-	private final boolean myIsNewBranchCreated;
-	private final boolean myPushingToSpecialRef;
+public class GitPushTarget implements PushTarget {
 
-	public GitPushTarget(@Nonnull GitRemoteBranch remoteBranch, boolean isNewBranchCreated)
-	{
-		this(remoteBranch, isNewBranchCreated, false);
-	}
+    private static final Logger LOG = Logger.getInstance(GitPushTarget.class);
 
-	public GitPushTarget(@Nonnull GitRemoteBranch remoteBranch, boolean isNewBranchCreated, boolean isPushingToSpecialRef)
-	{
-		myRemoteBranch = remoteBranch;
-		myIsNewBranchCreated = isNewBranchCreated;
-		myPushingToSpecialRef = isPushingToSpecialRef;
-	}
+    @Nonnull
+    private final GitRemoteBranch myRemoteBranch;
+    private final boolean myIsNewBranchCreated;
+    private final boolean myPushingToSpecialRef;
 
-	@Nonnull
-	public GitRemoteBranch getBranch()
-	{
-		return myRemoteBranch;
-	}
+    public GitPushTarget(@Nonnull GitRemoteBranch remoteBranch, boolean isNewBranchCreated) {
+        this(remoteBranch, isNewBranchCreated, false);
+    }
 
-	@Override
-	public boolean hasSomethingToPush()
-	{
-		return isNewBranchCreated();
-	}
+    public GitPushTarget(@Nonnull GitRemoteBranch remoteBranch, boolean isNewBranchCreated, boolean isPushingToSpecialRef) {
+        myRemoteBranch = remoteBranch;
+        myIsNewBranchCreated = isNewBranchCreated;
+        myPushingToSpecialRef = isPushingToSpecialRef;
+    }
 
-	@Nonnull
-	@Override
-	public String getPresentation()
-	{
-		return myPushingToSpecialRef ? myRemoteBranch.getFullName() : myRemoteBranch.getNameForRemoteOperations();
-	}
+    @Nonnull
+    public GitRemoteBranch getBranch() {
+        return myRemoteBranch;
+    }
 
-	public boolean isNewBranchCreated()
-	{
-		return myIsNewBranchCreated;
-	}
+    @Override
+    public boolean hasSomethingToPush() {
+        return isNewBranchCreated();
+    }
 
-	@TestOnly
-	boolean isSpecialRef()
-	{
-		return myPushingToSpecialRef;
-	}
+    @Nonnull
+    @Override
+    public String getPresentation() {
+        return myPushingToSpecialRef ? myRemoteBranch.getFullName() : myRemoteBranch.getNameForRemoteOperations();
+    }
 
-	@Nonnull
-	public static GitPushTarget parse(@Nonnull GitRepository repository, @Nullable String remoteName, @Nonnull String branchName) throws ParseException
-	{
-		if(remoteName == null)
-		{
-			throw new ParseException("No remotes defined", -1);
-		}
+    public boolean isNewBranchCreated() {
+        return myIsNewBranchCreated;
+    }
 
-		if(!GitRefNameValidator.getInstance().checkInput(branchName))
-		{
-			throw new ParseException("Invalid destination branch name: " + branchName, -1);
-		}
+    @TestOnly
+    boolean isSpecialRef() {
+        return myPushingToSpecialRef;
+    }
 
-		GitRemote remote = findRemote(repository.getRemotes(), remoteName);
-		if(remote == null)
-		{
-			LOG.error("Remote [" + remoteName + "] is not found among " + repository.getRemotes());
-			throw new ParseException("Invalid remote: " + remoteName, -1);
-		}
+    @Nonnull
+    public static GitPushTarget parse(
+        @Nonnull GitRepository repository,
+        @Nullable String remoteName,
+        @Nonnull String branchName
+    ) throws ParseException {
+        if (remoteName == null) {
+            throw new ParseException("No remotes defined", -1);
+        }
 
-		GitRemoteBranch existingRemoteBranch = findRemoteBranch(repository, remote, branchName);
-		if(existingRemoteBranch != null)
-		{
-			return new GitPushTarget(existingRemoteBranch, false);
-		}
-		GitRemoteBranch rb = new GitStandardRemoteBranch(remote, branchName);
-		return new GitPushTarget(rb, true);
-	}
+        if (!GitRefNameValidator.getInstance().checkInput(branchName)) {
+            throw new ParseException("Invalid destination branch name: " + branchName, -1);
+        }
 
-	@Nullable
-	private static GitRemote findRemote(@Nonnull Collection<GitRemote> remotes, @Nonnull final String candidate)
-	{
-		return ContainerUtil.find(remotes, remote -> remote.getName().equals(candidate));
-	}
+        GitRemote remote = findRemote(repository.getRemotes(), remoteName);
+        if (remote == null) {
+            LOG.error("Remote [" + remoteName + "] is not found among " + repository.getRemotes());
+            throw new ParseException("Invalid remote: " + remoteName, -1);
+        }
 
-	@Nullable
-	public static GitPushTarget getFromPushSpec(@Nonnull GitRepository repository, @Nonnull GitLocalBranch sourceBranch)
-	{
-		final GitRemote remote = getRemoteToPush(repository, GitBranchUtil.getTrackInfoForBranch(repository, sourceBranch));
-		if(remote == null)
-		{
-			return null;
-		}
-		List<String> specs = remote.getPushRefSpecs();
-		if(specs.isEmpty())
-		{
-			return null;
-		}
+        GitRemoteBranch existingRemoteBranch = findRemoteBranch(repository, remote, branchName);
+        if (existingRemoteBranch != null) {
+            return new GitPushTarget(existingRemoteBranch, false);
+        }
+        GitRemoteBranch rb = new GitStandardRemoteBranch(remote, branchName);
+        return new GitPushTarget(rb, true);
+    }
 
-		String targetRef = GitPushSpecParser.getTargetRef(repository, sourceBranch.getName(), specs);
-		if(targetRef == null)
-		{
-			return null;
-		}
+    @Nullable
+    private static GitRemote findRemote(@Nonnull Collection<GitRemote> remotes, @Nonnull String candidate) {
+        return ContainerUtil.find(remotes, remote -> remote.getName().equals(candidate));
+    }
 
-		String remotePrefix = REFS_REMOTES_PREFIX + remote.getName() + "/";
-		if(targetRef.startsWith(remotePrefix))
-		{
-			targetRef = targetRef.substring(remotePrefix.length());
-			GitRemoteBranch remoteBranch = GitUtil.findOrCreateRemoteBranch(repository, remote, targetRef);
-			boolean existingBranch = repository.getBranches().getRemoteBranches().contains(remoteBranch);
-			return new GitPushTarget(remoteBranch, !existingBranch, false);
-		}
-		else
-		{
-			GitRemoteBranch remoteBranch = new GitSpecialRefRemoteBranch(targetRef, remote);
-			return new GitPushTarget(remoteBranch, true, true);
-		}
-	}
+    @Nullable
+    public static GitPushTarget getFromPushSpec(@Nonnull GitRepository repository, @Nonnull GitLocalBranch sourceBranch) {
+        GitRemote remote = getRemoteToPush(repository, GitBranchUtil.getTrackInfoForBranch(repository, sourceBranch));
+        if (remote == null) {
+            return null;
+        }
+        List<String> specs = remote.getPushRefSpecs();
+        if (specs.isEmpty()) {
+            return null;
+        }
 
-	@Nullable
-	private static GitRemote getRemoteToPush(@Nonnull GitRepository repository, @Nullable GitBranchTrackInfo trackInfo)
-	{
-		if(trackInfo != null)
-		{
-			return trackInfo.getRemote();
-		}
-		return GitUtil.findOrigin(repository.getRemotes());
-	}
+        String targetRef = GitPushSpecParser.getTargetRef(repository, sourceBranch.getName(), specs);
+        if (targetRef == null) {
+            return null;
+        }
 
-	@Override
-	public boolean equals(Object o)
-	{
-		if(this == o)
-		{
-			return true;
-		}
-		if(!(o instanceof GitPushTarget))
-		{
-			return false;
-		}
+        String remotePrefix = REFS_REMOTES_PREFIX + remote.getName() + "/";
+        if (targetRef.startsWith(remotePrefix)) {
+            targetRef = targetRef.substring(remotePrefix.length());
+            GitRemoteBranch remoteBranch = GitUtil.findOrCreateRemoteBranch(repository, remote, targetRef);
+            boolean existingBranch = repository.getBranches().getRemoteBranches().contains(remoteBranch);
+            return new GitPushTarget(remoteBranch, !existingBranch, false);
+        }
+        else {
+            GitRemoteBranch remoteBranch = new GitSpecialRefRemoteBranch(targetRef, remote);
+            return new GitPushTarget(remoteBranch, true, true);
+        }
+    }
 
-		GitPushTarget target = (GitPushTarget) o;
+    @Nullable
+    private static GitRemote getRemoteToPush(@Nonnull GitRepository repository, @Nullable GitBranchTrackInfo trackInfo) {
+        if (trackInfo != null) {
+            return trackInfo.getRemote();
+        }
+        return GitUtil.findOrigin(repository.getRemotes());
+    }
 
-		if(myIsNewBranchCreated != target.myIsNewBranchCreated)
-		{
-			return false;
-		}
-		if(!myRemoteBranch.equals(target.myRemoteBranch))
-		{
-			return false;
-		}
+    @Override
+    public boolean equals(Object o) {
+        return this == o
+            || o instanceof GitPushTarget target
+            && myIsNewBranchCreated == target.myIsNewBranchCreated
+            && myRemoteBranch.equals(target.myRemoteBranch);
+    }
 
-		return true;
-	}
+    @Override
+    public int hashCode() {
+        int result = myRemoteBranch.hashCode();
+        result = 31 * result + (myIsNewBranchCreated ? 1 : 0);
+        return result;
+    }
 
-	@Override
-	public int hashCode()
-	{
-		int result = myRemoteBranch.hashCode();
-		result = 31 * result + (myIsNewBranchCreated ? 1 : 0);
-		return result;
-	}
-
-	@Override
-	public String toString()
-	{
-		return myRemoteBranch.getNameForLocalOperations();
-	}
+    @Override
+    public String toString() {
+        return myRemoteBranch.getNameForLocalOperations();
+    }
 }

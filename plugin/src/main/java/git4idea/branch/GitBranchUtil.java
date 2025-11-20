@@ -38,7 +38,6 @@ import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import git4idea.ui.branch.GitMultiRootBranchConfig;
 import git4idea.validators.GitNewBranchNameValidator;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
@@ -46,10 +45,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.*;
 import java.util.function.Function;
 
 import static consulo.util.lang.ObjectUtil.assertNotNull;
@@ -77,7 +73,7 @@ public class GitBranchUtil {
     @Nullable
     public static GitBranchTrackInfo getTrackInfoForBranch(@Nonnull GitRepository repository, @Nonnull GitLocalBranch branch) {
         for (GitBranchTrackInfo trackInfo : repository.getBranchTrackInfos()) {
-            if (trackInfo.getLocalBranch().equals(branch)) {
+            if (trackInfo.localBranch().equals(branch)) {
                 return trackInfo;
             }
         }
@@ -86,7 +82,7 @@ public class GitBranchUtil {
 
     @Nullable
     public static GitBranchTrackInfo getTrackInfo(@Nonnull GitRepository repository, @Nonnull String localBranchName) {
-        return ContainerUtil.find(repository.getBranchTrackInfos(), it -> it.getLocalBranch().getName().equals(localBranchName));
+        return ContainerUtil.find(repository.getBranchTrackInfos(), it -> it.localBranch().getName().equals(localBranchName));
     }
 
     @Nonnull
@@ -370,7 +366,7 @@ public class GitBranchUtil {
         }
 
         if (commonBranches != null) {
-            ArrayList<String> common = new ArrayList<>(commonBranches);
+            List<String> common = new ArrayList<>(commonBranches);
             Collections.sort(common);
             return common;
         }

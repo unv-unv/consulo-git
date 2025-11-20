@@ -349,7 +349,7 @@ public class GitUtil {
      * @return a content root
      */
     public static Set<VirtualFile> gitRootsForPaths(Collection<VirtualFile> roots) {
-        HashSet<VirtualFile> rc = new HashSet<>();
+        Set<VirtualFile> rc = new HashSet<>();
         for (VirtualFile root : roots) {
             VirtualFile f = root;
             do {
@@ -521,7 +521,7 @@ public class GitUtil {
      * @return a set of git roots
      */
     public static Set<VirtualFile> gitRoots(Collection<FilePath> filePaths) {
-        HashSet<VirtualFile> rc = new HashSet<>();
+        Set<VirtualFile> rc = new HashSet<>();
         for (FilePath path : filePaths) {
             VirtualFile root = getGitRootOrNull(path);
             if (root != null) {

@@ -377,7 +377,7 @@ public class GitUpdateProcess {
                 }
             }
             else {
-                trackedBranches.put(root, new GitBranchPair(branch, trackInfo.getRemoteBranch()));
+                trackedBranches.put(root, new GitBranchPair(branch, trackInfo.remoteBranch()));
             }
         }
         return trackedBranches;

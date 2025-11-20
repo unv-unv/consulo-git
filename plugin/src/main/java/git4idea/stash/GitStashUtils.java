@@ -15,8 +15,8 @@
  */
 package git4idea.stash;
 
-import consulo.logging.Logger;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.versionControlSystem.VcsException;
 import consulo.virtualFileSystem.VirtualFile;
 import git4idea.commands.Git;
@@ -28,54 +28,49 @@ import git4idea.repo.GitRepository;
 import git4idea.ui.StashInfo;
 import git4idea.util.GitUIUtil;
 import git4idea.util.StringScanner;
-
 import jakarta.annotation.Nonnull;
+
 import java.nio.charset.Charset;
 import java.util.function.Consumer;
 
 /**
  * The class contains utilities for creating and removing stashes.
  */
-public class GitStashUtils
-{
+public class GitStashUtils {
+    private GitStashUtils() {
+    }
 
-	private static final Logger LOG = Logger.getInstance(GitStashUtils.class);
+    public static boolean saveStash(@Nonnull Git git, @Nonnull GitRepository repository, String message) {
+        GitCommandResult result = git.stashSave(repository, message);
+        return result.success() && !result.getErrorOutputAsJoinedString().contains("No local changes to save");
+    }
 
-	private GitStashUtils()
-	{
-	}
+    @RequiredUIAccess
+    public static void loadStashStack(@Nonnull Project project, @Nonnull VirtualFile root, Consumer<StashInfo> consumer) {
+        loadStashStack(project, root, Charset.forName(GitConfigUtil.getLogEncoding(project, root)), consumer);
+    }
 
-	public static boolean saveStash(@Nonnull Git git, @Nonnull GitRepository repository, final String message)
-	{
-		GitCommandResult result = git.stashSave(repository, message);
-		return result.success() && !result.getErrorOutputAsJoinedString().contains("No local changes to save");
-	}
-
-	public static void loadStashStack(@Nonnull Project project, @Nonnull VirtualFile root, Consumer<StashInfo> consumer)
-	{
-		loadStashStack(project, root, Charset.forName(GitConfigUtil.getLogEncoding(project, root)), consumer);
-	}
-
-	public static void loadStashStack(@Nonnull Project project, @Nonnull VirtualFile root, final Charset charset,
-                                      final Consumer<StashInfo> consumer)
-	{
-		GitSimpleHandler h = new GitSimpleHandler(project, root, GitCommand.STASH.readLockingCommand());
-		h.setSilent(true);
-		h.addParameters("list");
-		String out;
-		try
-		{
-			h.setCharset(charset);
-			out = h.run();
-		}
-		catch(VcsException e)
-		{
-			GitUIUtil.showOperationError(project, e, h.printableCommandLine());
-			return;
-		}
-		for(StringScanner s = new StringScanner(out); s.hasMoreData(); )
-		{
-			consumer.accept(new StashInfo(s.boundedToken(':'), s.boundedToken(':'), s.line().trim()));
-		}
-	}
+    @RequiredUIAccess
+    public static void loadStashStack(
+        @Nonnull Project project,
+        @Nonnull VirtualFile root,
+        Charset charset,
+        Consumer<StashInfo> consumer
+    ) {
+        GitSimpleHandler h = new GitSimpleHandler(project, root, GitCommand.STASH.readLockingCommand());
+        h.setSilent(true);
+        h.addParameters("list");
+        String out;
+        try {
+            h.setCharset(charset);
+            out = h.run();
+        }
+        catch (VcsException e) {
+            GitUIUtil.showOperationError(project, e, h.printableCommandLine());
+            return;
+        }
+        for (StringScanner s = new StringScanner(out); s.hasMoreData(); ) {
+            consumer.accept(new StashInfo(s.boundedToken(':'), s.boundedToken(':'), s.line().trim()));
+        }
+    }
 }

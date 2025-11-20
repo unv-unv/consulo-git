@@ -15,70 +15,63 @@
  */
 package git4idea.repo;
 
-import java.util.Map;
-
-import jakarta.annotation.Nonnull;
-
 import consulo.versionControlSystem.distributed.repository.Repository;
 import consulo.versionControlSystem.log.Hash;
 import git4idea.GitLocalBranch;
 import git4idea.GitRemoteBranch;
-
+import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
-class GitBranchState
-{
-	@Nullable
-	private final String currentRevision;
-	@Nullable
-	private final GitLocalBranch currentBranch;
-	@Nonnull
-	private final Repository.State state;
-	@Nonnull
-	private final Map<GitLocalBranch, Hash> localBranches;
-	@Nonnull
-	private final Map<GitRemoteBranch, Hash> remoteBranches;
+import java.util.Map;
 
-	GitBranchState(@Nullable String currentRevision,
-			@Nullable GitLocalBranch currentBranch,
-			@Nonnull Repository.State state,
-			@Nonnull Map<GitLocalBranch, Hash> localBranches,
-			@Nonnull Map<GitRemoteBranch, Hash> remoteBranches)
-	{
-		this.currentRevision = currentRevision;
-		this.currentBranch = currentBranch;
-		this.state = state;
-		this.localBranches = localBranches;
-		this.remoteBranches = remoteBranches;
-	}
+class GitBranchState {
+    @Nullable
+    private final String currentRevision;
+    @Nullable
+    private final GitLocalBranch currentBranch;
+    @Nonnull
+    private final Repository.State state;
+    @Nonnull
+    private final Map<GitLocalBranch, Hash> localBranches;
+    @Nonnull
+    private final Map<GitRemoteBranch, Hash> remoteBranches;
 
-	@Nullable
-	public String getCurrentRevision()
-	{
-		return currentRevision;
-	}
+    GitBranchState(
+        @Nullable String currentRevision,
+        @Nullable GitLocalBranch currentBranch,
+        @Nonnull Repository.State state,
+        @Nonnull Map<GitLocalBranch, Hash> localBranches,
+        @Nonnull Map<GitRemoteBranch, Hash> remoteBranches
+    ) {
+        this.currentRevision = currentRevision;
+        this.currentBranch = currentBranch;
+        this.state = state;
+        this.localBranches = localBranches;
+        this.remoteBranches = remoteBranches;
+    }
 
-	@Nullable
-	public GitLocalBranch getCurrentBranch()
-	{
-		return currentBranch;
-	}
+    @Nullable
+    public String getCurrentRevision() {
+        return currentRevision;
+    }
 
-	@Nonnull
-	public Repository.State getState()
-	{
-		return state;
-	}
+    @Nullable
+    public GitLocalBranch getCurrentBranch() {
+        return currentBranch;
+    }
 
-	@Nonnull
-	public Map<GitLocalBranch, Hash> getLocalBranches()
-	{
-		return localBranches;
-	}
+    @Nonnull
+    public Repository.State getState() {
+        return state;
+    }
 
-	@Nonnull
-	public Map<GitRemoteBranch, Hash> getRemoteBranches()
-	{
-		return remoteBranches;
-	}
+    @Nonnull
+    public Map<GitLocalBranch, Hash> getLocalBranches() {
+        return localBranches;
+    }
+
+    @Nonnull
+    public Map<GitRemoteBranch, Hash> getRemoteBranches() {
+        return remoteBranches;
+    }
 }

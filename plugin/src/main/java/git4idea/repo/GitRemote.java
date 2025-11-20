@@ -17,8 +17,8 @@ package git4idea.repo;
 
 import consulo.util.collection.ContainerUtil;
 import jakarta.annotation.Nonnull;
-
 import jakarta.annotation.Nullable;
+
 import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
@@ -57,133 +57,121 @@ import java.util.List;
  *
  * @author Kirill Likhodedov
  */
-public final class GitRemote implements Comparable<GitRemote>
-{
+public final class GitRemote implements Comparable<GitRemote> {
+    /**
+     * This is a special instance of GitRemote used in typical git-svn configurations like:
+     * [branch "trunk"]
+     * remote = .
+     * merge = refs/remotes/git-svn
+     */
+    public static final GitRemote DOT = new GitRemote(".", Collections.singletonList("."), Collections.<String>emptyList(),
+        Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList()
+    );
 
-	/**
-	 * This is a special instance of GitRemote used in typical git-svn configurations like:
-	 * [branch "trunk"]
-	 * remote = .
-	 * merge = refs/remotes/git-svn
-	 */
-	public static final GitRemote DOT = new GitRemote(".", Collections.singletonList("."), Collections.<String>emptyList(),
-			Collections.<String>emptyList(), Collections.<String>emptyList(), Collections.<String>emptyList());
+    /**
+     * Default remote name in Git is "origin".
+     * Usually all Git repositories have an "origin" remote, so it can be used as a default value in some cases.
+     */
+    public static final String ORIGIN_NAME = "origin";
 
-	/**
-	 * Default remote name in Git is "origin".
-	 * Usually all Git repositories have an "origin" remote, so it can be used as a default value in some cases.
-	 */
-	public static final String ORIGIN_NAME = "origin";
+    @Nonnull
+    private final String myName;
+    @Nonnull
+    private final List<String> myUrls;
+    @Nonnull
+    private final Collection<String> myPushUrls;
+    @Nonnull
+    final List<String> myFetchRefSpecs;
+    @Nonnull
+    private final List<String> myPushRefSpecs;
+    @Nonnull
+    private final Collection<String> myPuttyKeyFiles;
 
-	@Nonnull
-	private final String myName;
-	@Nonnull
-	private final List<String> myUrls;
-	@Nonnull
-	private final Collection<String> myPushUrls;
-	@Nonnull
-	final List<String> myFetchRefSpecs;
-	@Nonnull
-	private final List<String> myPushRefSpecs;
-	@Nonnull
-	private final Collection<String> myPuttyKeyFiles;
+    GitRemote(
+        @Nonnull String name, @Nonnull List<String> urls, @Nonnull Collection<String> pushUrls, @Nonnull List<String> fetchRefSpecs,
+        @Nonnull List<String> pushRefSpecs, @Nonnull Collection<String> puttyKeyFiles
+    ) {
+        myName = name;
+        myUrls = urls;
+        myPushUrls = pushUrls;
+        myFetchRefSpecs = fetchRefSpecs;
+        myPushRefSpecs = pushRefSpecs;
+        myPuttyKeyFiles = puttyKeyFiles;
+    }
 
-	GitRemote(@Nonnull String name, @Nonnull List<String> urls, @Nonnull Collection<String> pushUrls, @Nonnull List<String> fetchRefSpecs,
-              @Nonnull List<String> pushRefSpecs, @Nonnull Collection<String> puttyKeyFiles)
-	{
-		myName = name;
-		myUrls = urls;
-		myPushUrls = pushUrls;
-		myFetchRefSpecs = fetchRefSpecs;
-		myPushRefSpecs = pushRefSpecs;
-		myPuttyKeyFiles = puttyKeyFiles;
-	}
+    @Nonnull
+    public String getName() {
+        return myName;
+    }
 
-	@Nonnull
-	public String getName()
-	{
-		return myName;
-	}
+    /**
+     * Returns all urls specified in gitconfig in {@code remote.<name>.url}.
+     * If you need url to fetch, use {@link #getFirstUrl()}, because only the first url is fetched by Git,
+     * others are ignored.
+     */
+    @Nonnull
+    public List<String> getUrls() {
+        return myUrls;
+    }
 
-	/**
-	 * Returns all urls specified in gitconfig in {@code remote.<name>.url}.
-	 * If you need url to fetch, use {@link #getFirstUrl()}, because only the first url is fetched by Git,
-	 * others are ignored.
-	 */
-	@Nonnull
-	public List<String> getUrls()
-	{
-		return myUrls;
-	}
+    /**
+     * @return the first url (to fetch) or null if and only if there are no urls defined for the remote.
+     */
+    @Nullable
+    public String getFirstUrl() {
+        return myUrls.isEmpty() ? null : myUrls.get(0);
+    }
 
-	/**
-	 * @return the first url (to fetch) or null if and only if there are no urls defined for the remote.
-	 */
-	@Nullable
-	public String getFirstUrl()
-	{
-		return myUrls.isEmpty() ? null : myUrls.get(0);
-	}
+    @Nonnull
+    public Collection<String> getPushUrls() {
+        return myPushUrls;
+    }
 
-	@Nonnull
-	public Collection<String> getPushUrls()
-	{
-		return myPushUrls;
-	}
+    @Nonnull
+    public List<String> getFetchRefSpecs() {
+        return myFetchRefSpecs;
+    }
 
-	@Nonnull
-	public List<String> getFetchRefSpecs()
-	{
-		return myFetchRefSpecs;
-	}
+    @Nonnull
+    public List<String> getPushRefSpecs() {
+        return myPushRefSpecs;
+    }
 
-	@Nonnull
-	public List<String> getPushRefSpecs()
-	{
-		return myPushRefSpecs;
-	}
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
-	@Override
-	public boolean equals(Object o)
-	{
-		if(this == o)
-		{
-			return true;
-		}
-		if(o == null || getClass() != o.getClass())
-		{
-			return false;
-		}
+        GitRemote gitRemote = (GitRemote) o;
+        return myName.equals(gitRemote.myName);
 
-		GitRemote gitRemote = (GitRemote) o;
-		return myName.equals(gitRemote.myName);
+        // other parameters don't count: remotes are equal if their names are equal
+        // TODO: LOG.warn if other parameters differ
+    }
 
-		// other parameters don't count: remotes are equal if their names are equal
-		// TODO: LOG.warn if other parameters differ
-	}
+    @Override
+    public int hashCode() {
+        return myName.hashCode();
+    }
 
-	@Override
-	public int hashCode()
-	{
-		return myName.hashCode();
-	}
+    @Override
+    public String toString() {
+        return String.format("GitRemote{myName='%s', myUrls=%s, myPushUrls=%s, myFetchRefSpec='%s', myPushRefSpec='%s'}", myName, myUrls,
+            myPushUrls, myFetchRefSpecs, myPushRefSpecs
+        );
+    }
 
-	@Override
-	public String toString()
-	{
-		return String.format("GitRemote{myName='%s', myUrls=%s, myPushUrls=%s, myFetchRefSpec='%s', myPushRefSpec='%s'}", myName, myUrls,
-				myPushUrls, myFetchRefSpecs, myPushRefSpecs);
-	}
+    @Override
+    public int compareTo(@Nonnull GitRemote o) {
+        return getName().compareTo(o.getName());
+    }
 
-	@Override
-	public int compareTo(@Nonnull GitRemote o)
-	{
-		return getName().compareTo(o.getName());
-	}
-
-	@Nullable
-	public String getPuttyKeyFile()
-	{
-		return ContainerUtil.getFirstItem(myPuttyKeyFiles);
-	}
+    @Nullable
+    public String getPuttyKeyFile() {
+        return ContainerUtil.getFirstItem(myPuttyKeyFiles);
+    }
 }

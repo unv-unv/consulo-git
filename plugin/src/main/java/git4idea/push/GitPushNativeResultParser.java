@@ -15,14 +15,14 @@
  */
 package git4idea.push;
 
+import consulo.logging.Logger;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import consulo.logging.Logger;
-import consulo.util.collection.ContainerUtil;
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 
 /**
  * Parses the output received from git push and returns a result.
@@ -86,71 +86,56 @@ import jakarta.annotation.Nullable;
  *     For a failed ref, the reason for failure is described.
  * </pre>
  */
-public class GitPushNativeResultParser
-{
+public class GitPushNativeResultParser {
 
-	private static final Logger LOG = Logger.getInstance(GitPushNativeResultParser.class);
-	private static final Pattern PATTERN = Pattern.compile("^.*([ +\\-\\*!=])\t" +   // flag
-			"(\\S+):(\\S+)\t" +       // from:to
-			"([^(]+)" +               // summary maybe with a trailing space
-			"(?:\\((.+)\\))?.*$");    // reason
-	private static final Pattern RANGE = Pattern.compile("[0-9a-f]+[\\.]{2,3}[0-9a-f]+");
+    private static final Logger LOG = Logger.getInstance(GitPushNativeResultParser.class);
+    private static final Pattern PATTERN = Pattern.compile("^.*([ +\\-\\*!=])\t" +   // flag
+        "(\\S+):(\\S+)\t" +       // from:to
+        "([^(]+)" +               // summary maybe with a trailing space
+        "(?:\\((.+)\\))?.*$");    // reason
+    private static final Pattern RANGE = Pattern.compile("[0-9a-f]+[\\.]{2,3}[0-9a-f]+");
 
-	@Nonnull
-	public static List<GitPushNativeResult> parse(@Nonnull List<String> output)
-	{
-		List<GitPushNativeResult> results = ContainerUtil.newArrayList();
-		for(String line : output)
-		{
-			Matcher matcher = PATTERN.matcher(line);
-			if(matcher.matches())
-			{
-				results.add(parseRefResult(matcher, line));
-			}
-		}
-		return results;
-	}
+    @Nonnull
+    public static List<GitPushNativeResult> parse(@Nonnull List<String> output) {
+        List<GitPushNativeResult> results = new ArrayList<>();
+        for (String line : output) {
+            Matcher matcher = PATTERN.matcher(line);
+            if (matcher.matches()) {
+                results.add(parseRefResult(matcher, line));
+            }
+        }
+        return results;
+    }
 
-	@Nullable
-	private static GitPushNativeResult parseRefResult(Matcher matcher, String line)
-	{
-		String flag = matcher.group(1);
-		String from = matcher.group(2);
-		String to = matcher.group(3);
-		String summary = matcher.group(4).trim(); // the summary can have a trailing space (to simplify the regexp)
-		@Nullable String reason = matcher.group(5);
+    @Nullable
+    private static GitPushNativeResult parseRefResult(Matcher matcher, String line) {
+        String flag = matcher.group(1);
+        String from = matcher.group(2);
+        String to = matcher.group(3);
+        String summary = matcher.group(4).trim(); // the summary can have a trailing space (to simplify the regexp)
+        @Nullable String reason = matcher.group(5);
 
-		GitPushNativeResult.Type type = parseType(flag);
-		if(type == null)
-		{
-			LOG.error("Couldn't parse push result type from flag [" + flag + "] in [" + line + "]");
-			return null;
-		}
-		if(matcher.groupCount() < 4)
-		{
-			return null;
-		}
-		String range = RANGE.matcher(summary).matches() ? summary : null;
-		return new GitPushNativeResult(type, from, reason, range);
-	}
+        GitPushNativeResult.Type type = parseType(flag);
+        if (type == null) {
+            LOG.error("Couldn't parse push result type from flag [" + flag + "] in [" + line + "]");
+            return null;
+        }
+        if (matcher.groupCount() < 4) {
+            return null;
+        }
+        String range = RANGE.matcher(summary).matches() ? summary : null;
+        return new GitPushNativeResult(type, from, reason, range);
+    }
 
-	private static GitPushNativeResult.Type parseType(String flag)
-	{
-		switch(flag.charAt(0))
-		{
-			case ' ':
-				return GitPushNativeResult.Type.SUCCESS;
-			case '+':
-				return GitPushNativeResult.Type.FORCED_UPDATE;
-			case '-':
-				return GitPushNativeResult.Type.DELETED;
-			case '*':
-				return GitPushNativeResult.Type.NEW_REF;
-			case '!':
-				return GitPushNativeResult.Type.REJECTED;
-			case '=':
-				return GitPushNativeResult.Type.UP_TO_DATE;
-		}
-		return null;
-	}
+    private static GitPushNativeResult.Type parseType(String flag) {
+        return switch (flag.charAt(0)) {
+            case ' ' -> GitPushNativeResult.Type.SUCCESS;
+            case '+' -> GitPushNativeResult.Type.FORCED_UPDATE;
+            case '-' -> GitPushNativeResult.Type.DELETED;
+            case '*' -> GitPushNativeResult.Type.NEW_REF;
+            case '!' -> GitPushNativeResult.Type.REJECTED;
+            case '=' -> GitPushNativeResult.Type.UP_TO_DATE;
+            default -> null;
+        };
+    }
 }

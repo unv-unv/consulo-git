@@ -186,7 +186,7 @@ public class GitFetcher {
             return new FetchParams(GitFetchResult.error(new Exception(message)));
         }
 
-        return new FetchParams(remote, trackInfo.getRemoteBranch(), url);
+        return new FetchParams(remote, trackInfo.remoteBranch(), url);
     }
 
     @Nonnull

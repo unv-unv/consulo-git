@@ -65,14 +65,14 @@ public class GitConfigTest {
       @Override
       public GitLocalBranch apply(@Nullable GitBranchTrackInfo input) {
         assert input != null;
-        return input.getLocalBranch();
+        return input.localBranch();
       }
     });
     Collection<GitRemoteBranch> remoteBranches = Collections2.transform(expectedInfos, new Function<GitBranchTrackInfo, GitRemoteBranch>() {
       @Override
       public GitRemoteBranch apply(@Nullable GitBranchTrackInfo input) {
         assert input != null;
-        return input.getRemoteBranch();
+        return input.remoteBranch();
       }
     });
 

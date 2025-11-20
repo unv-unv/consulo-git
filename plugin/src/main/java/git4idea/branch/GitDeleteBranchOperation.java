@@ -178,8 +178,8 @@ class GitDeleteBranchOperation extends GitBranchOperation {
             for (GitRepository repository : trackedBranches.get(remoteBranch)) {
                 if (exists(
                     repository.getBranchTrackInfos(),
-                    info -> !info.getLocalBranch().getName().equals(localBranch)
-                        && info.getRemoteBranch().getName().equals(remoteBranch)
+                    info -> !info.localBranch().getName().equals(localBranch)
+                        && info.remoteBranch().getName().equals(remoteBranch)
                 )) {
                     return false;
                 }
@@ -328,7 +328,7 @@ class GitDeleteBranchOperation extends GitBranchOperation {
         for (GitRepository repository : repositories) {
             GitBranchTrackInfo trackInfo = GitBranchUtil.getTrackInfo(repository, branchName);
             if (trackInfo != null) {
-                trackedBranchNames.putValue(trackInfo.getRemoteBranch().getNameForLocalOperations(), repository);
+                trackedBranchNames.putValue(trackInfo.remoteBranch().getNameForLocalOperations(), repository);
             }
         }
         return trackedBranchNames;

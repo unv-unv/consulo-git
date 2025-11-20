@@ -20,7 +20,6 @@ import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitLocalBranch;
 import git4idea.GitVcs;
 import git4idea.branch.GitBranchesCollection;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
@@ -60,62 +59,62 @@ import java.util.Collection;
  * @author Kirill Likhodedov
  */
 public interface GitRepository extends Repository {
-  /**
-   * @deprecated Use #getRepositoryFiles(), since there will be two administrative directories if user uses git worktrees.
-   */
-  @Deprecated
-  @Nonnull
-  VirtualFile getGitDir();
+    /**
+     * @deprecated Use #getRepositoryFiles(), since there will be two administrative directories if user uses git worktrees.
+     */
+    @Deprecated
+    @Nonnull
+    VirtualFile getGitDir();
 
-  @Nonnull
-  GitRepositoryFiles getRepositoryFiles();
+    @Nonnull
+    GitRepositoryFiles getRepositoryFiles();
 
-  @Nonnull
-  GitUntrackedFilesHolder getUntrackedFilesHolder();
+    @Nonnull
+    GitUntrackedFilesHolder getUntrackedFilesHolder();
 
 
-  @Nonnull
-  GitRepoInfo getInfo();
+    @Nonnull
+    GitRepoInfo getInfo();
 
-  /**
-   * Returns the current branch of this Git repository.
-   * If the repository is being rebased, then the current branch is the branch being rebased (which was current before the rebase
-   * operation has started).
-   * Returns null, if the repository is not on a branch and not in the REBASING state.
-   */
-  @Nullable
-  GitLocalBranch getCurrentBranch();
+    /**
+     * Returns the current branch of this Git repository.
+     * If the repository is being rebased, then the current branch is the branch being rebased (which was current before the rebase
+     * operation has started).
+     * Returns null, if the repository is not on a branch and not in the REBASING state.
+     */
+    @Nullable
+    GitLocalBranch getCurrentBranch();
 
-  @Nonnull
-  GitBranchesCollection getBranches();
+    @Nonnull
+    GitBranchesCollection getBranches();
 
-  /**
-   * Returns remotes defined in this Git repository.
-   * It is different from {@link GitConfig#getRemotes()} because remotes may be defined not only in {@code .git/config},
-   * but in {@code .git/remotes/} or even {@code .git/branches} as well.
-   * On the other hand, it is a very old way to define remotes and we are not going to implement this until needed.
-   * See <a href="http://thread.gmane.org/gmane.comp.version-control.git/182960">discussion in the Git mailing list</a> that confirms
-   * that remotes a defined in {@code .git/config} only nowadays.
-   *
-   * @return GitRemotes defined for this repository.
-   */
-  @Nonnull
-  Collection<GitRemote> getRemotes();
+    /**
+     * Returns remotes defined in this Git repository.
+     * It is different from {@link GitConfig#getRemotes()} because remotes may be defined not only in {@code .git/config},
+     * but in {@code .git/remotes/} or even {@code .git/branches} as well.
+     * On the other hand, it is a very old way to define remotes and we are not going to implement this until needed.
+     * See <a href="http://thread.gmane.org/gmane.comp.version-control.git/182960">discussion in the Git mailing list</a> that confirms
+     * that remotes a defined in {@code .git/config} only nowadays.
+     *
+     * @return GitRemotes defined for this repository.
+     */
+    @Nonnull
+    Collection<GitRemote> getRemotes();
 
-  @Nonnull
-  Collection<GitBranchTrackInfo> getBranchTrackInfos();
+    @Nonnull
+    Collection<GitBranchTrackInfo> getBranchTrackInfos();
 
-  boolean isRebaseInProgress();
+    boolean isRebaseInProgress();
 
-  boolean isOnBranch();
+    boolean isOnBranch();
 
-  @Nonnull
-  @Override
-  GitVcs getVcs();
+    @Nonnull
+    @Override
+    GitVcs getVcs();
 
-  /**
-   * Returns direct submodules of this repository.
-   */
-  @Nonnull
-  Collection<GitSubmoduleInfo> getSubmodules();
+    /**
+     * Returns direct submodules of this repository.
+     */
+    @Nonnull
+    Collection<GitSubmoduleInfo> getSubmodules();
 }

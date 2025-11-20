@@ -32,6 +32,7 @@ import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -53,7 +54,7 @@ public final class GitOptionsTopHitProvider extends OptionsTopHitProvider {
             for (VcsDescriptor descriptor : ProjectLevelVcsManager.getInstance(project).getAllVcss()) {
                 if (GitVcs.ID.equals(descriptor.getId())) {
                     final GitVcsSettings settings = GitVcsSettings.getInstance(project);
-                    ArrayList<BooleanOptionDescription> options = new ArrayList<>();
+                    List<BooleanOptionDescription> options = new ArrayList<>();
                     options.add(option(
                         project,
                         "Git: Commit automatically on cherry-pick",

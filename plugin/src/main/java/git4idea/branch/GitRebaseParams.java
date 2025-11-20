@@ -15,93 +15,84 @@
  */
 package git4idea.branch;
 
+import consulo.util.lang.StringUtil;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import static consulo.util.lang.StringUtil.nullize;
 import static java.util.Arrays.asList;
 
-import java.util.List;
+public class GitRebaseParams {
+    @Nullable
+    private final String myBranch;
+    @Nullable
+    private final String myNewBase;
+    @Nonnull
+    private final String myUpstream;
+    private final boolean myInteractive;
+    private final boolean myPreserveMerges;
 
-import jakarta.annotation.Nullable;
+    public GitRebaseParams(@Nonnull String upstream) {
+        this(null, null, upstream, false, false);
+    }
 
-import consulo.util.collection.ContainerUtil;
-import consulo.util.lang.StringUtil;
-import jakarta.annotation.Nonnull;
+    public GitRebaseParams(
+        @Nullable String branch,
+        @Nullable String newBase,
+        @Nonnull String upstream,
+        boolean interactive,
+        boolean preserveMerges
+    ) {
+        myBranch = nullize(branch, true);
+        myNewBase = nullize(newBase, true);
+        myUpstream = upstream;
+        myInteractive = interactive;
+        myPreserveMerges = preserveMerges;
+    }
 
-public class GitRebaseParams
-{
+    @Nonnull
+    public List<String> asCommandLineArguments() {
+        List<String> args = new ArrayList<>();
+        if (myInteractive) {
+            args.add("--interactive");
+        }
+        if (myPreserveMerges) {
+            args.add("--preserve-merges");
+        }
+        if (myNewBase != null) {
+            args.addAll(asList("--onto", myNewBase));
+        }
+        args.add(myUpstream);
+        if (myBranch != null) {
+            args.add(myBranch);
+        }
+        return args;
+    }
 
-	@Nullable
-	private final String myBranch;
-	@Nullable
-	private final String myNewBase;
-	@Nonnull
-	private final String myUpstream;
-	private final boolean myInteractive;
-	private final boolean myPreserveMerges;
+    @Nullable
+    public String getNewBase() {
+        return myNewBase;
+    }
 
-	public GitRebaseParams(@Nonnull String upstream)
-	{
-		this(null, null, upstream, false, false);
-	}
+    @Nonnull
+    public String getUpstream() {
+        return myUpstream;
+    }
 
-	public GitRebaseParams(@Nullable String branch, @Nullable String newBase, @Nonnull String upstream, boolean interactive, boolean preserveMerges)
-	{
-		myBranch = nullize(branch, true);
-		myNewBase = nullize(newBase, true);
-		myUpstream = upstream;
-		myInteractive = interactive;
-		myPreserveMerges = preserveMerges;
-	}
+    @Override
+    public String toString() {
+        return StringUtil.join(asCommandLineArguments(), " ");
+    }
 
-	@Nonnull
-	public List<String> asCommandLineArguments()
-	{
-		List<String> args = ContainerUtil.newArrayList();
-		if(myInteractive)
-		{
-			args.add("--interactive");
-		}
-		if(myPreserveMerges)
-		{
-			args.add("--preserve-merges");
-		}
-		if(myNewBase != null)
-		{
-			args.addAll(asList("--onto", myNewBase));
-		}
-		args.add(myUpstream);
-		if(myBranch != null)
-		{
-			args.add(myBranch);
-		}
-		return args;
-	}
+    public boolean isInteractive() {
+        return myInteractive;
+    }
 
-	@Nullable
-	public String getNewBase()
-	{
-		return myNewBase;
-	}
-
-	@Nonnull
-	public String getUpstream()
-	{
-		return myUpstream;
-	}
-
-	@Override
-	public String toString()
-	{
-		return StringUtil.join(asCommandLineArguments(), " ");
-	}
-
-	public boolean isInteractive()
-	{
-		return myInteractive;
-	}
-
-	@Nullable
-	public String getBranch()
-	{
-		return myBranch;
-	}
+    @Nullable
+    public String getBranch() {
+        return myBranch;
+    }
 }

@@ -23,31 +23,30 @@ import consulo.versionControlSystem.distributed.repository.VcsRepositoryCreator;
 import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
-import jakarta.inject.Inject;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import jakarta.inject.Inject;
 
 @ExtensionImpl
 public class GitRepositoryCreator implements VcsRepositoryCreator {
-  @Nonnull
-  private final Project myProject;
+    @Nonnull
+    private final Project myProject;
 
-  @Inject
-  public GitRepositoryCreator(@Nonnull Project project) {
-    myProject = project;
-  }
+    @Inject
+    public GitRepositoryCreator(@Nonnull Project project) {
+        myProject = project;
+    }
 
-  @Override
-  @Nullable
-  public Repository createRepositoryIfValid(@Nonnull VirtualFile root) {
-    VirtualFile gitDir = GitUtil.findGitDir(root);
-    return gitDir == null ? null : GitRepositoryImpl.getInstance(root, gitDir, myProject, true);
-  }
+    @Override
+    @Nullable
+    public Repository createRepositoryIfValid(@Nonnull VirtualFile root) {
+        VirtualFile gitDir = GitUtil.findGitDir(root);
+        return gitDir == null ? null : GitRepositoryImpl.getInstance(root, gitDir, myProject, true);
+    }
 
-  @Nonnull
-  @Override
-  public VcsKey getVcsKey() {
-    return GitVcs.getKey();
-  }
+    @Nonnull
+    @Override
+    public VcsKey getVcsKey() {
+        return GitVcs.getKey();
+    }
 }

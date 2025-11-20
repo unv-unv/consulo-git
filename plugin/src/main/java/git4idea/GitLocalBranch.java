@@ -15,56 +15,46 @@
  */
 package git4idea;
 
-import jakarta.annotation.Nonnull;
 import git4idea.repo.GitBranchTrackInfo;
 import git4idea.repo.GitRepository;
+import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 /**
  * @author Kirill Likhodedov
  */
-public class GitLocalBranch extends GitBranch
-{
+public class GitLocalBranch extends GitBranch {
+    public GitLocalBranch(@Nonnull String name) {
+        super(name);
+    }
 
-	public GitLocalBranch(@Nonnull String name)
-	{
-		super(name);
-	}
+    @Override
+    public boolean isRemote() {
+        return false;
+    }
 
-	@Override
-	public boolean isRemote()
-	{
-		return false;
-	}
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
 
-	@Override
-	public boolean equals(Object o)
-	{
-		return super.equals(o);
-	}
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 
-	@Override
-	public int hashCode()
-	{
-		return super.hashCode();
-	}
+    @Override
+    public String toString() {
+        return super.toString();
+    }
 
-	@Override
-	public String toString()
-	{
-		return super.toString();
-	}
-
-	@Nullable
-	public GitRemoteBranch findTrackedBranch(@Nonnull GitRepository repository)
-	{
-		for(GitBranchTrackInfo info : repository.getBranchTrackInfos())
-		{
-			if(info.getLocalBranch().equals(this))
-			{
-				return info.getRemoteBranch();
-			}
-		}
-		return null;
-	}
+    @Nullable
+    public GitRemoteBranch findTrackedBranch(@Nonnull GitRepository repository) {
+        for (GitBranchTrackInfo info : repository.getBranchTrackInfos()) {
+            if (info.localBranch().equals(this)) {
+                return info.remoteBranch();
+            }
+        }
+        return null;
+    }
 }

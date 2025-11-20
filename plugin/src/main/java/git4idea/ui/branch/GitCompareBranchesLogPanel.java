@@ -36,6 +36,7 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Kirill Likhodedov
@@ -148,11 +149,11 @@ class GitCompareBranchesLogPanel extends JPanel {
         return repoSelectorPanel;
     }
 
-    private ArrayList<GitCommit> getBranchToHeadCommits(GitRepository selectedRepo) {
+    private List<GitCommit> getBranchToHeadCommits(GitRepository selectedRepo) {
         return new ArrayList<>(myCompareInfo.getBranchToHeadCommits(selectedRepo));
     }
 
-    private ArrayList<GitCommit> getHeadToBranchCommits(GitRepository selectedRepo) {
+    private List<GitCommit> getHeadToBranchCommits(GitRepository selectedRepo) {
         return new ArrayList<>(myCompareInfo.getHeadToBranchCommits(selectedRepo));
     }
 

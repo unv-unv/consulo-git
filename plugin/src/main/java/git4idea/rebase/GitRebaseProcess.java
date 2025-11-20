@@ -625,8 +625,9 @@ public class GitRebaseProcess {
     }
 
     private void abort() {
-        myProgressManager.run(new Task.Backgroundable(myProject, "Aborting Rebase Process...") {
+        myProgressManager.run(new Task.Backgroundable(myProject, LocalizeValue.localizeTODO("Aborting Rebase Process...")) {
             @Override
+            @RequiredUIAccess
             public void run(@Nonnull ProgressIndicator indicator) {
                 GitRebaseUtils.abort((Project) myProject, indicator);
             }

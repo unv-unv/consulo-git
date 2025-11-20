@@ -36,22 +36,17 @@ import jakarta.annotation.Nullable;
 import java.util.*;
 
 /**
- * <p>
- * Stores files which are untracked by the Git repository.
+ * <p>Stores files which are untracked by the Git repository.
  * Should be updated by calling {@link #add(VirtualFile)} and {@link #remove(Collection)}
  * whenever the list of unversioned files changes.
- * Able to get the list of unversioned files from Git.
- * </p>
- * <p>
- * <p>
- * This class is used by {@link GitNewChangesCollector}.
+ * Able to get the list of unversioned files from Git.</p>
+ *
+ * <p>This class is used by {@link GitNewChangesCollector}.
  * By keeping track of unversioned files in the Git repository we may invoke
  * <code>'git status --porcelain --untracked-files=no'</code> which gives a significant speed boost: the command gets more than twice
- * faster, because it doesn't need to seek for untracked files.
- * </p>
- * <p>
- * <p>
- * "Keeping track" means the following:
+ * faster, because it doesn't need to seek for untracked files.</p>
+ *
+ * <p>"Keeping track" means the following:
  * <ul>
  * <li>
  * Once a file is created, it is added to untracked (by this class).
@@ -63,22 +58,19 @@ import java.util.*;
  * </li>
  * </ul>
  * </p>
- * <p>
- * In some cases (file creation/deletion) the file is not silently added/removed from the list - instead the file is marked as
+ *
+ * <p>In some cases (file creation/deletion) the file is not silently added/removed from the list - instead the file is marked as
  * "possibly untracked" and Git is asked for the exact status of this file.
- * It is needed, since the file may be created and added to the index independently, and events may race.
- * </p>
- * <p>
- * Also, if .git/index changes, then a full refresh is initiated. The reason is not only untracked files tracking, but also handling
- * committing outside IDEA, etc.
- * </p>
- * <p>
- * Synchronization policy used in this class:<br/>
+ * It is needed, since the file may be created and added to the index independently, and events may race.</p>
+ *
+ * <p>Also, if .git/index changes, then a full refresh is initiated. The reason is not only untracked files tracking, but also handling
+ * committing outside IDEA, etc.</p>
+ *
+ * <p>Synchronization policy used in this class:<br/>
  * myDefinitelyUntrackedFiles is accessed under the myDefinitelyUntrackedFiles lock.<br/>
  * myPossiblyUntrackedFiles and myReady is accessed under the LOCK lock.<br/>
  * This is done so, because the latter two variables are accessed from the AWT in after() and we don't want to lock the AWT long,
- * while myDefinitelyUntrackedFiles is modified along with native request to Git.
- * </p>
+ * while myDefinitelyUntrackedFiles is modified along with native request to Git.</p>
  *
  * @author Kirill Likhodedov
  */
@@ -316,15 +308,15 @@ public class GitUntrackedFilesHolder implements Disposable, BulkFileListener {
         if (event instanceof VFileCreateEvent || event instanceof VFileDeleteEvent || event instanceof VFileMoveEvent || isRename(event)) {
             return event.getFile();
         }
-        else if (event instanceof VFileCopyEvent) {
-            VFileCopyEvent copyEvent = (VFileCopyEvent) event;
+        else if (event instanceof VFileCopyEvent copyEvent) {
             return copyEvent.getNewParent().findChild(copyEvent.getNewChildName());
         }
         return null;
     }
 
     private static boolean isRename(@Nonnull VFileEvent event) {
-        return event instanceof VFilePropertyChangeEvent && ((VFilePropertyChangeEvent) event).getPropertyName().equals(VirtualFile.PROP_NAME);
+        return event instanceof VFilePropertyChangeEvent propertyChangeEvent
+            && propertyChangeEvent.getPropertyName().equals(VirtualFile.PROP_NAME);
     }
 
     private boolean notIgnored(@Nullable VirtualFile file) {

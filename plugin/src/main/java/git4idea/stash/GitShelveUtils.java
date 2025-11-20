@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class GitShelveUtils {
     private static final Logger LOG = Logger.getInstance(GitShelveUtils.class);
@@ -96,7 +97,7 @@ public class GitShelveUtils {
     }
 
     private static void refreshFilesBeforeUnshelve(Project project, ShelvedChangeList shelvedChangeList, String projectPath) {
-        HashSet<File> filesToRefresh = new HashSet<>();
+        Set<File> filesToRefresh = new HashSet<>();
         for (ShelvedChange c : shelvedChangeList.getChanges(project)) {
             if (c.getBeforePath() != null) {
                 filesToRefresh.add(new File(projectPath + c.getBeforePath()));

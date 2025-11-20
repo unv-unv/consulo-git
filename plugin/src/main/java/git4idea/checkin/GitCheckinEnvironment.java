@@ -28,6 +28,7 @@ import consulo.platform.Platform;
 import consulo.platform.base.localize.CommonLocalize;
 import consulo.project.Project;
 import consulo.ui.Label;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.GridBag;
 import consulo.ui.ex.awt.JBCheckBox;
 import consulo.ui.ex.awt.JBUI;
@@ -151,7 +152,7 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
     @Nullable
     @Override
     public String getDefaultMessageFor(FilePath[] filesToCheckin) {
-        LinkedHashSet<String> messages = new LinkedHashSet<>();
+        Set<String> messages = new LinkedHashSet<>();
         GitRepositoryManager manager = getRepositoryManager(myProject);
         for (VirtualFile root : GitUtil.gitRoots(asList(filesToCheckin))) {
             GitRepository repository = manager.getRepositoryForRoot(root);
@@ -235,7 +236,8 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
                     case MOVED:
                         FilePath afterPath = change.getAfterRevision().getFile();
                         FilePath beforePath = change.getBeforeRevision().getFile();
-                        if (!Platform.current().fs().isCaseSensitive() && GitUtil.isCaseOnlyChange(beforePath.getPath(), afterPath.getPath())) {
+                        if (!Platform.current().fs().isCaseSensitive()
+                            && GitUtil.isCaseOnlyChange(beforePath.getPath(), afterPath.getPath())) {
                             caseOnlyRenames.add(change);
                         }
                         else {
@@ -435,8 +437,8 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
         List<VcsException> exceptions,
         @Nonnull PartialOperation partialOperation
     ) {
-        HashSet<FilePath> realAdded = new HashSet<>();
-        HashSet<FilePath> realRemoved = new HashSet<>();
+        Set<FilePath> realAdded = new HashSet<>();
+        Set<FilePath> realRemoved = new HashSet<>();
         // perform diff
         GitSimpleHandler diff = new GitSimpleHandler(project, root, GitCommand.DIFF);
         diff.setSilent(true);
@@ -625,7 +627,7 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
 
     @Override
     public List<VcsException> scheduleMissingFileForDeletion(List<FilePath> files) {
-        ArrayList<VcsException> rc = new ArrayList<>();
+        List<VcsException> rc = new ArrayList<>();
         Map<VirtualFile, List<FilePath>> sortedFiles;
         try {
             sortedFiles = GitUtil.sortFilePathsByGitRoot(files);
@@ -685,7 +687,7 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
 
     @Override
     public List<VcsException> scheduleUnversionedFilesForAddition(List<VirtualFile> files) {
-        ArrayList<VcsException> rc = new ArrayList<>();
+        List<VcsException> rc = new ArrayList<>();
         Map<VirtualFile, List<VirtualFile>> sortedFiles;
         try {
             sortedFiles = GitUtil.sortFilesByGitRoot(files);
@@ -753,7 +755,7 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
         return result;
     }
 
-    private void markRootDirty(final VirtualFile root) {
+    private void markRootDirty(VirtualFile root) {
         // Note that the root is invalidated because changes are detected per-root anyway.
         // Otherwise it is not possible to detect moves.
         myDirtyScopeManager.dirDirtyRecursively(root);
@@ -866,6 +868,7 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
         }
 
         @Override
+        @RequiredUIAccess
         public void refresh() {
             myAmendComponent.refresh();
             myAuthorField.setText(null);
@@ -890,15 +893,15 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
         }
 
         @Override
+        @RequiredUIAccess
         public void restoreState() {
             refresh();
         }
 
         @Override
+        @RequiredUIAccess
         public void onChangeListSelected(LocalChangeList list) {
-            Object data = list.getData();
-            if (data instanceof VcsFullCommitDetails) {
-                VcsFullCommitDetails commit = (VcsFullCommitDetails) data;
+            if (list.getData() instanceof VcsFullCommitDetails commit) {
                 String author = VcsUserUtil.toExactString(commit.getAuthor());
                 myAuthorField.setText(author);
                 myAuthorDate = new Date(commit.getAuthorTime());

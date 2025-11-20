@@ -59,10 +59,8 @@ import javax.swing.event.HyperlinkEvent;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -104,7 +102,7 @@ public class GitUnstashDialog extends DialogWrapper {
     /**
      * The stash list
      */
-    private JList myStashList;
+    private JList<StashInfo> myStashList;
     /**
      * If this checkbox is selected, the index is reinstated as well as working tree
      */
@@ -112,7 +110,7 @@ public class GitUnstashDialog extends DialogWrapper {
     /**
      * Set of branches for the current root
      */
-    private final HashSet<String> myBranches = new HashSet<>();
+    private final Set<String> myBranches = new HashSet<>();
 
     @Nonnull
     private final Project myProject;
@@ -126,6 +124,7 @@ public class GitUnstashDialog extends DialogWrapper {
      * @param roots       the list of the roots
      * @param defaultRoot the default root to select
      */
+    @RequiredUIAccess
     public GitUnstashDialog(@Nonnull Project project, List<VirtualFile> roots, VirtualFile defaultRoot) {
         super(project, true);
         setModal(false);
@@ -135,7 +134,7 @@ public class GitUnstashDialog extends DialogWrapper {
         setOKButtonText(GitLocalize.unstashButtonApply());
         setCancelButtonText(CommonLocalize.buttonClose());
         GitUIUtil.setupRootChooser(project, roots, defaultRoot, myGitRootComboBox, myCurrentBranch);
-        myStashList.setModel(new DefaultListModel());
+        myStashList.setModel(new DefaultListModel<>());
         refreshStashList();
         myGitRootComboBox.addActionListener(e -> {
             refreshStashList();
@@ -294,6 +293,7 @@ public class GitUnstashDialog extends DialogWrapper {
     /**
      * Refresh stash list
      */
+    @RequiredUIAccess
     private void refreshStashList() {
         DefaultListModel listModel = (DefaultListModel) myStashList.getModel();
         listModel.clear();
@@ -342,7 +342,7 @@ public class GitUnstashDialog extends DialogWrapper {
      * @throws NullPointerException if no stash is selected
      */
     private StashInfo getSelectedStash() {
-        return (StashInfo) myStashList.getSelectedValue();
+        return myStashList.getSelectedValue();
     }
 
     /**
@@ -687,7 +687,7 @@ public class GitUnstashDialog extends DialogWrapper {
                 false
             )
         );
-        myStashList = new JBList();
+        myStashList = new JBList<>();
         myStashList.setSelectionMode(0);
         jBScrollPane1.setViewportView(myStashList);
         JPanel panel2 = new JPanel();

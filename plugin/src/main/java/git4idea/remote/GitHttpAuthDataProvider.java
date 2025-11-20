@@ -20,7 +20,6 @@ import consulo.annotation.component.ExtensionAPI;
 import consulo.component.extension.ExtensionPointName;
 import consulo.credentialStorage.AuthData;
 import git4idea.commands.GitHttpAuthenticator;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
@@ -32,10 +31,10 @@ import jakarta.annotation.Nullable;
  */
 @ExtensionAPI(ComponentScope.APPLICATION)
 public interface GitHttpAuthDataProvider {
-  ExtensionPointName<GitHttpAuthDataProvider> EP_NAME = ExtensionPointName.create(GitHttpAuthDataProvider.class);
+    ExtensionPointName<GitHttpAuthDataProvider> EP_NAME = ExtensionPointName.create(GitHttpAuthDataProvider.class);
 
-  @Nullable
-  AuthData getAuthData(@Nonnull String url);
+    @Nullable
+    AuthData getAuthData(@Nonnull String url);
 
-  void forgetPassword(@Nonnull String url);
+    void forgetPassword(@Nonnull String url);
 }

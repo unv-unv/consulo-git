@@ -138,7 +138,7 @@ public final class GitVersion implements Comparable<GitVersion> {
         if (group > matcher.groupCount() + 1) {
             return 0;
         }
-        final String match = matcher.group(group);
+        String match = matcher.group(group);
         if (match == null) {
             return 0;
         }
@@ -152,10 +152,8 @@ public final class GitVersion implements Comparable<GitVersion> {
     }
 
     @Nonnull
-    public static GitVersion identifyVersion(
-        @Nonnull String gitExecutable,
-        @Nullable ProgressIndicator indicator
-    ) throws TimeoutException, ExecutionException, ParseException {
+    public static GitVersion identifyVersion(@Nonnull String gitExecutable, @Nullable ProgressIndicator indicator)
+        throws TimeoutException, ExecutionException, ParseException {
         UIAccess.assetIsNotUIThread();
 
         GeneralCommandLine commandLine = new GeneralCommandLine();
@@ -198,15 +196,15 @@ public final class GitVersion implements Comparable<GitVersion> {
      * Types are considered equal also if one of them is undefined. Otherwise they are compared.
      */
     @Override
+    @SuppressWarnings("SimplifiableIfStatement")
     public boolean equals(Object obj) {
-        if (!(obj instanceof GitVersion)) {
+        if (!(obj instanceof GitVersion that)) {
             return false;
         }
-        GitVersion other = (GitVersion)obj;
-        if (compareTo(other) != 0) {
+        if (compareTo(that) != 0) {
             return false;
         }
-        return myType == Type.UNDEFINED || other.myType == Type.UNDEFINED || myType == other.myType;
+        return myType == Type.UNDEFINED || that.myType == Type.UNDEFINED || myType == that.myType;
     }
 
     /**
@@ -273,7 +271,7 @@ public final class GitVersion implements Comparable<GitVersion> {
     /**
      * @return true if this version is older or the same than the given one.
      */
-    public boolean isOlderOrEqual(final GitVersion gitVersion) {
+    public boolean isOlderOrEqual(GitVersion gitVersion) {
         return gitVersion != null && compareTo(gitVersion) <= 0;
     }
 

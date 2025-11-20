@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package git4idea.diff;
 
 import consulo.logging.Logger;
@@ -39,19 +38,19 @@ public class GitTreeDiffProvider implements TreeDiffProvider {
     private final static Logger LOG = Logger.getInstance(GitTreeDiffProvider.class);
     private final Project myProject;
 
-    public GitTreeDiffProvider(final Project project) {
+    public GitTreeDiffProvider(Project project) {
         myProject = project;
     }
 
     @Override
-    public Collection<String> getRemotelyChanged(final VirtualFile vcsRoot, final Collection<String> paths) {
+    public Collection<String> getRemotelyChanged(VirtualFile vcsRoot, Collection<String> paths) {
         try {
-            final GitBranchesSearcher searcher = new GitBranchesSearcher(myProject, vcsRoot, true);
+            GitBranchesSearcher searcher = new GitBranchesSearcher(myProject, vcsRoot, true);
             if (searcher.getLocal() == null || searcher.getRemote() == null) {
                 return Collections.emptyList();
             }
-            ArrayList<String> rc = new ArrayList<>();
-            final Collection<FilePath> files = new ArrayList<>(paths.size());
+            List<String> rc = new ArrayList<>();
+            Collection<FilePath> files = new ArrayList<>(paths.size());
             for (String path : paths) {
                 files.add(VcsUtil.getFilePath(path));
             }

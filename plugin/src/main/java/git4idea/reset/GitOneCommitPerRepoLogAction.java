@@ -10,16 +10,15 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 public abstract class GitOneCommitPerRepoLogAction extends VcsLogOneCommitPerRepoAction<GitRepository> {
+    @Nonnull
+    @Override
+    protected AbstractRepositoryManager<GitRepository> getRepositoryManager(@Nonnull Project project) {
+        return GitRepositoryManager.getInstance(project);
+    }
 
-  @Nonnull
-  @Override
-  protected AbstractRepositoryManager<GitRepository> getRepositoryManager(@Nonnull Project project) {
-    return GitRepositoryManager.getInstance(project);
-  }
-
-  @Nullable
-  @Override
-  protected GitRepository getRepositoryForRoot(@Nonnull Project project, @Nonnull VirtualFile root) {
-    return getRepositoryManager(project).getRepositoryForRoot(root);
-  }
+    @Nullable
+    @Override
+    protected GitRepository getRepositoryForRoot(@Nonnull Project project, @Nonnull VirtualFile root) {
+        return getRepositoryManager(project).getRepositoryForRoot(root);
+    }
 }

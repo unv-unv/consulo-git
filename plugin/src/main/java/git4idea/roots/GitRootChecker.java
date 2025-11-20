@@ -20,7 +20,6 @@ import consulo.versionControlSystem.VcsKey;
 import consulo.versionControlSystem.VcsRootChecker;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
@@ -31,19 +30,19 @@ import java.io.File;
  */
 @ExtensionImpl
 public class GitRootChecker extends VcsRootChecker {
-  @Override
-  public boolean isRoot(@Nonnull String path) {
-    return GitUtil.isGitRoot(new File(path));
-  }
+    @Override
+    public boolean isRoot(@Nonnull String path) {
+        return GitUtil.isGitRoot(new File(path));
+    }
 
-  @Override
-  @Nonnull
-  public VcsKey getSupportedVcs() {
-    return GitVcs.getKey();
-  }
+    @Override
+    @Nonnull
+    public VcsKey getSupportedVcs() {
+        return GitVcs.getKey();
+    }
 
-  @Override
-  public boolean isVcsDir(@Nullable String path) {
-    return path != null && path.toLowerCase().endsWith(GitUtil.DOT_GIT);
-  }
+    @Override
+    public boolean isVcsDir(@Nullable String path) {
+        return path != null && path.toLowerCase().endsWith(GitUtil.DOT_GIT);
+    }
 }

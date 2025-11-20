@@ -325,7 +325,7 @@ public class GitConflictResolver {
         }
 
         String output = StringUtil.join(result.getOutput(), "\n");
-        HashSet<String> unmergedPaths = new HashSet<>();
+        Set<String> unmergedPaths = new HashSet<>();
         for (StringScanner s = new StringScanner(output); s.hasMoreData(); ) {
             if (s.isEol()) {
                 s.nextLine();

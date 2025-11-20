@@ -22,7 +22,6 @@ import git4idea.GitRemoteBranch;
 import git4idea.branch.GitBranchUtil;
 import git4idea.repo.GitBranchTrackInfo;
 import git4idea.repo.GitRepository;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
@@ -94,8 +93,8 @@ public class GitMultiRootBranchConfig extends DvcsMultiRootBranchConfig<GitRepos
     public static Collection<String> getTrackingBranches(@Nonnull GitRepository repository, @Nonnull String remoteBranch) {
         Collection<String> trackingBranches = new ArrayList<>(1);
         for (GitBranchTrackInfo trackInfo : repository.getBranchTrackInfos()) {
-            if (remoteBranch.equals(trackInfo.getRemote().getName() + "/" + trackInfo.getRemoteBranch())) {
-                trackingBranches.add(trackInfo.getLocalBranch().getName());
+            if (remoteBranch.equals(trackInfo.getRemote().getName() + "/" + trackInfo.remoteBranch())) {
+                trackingBranches.add(trackInfo.localBranch().getName());
             }
         }
         return trackingBranches;

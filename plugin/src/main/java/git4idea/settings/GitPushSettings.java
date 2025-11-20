@@ -27,42 +27,40 @@ import git4idea.config.UpdateMethod;
  */
 @consulo.component.persist.State(name = "Git.Push.Settings", storages = {@Storage(file = StoragePathMacros.WORKSPACE_FILE)})
 public class GitPushSettings implements PersistentStateComponent<GitPushSettings.State> {
+    private State myState = new State();
 
-  private State myState = new State();
+    public static class State {
+        public boolean myUpdateAllRoots = true;
+        public UpdateMethod myUpdateMethod = UpdateMethod.MERGE;
+    }
 
-  public static class State {
-    public boolean myUpdateAllRoots = true;
-    public UpdateMethod myUpdateMethod = UpdateMethod.MERGE;
-  }
+    public static GitPushSettings getInstance(Project project) {
+        return ServiceManager.getService(project, GitPushSettings.class);
+    }
 
-  public static GitPushSettings getInstance(Project project) {
-    return ServiceManager.getService(project, GitPushSettings.class);
-  }
+    @Override
+    public State getState() {
+        return myState;
+    }
 
-  @Override
-  public State getState() {
-    return myState;
-  }
+    @Override
+    public void loadState(State state) {
+        myState = state;
+    }
 
-  @Override
-  public void loadState(State state) {
-    myState = state;
-  }
+    public boolean shouldUpdateAllRoots() {
+        return myState.myUpdateAllRoots;
+    }
 
-  public boolean shouldUpdateAllRoots() {
-    return myState.myUpdateAllRoots;
-  }
-  
-  public void setUpdateAllRoots(boolean updateAllRoots) {
-    myState.myUpdateAllRoots = updateAllRoots;
-  }
+    public void setUpdateAllRoots(boolean updateAllRoots) {
+        myState.myUpdateAllRoots = updateAllRoots;
+    }
 
-  public UpdateMethod getUpdateMethod() {
-    return myState.myUpdateMethod;
-  }
+    public UpdateMethod getUpdateMethod() {
+        return myState.myUpdateMethod;
+    }
 
-  public void setUpdateMethod(UpdateMethod updateMethod) {
-    myState.myUpdateMethod = updateMethod;
-  }
-
+    public void setUpdateMethod(UpdateMethod updateMethod) {
+        myState.myUpdateMethod = updateMethod;
+    }
 }

@@ -57,8 +57,8 @@ public class GitMergeUtil {
      * @param strategy      a strategy selector
      */
     public static void setupStrategies(final ElementsChooser<String> branchChooser, final JComboBox<GitMergeStrategy> strategy) {
-        final ElementsChooser.ElementsMarkListener<String> listener = new ElementsChooser.ElementsMarkListener<>() {
-            private void updateStrategies(final List<String> elements) {
+        ElementsChooser.ElementsMarkListener<String> listener = new ElementsChooser.ElementsMarkListener<>() {
+            private void updateStrategies(List<String> elements) {
                 strategy.removeAllItems();
                 for (GitMergeStrategy s : GitMergeStrategy.getMergeStrategies(elements.size())) {
                     strategy.addItem(s);
@@ -67,8 +67,8 @@ public class GitMergeUtil {
             }
 
             @Override
-            public void elementMarkChanged(final String element, final boolean isMarked) {
-                final List<String> elements = branchChooser.getMarkedElements();
+            public void elementMarkChanged(String element, boolean isMarked) {
+                List<String> elements = branchChooser.getMarkedElements();
                 if (elements.size() == 0) {
                     strategy.setEnabled(false);
                     updateStrategies(elements);
@@ -96,15 +96,15 @@ public class GitMergeUtil {
      */
     public static void showUpdates(
         GitRepositoryAction action,
-        final Project project,
-        final List<VcsException> exceptions,
-        final VirtualFile root,
-        final GitRevisionNumber currentRev,
-        final Label beforeLabel,
-        final LocalizeValue actionName,
-        final ActionInfo actionInfo
+        Project project,
+        List<VcsException> exceptions,
+        VirtualFile root,
+        GitRevisionNumber currentRev,
+        Label beforeLabel,
+        LocalizeValue actionName,
+        ActionInfo actionInfo
     ) {
-        final UpdatedFiles files = UpdatedFiles.create();
+        UpdatedFiles files = UpdatedFiles.create();
         MergeChangeCollector collector = new MergeChangeCollector(project, root, currentRev);
         collector.collect(files, exceptions);
         if (exceptions.size() != 0) {
@@ -118,11 +118,11 @@ public class GitMergeUtil {
             tree.setAfter(LocalHistory.getInstance().putSystemLabel(project, "After update"));
             ViewUpdateInfoNotification.focusUpdateInfoTree(project, tree);
         }));
-        final Collection<String> unmergedNames = files.getGroupById(FileGroup.MERGED_WITH_CONFLICT_ID).getFiles();
+        Collection<String> unmergedNames = files.getGroupById(FileGroup.MERGED_WITH_CONFLICT_ID).getFiles();
         if (!unmergedNames.isEmpty()) {
             action.delayTask(exceptionList -> {
                 LocalFileSystem lfs = LocalFileSystem.getInstance();
-                final ArrayList<VirtualFile> unmerged = new ArrayList<>();
+                List<VirtualFile> unmerged = new ArrayList<>();
                 for (String fileName : unmergedNames) {
                     VirtualFile f = lfs.findFileByPath(fileName);
                     if (f != null) {

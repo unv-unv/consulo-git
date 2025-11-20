@@ -36,12 +36,12 @@ import java.util.regex.Pattern;
 
 /**
  * Reads information from the {@code .git/config} file, and parses it to actual objects.
- * <p>
- * Currently doesn't read all the information: just general information about remotes and branch tracking.
- * <p>
- * Parsing is performed with the help of <a href="http://ini4j.sourceforge.net/">ini4j</a> library.
- * <p>
- * TODO: note, that other git configuration files (such as ~/.gitconfig) are not handled yet.
+ *
+ * <p>Currently doesn't read all the information: just general information about remotes and branch tracking.</p>
+ *
+ * <p>Parsing is performed with the help of <a href="http://ini4j.sourceforge.net/">ini4j</a> library.</p>
+ *
+ * <p>TODO: note, that other git configuration files (such as ~/.gitconfig) are not handled yet.</p>
  */
 public class GitConfig {
     private static final Logger LOG = Logger.getInstance(GitConfig.class);
@@ -67,10 +67,10 @@ public class GitConfig {
 
     /**
      * <p>Returns Git remotes defined in {@code .git/config}.</p>
-     * <p>
+     *
      * <p>Remote is returned with all transformations (such as {@code pushUrl, url.<base>.insteadOf}) already applied to it.
      * See {@link GitRemote} for details.</p>
-     * <p>
+     *
      * <p><b>Note:</b> remotes can be defined separately in {@code .git/remotes} directory, by creating a file for each remote with
      * remote parameters written in the file. This method returns ONLY remotes defined in {@code .git/config}.</p>
      *
@@ -79,11 +79,13 @@ public class GitConfig {
     @Nonnull
     Collection<GitRemote> parseRemotes() {
         // populate GitRemotes with substituting urls when needed
-        return ContainerUtil.map(myRemotes, remote ->
-        {
-            assert remote != null;
-            return convertRemoteToGitRemote(myUrls, remote);
-        });
+        return ContainerUtil.map(
+            myRemotes,
+            remote -> {
+                assert remote != null;
+                return convertRemoteToGitRemote(myUrls, remote);
+            }
+        );
     }
 
     @Nonnull
@@ -107,19 +109,21 @@ public class GitConfig {
         @Nonnull Collection<GitLocalBranch> localBranches,
         @Nonnull Collection<GitRemoteBranch> remoteBranches
     ) {
-        return ContainerUtil.mapNotNull(myTrackedInfos, config ->
-        {
-            if (config != null) {
-                return convertBranchConfig(config, localBranches, remoteBranches);
+        return ContainerUtil.mapNotNull(
+            myTrackedInfos,
+            config -> {
+                if (config != null) {
+                    return convertBranchConfig(config, localBranches, remoteBranches);
+                }
+                return null;
             }
-            return null;
-        });
+        );
     }
 
     /**
      * Creates an instance of GitConfig by reading information from the specified {@code .git/config} file.
-     * <p>
-     * If some section is invalid, it is skipped, and a warning is reported.
+     *
+     * <p>If some section is invalid, it is skipped, and a warning is reported.</p>
      */
     @Nonnull
     static GitConfig read(@Nonnull File configFile) {
@@ -260,30 +264,25 @@ public class GitConfig {
     }
 
     /**
-     * <p>
-     * Applies {@code url.<base>.insteadOf} and {@code url.<base>.pushInsteadOf} transformations to {@code url} and {@code pushUrl} of
-     * the given remote.
-     * </p>
-     * <p>
-     * The logic, is as follows:
+     * <p>Applies {@code url.<base>.insteadOf} and {@code url.<base>.pushInsteadOf} transformations to {@code url} and {@code pushUrl} of
+     * the given remote.</p>
+     *
+     * <p>The logic, is as follows:
      * <ul>
      * <li>If remote.url starts with url.insteadOf, it it substituted.</li>
      * <li>If remote.pushUrl starts with url.insteadOf, it is substituted.</li>
      * <li>If remote.pushUrl starts with url.pushInsteadOf, it is not substituted.</li>
      * <li>If remote.url starts with url.pushInsteadOf, but remote.pushUrl is given, additional push url is not added.</li>
-     * </ul>
-     * </p>
-     * <p>
+     * </ul></p>
+     *
      * <p>
      * TODO: if there are several matches in url sections, the longest should be applied. // currently only one is applied
      * </p>
-     * <p>
-     * <p>
-     * This is according to {@code man git-config ("url.<base>.insteadOf" and "url.<base>.pushInsteadOf" sections},
+     *
+     * <p> * This is according to {@code man git-config ("url.<base>.insteadOf" and "url.<base>.pushInsteadOf" sections},
      * {@code man git-push ("URLS" section)} and the following discussions in the Git mailing list:
      * <a href="http://article.gmane.org/gmane.comp.version-control.git/183587">insteadOf override urls and pushUrls</a>,
-     * <a href="http://thread.gmane.org/gmane.comp.version-control.git/127910">pushInsteadOf doesn't override explicit pushUrl</a>.
-     * </p>
+     * <a href="http://thread.gmane.org/gmane.comp.version-control.git/127910">pushInsteadOf doesn't override explicit pushUrl</a>.</p>
      */
     @Nonnull
     private static UrlsAndPushUrls substituteUrls(@Nonnull Collection<Url> urlSections, @Nonnull Remote remote) {
@@ -421,7 +420,6 @@ public class GitConfig {
         private List<String> getFetchSpecs() {
             return Arrays.asList(notNull(myRemoteBean.getFetch()));
         }
-
     }
 
     private interface RemoteBean {

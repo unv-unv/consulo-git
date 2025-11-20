@@ -202,7 +202,7 @@ public class GitPullDialog extends DialogWrapper {
         }
 
         GitBranchTrackInfo trackInfo = GitUtil.getTrackInfoForCurrentBranch(repository);
-        String currentRemoteBranch = trackInfo == null ? null : trackInfo.getRemoteBranch().getNameForLocalOperations();
+        String currentRemoteBranch = trackInfo == null ? null : trackInfo.remoteBranch().getNameForLocalOperations();
         List<GitRemoteBranch> remoteBranches = new ArrayList<>(repository.getBranches().getRemoteBranches());
         Collections.sort(remoteBranches);
         for (GitBranch remoteBranch : remoteBranches) {

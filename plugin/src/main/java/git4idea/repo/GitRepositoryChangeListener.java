@@ -21,11 +21,10 @@ import jakarta.annotation.Nonnull;
 
 /**
  * {@link #repositoryChanged(GitRepository)} is called on every {@link GitRepository} change.
+ *
  * @author Kirill Likhodedov
  */
 @TopicAPI(ComponentScope.PROJECT)
 public interface GitRepositoryChangeListener {
-
-  void repositoryChanged(@Nonnull GitRepository repository);
-
+    void repositoryChanged(@Nonnull GitRepository repository);
 }

@@ -15,99 +15,97 @@
  */
 package git4idea.rebase;
 
-import consulo.application.util.SystemInfo;
+import consulo.platform.Platform;
 import consulo.project.Project;
-import consulo.util.collection.ContainerUtil;
 import consulo.virtualFileSystem.VirtualFile;
 import git4idea.config.GitConfigUtil;
 import git4idea.util.StringScanner;
 import jakarta.annotation.Nonnull;
-import org.jetbrains.annotations.NonNls;
 
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.List;
 
 class GitInteractiveRebaseFile {
-  @NonNls
-  private static final String CYGDRIVE_PREFIX = "/cygdrive/";
+    private static final String CYGDRIVE_PREFIX = "/cygdrive/";
 
-  @Nonnull
-  private final Project myProject;
-  @Nonnull
-  private final VirtualFile myRoot;
-  @Nonnull
-  private final String myFile;
+    @Nonnull
+    private final Project myProject;
+    @Nonnull
+    private final VirtualFile myRoot;
+    @Nonnull
+    private final String myFile;
 
-  GitInteractiveRebaseFile(@Nonnull Project project, @Nonnull VirtualFile root, @Nonnull String rebaseFilePath) {
-    myProject = project;
-    myRoot = root;
-    myFile = adjustFilePath(rebaseFilePath);
-  }
-
-  @Nonnull
-  public List<GitRebaseEntry> load() throws IOException, NoopException {
-    String encoding = GitConfigUtil.getLogEncoding(myProject, myRoot);
-    List<GitRebaseEntry> entries = ContainerUtil.newArrayList();
-    final StringScanner s = new StringScanner(Files.readString(new File(myFile).toPath(), Charset.forName(encoding)));
-    boolean noop = false;
-    while (s.hasMoreData()) {
-      if (s.isEol() || s.startsWith('#')) {
-        s.nextLine();
-        continue;
-      }
-      if (s.startsWith("noop")) {
-        noop = true;
-        s.nextLine();
-        continue;
-      }
-      String action = s.spaceToken();
-      String hash = s.spaceToken();
-      String comment = s.line();
-
-      entries.add(new GitRebaseEntry(action, hash, comment));
+    GitInteractiveRebaseFile(@Nonnull Project project, @Nonnull VirtualFile root, @Nonnull String rebaseFilePath) {
+        myProject = project;
+        myRoot = root;
+        myFile = adjustFilePath(rebaseFilePath);
     }
-    if (noop && entries.isEmpty()) {
-      throw new NoopException();
-    }
-    return entries;
-  }
 
-  public void cancel() throws IOException {
-    PrintWriter out = new PrintWriter(new FileWriter(myFile));
-    try {
-      out.println("# rebase is cancelled");
-    }
-    finally {
-      out.close();
-    }
-  }
+    @Nonnull
+    public List<GitRebaseEntry> load() throws IOException, NoopException {
+        String encoding = GitConfigUtil.getLogEncoding(myProject, myRoot);
+        List<GitRebaseEntry> entries = new ArrayList<>();
+        StringScanner s = new StringScanner(Files.readString(new File(myFile).toPath(), Charset.forName(encoding)));
+        boolean noop = false;
+        while (s.hasMoreData()) {
+            if (s.isEol() || s.startsWith('#')) {
+                s.nextLine();
+                continue;
+            }
+            if (s.startsWith("noop")) {
+                noop = true;
+                s.nextLine();
+                continue;
+            }
+            String action = s.spaceToken();
+            String hash = s.spaceToken();
+            String comment = s.line();
 
-  public void save(@Nonnull List<GitRebaseEntry> entries) throws IOException {
-    String encoding = GitConfigUtil.getLogEncoding(myProject, myRoot);
-    PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(myFile), encoding));
-    try {
-      for (GitRebaseEntry e : entries) {
-        if (e.getAction() != GitRebaseEntry.Action.skip) {
-          out.println(e.getAction().toString() + " " + e.getCommit() + " " + e.getSubject());
+            entries.add(new GitRebaseEntry(action, hash, comment));
         }
-      }
+        if (noop && entries.isEmpty()) {
+            throw new NoopException();
+        }
+        return entries;
     }
-    finally {
-      out.close();
-    }
-  }
 
-  @Nonnull
-  private static String adjustFilePath(@Nonnull String file) {
-    if (SystemInfo.isWindows && file.startsWith(CYGDRIVE_PREFIX)) {
-      final int prefixSize = CYGDRIVE_PREFIX.length();
-      return file.substring(prefixSize, prefixSize + 1) + ":" + file.substring(prefixSize + 1);
+    public void cancel() throws IOException {
+        PrintWriter out = new PrintWriter(new FileWriter(myFile));
+        try {
+            out.println("# rebase is cancelled");
+        }
+        finally {
+            out.close();
+        }
     }
-    return file;
-  }
 
-  static class NoopException extends Exception {
-  }
+    public void save(@Nonnull List<GitRebaseEntry> entries) throws IOException {
+        String encoding = GitConfigUtil.getLogEncoding(myProject, myRoot);
+        PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(myFile), encoding));
+        try {
+            for (GitRebaseEntry e : entries) {
+                if (e.getAction() != GitRebaseEntry.Action.skip) {
+                    out.println(e.getAction().toString() + " " + e.getCommit() + " " + e.getSubject());
+                }
+            }
+        }
+        finally {
+            out.close();
+        }
+    }
+
+    @Nonnull
+    private static String adjustFilePath(@Nonnull String file) {
+        if (Platform.current().os().isWindows() && file.startsWith(CYGDRIVE_PREFIX)) {
+            int prefixSize = CYGDRIVE_PREFIX.length();
+            return file.substring(prefixSize, prefixSize + 1) + ":" + file.substring(prefixSize + 1);
+        }
+        return file;
+    }
+
+    static class NoopException extends Exception {
+    }
 }

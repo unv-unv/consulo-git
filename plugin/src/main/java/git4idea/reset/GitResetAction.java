@@ -26,7 +26,6 @@ import consulo.versionControlSystem.log.Hash;
 import consulo.versionControlSystem.log.VcsFullCommitDetails;
 import git4idea.config.GitVcsSettings;
 import git4idea.repo.GitRepository;
-
 import jakarta.annotation.Nonnull;
 
 import java.util.Map;
@@ -39,8 +38,8 @@ public class GitResetAction extends GitOneCommitPerRepoLogAction {
         getTemplatePresentation().setTextValue(GitLocalize.actionLogResetText());
     }
 
-    @RequiredUIAccess
     @Override
+    @RequiredUIAccess
     protected void actionPerformed(@Nonnull final Project project, @Nonnull final Map<GitRepository, VcsFullCommitDetails> commits) {
         GitVcsSettings settings = GitVcsSettings.getInstance(project);
         GitResetMode defaultMode = ObjectUtil.notNull(settings.getResetMode(), GitResetMode.getDefault());
@@ -50,6 +49,7 @@ public class GitResetAction extends GitOneCommitPerRepoLogAction {
             settings.setResetMode(selectedMode);
             new Task.Backgroundable(project, GitLocalize.dialogTitleReset(), true) {
                 @Override
+                @RequiredUIAccess
                 public void run(@Nonnull ProgressIndicator indicator) {
                     Map<GitRepository, Hash> hashes = commits.keySet().stream()
                         .collect(Collectors.toMap(Function.identity(), repo -> commits.get(repo).getId()));

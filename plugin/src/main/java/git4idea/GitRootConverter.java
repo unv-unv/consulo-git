@@ -13,35 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package git4idea;
 
-import consulo.virtualFileSystem.VirtualFile;
 import consulo.versionControlSystem.AbstractVcs;
+import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nonnull;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Given VFS content roots, filters them and returns only those, which are actual Git roots.
  */
 public class GitRootConverter implements AbstractVcs.RootsConvertor {
+    public static final GitRootConverter INSTANCE = new GitRootConverter();
 
-  public static final GitRootConverter INSTANCE = new GitRootConverter();
-
-  @Nonnull
-  public List<VirtualFile> convertRoots(@Nonnull List<VirtualFile> result) {
-    // TODO this should be faster, because it is called rather often. gitRootOrNull could be a bottle-neck.
-    ArrayList<VirtualFile> roots = new ArrayList<VirtualFile>();
-    HashSet<VirtualFile> listed = new HashSet<VirtualFile>();
-    for (VirtualFile f : result) {
-      VirtualFile r = GitUtil.gitRootOrNull(f);
-      if (r != null && listed.add(r)) {
-        roots.add(r);
-      }
+    @Nonnull
+    @Override
+    public List<VirtualFile> convertRoots(@Nonnull List<VirtualFile> result) {
+        // TODO this should be faster, because it is called rather often. gitRootOrNull could be a bottle-neck.
+        List<VirtualFile> roots = new ArrayList<>();
+        Set<VirtualFile> listed = new HashSet<>();
+        for (VirtualFile f : result) {
+            VirtualFile r = GitUtil.gitRootOrNull(f);
+            if (r != null && listed.add(r)) {
+                roots.add(r);
+            }
+        }
+        return roots;
     }
-    return roots;
-  }
 }

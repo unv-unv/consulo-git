@@ -22,61 +22,14 @@ import jakarta.annotation.Nonnull;
 /**
  * @author Kirill Likhodedov
  */
-public class GitBranchTrackInfo {
+public record GitBranchTrackInfo(@Nonnull GitLocalBranch localBranch, @Nonnull GitRemoteBranch remoteBranch, boolean merge) {
+    @Nonnull
+    public GitRemote getRemote() {
+        return remoteBranch.getRemote();
+    }
 
-  @Nonnull
-  private final GitLocalBranch myLocalBranch;
-  @Nonnull
-  private final GitRemoteBranch myRemoteBranch;
-  private final boolean myMerge;
-
-  GitBranchTrackInfo(@Nonnull GitLocalBranch localBranch, @Nonnull GitRemoteBranch remoteBranch, boolean merge) {
-    myLocalBranch = localBranch;
-    myRemoteBranch = remoteBranch;
-    myMerge = merge;
-  }
-
-  @Nonnull
-  public GitLocalBranch getLocalBranch() {
-    return myLocalBranch;
-  }
-
-  @Nonnull
-  public GitRemote getRemote() {
-    return myRemoteBranch.getRemote();
-  }
-
-  @Nonnull
-  public GitRemoteBranch getRemoteBranch() {
-    return myRemoteBranch;
-  }
-
-  @Override
-  public String toString() {
-    return String.format("%s->%s", myLocalBranch.getName(), myRemoteBranch.getName());
-  }
-
-  @SuppressWarnings("ConstantConditions") // fields may possibly become null in future
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-
-    GitBranchTrackInfo that = (GitBranchTrackInfo)o;
-
-    if (myMerge != that.myMerge) return false;
-    if (myLocalBranch != null ? !myLocalBranch.equals(that.myLocalBranch) : that.myLocalBranch != null) return false;
-    if (myRemoteBranch != null ? !myRemoteBranch.equals(that.myRemoteBranch) : that.myRemoteBranch != null) return false;
-
-    return true;
-  }
-
-  @SuppressWarnings("ConstantConditions") // fields may possibly become null in future
-  @Override
-  public int hashCode() {
-    int result = myLocalBranch != null ? myLocalBranch.hashCode() : 0;
-    result = 31 * result + (myRemoteBranch != null ? myRemoteBranch.hashCode() : 0);
-    result = 31 * result + (myMerge ? 1 : 0);
-    return result;
-  }
+    @Override
+    public String toString() {
+        return String.format("%s->%s", localBranch.getName(), remoteBranch.getName());
+    }
 }

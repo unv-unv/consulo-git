@@ -42,7 +42,7 @@ import java.util.List;
 public class GitRepositoryManager extends AbstractRepositoryManager<GitRepository> {
     @Nullable
     public static GitRepositoryManager getInstance(@Nonnull Project project) {
-        return (GitRepositoryManager)RepositoryManager.<GitRepository>getInstance(project, GitVcs.getKey());
+        return (GitRepositoryManager) RepositoryManager.<GitRepository>getInstance(project, GitVcs.getKey());
     }
 
     private static final Logger LOG = Logger.getInstance(GitRepositoryManager.class);
@@ -90,9 +90,9 @@ public class GitRepositoryManager extends AbstractRepositoryManager<GitRepositor
         Collection<GitSubmoduleInfo> modules = superProject.getSubmodules();
         return ContainerUtil.mapNotNull(modules, module ->
         {
-            VirtualFile submoduleDir = superProject.getRoot().findFileByRelativePath(module.getPath());
+            VirtualFile submoduleDir = superProject.getRoot().findFileByRelativePath(module.path());
             if (submoduleDir == null) {
-                LOG.debug("submodule dir not found at declared path [" + module.getPath() + "] of root [" + superProject.getRoot() + "]");
+                LOG.debug("submodule dir not found at declared path [" + module.path() + "] of root [" + superProject.getRoot() + "]");
                 return null;
             }
             GitRepository repository = getRepositoryForRoot(submoduleDir);

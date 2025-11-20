@@ -73,7 +73,7 @@ public abstract class GitHandler {
     protected final Project myProject;
     protected final GitCommand myCommand;
 
-    private final HashSet<Integer> myIgnoredErrorCodes = new HashSet<>(); // Error codes that are ignored for the handler
+    private final Set<Integer> myIgnoredErrorCodes = new HashSet<>(); // Error codes that are ignored for the handler
     private final List<VcsException> myErrors = Collections.synchronizedList(new ArrayList<VcsException>());
     private final List<String> myLastOutput = Collections.synchronizedList(new ArrayList<String>());
     private final int LAST_OUTPUT_SIZE = 5;
