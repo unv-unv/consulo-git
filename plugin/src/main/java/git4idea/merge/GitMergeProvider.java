@@ -104,13 +104,13 @@ public class GitMergeProvider implements MergeProvider2 {
 
     @Nonnull
     @Override
-    public MergeData loadRevisions(final VirtualFile file) throws VcsException {
-        final MergeData mergeData = new MergeData();
+    public MergeData loadRevisions(VirtualFile file) throws VcsException {
+        MergeData mergeData = new MergeData();
         if (file == null) {
             return mergeData;
         }
-        final VirtualFile root = GitUtil.getGitRoot(file);
-        final FilePath path = VcsUtil.getFilePath(file.getPath());
+        VirtualFile root = GitUtil.getGitRoot(file);
+        FilePath path = VcsUtil.getFilePath(file.getPath());
 
         VcsRunnable runnable = () -> {
             GitFileRevision original = new GitFileRevision(myProject, path, new GitRevisionNumber(":" + ORIGINAL_REVISION_NUM));
@@ -333,20 +333,13 @@ public class GitMergeProvider implements MergeProvider2 {
             Conflict c = myConflicts.get(file);
             assert c != null : "Conflict was not loaded for the file: " + file.getPath();
             try {
-                Conflict.Status status;
-                switch (resolution) {
-                    case AcceptedTheirs:
-                        status = c.myStatusTheirs;
-                        break;
-                    case AcceptedYours:
-                        status = c.myStatusYours;
-                        break;
-                    case Merged:
-                        status = Conflict.Status.MODIFIED;
-                        break;
-                    default:
+                Conflict.Status status = switch (resolution) {
+                    case AcceptedTheirs -> c.myStatusTheirs;
+                    case AcceptedYours -> c.myStatusYours;
+                    case Merged -> Conflict.Status.MODIFIED;
+                    default ->
                         throw new IllegalArgumentException("Unsupported resolution for unmergable files(" + file.getPath() + "): " + resolution);
-                }
+                };
                 switch (status) {
                     case MODIFIED:
                         GitFileUtils.addFiles(myProject, c.myRoot, file);
@@ -373,7 +366,7 @@ public class GitMergeProvider implements MergeProvider2 {
             private final boolean myIsTheirs;
 
             public StatusColumn(boolean isTheirs) {
-                super(isTheirs ? GitLocalize.mergeToolColumnTheirsStatus().get() : GitLocalize.mergeToolColumnYoursStatus().get());
+                super(isTheirs ? GitLocalize.mergeToolColumnTheirsStatus() : GitLocalize.mergeToolColumnYoursStatus());
                 myIsTheirs = isTheirs;
             }
 

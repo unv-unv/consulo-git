@@ -52,7 +52,7 @@ public class GitRebaseUtils {
     /**
      * The logger instance
      */
-    private final static Logger LOG = Logger.getInstance(GitRebaseUtils.class.getName());
+    private final static Logger LOG = Logger.getInstance(GitRebaseUtils.class);
 
     /**
      * A private constructor for utility class

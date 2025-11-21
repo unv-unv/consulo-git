@@ -28,7 +28,6 @@ import consulo.virtualFileSystem.VirtualFile;
 import git4idea.rebase.GitRebaseActionDialog;
 import git4idea.rebase.GitRebaseUtils;
 import git4idea.repo.GitRepository;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
@@ -102,7 +101,8 @@ public abstract class GitAbstractRebaseAction extends DumbAwareAction {
             return firstRepo;
         }
         List<VirtualFile> roots = new ArrayList<>(getRootsFromRepositories(repositories));
-        GitRebaseActionDialog dialog = new GitRebaseActionDialog(project, getTemplatePresentation().getText(), roots, firstRepo.getRoot());
+        GitRebaseActionDialog dialog =
+            new GitRebaseActionDialog(project, getTemplatePresentation().getTextValue(), roots, firstRepo.getRoot());
         dialog.show();
         VirtualFile root = dialog.selectRoot();
         if (root == null) {

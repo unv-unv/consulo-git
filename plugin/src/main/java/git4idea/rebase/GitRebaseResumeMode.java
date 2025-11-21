@@ -17,22 +17,19 @@ package git4idea.rebase;
 
 import jakarta.annotation.Nonnull;
 
-public enum GitRebaseResumeMode
-{
-	CONTINUE("--continue"),
-	SKIP("--skip");
+public enum GitRebaseResumeMode {
+    CONTINUE("--continue"),
+    SKIP("--skip");
 
-	@Nonnull
-	private final String myCommandLineArgument;
+    @Nonnull
+    private final String myCommandLineArgument;
 
-	GitRebaseResumeMode(@Nonnull String argument)
-	{
-		myCommandLineArgument = argument;
-	}
+    GitRebaseResumeMode(@Nonnull String argument) {
+        myCommandLineArgument = argument;
+    }
 
-	@Nonnull
-	public String asCommandLineArgument()
-	{
-		return myCommandLineArgument;
-	}
+    @Nonnull
+    public String asCommandLineArgument() {
+        return myCommandLineArgument;
+    }
 }

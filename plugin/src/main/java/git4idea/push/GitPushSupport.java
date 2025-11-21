@@ -17,6 +17,7 @@ package git4idea.push;
 
 import consulo.annotation.component.ExtensionImpl;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import consulo.util.lang.ObjectUtil;
 import consulo.versionControlSystem.AbstractVcs;
 import consulo.versionControlSystem.distributed.push.*;
@@ -146,7 +147,10 @@ public class GitPushSupport extends PushSupport<GitRepository, GitPushSource, Gi
     @Override
     public GitPushSource getSource(@Nonnull GitRepository repository) {
         GitLocalBranch currentBranch = repository.getCurrentBranch();
-        return currentBranch != null ? GitPushSource.create(currentBranch) : GitPushSource.create(ObjectUtil.assertNotNull(repository.getCurrentRevision())); // fresh repository is on branch
+        return currentBranch != null
+            ? GitPushSource.create(currentBranch)
+            // fresh repository is on branch
+            : GitPushSource.create(ObjectUtil.assertNotNull(repository.getCurrentRevision()));
     }
 
     @Nonnull
@@ -157,13 +161,14 @@ public class GitPushSupport extends PushSupport<GitRepository, GitPushSource, Gi
 
     @Nonnull
     @Override
+    @RequiredUIAccess
     public PushTargetPanel<GitPushTarget> createTargetPanel(@Nonnull GitRepository repository, @Nullable GitPushTarget defaultTarget) {
         return new GitPushTargetPanel(this, repository, defaultTarget);
     }
 
     @Override
     public boolean isForcePushAllowed(@Nonnull GitRepository repo, @Nonnull GitPushTarget target) {
-        final String targetBranch = target.getBranch().getNameForRemoteOperations();
+        String targetBranch = target.remoteBranch().getNameForRemoteOperations();
         return !mySharedSettings.isBranchProtected(targetBranch);
     }
 
@@ -187,20 +192,23 @@ public class GitPushSupport extends PushSupport<GitRepository, GitPushSource, Gi
             && getRepositoryManager().getRepositories()
             .stream()
             .map(e -> e.getInfo().hooksInfo())
-            .anyMatch(GitHooksInfo::prePushHookAvailable);
+            .anyMatch(GitHooksInfo::isPrePushHookAvailable);
     }
 
     @Override
     public boolean isSilentForcePushAllowed(@Nonnull GitPushTarget target) {
         return myCommonPushSettings.containsForcePushTarget(
-            target.getBranch().getRemote().getName(),
-            target.getBranch().getNameForRemoteOperations()
+            target.remoteBranch().getRemote().getName(),
+            target.remoteBranch().getNameForRemoteOperations()
         );
     }
 
     @Override
     public void saveSilentForcePushTarget(@Nonnull GitPushTarget target) {
-        myCommonPushSettings.addForcePushTarget(target.getBranch().getRemote().getName(), target.getBranch().getNameForRemoteOperations());
+        myCommonPushSettings.addForcePushTarget(
+            target.remoteBranch().getRemote().getName(),
+            target.remoteBranch().getNameForRemoteOperations()
+        );
     }
 
     @Override

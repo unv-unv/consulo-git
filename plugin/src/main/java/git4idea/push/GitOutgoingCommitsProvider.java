@@ -15,61 +15,60 @@
  */
 package git4idea.push;
 
-import java.util.Collections;
-import java.util.List;
-
-import jakarta.annotation.Nonnull;
-
+import consulo.project.Project;
 import consulo.versionControlSystem.VcsException;
 import consulo.versionControlSystem.distributed.push.OutgoingCommitsProvider;
 import consulo.versionControlSystem.distributed.push.OutgoingResult;
 import consulo.versionControlSystem.distributed.push.PushSpec;
 import consulo.versionControlSystem.distributed.push.VcsError;
-import consulo.project.Project;
 import consulo.versionControlSystem.log.VcsFullCommitDetails;
 import git4idea.GitCommit;
 import git4idea.GitUtil;
 import git4idea.history.GitHistoryUtils;
 import git4idea.repo.GitRepository;
+import jakarta.annotation.Nonnull;
 
-public class GitOutgoingCommitsProvider extends OutgoingCommitsProvider<GitRepository, GitPushSource, GitPushTarget>
-{
+import java.util.Collections;
+import java.util.List;
 
-	@Nonnull
-	private final Project myProject;
+public class GitOutgoingCommitsProvider extends OutgoingCommitsProvider<GitRepository, GitPushSource, GitPushTarget> {
+    @Nonnull
+    private final Project myProject;
 
-	public GitOutgoingCommitsProvider(@Nonnull Project project)
-	{
-		myProject = project;
-	}
+    public GitOutgoingCommitsProvider(@Nonnull Project project) {
+        myProject = project;
+    }
 
-	@Nonnull
-	@Override
-	public OutgoingResult getOutgoingCommits(@Nonnull GitRepository repository,
-			@Nonnull PushSpec<GitPushSource, GitPushTarget> pushSpec,
-			boolean initial)
-	{
-		String source = pushSpec.getSource().getBranch().getFullName();
-		GitPushTarget target = pushSpec.getTarget();
-		String destination = target.getBranch().getFullName();
-		try
-		{
-			List<GitCommit> commits;
-			if(!target.isNewBranchCreated())
-			{
-				commits = GitHistoryUtils.history(myProject, repository.getRoot(), destination + ".." + source);
-			}
-			else
-			{
-				commits = GitHistoryUtils.history(myProject, repository.getRoot(), source, "--not", "--remotes=" + target.getBranch().getRemote()
-						.getName(), "--max-count=" + 1000);
-			}
-			return new OutgoingResult(commits, Collections.<VcsError>emptyList());
-		}
-		catch(VcsException e)
-		{
-			return new OutgoingResult(Collections.<VcsFullCommitDetails>emptyList(), Collections.singletonList(new VcsError(GitUtil
-					.cleanupErrorPrefixes(e.getMessage()))));
-		}
-	}
+    @Nonnull
+    @Override
+    public OutgoingResult getOutgoingCommits(
+        @Nonnull GitRepository repository,
+        @Nonnull PushSpec<GitPushSource, GitPushTarget> pushSpec,
+        boolean initial
+    ) {
+        String source = pushSpec.getSource().getBranch().getFullName();
+        GitPushTarget target = pushSpec.getTarget();
+        String destination = target.remoteBranch().getFullName();
+        try {
+            List<GitCommit> commits;
+            if (!target.isNewBranchCreated()) {
+                commits = GitHistoryUtils.history(myProject, repository.getRoot(), destination + ".." + source);
+            }
+            else {
+                commits = GitHistoryUtils.history(
+                    myProject,
+                    repository.getRoot(),
+                    source,
+                    "--not",
+                    "--remotes=" + target.remoteBranch().getRemote().getName(),
+                    "--max-count=" + 1000
+                );
+            }
+            return new OutgoingResult(commits, Collections.<VcsError>emptyList());
+        }
+        catch (VcsException e) {
+            return new OutgoingResult(Collections.<VcsFullCommitDetails>emptyList(), Collections.singletonList(new VcsError(GitUtil
+                .cleanupErrorPrefixes(e.getMessage()))));
+        }
+    }
 }

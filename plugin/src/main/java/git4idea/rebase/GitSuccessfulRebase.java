@@ -16,105 +16,87 @@
 package git4idea.rebase;
 
 import consulo.util.lang.StringUtil;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 import java.util.Collection;
 import java.util.List;
 
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
+class GitSuccessfulRebase extends GitRebaseStatus {
+    private final SuccessType mySuccessType;
 
-class GitSuccessfulRebase extends GitRebaseStatus
-{
-	private final SuccessType mySuccessType;
+    private GitSuccessfulRebase(@Nonnull SuccessType successType, @Nonnull Collection<GitRebaseUtils.CommitInfo> skippedCommits) {
+        super(Type.SUCCESS, skippedCommits);
+        mySuccessType = successType;
+    }
 
-	private GitSuccessfulRebase(@Nonnull SuccessType successType, @Nonnull Collection<GitRebaseUtils.CommitInfo> skippedCommits)
-	{
-		super(Type.SUCCESS, skippedCommits);
-		mySuccessType = successType;
-	}
+    @Nonnull
+    public SuccessType getSuccessType() {
+        return mySuccessType;
+    }
 
-	@Nonnull
-	public SuccessType getSuccessType()
-	{
-		return mySuccessType;
-	}
+    @Nonnull
+    static GitSuccessfulRebase parseFromOutput(
+        @Nonnull List<String> output,
+        @Nonnull Collection<GitRebaseUtils.CommitInfo> skippedCommits
+    ) {
+        return new GitSuccessfulRebase(SuccessType.fromOutput(output), skippedCommits);
+    }
 
-	@Nonnull
-	static GitSuccessfulRebase parseFromOutput(@Nonnull List<String> output, @Nonnull Collection<GitRebaseUtils.CommitInfo> skippedCommits)
-	{
-		return new GitSuccessfulRebase(SuccessType.fromOutput(output), skippedCommits);
-	}
+    enum SuccessType {
+        REBASED {
+            @Nonnull
+            @Override
+            public String formatMessage(@Nullable String currentBranch, @Nonnull String baseBranch, boolean withCheckout) {
+                if (withCheckout) {
+                    return "Checked out" + mention(currentBranch) + " and rebased it on " + baseBranch;
+                }
+                else {
+                    return "Rebased" + mention(currentBranch) + " on " + baseBranch;
+                }
+            }
+        },
+        UP_TO_DATE {
+            @Nonnull
+            @Override
+            public String formatMessage(@Nullable String currentBranch, @Nonnull String baseBranch, boolean withCheckout) {
+                String msg = currentBranch != null ? currentBranch + " is up-to-date" : "Up-to-date";
+                msg += " with " + baseBranch;
+                return msg;
+            }
+        },
+        FAST_FORWARDED {
+            @Nonnull
+            @Override
+            public String formatMessage(@Nullable String currentBranch, @Nonnull String baseBranch, boolean withCheckout) {
+                if (withCheckout) {
+                    return "Checked out" + mention(currentBranch) + " and fast-forwarded it to " + baseBranch;
+                }
+                else {
+                    return "Fast-forwarded" + mention(currentBranch) + " to " + baseBranch;
+                }
+            }
+        };
 
-	enum SuccessType
-	{
-		REBASED
-				{
-					@Nonnull
-					@Override
-					public String formatMessage(@Nullable String currentBranch, @Nonnull String baseBranch, boolean withCheckout)
-					{
-						if(withCheckout)
-						{
-							return "Checked out" + mention(currentBranch) + " and rebased it on " + baseBranch;
-						}
-						else
-						{
-							return "Rebased" + mention(currentBranch) + " on " + baseBranch;
-						}
-					}
-				},
-		UP_TO_DATE
-				{
-					@Nonnull
-					@Override
-					public String formatMessage(@Nullable String currentBranch, @Nonnull String baseBranch, boolean withCheckout)
-					{
-						String msg = currentBranch != null ? currentBranch + " is up-to-date" : "Up-to-date";
-						msg += " with " + baseBranch;
-						return msg;
-					}
-				},
-		FAST_FORWARDED
-				{
-					@Nonnull
-					@Override
-					public String formatMessage(@Nullable String currentBranch, @Nonnull String baseBranch, boolean withCheckout)
-					{
-						if(withCheckout)
-						{
-							return "Checked out" + mention(currentBranch) + " and fast-forwarded it to " + baseBranch;
-						}
-						else
-						{
-							return "Fast-forwarded" + mention(currentBranch) + " to " + baseBranch;
-						}
-					}
-				};
+        @Nonnull
+        private static String mention(@Nullable String currentBranch) {
+            return currentBranch != null ? " " + currentBranch : "";
+        }
 
-		@Nonnull
-		private static String mention(@Nullable String currentBranch)
-		{
-			return currentBranch != null ? " " + currentBranch : "";
-		}
+        @Nonnull
+        abstract String formatMessage(@Nullable String currentBranch, @Nonnull String baseBranch, boolean withCheckout);
 
-		@Nonnull
-		abstract String formatMessage(@Nullable String currentBranch, @Nonnull String baseBranch, boolean withCheckout);
-
-		@Nonnull
-		public static SuccessType fromOutput(@Nonnull List<String> output)
-		{
-			for(String line : output)
-			{
-				if(StringUtil.containsIgnoreCase(line, "Fast-forwarded"))
-				{
-					return FAST_FORWARDED;
-				}
-				if(StringUtil.containsIgnoreCase(line, "is up to date"))
-				{
-					return UP_TO_DATE;
-				}
-			}
-			return REBASED;
-		}
-	}
+        @Nonnull
+        public static SuccessType fromOutput(@Nonnull List<String> output) {
+            for (String line : output) {
+                if (StringUtil.containsIgnoreCase(line, "Fast-forwarded")) {
+                    return FAST_FORWARDED;
+                }
+                if (StringUtil.containsIgnoreCase(line, "is up to date")) {
+                    return UP_TO_DATE;
+                }
+            }
+            return REBASED;
+        }
+    }
 }

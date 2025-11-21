@@ -22,6 +22,7 @@ import consulo.application.ui.wm.ApplicationIdeFocusManager;
 import consulo.document.event.DocumentAdapter;
 import consulo.document.event.DocumentEvent;
 import consulo.ide.ServiceManager;
+import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
@@ -40,7 +41,10 @@ import consulo.undoRedo.util.UndoConstants;
 import consulo.util.collection.ContainerUtil;
 import consulo.versionControlSystem.distributed.push.PushTargetEditorListener;
 import consulo.versionControlSystem.distributed.push.PushTargetPanel;
-import consulo.versionControlSystem.distributed.ui.awt.*;
+import consulo.versionControlSystem.distributed.ui.awt.PushLogTreeUtil;
+import consulo.versionControlSystem.distributed.ui.awt.PushTargetTextField;
+import consulo.versionControlSystem.distributed.ui.awt.VcsEditableTextComponent;
+import consulo.versionControlSystem.distributed.ui.awt.VcsLinkedTextComponent;
 import git4idea.GitRemoteBranch;
 import git4idea.commands.Git;
 import git4idea.commands.GitCommandResult;
@@ -50,9 +54,10 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
 import javax.swing.*;
-import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.HierarchyEvent;
 import java.text.ParseException;
 import java.util.Comparator;
 import java.util.List;
@@ -86,6 +91,7 @@ public class GitPushTargetPanel extends PushTargetPanel<GitPushTarget> {
     @Nullable
     private Runnable myFireOnChangeAction;
 
+    @RequiredUIAccess
     public GitPushTargetPanel(@Nonnull GitPushSupport support, @Nonnull GitRepository repository, @Nullable GitPushTarget defaultTarget) {
         myPushSupport = support;
         myRepository = repository;
@@ -94,9 +100,9 @@ public class GitPushTargetPanel extends PushTargetPanel<GitPushTarget> {
 
         myTargetRenderer = new VcsEditableTextComponent("", null);
         myTargetEditor = new PushTargetTextField(repository.getProject(), getTargetNames(myRepository), "");
-        myRemoteRenderer = new VcsLinkedTextComponent("", new VcsLinkListener() {
-            @Override
-            public void hyperlinkActivated(@Nonnull DefaultMutableTreeNode sourceNode, @Nonnull MouseEvent event) {
+        myRemoteRenderer = new VcsLinkedTextComponent(
+            "",
+            (sourceNode, event) -> {
                 if (myRepository.getRemotes().isEmpty()) {
                     showDefineRemoteDialog();
                 }
@@ -107,7 +113,7 @@ public class GitPushTargetPanel extends PushTargetPanel<GitPushTarget> {
                     }
                 }
             }
-        });
+        );
 
         setLayout(new BorderLayout());
         setOpaque(false);
@@ -139,6 +145,7 @@ public class GitPushTargetPanel extends PushTargetPanel<GitPushTarget> {
         myTargetEditor.getDocument().putUserData(UndoConstants.DONT_RECORD_UNDO, Boolean.TRUE);
     }
 
+    @RequiredUIAccess
     private void updateComponents(@Nullable GitPushTarget target) {
         myCurrentTarget = target;
 
@@ -158,7 +165,7 @@ public class GitPushTargetPanel extends PushTargetPanel<GitPushTarget> {
         }
         else {
             initialBranch = getTextFieldText(target);
-            initialRemote = target.getBranch().getRemote().getName();
+            initialRemote = target.remoteBranch().getRemote().getName();
         }
 
         myTargetRenderer.updateLinkText(initialBranch);
@@ -168,6 +175,7 @@ public class GitPushTargetPanel extends PushTargetPanel<GitPushTarget> {
         myTargetEditor.setVisible(!noRemotes);
     }
 
+    @RequiredUIAccess
     private void showDefineRemoteDialog() {
         GitDefineRemoteDialog dialog = new GitDefineRemoteDialog(myRepository, myGit);
         if (dialog.showAndGet()) {
@@ -176,7 +184,7 @@ public class GitPushTargetPanel extends PushTargetPanel<GitPushTarget> {
     }
 
     private void addRemoteUnderModal(@Nonnull final String remoteName, @Nonnull final String remoteUrl) {
-        ProgressManager.getInstance().run(new Task.Modal(myRepository.getProject(), "Adding remote...", true) {
+        ProgressManager.getInstance().run(new Task.Modal(myRepository.getProject(), LocalizeValue.localizeTODO("Adding remote..."), true) {
             private GitCommandResult myResult;
 
             @Override
@@ -238,9 +246,15 @@ public class GitPushTargetPanel extends PushTargetPanel<GitPushTarget> {
     }
 
     @Override
-    public void render(@Nonnull ColoredTreeCellRenderer renderer, boolean isSelected, boolean isActive, @Nullable String forceRenderedText) {
+    public void render(
+        @Nonnull ColoredTreeCellRenderer renderer,
+        boolean isSelected,
+        boolean isActive,
+        @Nullable String forceRenderedText
+    ) {
 
-        SimpleTextAttributes targetTextAttributes = PushLogTreeUtil.addTransparencyIfNeeded(SimpleTextAttributes.REGULAR_ATTRIBUTES, isActive);
+        SimpleTextAttributes targetTextAttributes =
+            PushLogTreeUtil.addTransparencyIfNeeded(SimpleTextAttributes.REGULAR_ATTRIBUTES, isActive);
         if (myError != null) {
             renderer.append(myError, PushLogTreeUtil.addTransparencyIfNeeded(SimpleTextAttributes.ERROR_ATTRIBUTES, isActive));
         }
@@ -264,7 +278,11 @@ public class GitPushTargetPanel extends PushTargetPanel<GitPushTarget> {
                 }
                 GitPushTarget target = getValue();
                 if (target != null && target.isNewBranchCreated()) {
-                    renderer.append("+", PushLogTreeUtil.addTransparencyIfNeeded(SimpleTextAttributes.SYNTHETIC_ATTRIBUTES, isActive), this);
+                    renderer.append(
+                        "+",
+                        PushLogTreeUtil.addTransparencyIfNeeded(SimpleTextAttributes.SYNTHETIC_ATTRIBUTES, isActive),
+                        this
+                    );
                 }
                 myTargetRenderer.setSelected(isSelected);
                 myTargetRenderer.setTransparent(!isActive);
@@ -281,10 +299,11 @@ public class GitPushTargetPanel extends PushTargetPanel<GitPushTarget> {
 
     @Nonnull
     private static String getTextFieldText(@Nullable GitPushTarget target) {
-        return (target != null ? target.getBranch().getNameForRemoteOperations() : "");
+        return (target != null ? target.remoteBranch().getNameForRemoteOperations() : "");
     }
 
     @Override
+    @RequiredUIAccess
     public void fireOnCancel() {
         myTargetEditor.setText(getTextFieldText(myCurrentTarget));
     }
@@ -330,7 +349,7 @@ public class GitPushTargetPanel extends PushTargetPanel<GitPushTarget> {
     @Nonnull
     private static List<String> getTargetNames(@Nonnull GitRepository repository) {
         List<GitRemoteBranch> remoteBranches = ContainerUtil.sorted(repository.getBranches().getRemoteBranches(), REMOTE_BRANCH_COMPARATOR);
-        return ContainerUtil.map(remoteBranches, branch -> branch.getNameForRemoteOperations());
+        return ContainerUtil.map(remoteBranches, GitRemoteBranch::getNameForRemoteOperations);
     }
 
     private static class MyRemoteBranchComparator implements Comparator<GitRemoteBranch> {
@@ -366,12 +385,9 @@ public class GitPushTargetPanel extends PushTargetPanel<GitPushTarget> {
                 processActiveUserChanges(listener);
             }
         });
-        myTargetEditor.addHierarchyListener(new HierarchyListener() {
-            @Override
-            public void hierarchyChanged(HierarchyEvent e) {
-                if ((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0) {
-                    myTargetEditor.getDocument().putUserData(UndoConstants.DONT_RECORD_UNDO, !myTargetEditor.isShowing());
-                }
+        myTargetEditor.addHierarchyListener(e -> {
+            if ((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0) {
+                myTargetEditor.getDocument().putUserData(UndoConstants.DONT_RECORD_UNDO, !myTargetEditor.isShowing());
             }
         });
     }
@@ -384,6 +400,7 @@ public class GitPushTargetPanel extends PushTargetPanel<GitPushTarget> {
     }
 
     @Override
+    @RequiredUIAccess
     public void forceUpdateEditableUiModel(@Nonnull String forcedText) {
         //if targetEditor is now editing by user, it shouldn't be force updated
         if (!myTargetEditor.isShowing()) {

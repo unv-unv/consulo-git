@@ -9,6 +9,7 @@ module com.intellij.git {
     requires consulo.util.nodep;
 
     requires org.apache.commons.codec;
+    requires org.slf4j;
     requires trilead.ssh2;
     requires xmlrpc.client;
     requires xmlrpc.common;

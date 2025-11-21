@@ -92,8 +92,10 @@ class GitAbortRebaseProcess {
 
     @RequiredUIAccess
     void abortWithConfirmation() {
-        LOG.info("Abort rebase. " + (myRepositoryToAbort == null ? "Nothing to abort" : getShortRepositoryName(myRepositoryToAbort)) +
-            ". Roots to rollback: " + DvcsUtil.joinShortNames(myRepositoriesToRollback.keySet()));
+        LOG.info(
+            "Abort rebase. " + (myRepositoryToAbort == null ? "Nothing to abort" : getShortRepositoryName(myRepositoryToAbort)) +
+            ". Roots to rollback: " + DvcsUtil.joinShortNames(myRepositoriesToRollback.keySet())
+        );
         SimpleReference<AbortChoice> ref = SimpleReference.create();
         Application application = myProject.getApplication();
         application.invokeAndWait(() -> ref.set(confirmAbort()), application.getDefaultModalityState());

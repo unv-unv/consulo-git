@@ -364,12 +364,14 @@ public class GitRebaser {
         }
 
         @Override
+        @RequiredUIAccess
         public int editCommits(String path) {
             return 0;
         }
     }
 
     @Nonnull
+    @RequiredUIAccess
     public GitUpdateResult handleRebaseFailure(
         @Nonnull GitLineHandler handler,
         @Nonnull VirtualFile root,
@@ -479,6 +481,7 @@ public class GitRebaser {
         }
 
         @Override
+        @RequiredUIAccess
         public int editCommits(String path) {
             if (!myRebaseEditorShown) {
                 myRebaseEditorShown = true;

@@ -38,28 +38,20 @@ import java.util.List;
 import static git4idea.GitBranch.REFS_REMOTES_PREFIX;
 import static git4idea.GitUtil.findRemoteBranch;
 
-public class GitPushTarget implements PushTarget {
-
+public record GitPushTarget(
+    @Nonnull GitRemoteBranch remoteBranch,
+    boolean isNewBranchCreated,
+    boolean isPushingToSpecialRef
+) implements PushTarget {
     private static final Logger LOG = Logger.getInstance(GitPushTarget.class);
-
-    @Nonnull
-    private final GitRemoteBranch myRemoteBranch;
-    private final boolean myIsNewBranchCreated;
-    private final boolean myPushingToSpecialRef;
 
     public GitPushTarget(@Nonnull GitRemoteBranch remoteBranch, boolean isNewBranchCreated) {
         this(remoteBranch, isNewBranchCreated, false);
     }
 
-    public GitPushTarget(@Nonnull GitRemoteBranch remoteBranch, boolean isNewBranchCreated, boolean isPushingToSpecialRef) {
-        myRemoteBranch = remoteBranch;
-        myIsNewBranchCreated = isNewBranchCreated;
-        myPushingToSpecialRef = isPushingToSpecialRef;
-    }
-
     @Nonnull
     public GitRemoteBranch getBranch() {
-        return myRemoteBranch;
+        return remoteBranch();
     }
 
     @Override
@@ -70,16 +62,12 @@ public class GitPushTarget implements PushTarget {
     @Nonnull
     @Override
     public String getPresentation() {
-        return myPushingToSpecialRef ? myRemoteBranch.getFullName() : myRemoteBranch.getNameForRemoteOperations();
-    }
-
-    public boolean isNewBranchCreated() {
-        return myIsNewBranchCreated;
+        return isPushingToSpecialRef ? remoteBranch.getFullName() : remoteBranch.getNameForRemoteOperations();
     }
 
     @TestOnly
     boolean isSpecialRef() {
-        return myPushingToSpecialRef;
+        return isPushingToSpecialRef;
     }
 
     @Nonnull
@@ -153,22 +141,7 @@ public class GitPushTarget implements PushTarget {
     }
 
     @Override
-    public boolean equals(Object o) {
-        return this == o
-            || o instanceof GitPushTarget target
-            && myIsNewBranchCreated == target.myIsNewBranchCreated
-            && myRemoteBranch.equals(target.myRemoteBranch);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = myRemoteBranch.hashCode();
-        result = 31 * result + (myIsNewBranchCreated ? 1 : 0);
-        return result;
-    }
-
-    @Override
     public String toString() {
-        return myRemoteBranch.getNameForLocalOperations();
+        return remoteBranch.getNameForLocalOperations();
     }
 }

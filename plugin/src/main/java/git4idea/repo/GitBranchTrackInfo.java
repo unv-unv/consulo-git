@@ -23,9 +23,21 @@ import jakarta.annotation.Nonnull;
  * @author Kirill Likhodedov
  */
 public record GitBranchTrackInfo(@Nonnull GitLocalBranch localBranch, @Nonnull GitRemoteBranch remoteBranch, boolean merge) {
+    @Deprecated
+    @Nonnull
+    public GitLocalBranch getLocalBranch() {
+        return localBranch();
+    }
+
     @Nonnull
     public GitRemote getRemote() {
         return remoteBranch.getRemote();
+    }
+
+    @Deprecated
+    @Nonnull
+    public GitRemoteBranch getRemoteBranch() {
+        return remoteBranch();
     }
 
     @Override

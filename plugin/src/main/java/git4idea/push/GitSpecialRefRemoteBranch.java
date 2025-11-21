@@ -15,50 +15,44 @@
  */
 package git4idea.push;
 
-import jakarta.annotation.Nonnull;
 import git4idea.GitRemoteBranch;
 import git4idea.repo.GitRemote;
+import jakarta.annotation.Nonnull;
 
 /**
  * Semi-fake remote branch if pushing to special push specs like "HEAD:refs/for/master".
  */
-class GitSpecialRefRemoteBranch extends GitRemoteBranch
-{
-	private final String myRef;
-	private final GitRemote myRemote;
+class GitSpecialRefRemoteBranch extends GitRemoteBranch {
+    private final String myRef;
+    private final GitRemote myRemote;
 
-	public GitSpecialRefRemoteBranch(@Nonnull String ref, @Nonnull GitRemote remote)
-	{
-		super(ref);
-		myRef = ref;
-		myRemote = remote;
-	}
+    public GitSpecialRefRemoteBranch(@Nonnull String ref, @Nonnull GitRemote remote) {
+        super(ref);
+        myRef = ref;
+        myRemote = remote;
+    }
 
-	@Nonnull
-	@Override
-	public String getNameForRemoteOperations()
-	{
-		return myRef;
-	}
+    @Nonnull
+    @Override
+    public String getNameForRemoteOperations() {
+        return myRef;
+    }
 
-	@Nonnull
-	@Override
-	public String getNameForLocalOperations()
-	{
-		return myRef;
-	}
+    @Nonnull
+    @Override
+    public String getNameForLocalOperations() {
+        return myRef;
+    }
 
-	@Nonnull
-	@Override
-	public GitRemote getRemote()
-	{
-		return myRemote;
-	}
+    @Nonnull
+    @Override
+    public GitRemote getRemote() {
+        return myRemote;
+    }
 
-	@Nonnull
-	@Override
-	public String getFullName()
-	{
-		return myRef;
-	}
+    @Nonnull
+    @Override
+    public String getFullName() {
+        return myRef;
+    }
 }

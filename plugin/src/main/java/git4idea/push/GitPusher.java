@@ -59,7 +59,7 @@ class GitPusher extends Pusher<GitRepository, GitPushSource, GitPushTarget> {
         GitPushTagMode pushTagMode;
         boolean skipHook;
         if (optionValue instanceof GitVcsPushOptionValue pushOptionValue) {
-            pushTagMode = pushOptionValue.getPushTagMode();
+            pushTagMode = pushOptionValue.pushTagMode();
             skipHook = pushOptionValue.isSkipHook();
         }
         else {
@@ -90,12 +90,12 @@ class GitPusher extends Pusher<GitRepository, GitPushSource, GitPushTarget> {
             GitPushSource source = entry.getValue().getSource();
             GitPushTarget target = entry.getValue().getTarget();
             GitPushTarget defaultTarget = myPushSupport.getDefaultTarget(repository);
-            if (defaultTarget == null || !target.getBranch().equals(defaultTarget.getBranch())) {
+            if (defaultTarget == null || !target.remoteBranch().equals(defaultTarget.remoteBranch())) {
                 mySettings.setPushTarget(
                     repository,
                     source.getBranch().getName(),
-                    target.getBranch().getRemote().getName(),
-                    target.getBranch().getNameForRemoteOperations()
+                    target.remoteBranch().getRemote().getName(),
+                    target.remoteBranch().getNameForRemoteOperations()
                 );
             }
         }

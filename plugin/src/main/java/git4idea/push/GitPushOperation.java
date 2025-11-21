@@ -179,7 +179,7 @@ public class GitPushOperation {
                     }
                     Collection<GitRepository> rootsToUpdate = getRootsToUpdate(updateSettings, result.rejected.keySet());
                     GitUpdateResult updateResult =
-                        update(rootsToUpdate, updateSettings.getUpdateMethod(), rebaseOverMergeProblemDetected == null);
+                        update(rootsToUpdate, updateSettings.updateMethod(), rebaseOverMergeProblemDetected == null);
                     for (GitRepository repository : rootsToUpdate) {
                         updatedRoots.put(repository, updateResult); // TODO update result in GitUpdateProcess is a single for several roots
                     }
@@ -221,7 +221,7 @@ public class GitPushOperation {
                 }
                 pushSpec = new PushSpec<>(source, target);
             }
-            String baseRef = pushSpec.getTarget().getBranch().getFullName();
+            String baseRef = pushSpec.getTarget().remoteBranch().getFullName();
             String currentRef = pushSpec.getSource().getBranch().getFullName();
             return GitRebaseOverMergeProblem.hasProblem(myProject, repo.getRoot(), baseRef, currentRef) ? repo.getRoot() : null;
         });
@@ -291,7 +291,7 @@ public class GitPushOperation {
             GitPushTarget target = spec.getTarget();
             GitPushRepoResult repoResult;
             if (resultWithOutput.isError()) {
-                repoResult = GitPushRepoResult.error(source, target.getBranch(), resultWithOutput.getErrorAsString());
+                repoResult = GitPushRepoResult.error(source, target.remoteBranch(), resultWithOutput.getErrorAsString());
             }
             else {
                 List<GitPushNativeResult> nativeResults = resultWithOutput.parsedResults;
@@ -305,7 +305,7 @@ public class GitPushOperation {
                     result -> !result.equals(branchResult) && (result.getType() == NEW_REF || result.getType() == FORCED_UPDATE)
                 );
                 int commits = collectNumberOfPushedCommits(repository.getRoot(), branchResult);
-                repoResult = GitPushRepoResult.convertFromNative(branchResult, tagResults, commits, source, target.getBranch());
+                repoResult = GitPushRepoResult.convertFromNative(branchResult, tagResults, commits, source, target.remoteBranch());
             }
 
             LOG.debug("Converted result: " + repoResult);
@@ -316,7 +316,7 @@ public class GitPushOperation {
         for (GitRepository repository : repositories) {
             if (!results.containsKey(repository)) {
                 PushSpec<GitPushSource, GitPushTarget> spec = myPushSpecs.get(repository);
-                results.put(repository, GitPushRepoResult.notPushed(spec.getSource().getBranch(), spec.getTarget().getBranch()));
+                results.put(repository, GitPushRepoResult.notPushed(spec.getSource().getBranch(), spec.getTarget().remoteBranch()));
             }
         }
         return results;
@@ -363,7 +363,7 @@ public class GitPushOperation {
     private ResultWithOutput doPush(@Nonnull GitRepository repository, @Nonnull PushSpec<GitPushSource, GitPushTarget> pushSpec) {
         GitPushTarget target = pushSpec.getTarget();
         GitLocalBranch sourceBranch = pushSpec.getSource().getBranch();
-        GitRemoteBranch targetBranch = target.getBranch();
+        GitRemoteBranch targetBranch = target.remoteBranch();
 
         GitLineHandlerListener progressListener = GitStandardProgressAnalyzer.createListener(myProgressIndicator);
         boolean setUpstream = pushSpec.getTarget().isNewBranchCreated() && !branchTrackingInfoIsSet(repository, sourceBranch);
@@ -380,10 +380,13 @@ public class GitPushOperation {
     }
 
     private void savePushUpdateSettings(@Nonnull PushUpdateSettings settings, boolean rebaseOverMergeDetected) {
-        UpdateMethod updateMethod = settings.getUpdateMethod();
+        UpdateMethod updateMethod = settings.updateMethod();
         mySettings.setUpdateAllRootsIfPushRejected(settings.shouldUpdateAllRoots());
         if (!rebaseOverMergeDetected // don't overwrite explicit "rebase" with temporary "merge" caused by merge commits
-            && mySettings.getUpdateType() != updateMethod && mySettings.getUpdateType() != UpdateMethod.BRANCH_DEFAULT) { // don't overwrite "branch default" setting
+            && mySettings.getUpdateType() != updateMethod
+            // don't overwrite "branch default" setting
+            && mySettings.getUpdateType() != UpdateMethod.BRANCH_DEFAULT) {
+
             mySettings.setUpdateType(updateMethod);
         }
     }

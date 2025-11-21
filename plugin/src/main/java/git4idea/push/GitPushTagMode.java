@@ -18,85 +18,69 @@ package git4idea.push;
 import consulo.versionControlSystem.distributed.push.VcsPushOptionValue;
 import jakarta.annotation.Nonnull;
 
-/**
- *
- */
 public final class GitPushTagMode implements VcsPushOptionValue {
+    public static final GitPushTagMode ALL = new GitPushTagMode("All", "--tags");
+    public static final GitPushTagMode FOLLOW = new GitPushTagMode("Current Branch", "--follow-tags");
 
-  public static final GitPushTagMode ALL = new GitPushTagMode("All", "--tags");
-  public static final GitPushTagMode FOLLOW = new GitPushTagMode("Current Branch", "--follow-tags");
+    @Nonnull
+    private String myTitle;
+    @Nonnull
+    private String myArgument;
 
-  @Nonnull
-  private String myTitle;
-  @Nonnull
-  private String myArgument;
-
-  // for deserialization
-  @SuppressWarnings("UnusedDeclaration")
-  public GitPushTagMode() {
-    this(ALL.getTitle(), ALL.getArgument());
-  }
-
-  private GitPushTagMode(@Nonnull String title, @Nonnull String argument) {
-    myTitle = title;
-    myArgument = argument;
-  }
-
-  @Nonnull
-  public static GitPushTagMode[] getValues() {
-    return new GitPushTagMode[]{
-      ALL,
-      FOLLOW
-    };
-  }
-
-  @Nonnull
-  public String getTitle() {
-    return myTitle;
-  }
-
-  @Nonnull
-  public String getArgument() {
-    return myArgument;
-  }
-
-  // for deserialization
-  @SuppressWarnings("UnusedDeclaration")
-  public void setTitle(@Nonnull String title) {
-    myTitle = title;
-  }
-
-  // for deserialization
-  @SuppressWarnings("UnusedDeclaration")
-  public void setArgument(@Nonnull String argument) {
-    myArgument = argument;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
+    // for deserialization
+    @SuppressWarnings("UnusedDeclaration")
+    public GitPushTagMode() {
+        this(ALL.getTitle(), ALL.getArgument());
     }
 
-    GitPushTagMode mode = (GitPushTagMode)o;
-
-    if (!myArgument.equals(mode.myArgument)) {
-      return false;
-    }
-    if (!myTitle.equals(mode.myTitle)) {
-      return false;
+    private GitPushTagMode(@Nonnull String title, @Nonnull String argument) {
+        myTitle = title;
+        myArgument = argument;
     }
 
-    return true;
-  }
+    @Nonnull
+    public static GitPushTagMode[] getValues() {
+        return new GitPushTagMode[]{
+            ALL,
+            FOLLOW
+        };
+    }
 
-  @Override
-  public int hashCode() {
-    int result = myTitle.hashCode();
-    result = 31 * result + myArgument.hashCode();
-    return result;
-  }
+    @Nonnull
+    public String getTitle() {
+        return myTitle;
+    }
+
+    @Nonnull
+    public String getArgument() {
+        return myArgument;
+    }
+
+    // for deserialization
+    @SuppressWarnings("UnusedDeclaration")
+    public void setTitle(@Nonnull String title) {
+        myTitle = title;
+    }
+
+    // for deserialization
+    @SuppressWarnings("UnusedDeclaration")
+    public void setArgument(@Nonnull String argument) {
+        myArgument = argument;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        //noinspection SimplifiableIfStatement
+        if (this == o) {
+            return true;
+        }
+        return o instanceof GitPushTagMode that
+            && myArgument.equals(that.myArgument)
+            && myTitle.equals(that.myTitle);
+    }
+
+    @Override
+    public int hashCode() {
+        return myArgument.hashCode() + 31 * myTitle.hashCode();
+    }
 }

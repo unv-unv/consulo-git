@@ -21,16 +21,16 @@ import git4idea.commands.GitHandler;
  * The interface
  */
 public interface GitRebaseEditorHandler {
-  /**
-   * Edit commits request
-   *
-   * @param path the path to editing
-   * @return the exit code to be returned from editor
-   */
-  int editCommits(String path);
+    /**
+     * Edit commits request
+     *
+     * @param path the path to editing
+     * @return the exit code to be returned from editor
+     */
+    int editCommits(String path);
 
-  /**
-   * @return the handler for the git process
-   */
-  GitHandler getHandler();
+    /**
+     * @return the handler for the git process
+     */
+    GitHandler getHandler();
 }

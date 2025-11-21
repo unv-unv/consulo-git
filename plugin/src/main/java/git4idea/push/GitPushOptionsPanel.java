@@ -15,101 +15,78 @@
  */
 package git4idea.push;
 
-import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-
-import jakarta.annotation.Nonnull;
-import javax.swing.Box;
-import javax.swing.JComponent;
-import javax.swing.JList;
-
-import jakarta.annotation.Nullable;
-
-import consulo.ui.ex.awt.*;
-import consulo.versionControlSystem.distributed.push.VcsPushOptionValue;
-import consulo.versionControlSystem.distributed.push.VcsPushOptionsPanel;
 import consulo.ui.ex.awt.ComboBox;
 import consulo.ui.ex.awt.JBCheckBox;
+import consulo.ui.ex.awt.JBUI;
+import consulo.ui.ex.awt.ListCellRendererWrapper;
+import consulo.versionControlSystem.distributed.push.VcsPushOptionValue;
+import consulo.versionControlSystem.distributed.push.VcsPushOptionsPanel;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
-public class GitPushOptionsPanel extends VcsPushOptionsPanel
-{
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.KeyEvent;
 
-	@Nonnull
-	private final JBCheckBox myPushTags;
-	@Nonnull
-	private final ComboBox<GitPushTagMode> myPushTagsMode;
-	@Nonnull
-	private final JBCheckBox myRunHooks;
+public class GitPushOptionsPanel extends VcsPushOptionsPanel {
+    @Nonnull
+    private final JBCheckBox myPushTags;
+    @Nonnull
+    private final ComboBox<GitPushTagMode> myPushTagsMode;
+    @Nonnull
+    private final JBCheckBox myRunHooks;
 
-	public GitPushOptionsPanel(@Nullable GitPushTagMode defaultMode, boolean followTagsSupported, boolean showSkipHookOption)
-	{
-		String checkboxText = "Push Tags";
-		if(followTagsSupported)
-		{
-			checkboxText += ": ";
-		}
-		myPushTags = new JBCheckBox(checkboxText);
-		myPushTags.setMnemonic('T');
-		myPushTags.setSelected(defaultMode != null);
+    public GitPushOptionsPanel(@Nullable GitPushTagMode defaultMode, boolean followTagsSupported, boolean showSkipHookOption) {
+        String checkboxText = "Push Tags";
+        if (followTagsSupported) {
+            checkboxText += ": ";
+        }
+        myPushTags = new JBCheckBox(checkboxText);
+        myPushTags.setMnemonic('T');
+        myPushTags.setSelected(defaultMode != null);
 
-		myPushTagsMode = new ComboBox<>(GitPushTagMode.getValues());
-		myPushTagsMode.setRenderer(new ListCellRendererWrapper<GitPushTagMode>()
-		{
-			@Override
-			public void customize(JList list, GitPushTagMode value, int index, boolean selected, boolean hasFocus)
-			{
-				setText(value.getTitle());
-			}
-		});
-		myPushTagsMode.setEnabled(myPushTags.isSelected());
-		if(defaultMode != null)
-		{
-			myPushTagsMode.setSelectedItem(defaultMode);
-		}
+        myPushTagsMode = new ComboBox<>(GitPushTagMode.getValues());
+        myPushTagsMode.setRenderer(new ListCellRendererWrapper<>() {
+            @Override
+            public void customize(JList list, GitPushTagMode value, int index, boolean selected, boolean hasFocus) {
+                setText(value.getTitle());
+            }
+        });
+        myPushTagsMode.setEnabled(myPushTags.isSelected());
+        if (defaultMode != null) {
+            myPushTagsMode.setSelectedItem(defaultMode);
+        }
 
-		myPushTags.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(@Nonnull ActionEvent e)
-			{
-				myPushTagsMode.setEnabled(myPushTags.isSelected());
-			}
-		});
-		myPushTagsMode.setVisible(followTagsSupported);
+        myPushTags.addActionListener(e -> myPushTagsMode.setEnabled(myPushTags.isSelected()));
+        myPushTagsMode.setVisible(followTagsSupported);
 
-		myRunHooks = new JBCheckBox("Run Git hooks");
-		myRunHooks.setMnemonic(KeyEvent.VK_H);
-		myRunHooks.setSelected(true);
-		myRunHooks.setVisible(showSkipHookOption);
+        myRunHooks = new JBCheckBox("Run Git hooks");
+        myRunHooks.setMnemonic(KeyEvent.VK_H);
+        myRunHooks.setSelected(true);
+        myRunHooks.setVisible(showSkipHookOption);
 
-		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		add(myPushTags);
-		if(myPushTagsMode.isVisible())
-		{
-			add(Box.createHorizontalStrut(calcStrutWidth(8, myPushTags, myPushTagsMode)));
-			add(myPushTagsMode);
-		}
-		if(myRunHooks.isVisible())
-		{
-			add(Box.createHorizontalStrut(calcStrutWidth(40, myPushTagsMode, myRunHooks)));
-			add(myRunHooks);
-		}
-	}
+        setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        add(myPushTags);
+        if (myPushTagsMode.isVisible()) {
+            add(Box.createHorizontalStrut(calcStrutWidth(8, myPushTags, myPushTagsMode)));
+            add(myPushTagsMode);
+        }
+        if (myRunHooks.isVisible()) {
+            add(Box.createHorizontalStrut(calcStrutWidth(40, myPushTagsMode, myRunHooks)));
+            add(myRunHooks);
+        }
+    }
 
-	private static int calcStrutWidth(int plannedWidth, @Nonnull JComponent leftComponent, @Nonnull JComponent rightComponent)
-	{
-		return JBUI.scale(plannedWidth) - JBUI.insets(rightComponent.getInsets()).left - JBUI.insets(leftComponent.getInsets()).right;
-	}
+    private static int calcStrutWidth(int plannedWidth, @Nonnull JComponent leftComponent, @Nonnull JComponent rightComponent) {
+        return JBUI.scale(plannedWidth) - JBUI.insets(rightComponent.getInsets()).left - JBUI.insets(leftComponent.getInsets()).right;
+    }
 
-	@Nullable
-	@Override
-	public VcsPushOptionValue getValue()
-	{
-		GitPushTagMode selectedTagMode = !myPushTagsMode.isVisible() ? GitPushTagMode.ALL : (GitPushTagMode) myPushTagsMode.getSelectedItem();
-		GitPushTagMode tagMode = myPushTags.isSelected() ? selectedTagMode : null;
-		return new GitVcsPushOptionValue(tagMode, myRunHooks.isVisible() && !myRunHooks.isSelected());
-	}
-
+    @Nullable
+    @Override
+    public VcsPushOptionValue getValue() {
+        GitPushTagMode selectedTagMode =
+            !myPushTagsMode.isVisible() ? GitPushTagMode.ALL : (GitPushTagMode) myPushTagsMode.getSelectedItem();
+        GitPushTagMode tagMode = myPushTags.isSelected() ? selectedTagMode : null;
+        return new GitVcsPushOptionValue(tagMode, myRunHooks.isVisible() && !myRunHooks.isSelected());
+    }
 }

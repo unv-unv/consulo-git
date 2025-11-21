@@ -18,63 +18,61 @@ package git4idea.push;
 import consulo.versionControlSystem.distributed.DvcsUtil;
 import consulo.versionControlSystem.distributed.push.PushSource;
 import git4idea.GitLocalBranch;
-
 import jakarta.annotation.Nonnull;
 
 abstract class GitPushSource implements PushSource {
-
-  @Nonnull
-  static GitPushSource create(@Nonnull GitLocalBranch branch) {
-    return new OnBranch(branch);
-  }
-
-  @Nonnull
-  static GitPushSource create(@Nonnull String revision) {
-    return new DetachedHead(revision);
-  }
-
-  @Nonnull
-  abstract GitLocalBranch getBranch();
-
-  private static class OnBranch extends GitPushSource {
     @Nonnull
-    private final GitLocalBranch myBranch;
-
-    private OnBranch(@Nonnull GitLocalBranch branch) {
-      myBranch = branch;
+    static GitPushSource create(@Nonnull GitLocalBranch branch) {
+        return new OnBranch(branch);
     }
 
     @Nonnull
-    @Override
-    public String getPresentation() {
-      return myBranch.getName();
+    static GitPushSource create(@Nonnull String revision) {
+        return new DetachedHead(revision);
     }
 
     @Nonnull
-    @Override
-    GitLocalBranch getBranch() {
-      return myBranch;
-    }
-  }
+    abstract GitLocalBranch getBranch();
 
-  private static class DetachedHead extends GitPushSource {
-    @Nonnull
-    private final String myRevision;
+    private static class OnBranch extends GitPushSource {
+        @Nonnull
+        private final GitLocalBranch myBranch;
 
-    public DetachedHead(@Nonnull String revision) {
-      myRevision = revision;
+        private OnBranch(@Nonnull GitLocalBranch branch) {
+            myBranch = branch;
+        }
+
+        @Nonnull
+        @Override
+        public String getPresentation() {
+            return myBranch.getName();
+        }
+
+        @Nonnull
+        @Override
+        GitLocalBranch getBranch() {
+            return myBranch;
+        }
     }
 
-    @Nonnull
-    @Override
-    public String getPresentation() {
-      return DvcsUtil.getShortHash(myRevision);
-    }
+    private static class DetachedHead extends GitPushSource {
+        @Nonnull
+        private final String myRevision;
 
-    @Nonnull
-    @Override
-    GitLocalBranch getBranch() {
-      throw new IllegalStateException("Push is not allowed from detached HEAD");
+        public DetachedHead(@Nonnull String revision) {
+            myRevision = revision;
+        }
+
+        @Nonnull
+        @Override
+        public String getPresentation() {
+            return DvcsUtil.getShortHash(myRevision);
+        }
+
+        @Nonnull
+        @Override
+        GitLocalBranch getBranch() {
+            throw new IllegalStateException("Push is not allowed from detached HEAD");
+        }
     }
-  }
 }

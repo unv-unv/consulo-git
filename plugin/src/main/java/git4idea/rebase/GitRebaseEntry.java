@@ -15,124 +15,111 @@
  */
 package git4idea.rebase;
 
-import org.jetbrains.annotations.NonNls;
-import jakarta.annotation.Nonnull;
 import consulo.logging.Logger;
+import jakarta.annotation.Nonnull;
 
 /**
  * The entry for rebase editor
  */
-class GitRebaseEntry
-{
-	/**
-	 * the logger
-	 */
-	private static final Logger log = Logger.getInstance(GitRebaseEntry.class.getName());
-	/**
-	 * The commit hash
-	 */
-	private final String myCommit;
-	/**
-	 * The commit comment subject line
-	 */
-	private final String mySubject;
-	/**
-	 * The action associated with the entry
-	 */
-	private Action myAction;
+class GitRebaseEntry {
+    /**
+     * the logger
+     */
+    private static final Logger LOG = Logger.getInstance(GitRebaseEntry.class);
+    /**
+     * The commit hash
+     */
+    private final String myCommit;
+    /**
+     * The commit comment subject line
+     */
+    private final String mySubject;
+    /**
+     * The action associated with the entry
+     */
+    private Action myAction;
 
-	/**
-	 * The constructor
-	 *
-	 * @param action
-	 * @param commit  the commit hash
-	 * @param subject the commit subject
-	 */
-	public GitRebaseEntry(String action, final String commit, final String subject)
-	{
-		myCommit = commit;
-		mySubject = subject;
-		myAction = Action.fromString(action);
-	}
+    /**
+     * The constructor
+     *
+     * @param action
+     * @param commit  the commit hash
+     * @param subject the commit subject
+     */
+    public GitRebaseEntry(String action, String commit, String subject) {
+        myCommit = commit;
+        mySubject = subject;
+        myAction = Action.fromString(action);
+    }
 
-	/**
-	 * @return the commit hash
-	 */
-	public String getCommit()
-	{
-		return myCommit;
-	}
+    /**
+     * @return the commit hash
+     */
+    public String getCommit() {
+        return myCommit;
+    }
 
-	/**
-	 * @return the commit subject
-	 */
-	public String getSubject()
-	{
-		return mySubject;
-	}
+    /**
+     * @return the commit subject
+     */
+    public String getSubject() {
+        return mySubject;
+    }
 
-	/**
-	 * @return the action associated with the commit
-	 */
-	public Action getAction()
-	{
-		return myAction;
-	}
+    /**
+     * @return the action associated with the commit
+     */
+    public Action getAction() {
+        return myAction;
+    }
 
-	/**
-	 * @param action a new action to set
-	 */
-	public void setAction(final Action action)
-	{
-		if(action == null)
-		{
-			log.error("The action must not be null");
-		}
-		else
-		{
-			myAction = action;
-		}
-	}
+    /**
+     * @param action a new action to set
+     */
+    public void setAction(Action action) {
+        if (action == null) {
+            LOG.error("The action must not be null");
+        }
+        else {
+            myAction = action;
+        }
+    }
 
 
-	/**
-	 * The action associated with the commit
-	 */
-	public enum Action
-	{
-		/**
-		 * the pick action
-		 */
-		pick,
-		/**
-		 * the edit action, the user will be offered to alter commit
-		 */
-		edit,
-		/**
-		 * the skip action
-		 */
-		skip,
-		/**
-		 * the squash action (for two or more commits)
-		 */
-		squash,
+    /**
+     * The action associated with the commit
+     */
+    public enum Action {
+        /**
+         * the pick action
+         */
+        pick,
+        /**
+         * the edit action, the user will be offered to alter commit
+         */
+        edit,
+        /**
+         * the skip action
+         */
+        skip,
+        /**
+         * the squash action (for two or more commits)
+         */
+        squash,
 
-		reword,
+        reword,
 
-		fixup;
+        fixup;
 
-		@Nonnull
-		static Action fromString(@NonNls @Nonnull String actionName)
-		{
-			try
-			{
-				return valueOf(actionName.toLowerCase());
-			}
-			catch(IllegalArgumentException e)
-			{
-				log.error(e);
-				return pick;
-			}
-		}
-	}
+        @Nonnull
+        static Action fromString(@Nonnull String actionName) {
+            try {
+                return valueOf(actionName.toLowerCase());
+            }
+            catch (IllegalArgumentException e) {
+                LOG.error(e);
+                return pick;
+            }
+        }
+    }
 }

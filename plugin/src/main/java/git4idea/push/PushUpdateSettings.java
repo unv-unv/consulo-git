@@ -19,33 +19,10 @@ import git4idea.config.UpdateMethod;
 import jakarta.annotation.Nonnull;
 
 // holds settings chosen in GitRejectedPushUpdate dialog to reuse if the next push is rejected again.
-class PushUpdateSettings
-{
-
-	private final boolean myUpdateAllRoots;
-	@Nonnull
-	private final UpdateMethod myUpdateMethod;
-
-	PushUpdateSettings(boolean updateAllRoots, @Nonnull UpdateMethod updateMethod)
-	{
-		myUpdateAllRoots = updateAllRoots;
-		myUpdateMethod = updateMethod;
-	}
-
-	boolean shouldUpdateAllRoots()
-	{
-		return myUpdateAllRoots;
-	}
-
-	@Nonnull
-	UpdateMethod getUpdateMethod()
-	{
-		return myUpdateMethod;
-	}
-
-	@Override
-	public String toString()
-	{
-		return String.format("UpdateSettings{myUpdateAllRoots=%s, myUpdateMethod=%s}", myUpdateAllRoots, myUpdateMethod);
-	}
+record PushUpdateSettings(boolean shouldUpdateAllRoots, @Nonnull UpdateMethod updateMethod) {
+    @Deprecated
+    @Nonnull
+    UpdateMethod getUpdateMethod() {
+        return updateMethod();
+    }
 }

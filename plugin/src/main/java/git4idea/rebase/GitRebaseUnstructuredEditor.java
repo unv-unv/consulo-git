@@ -22,12 +22,12 @@ import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.DialogWrapper;
 import consulo.ui.ex.awt.JBScrollPane;
+import consulo.ui.ex.awt.JBUI;
 import consulo.util.io.FileUtil;
 import consulo.virtualFileSystem.VirtualFile;
 import git4idea.config.GitConfigUtil;
 
 import javax.swing.*;
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -123,7 +123,7 @@ public class GitRebaseUnstructuredEditor extends DialogWrapper {
      */
     private void $$$setupUI$$$() {
         myPanel = new JPanel();
-        myPanel.setLayout(new GridLayoutManager(3, 2, new Insets(0, 0, 0, 0), -1, -1));
+        myPanel.setLayout(new GridLayoutManager(3, 2, JBUI.emptyInsets(), -1, -1));
         JLabel label1 = new JLabel();
         $$$loadLabelText$$$(label1, GitLocalize.rebaseUnstructuredEditorMessage().get());
         myPanel.add(

@@ -15,6 +15,7 @@
  */
 package git4idea.crlf;
 
+import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.ui.ex.awt.*;
 import consulo.webBrowser.BrowserUtil;
@@ -36,75 +37,71 @@ import static git4idea.crlf.GitCrlfUtil.RECOMMENDED_VALUE;
  * @see GitCrlfProblemsDetector
  */
 public class GitCrlfDialog extends DialogWrapper {
+    public static final int SET = DialogWrapper.OK_EXIT_CODE;
+    public static final int DONT_SET = DialogWrapper.NEXT_USER_EXIT_CODE;
+    public static final int CANCEL = DialogWrapper.CANCEL_EXIT_CODE;
+    private JBCheckBox myDontWarn;
 
-  public static final int SET = DialogWrapper.OK_EXIT_CODE;
-  public static final int DONT_SET = DialogWrapper.NEXT_USER_EXIT_CODE;
-  public static final int CANCEL = DialogWrapper.CANCEL_EXIT_CODE;
-  private JBCheckBox myDontWarn;
+    public GitCrlfDialog(@Nullable Project project) {
+        super(project, false);
 
-  public GitCrlfDialog(@Nullable Project project) {
-    super(project, false);
+        setOKButtonText(LocalizeValue.localizeTODO("Fix and Commit"));
+        setCancelButtonText(LocalizeValue.localizeTODO("Cancel"));
+        setTitle(LocalizeValue.localizeTODO("Line Separators Warning"));
+        getCancelAction().putValue(DialogWrapper.FOCUSED_ACTION, true);
 
-    setOKButtonText("Fix and Commit");
-    setCancelButtonText("Cancel");
-    setTitle("Line Separators Warning");
-    getCancelAction().putValue(DialogWrapper.FOCUSED_ACTION, true);
+        init();
+    }
 
-    init();
-  }
+    @Nonnull
+    @Override
+    protected Action[] createActions() {
+        return new Action[]{getHelpAction(), getOKAction(), getCancelAction(), new DialogWrapperExitAction("Commit As Is", DONT_SET)};
+    }
 
-  @Nonnull
-  @Override
-  protected Action[] createActions() {
-    return new Action[] { getHelpAction(), getOKAction(), getCancelAction(), new DialogWrapperExitAction("Commit As Is", DONT_SET) };
-  }
+    @Override
+    protected JComponent createCenterPanel() {
+        JLabel description = new JBLabel(
+            "<html>You are about to commit CRLF line separators to the Git repository.<br/>" +
+                "It is recommended to set core.autocrlf Git attribute to <code>" + RECOMMENDED_VALUE +
+                "</code> to avoid line separator issues.</html>");
 
-  @Override
-  protected JComponent createCenterPanel() {
-    JLabel description = new JBLabel(
-      "<html>You are about to commit CRLF line separators to the Git repository.<br/>" +
-      "It is recommended to set core.autocrlf Git attribute to <code>" + RECOMMENDED_VALUE +
-      "</code> to avoid line separator issues.</html>");
+        JLabel additionalDescription = new JBLabel(
+            "<html>Fix and Commit: <code>git config --global core.autocrlf " + RECOMMENDED_VALUE + "</code> will be called,<br/>" +
+                "Commit as Is: the config value won't be set.</html>", UIUtil.ComponentStyle.SMALL);
 
-    JLabel additionalDescription = new JBLabel(
-      "<html>Fix and Commit: <code>git config --global core.autocrlf " + RECOMMENDED_VALUE + "</code> will be called,<br/>" +
-      "Commit as Is: the config value won't be set.</html>", UIUtil.ComponentStyle.SMALL);
+        JLabel readMore = new LinkLabel<>(
+            "Read more",
+            null,
+            (aSource, aLinkData) -> BrowserUtil.browse("https://help.github.com/articles/dealing-with-line-endings")
+        );
 
-    JLabel readMore = new LinkLabel("Read more", null, new LinkListener() {
-      @Override
-      public void linkSelected(LinkLabel aSource, Object aLinkData) {
-        BrowserUtil.browse("https://help.github.com/articles/dealing-with-line-endings");
-      }
-    });
+        JLabel icon = new JBLabel(UIUtil.getWarningIcon(), SwingConstants.LEFT);
+        myDontWarn = new JBCheckBox("Don't warn again");
+        myDontWarn.setMnemonic('w');
 
-    JLabel icon = new JBLabel(UIUtil.getWarningIcon(), SwingConstants.LEFT);
-    myDontWarn = new JBCheckBox("Don't warn again");
-    myDontWarn.setMnemonic('w');
+        JPanel rootPanel = new JPanel(new GridBagLayout());
+        GridBag g = new GridBag()
+            .setDefaultInsets(JBUI.insets(0, 6, DEFAULT_VGAP, DEFAULT_HGAP))
+            .setDefaultAnchor(GridBagConstraints.LINE_START)
+            .setDefaultFill(GridBagConstraints.HORIZONTAL);
 
-    JPanel rootPanel = new JPanel(new GridBagLayout());
-    GridBag g = new GridBag()
-      .setDefaultInsets(new Insets(0, 6, DEFAULT_VGAP, DEFAULT_HGAP))
-      .setDefaultAnchor(GridBagConstraints.LINE_START)
-      .setDefaultFill(GridBagConstraints.HORIZONTAL);
+        rootPanel.add(icon, g.nextLine().next().coverColumn(4));
+        rootPanel.add(description, g.next());
+        rootPanel.add(readMore, g.nextLine().next().next());
+        rootPanel.add(additionalDescription, g.nextLine().next().next().pady(DEFAULT_HGAP));
+        rootPanel.add(myDontWarn, g.nextLine().next().next().insets(0, 0, 0, 0));
 
-    rootPanel.add(icon, g.nextLine().next().coverColumn(4));
-    rootPanel.add(description, g.next());
-    rootPanel.add(readMore, g.nextLine().next().next());
-    rootPanel.add(additionalDescription, g.nextLine().next().next().pady(DEFAULT_HGAP));
-    rootPanel.add(myDontWarn,  g.nextLine().next().next().insets(0, 0, 0, 0));
+        return rootPanel;
+    }
 
-    return rootPanel;
+    public boolean dontWarnAgain() {
+        return myDontWarn.isSelected();
+    }
 
-  }
-
-  public boolean dontWarnAgain() {
-    return myDontWarn.isSelected();
-  }
-
-  @Nullable
-  @Override
-  protected String getHelpId() {
-    return "reference.VersionControl.Git.CrlfWarning";
-  }
-
+    @Nullable
+    @Override
+    protected String getHelpId() {
+        return "reference.VersionControl.Git.CrlfWarning";
+    }
 }

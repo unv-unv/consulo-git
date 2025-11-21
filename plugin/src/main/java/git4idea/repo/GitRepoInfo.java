@@ -41,9 +41,64 @@ public record GitRepoInfo(
     @Nonnull Collection<GitSubmoduleInfo> submodules,
     @Nonnull GitHooksInfo hooksInfo
 ) {
+    @Deprecated
     @Nullable
     public GitLocalBranch getCurrentBranch() {
         return currentBranch();
+    }
+
+    @Deprecated
+    @Nonnull
+    public Collection<GitRemote> getRemotes() {
+        return remotes();
+    }
+
+    @Deprecated
+    @Nonnull
+    public Map<GitLocalBranch, Hash> getLocalBranchesWithHashes() {
+        return localBranches();
+    }
+
+    @Deprecated
+    @Nonnull
+    public Map<GitRemoteBranch, Hash> getRemoteBranchesWithHashes() {
+        return remoteBranches();
+    }
+
+    @Deprecated
+    @Nonnull
+    public Collection<GitRemoteBranch> getRemoteBranches() {
+        return remoteBranches().keySet();
+    }
+
+    @Deprecated
+    @Nonnull
+    public Collection<GitBranchTrackInfo> getBranchTrackInfos() {
+        return branchTrackInfos();
+    }
+
+    @Deprecated
+    @Nullable
+    public String getCurrentRevision() {
+        return currentRevision();
+    }
+
+    @Deprecated
+    @Nonnull
+    public Repository.State getState() {
+        return state();
+    }
+
+    @Deprecated
+    @Nonnull
+    public Collection<GitSubmoduleInfo> getSubmodules() {
+        return submodules();
+    }
+
+    @Deprecated
+    @Nonnull
+    public GitHooksInfo getHooksInfo() {
+        return hooksInfo();
     }
 
     @Override

@@ -45,7 +45,10 @@ import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Git diff provider
@@ -62,9 +65,7 @@ public class GitDiffProvider implements DiffProvider {
      * The status manager for the project
      */
     private final FileStatusManager myStatusManager;
-    /**
-     *
-     */
+
     private static final Set<FileStatus> ourGoodStatuses;
 
     static {
@@ -108,7 +109,7 @@ public class GitDiffProvider implements DiffProvider {
 
     @Nullable
     @Override
-    public VcsRevisionDescription getCurrentRevisionDescription(final VirtualFile file) {
+    public VcsRevisionDescription getCurrentRevisionDescription(@Nonnull VirtualFile file) {
         if (file.isDirectory()) {
             return null;
         }
@@ -149,7 +150,7 @@ public class GitDiffProvider implements DiffProvider {
         if (selectedFile.isDirectory()) {
             return null;
         }
-        final String path = selectedFile.getPath();
+        String path = selectedFile.getPath();
         if (GitUtil.gitRootOrNull(selectedFile) == null) {
             return null;
         }
@@ -157,8 +158,8 @@ public class GitDiffProvider implements DiffProvider {
         // faster, if there were no renames
         FilePath filePath = VcsUtil.getFilePath(path);
         try {
-            final CommittedChangesProvider committedChangesProvider = GitVcs.getInstance(myProject).getCommittedChangesProvider();
-            final Pair<CommittedChangeList, FilePath> pair = committedChangesProvider.getOneList(selectedFile, revisionNumber);
+            CommittedChangesProvider committedChangesProvider = GitVcs.getInstance(myProject).getCommittedChangesProvider();
+            Pair<CommittedChangeList, FilePath> pair = committedChangesProvider.getOneList(selectedFile, revisionNumber);
             if (pair != null) {
                 return GitContentRevision.createRevision(pair.getSecond(), revisionNumber, myProject, selectedFile.getCharset());
             }
@@ -195,11 +196,9 @@ public class GitDiffProvider implements DiffProvider {
         if (filePath.isDirectory()) {
             return null;
         }
-        final VirtualFile vf = filePath.getVirtualFile();
-        if (vf != null) {
-            if (!ourGoodStatuses.contains(myStatusManager.getStatus(vf))) {
-                return null;
-            }
+        VirtualFile vf = filePath.getVirtualFile();
+        if (vf != null && !ourGoodStatuses.contains(myStatusManager.getStatus(vf))) {
+            return null;
         }
         try {
             return GitHistoryUtils.getLastRevision(myProject, filePath);

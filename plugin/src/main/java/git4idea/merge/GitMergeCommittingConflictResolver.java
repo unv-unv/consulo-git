@@ -19,8 +19,8 @@ import consulo.project.Project;
 import consulo.versionControlSystem.VcsException;
 import consulo.virtualFileSystem.VirtualFile;
 import git4idea.commands.Git;
-
 import jakarta.annotation.Nonnull;
+
 import java.util.Collection;
 
 /**
@@ -29,25 +29,32 @@ import java.util.Collection;
  * @author Kirill Likhodedov
  */
 public class GitMergeCommittingConflictResolver extends GitConflictResolver {
-  private final Collection<VirtualFile> myMergingRoots;
-  private final boolean myRefreshAfterCommit;
-  private final GitMerger myMerger;
+    private final Collection<VirtualFile> myMergingRoots;
+    private final boolean myRefreshAfterCommit;
+    private final GitMerger myMerger;
 
-  public GitMergeCommittingConflictResolver(Project project, @Nonnull Git git, GitMerger merger, Collection<VirtualFile> mergingRoots,
-                                            Params params, boolean refreshAfterCommit) {
-    super(project, git, mergingRoots, params);
-    myMerger = merger;
-    myMergingRoots = mergingRoots;
-    myRefreshAfterCommit = refreshAfterCommit;
-  }
-
-  @Override protected boolean proceedAfterAllMerged() throws VcsException {
-    myMerger.mergeCommit(myMergingRoots);
-    if (myRefreshAfterCommit) {
-      for (VirtualFile root : myMergingRoots) {
-        root.refresh(true, true);
-      }
+    public GitMergeCommittingConflictResolver(
+        Project project,
+        @Nonnull Git git,
+        GitMerger merger,
+        Collection<VirtualFile> mergingRoots,
+        Params params,
+        boolean refreshAfterCommit
+    ) {
+        super(project, git, mergingRoots, params);
+        myMerger = merger;
+        myMergingRoots = mergingRoots;
+        myRefreshAfterCommit = refreshAfterCommit;
     }
-    return true;
-  }
+
+    @Override
+    protected boolean proceedAfterAllMerged() throws VcsException {
+        myMerger.mergeCommit(myMergingRoots);
+        if (myRefreshAfterCommit) {
+            for (VirtualFile root : myMergingRoots) {
+                root.refresh(true, true);
+            }
+        }
+        return true;
+    }
 }

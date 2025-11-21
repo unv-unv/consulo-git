@@ -15,72 +15,64 @@
  */
 package git4idea.rebase;
 
+import jakarta.annotation.Nonnull;
+
 import java.util.Collection;
 import java.util.Collections;
 
-import jakarta.annotation.Nonnull;
+class GitRebaseStatus {
+    enum Type {
+        /**
+         * Rebase has completed successfully.
+         */
+        SUCCESS,
+        /**
+         * Rebase started, and some commits were already applied,
+         * but then rebase stopped because of conflicts, or to edit during interactive rebase, or because of an error.<br/>
+         * Such rebase can be retried/continued by calling `git rebase --continue/--skip`, or
+         * it can be aborted by calling `git rebase --abort`.
+         */
+        SUSPENDED,
+        /**
+         * Rebase started, but immediately stopped because of an error at the very beginning.
+         * As opposed to {@link #SUSPENDED}, no commits have been applied yet. <br/>
+         * Retrying such rebase requires calling `git rebase <all params>` again,
+         * there is nothing to abort.
+         */
+        ERROR,
+        /**
+         * Rebase hasn't started yet.
+         */
+        NOT_STARTED
+    }
 
-class GitRebaseStatus
-{
+    @Nonnull
+    private final Type myType;
+    @Nonnull
+    private final Collection<GitRebaseUtils.CommitInfo> mySkippedCommits;
 
-	enum Type
-	{
-		/**
-		 * Rebase has completed successfully.
-		 */
-		SUCCESS,
-		/**
-		 * Rebase started, and some commits were already applied,
-		 * but then rebase stopped because of conflicts, or to edit during interactive rebase, or because of an error.<br/>
-		 * Such rebase can be retried/continued by calling `git rebase --continue/--skip`, or
-		 * it can be aborted by calling `git rebase --abort`.
-		 */
-		SUSPENDED,
-		/**
-		 * Rebase started, but immediately stopped because of an error at the very beginning.
-		 * As opposed to {@link #SUSPENDED}, no commits have been applied yet. <br/>
-		 * Retrying such rebase requires calling `git rebase <all params>` again,
-		 * there is nothing to abort.
-		 */
-		ERROR,
-		/**
-		 * Rebase hasn't started yet.
-		 */
-		NOT_STARTED
-	}
+    @Nonnull
+    static GitRebaseStatus notStarted() {
+        return new GitRebaseStatus(Type.NOT_STARTED, Collections.<GitRebaseUtils.CommitInfo>emptyList());
+    }
 
-	@Nonnull
-	private final Type myType;
-	@Nonnull
-	private final Collection<GitRebaseUtils.CommitInfo> mySkippedCommits;
+    GitRebaseStatus(@Nonnull Type type, @Nonnull Collection<GitRebaseUtils.CommitInfo> skippedCommits) {
+        myType = type;
+        mySkippedCommits = skippedCommits;
+    }
 
-	@Nonnull
-	static GitRebaseStatus notStarted()
-	{
-		return new GitRebaseStatus(Type.NOT_STARTED, Collections.<GitRebaseUtils.CommitInfo>emptyList());
-	}
+    @Nonnull
+    Collection<GitRebaseUtils.CommitInfo> getSkippedCommits() {
+        return mySkippedCommits;
+    }
 
-	GitRebaseStatus(@Nonnull Type type, @Nonnull Collection<GitRebaseUtils.CommitInfo> skippedCommits)
-	{
-		myType = type;
-		mySkippedCommits = skippedCommits;
-	}
+    @Nonnull
+    Type getType() {
+        return myType;
+    }
 
-	@Nonnull
-	Collection<GitRebaseUtils.CommitInfo> getSkippedCommits()
-	{
-		return mySkippedCommits;
-	}
-
-	@Nonnull
-	Type getType()
-	{
-		return myType;
-	}
-
-	@Override
-	public String toString()
-	{
-		return myType.toString();
-	}
+    @Override
+    public String toString() {
+        return myType.toString();
+    }
 }

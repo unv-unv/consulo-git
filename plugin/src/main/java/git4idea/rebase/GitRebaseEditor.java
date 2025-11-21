@@ -15,10 +15,10 @@
  */
 package git4idea.rebase;
 
-import consulo.application.AllIcons;
 import consulo.application.dumb.DumbAware;
 import consulo.dataContext.DataProvider;
 import consulo.git.localize.GitLocalize;
+import consulo.platform.base.icon.PlatformIconGroup;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.CopyProvider;
@@ -60,11 +60,9 @@ public class GitRebaseEditor extends DialogWrapper implements DataProvider {
     @Nonnull
     private final CopyProvider myCopyProvider;
 
-    protected GitRebaseEditor(
-        @Nonnull Project project,
-        @Nonnull VirtualFile gitRoot,
-        @Nonnull List<GitRebaseEntry> entries
-    ) throws IOException {
+    protected GitRebaseEditor(@Nonnull Project project, @Nonnull VirtualFile gitRoot, @Nonnull List<GitRebaseEntry> entries)
+        throws IOException {
+
         super(project, true);
         myProject = project;
         myRoot = gitRoot;
@@ -76,9 +74,9 @@ public class GitRebaseEditor extends DialogWrapper implements DataProvider {
         myCommitsTable.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
         myCommitsTable.setIntercellSpacing(JBUI.emptySize());
 
-        final JComboBox editorComboBox = new ComboBox();
-        for (Object option : GitRebaseEntry.Action.values()) {
-            editorComboBox.addItem(option);
+        JComboBox<GitRebaseEntry.Action> editorComboBox = new ComboBox<>();
+        for (GitRebaseEntry.Action action : GitRebaseEntry.Action.values()) {
+            editorComboBox.addItem(action);
         }
         TableColumn actionColumn = myCommitsTable.getColumnModel().getColumn(MyTableModel.ACTION_COLUMN);
         actionColumn.setCellEditor(new DefaultCellEditor(editorComboBox));
@@ -123,7 +121,7 @@ public class GitRebaseEditor extends DialogWrapper implements DataProvider {
     }
 
     private void validateFields() {
-        final List<GitRebaseEntry> entries = myTableModel.myEntries;
+        List<GitRebaseEntry> entries = myTableModel.myEntries;
         if (entries.size() == 0) {
             setErrorText(GitLocalize.rebaseEditorInvalidEntryset());
             setOKActionEnabled(false);
@@ -230,7 +228,7 @@ public class GitRebaseEditor extends DialogWrapper implements DataProvider {
         }
 
         @Override
-        public void setValueAt(final Object aValue, final int rowIndex, final int columnIndex) {
+        public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
             assert columnIndex == ACTION_COLUMN;
 
             if (ArrayUtil.indexOf(myLastEditableSelectedRows, rowIndex) > -1) {
@@ -288,7 +286,7 @@ public class GitRebaseEditor extends DialogWrapper implements DataProvider {
         }
 
         @Override
-        public boolean isCellEditable(final int rowIndex, final int columnIndex) {
+        public boolean isCellEditable(int rowIndex, int columnIndex) {
             myLastEditableSelectedRows = myCommitsTable.getSelectedRows();
             return columnIndex == ACTION_COLUMN;
         }
@@ -296,11 +294,11 @@ public class GitRebaseEditor extends DialogWrapper implements DataProvider {
         public void moveRows(@Nonnull int[] rows, @Nonnull MoveDirection direction) {
             myCommitsTable.removeEditor();
 
-            final ContiguousIntIntervalTracker selectionInterval = new ContiguousIntIntervalTracker();
-            final ContiguousIntIntervalTracker rowsUpdatedInterval = new ContiguousIntIntervalTracker();
+            ContiguousIntIntervalTracker selectionInterval = new ContiguousIntIntervalTracker();
+            ContiguousIntIntervalTracker rowsUpdatedInterval = new ContiguousIntIntervalTracker();
 
             for (int row : direction.preprocessRowIndexes(rows)) {
-                final int targetIndex = row + direction.offset();
+                int targetIndex = row + direction.offset();
                 assertIndexInRange(row, targetIndex);
 
                 Collections.swap(myEntries, row, targetIndex);
@@ -377,7 +375,7 @@ public class GitRebaseEditor extends DialogWrapper implements DataProvider {
 
     private class MyDiffAction extends ToolbarDecorator.ElementActionButton implements DumbAware {
         MyDiffAction() {
-            super("View", "View commit contents", AllIcons.Actions.Diff);
+            super("View", "View commit contents", PlatformIconGroup.actionsDiff());
             registerCustomShortcutSet(CommonShortcuts.getDiff(), myCommitsTable);
         }
 
@@ -385,7 +383,7 @@ public class GitRebaseEditor extends DialogWrapper implements DataProvider {
         @RequiredUIAccess
         public void actionPerformed(@Nonnull AnActionEvent e) {
             int row = myCommitsTable.getSelectedRow();
-            assert row >= 0 && row < myTableModel.getRowCount();
+            assert 0 <= row && row < myTableModel.getRowCount();
             GitRebaseEntry entry = myTableModel.myEntries.get(row);
             GitUtil.showSubmittedFiles(myProject, entry.getCommit(), myRoot, false, false);
         }
@@ -404,6 +402,7 @@ public class GitRebaseEditor extends DialogWrapper implements DataProvider {
         }
 
         @Override
+        @RequiredUIAccess
         public void run(AnActionButton button) {
             myTableModel.moveRows(myCommitsTable.getSelectedRows(), direction);
         }

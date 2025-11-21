@@ -15,13 +15,11 @@
  */
 package git4idea.crlf;
 
-import consulo.application.util.SystemInfo;
+import consulo.platform.Platform;
 
 /**
  * @author Kirill Likhodedov
  */
 public class GitCrlfUtil {
-
-  public static final String RECOMMENDED_VALUE = SystemInfo.isWindows ? "true" : "input";
-
+    public static final String RECOMMENDED_VALUE = Platform.current().os().isWindows() ? "true" : "input";
 }

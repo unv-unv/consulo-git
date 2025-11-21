@@ -18,6 +18,7 @@ package git4idea.log;
 import consulo.util.collection.ContainerUtil;
 import consulo.versionControlSystem.VcsException;
 import consulo.versionControlSystem.log.*;
+import consulo.versionControlSystem.log.graph.GraphCommit;
 import consulo.versionControlSystem.log.util.BekUtil;
 import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nonnull;
@@ -59,7 +60,7 @@ class GitBekParentFixer {
     @Nonnull
     private static Set<Hash> getWrongCommits(@Nonnull GitLogProvider provider, @Nonnull VirtualFile root) throws VcsException {
         List<TimedVcsCommit> commitsMatchingFilter = provider.getCommitsMatchingFilter(root, MAGIC_FILTER, -1);
-        return ContainerUtil.map2Set(commitsMatchingFilter, timedVcsCommit -> timedVcsCommit.getId());
+        return ContainerUtil.map2Set(commitsMatchingFilter, GraphCommit::getId);
     }
 
     @Nonnull
@@ -127,7 +128,7 @@ class GitBekParentFixer {
                 return null;
             }
 
-            @Nullable
+            @Nonnull
             @Override
             public VcsLogTextFilter getTextFilter() {
                 return textFilter;

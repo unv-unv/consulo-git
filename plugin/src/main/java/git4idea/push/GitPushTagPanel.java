@@ -15,81 +15,58 @@
  */
 package git4idea.push;
 
-import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.JList;
-
-import jakarta.annotation.Nullable;
-
+import consulo.ui.ex.awt.ComboBox;
 import consulo.ui.ex.awt.JBCheckBox;
 import consulo.ui.ex.awt.ListCellRendererWrapper;
 import consulo.versionControlSystem.distributed.push.VcsPushOptionValue;
 import consulo.versionControlSystem.distributed.push.VcsPushOptionsPanel;
-import consulo.ui.ex.awt.ComboBox;
-import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+
+import javax.swing.*;
+import java.awt.*;
 
 @Deprecated
-public class GitPushTagPanel extends VcsPushOptionsPanel
-{
+public class GitPushTagPanel extends VcsPushOptionsPanel {
+    private final ComboBox<GitPushTagMode> myCombobox;
+    private final JBCheckBox myCheckBox;
 
-	private final ComboBox myCombobox;
-	private final JBCheckBox myCheckBox;
+    public GitPushTagPanel(@Nullable GitPushTagMode defaultMode, boolean followTagsSupported) {
+        String checkboxText = "Push Tags";
+        if (followTagsSupported) {
+            checkboxText += ": ";
+        }
+        myCheckBox = new JBCheckBox(checkboxText);
+        myCheckBox.setMnemonic('T');
+        myCheckBox.setSelected(defaultMode != null);
 
-	public GitPushTagPanel(@Nullable GitPushTagMode defaultMode, boolean followTagsSupported)
-	{
-		String checkboxText = "Push Tags";
-		if(followTagsSupported)
-		{
-			checkboxText += ": ";
-		}
-		myCheckBox = new JBCheckBox(checkboxText);
-		myCheckBox.setMnemonic('T');
-		myCheckBox.setSelected(defaultMode != null);
+        setLayout(new BorderLayout());
+        add(myCheckBox, BorderLayout.WEST);
 
-		setLayout(new BorderLayout());
-		add(myCheckBox, BorderLayout.WEST);
+        if (followTagsSupported) {
+            myCombobox = new ComboBox<>(GitPushTagMode.getValues());
+            myCombobox.setRenderer(new ListCellRendererWrapper<>() {
+                @Override
+                public void customize(JList list, GitPushTagMode value, int index, boolean selected, boolean hasFocus) {
+                    setText(value.getTitle());
+                }
+            });
+            myCombobox.setEnabled(myCheckBox.isSelected());
+            if (defaultMode != null) {
+                myCombobox.setSelectedItem(defaultMode);
+            }
 
-		if(followTagsSupported)
-		{
-			myCombobox = new ComboBox(GitPushTagMode.getValues());
-			myCombobox.setRenderer(new ListCellRendererWrapper<GitPushTagMode>()
-			{
-				@Override
-				public void customize(JList list, GitPushTagMode value, int index, boolean selected, boolean hasFocus)
-				{
-					setText(value.getTitle());
-				}
-			});
-			myCombobox.setEnabled(myCheckBox.isSelected());
-			if(defaultMode != null)
-			{
-				myCombobox.setSelectedItem(defaultMode);
-			}
+            myCheckBox.addActionListener(e -> myCombobox.setEnabled(myCheckBox.isSelected()));
+            add(myCombobox, BorderLayout.CENTER);
+        }
+        else {
+            myCombobox = null;
+        }
 
-			myCheckBox.addActionListener(new ActionListener()
-			{
-				@Override
-				public void actionPerformed(@Nonnull ActionEvent e)
-				{
-					myCombobox.setEnabled(myCheckBox.isSelected());
-				}
-			});
-			add(myCombobox, BorderLayout.CENTER);
-		}
-		else
-		{
-			myCombobox = null;
-		}
+    }
 
-	}
-
-	@Nullable
-	@Override
-	public VcsPushOptionValue getValue()
-	{
-		return myCheckBox.isSelected() ? myCombobox == null ? GitPushTagMode.ALL : (VcsPushOptionValue) myCombobox.getSelectedItem() : null;
-	}
-
+    @Nullable
+    @Override
+    public VcsPushOptionValue getValue() {
+        return myCheckBox.isSelected() ? myCombobox == null ? GitPushTagMode.ALL : (VcsPushOptionValue) myCombobox.getSelectedItem() : null;
+    }
 }
