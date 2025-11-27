@@ -1,65 +1,65 @@
 action.Annotate.with.Blame.text:
     text: A_nnotate with Git Blame
 action.Git.Pull.text:
-    text: Pull...
+    text: Pull…
 action.Git.Stash.Silently.text:
     text: Stash Silently
 action.Git.Stash.UnstashAs.description:
     text: Pop or apply selected stash as new branch with or without index
 action.Git.Stash.UnstashAs.text:
-    text: Unstash...
+    text: Unstash…
 action.add.text:
     text: Add
 action.branches.text:
-    text: _Branches...
+    text: _Branches…
 action.checkout.revision.text:
     text: Checkout Revision
 action.compare.with.branch.text:
-    text: Compare with Branch or Tag...
+    text: Compare with Branch or Tag…
 action.create.new.branch.description:
     text: Create new branch starting from the selected commit
 action.create.new.branch.text:
-    text: New Branch...
+    text: New Branch…
 action.create.new.tag.description:
     text: Create new tag pointing to this commit
 action.create.new.tag.text:
-    text: New Tag...
+    text: New Tag…
 action.fetch.text:
     text: Fetch
 action.init.text:
-    text: Create Git Repository...
+    text: Create Git Repository…
 action.log.deep.compare.description:
     text: Dims those commits which have equivalent changes in the current branch
 action.log.deep.compare.text:
     text: Highlight Non-picked Commits
 action.log.reset.text:
-    text: Reset Current Branch to Here...
+    text: Reset Current Branch to Here…
 action.merge.name:
     text: Merge
 action.merge.text:
-    text: Merge...
+    text: Merge…
 action.pull.text:
-    text: Pull...
+    text: Pull…
 action.rebase.abort.progress.title:
-    text: Aborting rebase process...
+    text: Aborting rebase process…
 action.rebase.abort.text:
     text: Abort Rebase
 action.rebase.continue.progress.title:
-    text: Continue rebase process...
+    text: Continue rebase process…
 action.rebase.continue.text:
     text: Continue Rebase
 action.rebase.skip.name:
     text: Skip Commit in Rebasing
 action.rebase.skip.progress.title:
-    text: Skip commit during rebase...
+    text: Skip commit during rebase…
 action.rebase.skip.text:
     text: Skip Commit
 action.rebase.text:
-    text: Rebase...
+    text: Rebase…
 action.reset.text:
-    text: Reset HEAD...
+    text: Reset HEAD…
 action.resolve.conflicts.text:
-    text: Resolve Conflicts...
+    text: Resolve Conflicts…
 action.selected.directory.text:
     text: Selected {0,choice,1#Directory|2#Directories}
 action.selected.file.text:
@@ -67,21 +67,21 @@ action.selected.file.text:
 action.stash.name:
     text: Stash
 action.stash.text:
-    text: Stash Changes...
+    text: Stash Changes…
 action.tag.name:
     text: Tag
 action.tag.text:
-    text: New Tag...
+    text: New Tag…
 action.text.show.all.submitted:
     text: Show all files changed by this commit
 action.unstash.name:
     text: Unstash
 action.unstash.text:
-    text: Unstash Changes...
+    text: Unstash Changes…
 add.action.name:
     text: Add
 add.adding:
-    text: Adding files...
+    text: Adding files…
 addrefspec.button:
     text: Add
 addrefspec.get.references:
@@ -128,7 +128,7 @@ branch.delete.warning:
 button.commit.all.files:
     text: Commit All Files
 changes.retrieving:
-    text: Retrieving changes for revision {0}
+    text: Retrieving Changes for Revision {0}
 checking.out:
     text: Checkout {0}
 checkout.action.name:
@@ -222,7 +222,7 @@ commit.amend:
 commit.amend.tooltip:
     text: <html>Merge this commit with the previous one</html>
 commit.author:
-    text: '&Author:'
+    text: 'A&uthor:'
 commit.author.tooltip:
     text: '<html>Specify a commit author here if it is different from committer. The author should be in the format: Author Name &lt;author@ema.il&gt;</html>'
 commit.partial.merge.message:
@@ -239,7 +239,7 @@ commit.push.changes.tooltip:
 common.current.branch:
     text: 'Current Branch:'
 common.current.branch.tooltip:
-    text: The currently checked out branch.
+    text: The currently checked-out branch.
 common.do.not.show:
     text: '&Do not show this dialog again'
 common.do.not.show.tooltip:
@@ -309,7 +309,7 @@ error.dialog.title:
 error.list.title:
     text: '{0} Error:'
 error.occurred.during:
-    text: Error occurred during ''{0}''
+    text: Error Occurred During ''{0}''
 errors.message:
     text: The Git operation ended with multiple errors:{0}
 errors.message.item:
@@ -410,7 +410,7 @@ git.light.status.bar.display.name:
 git.light.status.bar.text:
     text: 'Git: {0}'
 git.light.status.bar.tooltip:
-    text: 'Current Git Branch: {0}'
+    text: 'Current Git branch: {0}'
 git.new.tag.dialog.tag.name.label:
     text: Enter the name of new tag
 git.new.tag.dialog.title:
@@ -494,13 +494,13 @@ init.add.root.title:
 init.destination.directory.description:
     text: Select directory where the new Git repository will be created.
 init.destination.directory.title:
-    text: Select directory for git init
+    text: Create Git Repository
 init.warning.already.under.git:
     text: <html>The selected directory <tt>{0}</tt> is already under Git.<br/>Are you sure that you want to create a new VCS root?</html>
 init.warning.title:
     text: Git Init
 initializing.title:
-    text: Initializing repository...
+    text: Initializing repository…
 merge.add.log.information:
     text: Add &log information
 merge.add.log.information.tooltip:
@@ -510,7 +510,7 @@ merge.branch.button:
 merge.branch.message:
     text: Select branch to merge into this one ({0})
 merge.branch.title:
-    text: Merge Branches
+    text: Merge Changes
 merge.branches:
     text: '&Branches to merge:'
 merge.branches.tooltip:
@@ -620,7 +620,7 @@ push.active.fetch.tooltip:
 push.active.fetching:
     text: Fetching changes for active branches
 push.active.pushing:
-    text: Pushing branches...
+    text: Pushing branches…
 push.active.rebase:
     text: '&Rebase'
 push.active.rebase.and.push:
@@ -628,7 +628,7 @@ push.active.rebase.and.push:
 push.active.rebase.tooltip:
     text: Rebase branches in order to make push possible (might reorder commits)
 push.active.rebasing:
-    text: Rebasing ...
+    text: Rebasing…
 push.active.save.before.rebase:
     text: 'Clean working tree before rebase:'
 push.active.status.behind:
@@ -830,7 +830,7 @@ refspec.add.all.tags:
 refspec.add.all.tags.tooltip:
     text: Adds mapping entry for all tags
 refspec.add.ref:
-    text: '&Add...'
+    text: '&Add…'
 refspec.add.ref.tooltip:
     text: Add branch or tag by name
 refspec.branch.prefix:
@@ -860,17 +860,17 @@ refspec.validation.remote.is.blank:
 regase.show.tags:
     text: Show &tags
 remove.removing:
-    text: Removing files...
+    text: Removing files…
 repository.action.missing.roots.misconfigured:
-    text: None of configured Git roots are under Git. The configured directory or some of its ancestors must have ".git" directory in it.
+    text: None of configured Git roots are under Git. The configured directory must have ".git" directory in it.
 repository.action.missing.roots.title:
-    text: No Git roots
+    text: No Git Roots
 repository.action.missing.roots.unconfigured.message:
     text: No Git roots are configured for the project.
 repository.not.found.error:
     text: Cannot find configured Git repository for {0}
 reset.action.name:
-    text: Reset Head ...
+    text: Reset Head…
 reset.button:
     text: Reset
 reset.commit.invalid:
@@ -898,11 +898,11 @@ reset.validate:
 reset.validate.tooltip:
     text: Validate the commit pointer and check the content of referenced commit.
 resetting.title:
-    text: Resetting HEAD...
+    text: Resetting HEAD…
 revert.action.name:
     text: '&Revert'
 revert.reverting:
-    text: Reverting files...
+    text: Reverting files…
 revert.reverting.mulitple:
     text: Reverting {0} files
 revision.graph:
@@ -914,11 +914,11 @@ root.tracker.message.title:
 select.branch.to.checkout:
     text: Select branch to checkout
 settings.auto.update.on.push.rejected:
-    text: Auto-update if &push of the current branch was rejected
+    text: Auto-update if push of the current branch was rejected
 settings.commit.automatically.on.cherry.pick:
     text: Commit automatically on cherry-pick
 settings.crlf:
-    text: Warn if &CRLF line separators are about to be committed
+    text: Warn if CRLF line separators are about to be committed
 settings.detached.head:
     text: Warn when committing in detached HEAD or during rebase
 settings.protected.branched:
@@ -956,15 +956,15 @@ stash.button:
 stash.keep.index:
     text: Keep &index
 stash.keep.index.tooltip:
-    text: If this checkbox is selected, indexed changes are kept in the index.
+    text: If this checkbox is selected, all changes already added to the index are left intact
 stash.message:
     text: '&Message:'
 stash.message.tooltip:
-    text: Enter stash message here.
+    text: Enter stash message here
 stash.title:
     text: Stash
 stashing.title:
-    text: Stashing changes...
+    text: Stashing Changes…
 tag.button:
     text: Create Tag
 tag.commit.label:
@@ -982,9 +982,9 @@ tag.error.tag.exists:
 tag.force:
     text: '&Force'
 tag.force.tooltip:
-    text: Force creation of the text even if tag with such name already exists.
+    text: Force creation of the tag even if another tag with such name already exists.
 tag.getting.existing.tags:
-    text: Getting existing tags...
+    text: Getting Existing Tags…
 tag.message:
     text: 'Specify tag name:'
 tag.message.label:
@@ -1006,17 +1006,17 @@ tag.validate:
 tag.validate.tooltip:
     text: Click this button to the validate commit to be tagged.
 tagging.title:
-    text: Tagging files...
+    text: Tagging files…
 task.queue.title:
     text: Git Operations
 task.rebasing.title:
-    text: Rebasing...
+    text: Rebasing…
 unindexed.files.changlelist.name:
     text: Unindexed Files
 unstash.branch.label:
     text: 'As new &branch:'
 unstash.branch.tooltip:
-    text: If non-empty name is entered, the stash is checked out as a new branch.
+    text: If non-empty name is entered, the stash is checked out as a new branch
 unstash.button.apply:
     text: Apply Stash
 unstash.button.branch:
@@ -1026,15 +1026,15 @@ unstash.button.pop:
 unstash.clear:
     text: '&Clear'
 unstash.clear.tooltip:
-    text: Delete all stashes in the repository.
+    text: Delete all stashes in the repository
 unstash.clearing.stashes:
-    text: Clearing stashes...
+    text: Clearing stashes…
 unstash.drop:
     text: '&Drop'
 unstash.drop.tooltip:
     text: Delete selected stash
 unstash.dropping.stash:
-    text: Dropping stash {0}...
+    text: Dropping stash {0}…
 unstash.error.branch.exists:
     text: The specified branch already exists
 unstash.error.invalid.branch.name:
@@ -1056,13 +1056,13 @@ unstash.stashes.tooltip:
 unstash.title:
     text: UnStash Changes
 unstash.unstashing:
-    text: Unstashing...
+    text: Unstashing…
 unstash.view:
     text: '&View'
 unstash.view.tooltip:
     text: View selected stash
 unstashing.title:
-    text: UnStashing changes...
+    text: UnStashing changes…
 update.locally.modified.files:
     text: '&Files:'
 update.locally.modified.files.tooltip:
@@ -1126,7 +1126,7 @@ update.rebase.unmerged:
 update.rebase.unmerged.title:
     text: Unresolved Rebase Conflicts
 update.restoring.change.lists:
-    text: Restoring change lists...
+    text: Restoring change lists…
 update.root.rebasing:
     text: The root {0} has unfinished rebase process.
 update.root.rebasing.item:
@@ -1136,9 +1136,9 @@ update.root.rebasing.message:
 update.root.rebasing.title:
     text: Unfinished Rebase Process
 update.shelving.changes:
-    text: Shelving changes...
+    text: Shelving changes…
 update.unshelving.changes:
-    text: Unshelving Changes...
+    text: Unshelving Changes…
 util.remote.renderer.default:
     text: <html><b>{0}</b>(<i>{1}</i>)</html>
 util.remote.renderer.none:
@@ -1158,19 +1158,19 @@ vfs.listener.add.single.prompt:
         Do you want to add the following file to Git?
         {0}
 
-        If you say No, you can still add it later manually.
+        If you choose Cancel, you can still add it later manually.
 vfs.listener.add.single.title:
     text: Add File to Git
 vfs.listener.add.title:
     text: Add Files to Git
 vfs.listener.checking.ignored:
-    text: Checking for ignored files
+    text: Checking for ignored files…
 vfs.listener.delete.single.prompt:
     text: |-
         Do you want to delete the following file from Git?
         {0}
 
-        If you say No, you can still delete it later manually.
+        If you choose Cancel, you can still delete it later manually.
 vfs.listener.delete.single.title:
     text: Delete File from Git
 vfs.listener.delete.title:
