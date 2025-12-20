@@ -1,6 +1,5 @@
 package git4idea.log;
 
-import consulo.logging.Logger;
 import consulo.util.collection.ArrayUtil;
 import consulo.util.collection.ContainerUtil;
 import consulo.util.collection.MultiMap;
@@ -20,6 +19,8 @@ import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.io.DataInput;
@@ -32,6 +33,8 @@ import java.util.*;
  * @author Kirill Likhodedov
  */
 public class GitRefManager implements VcsLogRefManager {
+    private static final Logger LOG = LoggerFactory.getLogger(GitRefManager.class);
+
     public static final VcsRefType HEAD = new SimpleRefType(true, VcsLogStandardColors.Refs.TIP, "HEAD");
     public static final VcsRefType LOCAL_BRANCH = new SimpleRefType(true, VcsLogStandardColors.Refs.BRANCH, "LOCAL_BRANCH");
     public static final VcsRefType REMOTE_BRANCH = new SimpleRefType(true, VcsLogStandardColors.Refs.BRANCH_REF, "REMOTE_BRANCH");
@@ -42,7 +45,6 @@ public class GitRefManager implements VcsLogRefManager {
 
     public static final String MASTER = "master";
     public static final String ORIGIN_MASTER = "origin/master";
-    private static final Logger LOG = Logger.getInstance(GitRefManager.class);
     private static final String REMOTE_TABLE_SEPARATOR = " & ";
     private static final String SEPARATOR = "/";
 
@@ -98,7 +100,7 @@ public class GitRefManager implements VcsLogRefManager {
 
             GitRepository repository = myRepositoryManager.getRepositoryForRoot(root);
             if (repository == null) {
-                LOG.warn("No repository for root: " + root);
+                LOG.warn("No repository for root: {}", root);
                 continue;
             }
 
@@ -123,7 +125,7 @@ public class GitRefManager implements VcsLogRefManager {
                     }
                 }
                 else {
-                    LOG.debug("Didn't find ref neither in local nor in remote branches: " + ref);
+                    LOG.debug("Didn't find ref neither in local nor in remote branches: {}", ref);
                 }
             }
         }
@@ -158,7 +160,7 @@ public class GitRefManager implements VcsLogRefManager {
         VcsRef head = null;
         Map.Entry<VcsRefType, Collection<VcsRef>> firstGroup = ObjectUtil.notNull(ContainerUtil.getFirstItem(groupedRefs.entrySet()));
         if (firstGroup.getKey().equals(HEAD)) {
-            head = ObjectUtil.assertNotNull(ContainerUtil.getFirstItem(firstGroup.getValue()));
+            head = Objects.requireNonNull(ContainerUtil.getFirstItem(firstGroup.getValue()));
             groupedRefs.remove(HEAD, head);
         }
 
@@ -166,27 +168,26 @@ public class GitRefManager implements VcsLogRefManager {
         if (repository != null) {
             result.addAll(getTrackedRefs(groupedRefs, repository));
         }
-        result.forEach(refGroup ->
-        {
+        result.forEach(refGroup -> {
             groupedRefs.remove(LOCAL_BRANCH, refGroup.getRefs().get(0));
             groupedRefs.remove(REMOTE_BRANCH, refGroup.getRefs().get(1));
         });
 
-        SimpleRefGroup.buildGroups(groupedRefs, compact, showTagNames, result);
+        result = SimpleRefGroup.buildGroups(result, groupedRefs, compact, showTagNames);
 
-        if (head != null) {
-            if (repository != null && !repository.isOnBranch()) {
-                result.add(0, new SimpleRefGroup("!", Collections.singletonList(head)));
-            }
-            else {
-                if (!result.isEmpty()) {
-                    RefGroup first = ObjectUtil.assertNotNull(ContainerUtil.getFirstItem(result));
-                    first.getRefs().add(0, head);
-                }
-                else {
-                    result.add(0, new SimpleRefGroup("", Collections.singletonList(head)));
-                }
-            }
+        if (head == null) {
+            return result;
+        }
+
+        if (repository != null && !repository.isOnBranch()) {
+            result.add(0, new SimpleRefGroup("!", Collections.singletonList(head)));
+        }
+        else if (!result.isEmpty()) {
+            RefGroup first = ObjectUtil.assertNotNull(ContainerUtil.getFirstItem(result));
+            first.getRefs().add(0, head);
+        }
+        else {
+            result.add(0, new SimpleRefGroup("", Collections.singletonList(head)));
         }
 
         return result;
@@ -254,7 +255,7 @@ public class GitRefManager implements VcsLogRefManager {
         VcsRef ref = ObjectUtil.assertNotNull(ContainerUtil.getFirstItem(references));
         GitRepository repository = myRepositoryManager.getRepositoryForRoot(ref.getRoot());
         if (repository == null) {
-            LOG.warn("No repository for root: " + ref.getRoot());
+            LOG.warn("No repository for root: {}", ref.getRoot());
         }
         return repository;
     }
@@ -331,58 +332,25 @@ public class GitRefManager implements VcsLogRefManager {
         return OTHER;
     }
 
-    private static class SimpleRefType implements VcsRefType {
-        private final boolean myIsBranch;
-        @Nonnull
-        private final Color myColor;
-        @Nonnull
-        private final String myName;
-
-        public SimpleRefType(boolean isBranch, @Nonnull Color color, @Nonnull String typeName) {
-            myIsBranch = isBranch;
-            myColor = color;
-            myName = typeName;
-        }
-
-        @Override
-        public boolean isBranch() {
-            return myIsBranch;
-        }
-
+    private static record SimpleRefType(boolean isBranch, @Nonnull Color color, @Nonnull String typeName) implements VcsRefType {
         @Nonnull
         @Override
         public Color getBackgroundColor() {
-            return myColor;
+            return color;
         }
 
         @Override
         public String toString() {
-            return myName;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            SimpleRefType type = (SimpleRefType) o;
-            return myIsBranch == type.myIsBranch && Objects.equals(myName, type.myName);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(myIsBranch, myName);
+            return typeName;
         }
     }
 
     private static class LogicalRefGroup implements RefGroup {
+        @Nonnull
         private final String myGroupName;
         private final List<VcsRef> myRefs;
 
-        private LogicalRefGroup(String groupName, List<VcsRef> refs) {
+        private LogicalRefGroup(@Nonnull String groupName, List<VcsRef> refs) {
             myGroupName = groupName;
             myRefs = refs;
         }
@@ -413,11 +381,11 @@ public class GitRefManager implements VcsLogRefManager {
 
     private class RemoteRefGroup implements RefGroup {
         private final GitRemote myRemote;
-        private final Collection<VcsRef> myBranches;
+        private final List<VcsRef> myBranches;
 
         public RemoteRefGroup(GitRemote remote, Collection<VcsRef> branches) {
             myRemote = remote;
-            myBranches = branches;
+            myBranches = new ArrayList<>(branches);
         }
 
         @Override
@@ -500,8 +468,9 @@ public class GitRefManager implements VcsLogRefManager {
 
         @Override
         public int compare(@Nonnull VcsRef ref1, @Nonnull VcsRef ref2) {
-            int power1 = ArrayUtil.find(getOrderedTypes(), getType(ref1));
-            int power2 = ArrayUtil.find(getOrderedTypes(), getType(ref2));
+            RefType[] orderedTypes = getOrderedTypes();
+            int power1 = ArrayUtil.find(orderedTypes, getType(ref1));
+            int power2 = ArrayUtil.find(orderedTypes, getType(ref2));
             if (power1 != power2) {
                 return power1 - power2;
             }
@@ -543,7 +512,7 @@ public class GitRefManager implements VcsLogRefManager {
         private boolean isTracked(@Nonnull VcsRef ref, boolean remoteBranch) {
             GitRepository repo = myRepositoryManager.getRepositoryForRoot(ref.getRoot());
             if (repo == null) {
-                LOG.error("Undefined root " + ref.getRoot());
+                LOG.error("Undefined root {}", ref.getRoot());
                 return false;
             }
             return ContainerUtil.exists(
