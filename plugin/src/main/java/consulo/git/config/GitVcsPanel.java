@@ -235,7 +235,10 @@ public class GitVcsPanel {
     @RequiredUIAccess
     public void save(@Nonnull GitVcsSettings settings, GitSharedSettings sharedSettings) {
         settings.getAppSettings().setPathToGit(getCurrentExecutablePath());
-        myVcs.checkVersion();
+        // run check later
+        myProject.getUIAccess().give(() -> Task.Backgroundable.queue(myProject, "Checking Git Version...", progressIndicator -> {
+            myVcs.checkVersion();
+        }));
         settings.getAppSettings().setIdeaSsh(mySSHExecutableComboBox.getValueOrError());
         settings.setAutoUpdateIfPushRejected(myAutoUpdateIfPushRejected.getValueOrError());
 
