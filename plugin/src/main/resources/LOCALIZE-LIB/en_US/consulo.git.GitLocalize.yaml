@@ -452,9 +452,9 @@ git.vcs.config.path.label:
 git.vcs.config.ssh.mode:
     text: '&SSH executable:'
 git.vcs.config.ssh.mode.idea:
-    text: Built-in
+    text: Built-in (IDE)
 git.vcs.config.ssh.mode.native:
-    text: Native
+    text: Native (OS)
 git.vcs.config.ssh.mode.putty:
     text: Putty
 git.vcs.config.ssh.mode.tooltip:
