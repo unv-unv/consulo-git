@@ -28,6 +28,7 @@ import consulo.util.interner.Interner;
 import consulo.util.lang.ObjectUtil;
 import consulo.util.lang.StringUtil;
 import consulo.util.lang.function.ThrowableFunction;
+import consulo.util.nodep.ArrayUtilRt;
 import consulo.versionControlSystem.FilePath;
 import consulo.versionControlSystem.VcsException;
 import consulo.versionControlSystem.VcsKey;
@@ -333,17 +334,22 @@ public class GitLogProvider implements VcsLogProvider {
     }
 
     @Nonnull
-    private DetailedLogData loadSomeCommitsOnTaggedBranches(
-        @Nonnull VirtualFile root,
-        int commitCount,
-        @Nonnull Collection<String> unmatchedTags
-    ) throws VcsException {
-        StopWatch sw = StopWatch.start("loading commits on tagged branch in " + root.getName());
+    private DetailedLogData loadSomeCommitsOnTaggedBranches(@Nonnull VirtualFile root,
+                                                            int commitCount,
+                                                            @Nonnull Collection<String> unmatchedTags) throws VcsException {
         List<String> params = new ArrayList<>();
         params.add("--max-count=" + commitCount);
-        params.addAll(unmatchedTags);
-        sw.report();
-        return GitHistoryUtils.loadMetadata(myProject, root, ArrayUtil.toStringArray(params));
+
+        Set<VcsRef> refs = new HashSet<>();
+        Set<VcsCommitMetadata> commits = new HashSet<>();
+        VcsFileUtil.foreachChunk(new ArrayList<>(unmatchedTags), 1, tagsChunk -> {
+            String[] parameters = ArrayUtilRt.toStringArray(ContainerUtil.concat(params, tagsChunk));
+            DetailedLogData logData = GitHistoryUtils.loadMetadata(myProject, root, parameters);
+            refs.addAll(logData.getRefs());
+            commits.addAll(logData.getCommits());
+        });
+
+        return new LogDataImpl(refs, new ArrayList<>(commits));
     }
 
     @Override
