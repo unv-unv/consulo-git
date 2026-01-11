@@ -72,7 +72,7 @@ public class GitBranchUiHandlerImpl implements GitBranchUiHandler {
         AtomicBoolean ok = new AtomicBoolean();
         UIUtil.invokeAndWaitIfNeeded((Runnable) () -> {
             StringBuilder description = new StringBuilder();
-            if (message != LocalizeValue.empty()) {
+            if (message.isNotEmpty()) {
                 description.append(message).append("<br/>");
             }
             description.append(rollbackProposal);

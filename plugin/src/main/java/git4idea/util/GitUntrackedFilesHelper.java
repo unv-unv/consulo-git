@@ -71,7 +71,7 @@ public class GitUntrackedFilesHelper {
         NotificationService.getInstance().newError(VcsNotifier.IMPORTANT_ERROR_NOTIFICATION)
             .title(LocalizeValue.localizeTODO(operation.capitalize() + " failed"))
             .content(
-                description == LocalizeValue.empty()
+                description.isEmpty()
                     ? createUntrackedFilesOverwrittenDescription(operation, true)
                     : description
             )

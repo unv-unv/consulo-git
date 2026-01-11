@@ -96,7 +96,7 @@ class GitDefineRemoteDialog extends DialogWrapper {
     @RequiredUIAccess
     protected void doOKAction() {
         LocalizeValue error = validateRemoteUnderModal(getRemoteName(), getRemoteUrl());
-        if (error != LocalizeValue.empty()) {
+        if (error.isNotEmpty()) {
             Messages.showErrorDialog(myRepository.getProject(), error.get(), "Invalid Remote");
         }
         else {

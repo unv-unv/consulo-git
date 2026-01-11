@@ -344,7 +344,7 @@ public class GitFetcher {
             LOG.info("fetching " + repository);
             GitFetchResult result = fetch(repository);
             LocalizeValue ai = result.getAdditionalInfo();
-            if (ai != LocalizeValue.empty()) {
+            if (ai.isNotEmpty()) {
                 additionalInfo.put(repository.getRoot(), ai.get());
             }
             if (!result.isSuccess()) {

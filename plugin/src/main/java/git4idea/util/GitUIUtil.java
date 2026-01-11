@@ -141,7 +141,7 @@ public class GitUIUtil {
         Collection<VcsException> gitErrors
     ) {
         StringBuilder content = new StringBuilder();
-        if (description != LocalizeValue.empty()) {
+        if (description.isNotEmpty()) {
             content.append(description);
         }
         if (!gitErrors.isEmpty()) {

@@ -1019,7 +1019,7 @@ public class GitUtil {
     ) {
         DialogBuilder builder = new DialogBuilder(project);
         builder.setCenterPanel(new GitSimplePathsBrowser(project, absolutePaths));
-        if (description != LocalizeValue.empty()) {
+        if (description.isNotEmpty()) {
             builder.setNorthPanel(new MultiLineLabel(description.get()));
         }
         builder.addOkAction();

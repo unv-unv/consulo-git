@@ -175,7 +175,7 @@ public class GitHandlerUtil {
             () -> {
                 if (indicator != null) {
                     indicator.setTextValue(
-                        operationName == LocalizeValue.empty()
+                        operationName.isEmpty()
                             ? GitLocalize.gitRunning(handler.printableCommandLine())
                             : operationName
                     );
