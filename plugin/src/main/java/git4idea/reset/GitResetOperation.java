@@ -176,7 +176,7 @@ public class GitResetOperation {
     private static LocalizeValue formErrorReport(@Nonnull Map<GitRepository, GitCommandResult> errorResults) {
         MultiMap<LocalizeValue, GitRepository> grouped = groupByResult(errorResults);
         if (grouped.size() == 1) {
-            return grouped.keySet().iterator().next().map((localizeManager, string) -> "<code>" + string + "</code>");
+            return grouped.keySet().iterator().next().map(s -> "<code>" + s + "</code>");
         }
         return LocalizeValue.localizeTODO(StringUtil.join(
             grouped.entrySet(),

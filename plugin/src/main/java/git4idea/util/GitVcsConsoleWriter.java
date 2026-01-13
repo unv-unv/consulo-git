@@ -14,10 +14,10 @@ import consulo.util.lang.Pair;
 import consulo.util.lang.StringUtil;
 import consulo.versionControlSystem.ProjectLevelVcsManager;
 import consulo.versionControlSystem.VcsConsoleLine;
+import jakarta.annotation.Nonnull;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
-import jakarta.annotation.Nonnull;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -78,7 +78,7 @@ public final class GitVcsConsoleWriter {
    */
   public void showMessage(@Nonnull LocalizeValue message, @Nonnull ConsoleViewContentType contentType) {
     LocalizeValue shortMessage =
-        message.map(((localizeManager, value) -> StringUtil.shortenPathWithEllipsis(value, MAX_CONSOLE_OUTPUT_SIZE)));
+        message.map(value -> StringUtil.shortenPathWithEllipsis(value, MAX_CONSOLE_OUTPUT_SIZE));
     ProjectLevelVcsManager.getInstance(myProject).addMessageToConsoleWindow(shortMessage.get(), contentType);
   }
 

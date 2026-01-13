@@ -88,7 +88,7 @@ public class GitUntrackedFilesHelper {
                         LegacyDialog legacyDialog = componentFactory.createSelectFilesDialogOnlyOk(
                             project,
                             new ArrayList<>(untrackedFiles),
-                            dialogDesc.map((localizeManager, string) -> StringUtil.stripHtml(string, true)).get(),
+                            dialogDesc.map(s -> StringUtil.stripHtml(s, true)).get(),
                             null,
                             false,
                             false,
@@ -155,7 +155,7 @@ public class GitUntrackedFilesHelper {
                 }
                 LocalizeValue title = LocalizeValue.localizeTODO("Could not " + operationName.capitalize());
                 LocalizeValue description = createUntrackedFilesOverwrittenDescription(operationName, false)
-                    .map((localizeManager, string) -> StringUtil.stripHtml(string, true));
+                    .map(string -> StringUtil.stripHtml(string, true));
                 DialogWrapper dialog = new UntrackedFilesRollBackDialog(project, filesBrowser, description, rollbackProposal);
                 dialog.setTitle(title);
                 DialogManager.show(dialog);
@@ -194,9 +194,7 @@ public class GitUntrackedFilesHelper {
         protected JComponent createSouthPanel() {
             JComponent buttons = super.createSouthPanel();
             JPanel panel = new JPanel(new VerticalFlowLayout());
-            panel.add(
-                new JBLabel(myRollbackProposal.map((localizeManager, string) -> XmlStringUtil.wrapInHtml(string)).get())
-            );
+            panel.add(new JBLabel(myRollbackProposal.map(XmlStringUtil::wrapInHtml).get()));
             if (buttons != null) {
                 panel.add(buttons);
             }

@@ -61,7 +61,7 @@ public class GitUIUtil {
         boolean important,
         @Nullable Collection<String> messages
     ) {
-        LocalizeValue desc = description.map((localizeManager, string) -> string.replace("\n", "<br/>"));
+        LocalizeValue desc = description.map(s -> s.replace("\n", "<br/>"));
         if (messages != null && !messages.isEmpty()) {
             desc = LocalizeValue.join(desc, LocalizeValue.of(StringUtil.join(messages, "<hr/><br/>")));
         }
