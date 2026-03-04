@@ -34,7 +34,6 @@ import java.util.Map;
 import static consulo.versionControlSystem.distributed.DvcsUtil.getShortRepositoryName;
 
 public class GitNewResetDialog extends DialogWrapper {
-
     private static final String DIALOG_ID = "git.new.reset.dialog";
 
     @Nonnull
@@ -123,8 +122,10 @@ public class GitNewResetDialog extends DialogWrapper {
 
     @Nonnull
     private static String getTargetText(@Nonnull VcsFullCommitDetails commit) {
-        String commitMessage = StringUtil.escapeXml(StringUtil.shortenTextWithEllipsis(commit.getSubject(), 20, 0));
-        return String.format("<code><b>%s</b> \"%s\"</code> by <code>%s</code>", commit.getId().toShortString(), commitMessage,
+        String commitMessage = XmlStringUtil.escapeText(StringUtil.shortenTextWithEllipsis(commit.getSubject(), 20, 0));
+        return String.format("<code><b>%s</b> \"%s\"</code> by <code>%s</code>",
+            commit.getId().toShortString(),
+            commitMessage,
             commit.getAuthor().getName()
         );
     }
@@ -147,5 +148,4 @@ public class GitNewResetDialog extends DialogWrapper {
     public GitResetMode getResetMode() {
         return myEnumModel.getSelected();
     }
-
 }

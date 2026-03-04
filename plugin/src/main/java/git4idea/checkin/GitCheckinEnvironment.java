@@ -23,7 +23,6 @@ import consulo.git.localize.GitLocalize;
 import consulo.ide.ServiceManager;
 import consulo.language.editor.ui.awt.*;
 import consulo.localize.LocalizeValue;
-import consulo.logging.Logger;
 import consulo.platform.Platform;
 import consulo.platform.base.localize.CommonLocalize;
 import consulo.project.Project;
@@ -39,6 +38,7 @@ import consulo.util.lang.StringUtil;
 import consulo.util.lang.function.Functions;
 import consulo.util.lang.function.PairConsumer;
 import consulo.util.lang.ref.SimpleReference;
+import consulo.util.lang.xml.XmlStringUtil;
 import consulo.versionControlSystem.FilePath;
 import consulo.versionControlSystem.VcsException;
 import consulo.versionControlSystem.change.*;
@@ -75,6 +75,8 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -90,11 +92,10 @@ import java.util.function.Predicate;
 
 import static consulo.util.collection.ContainerUtil.*;
 import static consulo.util.lang.ObjectUtil.assertNotNull;
-import static consulo.util.lang.StringUtil.escapeXml;
 import static consulo.versionControlSystem.change.ChangesUtil.getAfterPath;
 import static consulo.versionControlSystem.change.ChangesUtil.getBeforePath;
 import static consulo.versionControlSystem.distributed.DvcsUtil.getShortRepositoryName;
-import static git4idea.GitUtil.getLogString;
+import static git4idea.GitUtil.LogString;
 import static git4idea.GitUtil.getRepositoryManager;
 import static java.util.Arrays.asList;
 
@@ -102,7 +103,7 @@ import static java.util.Arrays.asList;
 @ServiceAPI(ComponentScope.PROJECT)
 @ServiceImpl
 public class GitCheckinEnvironment implements CheckinEnvironment {
-    private static final Logger LOG = Logger.getInstance(GitCheckinEnvironment.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GitCheckinEnvironment.class);
     private static final String GIT_COMMIT_MSG_FILE_PREFIX = "git-commit-msg-"; // the file name prefix for commit message file
     private static final String GIT_COMMIT_MSG_FILE_EXT = ".txt"; // the file extension for commit message file
 
@@ -157,7 +158,7 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
         for (VirtualFile root : GitUtil.gitRoots(asList(filesToCheckin))) {
             GitRepository repository = manager.getRepositoryForRoot(root);
             if (repository == null) { // unregistered nested submodule found by GitUtil.getGitRoot
-                LOG.warn("Unregistered repository: " + root);
+                LOG.warn("Unregistered repository: {}", root);
                 continue;
             }
             File mergeMsg = repository.getRepositoryFiles().getMergeMessageFile();
@@ -175,9 +176,7 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
                 }
             }
             catch (IOException e) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Unable to load merge message", e);
-                }
+                LOG.debug("Unable to load merge message", e);
             }
         }
         return DvcsUtil.joinMessagesOrNull(messages);
@@ -208,7 +207,9 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
     ) {
         List<VcsException> exceptions = new ArrayList<>();
         Map<VirtualFile, Collection<Change>> sortedChanges = sortChangesByGitRoot(changes, exceptions);
-        LOG.assertTrue(!sortedChanges.isEmpty(), "Trying to commit an empty list of changes: " + changes);
+        if (sortedChanges.isEmpty()) {
+            LOG.error("Trying to commit an empty list of changes: {}", changes);
+        }
         for (Map.Entry<VirtualFile, Collection<Change>> entry : sortedChanges.entrySet()) {
             VirtualFile root = entry.getKey();
             File messageFile;
@@ -279,7 +280,7 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
             }
             finally {
                 if (!messageFile.delete()) {
-                    LOG.warn("Failed to remove temporary file: " + messageFile);
+                    LOG.warn("Failed to remove temporary file: {}", messageFile);
                 }
             }
         }
@@ -316,15 +317,14 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
     ) {
         String rootPath = root.getPath();
         LOG.info(
-            "Committing case only rename: " + getLogString(rootPath, caseOnlyRenames) + " in " +
-                getShortRepositoryName(project, root)
+            "Committing case only rename: {} in {}", new LogString(rootPath, caseOnlyRenames), getShortRepositoryName(project, root)
         );
 
         // 1. Check what is staged besides case-only renames
         Collection<Change> stagedChanges;
         try {
             stagedChanges = GitChangeUtils.getStagedChanges(project, root);
-            LOG.debug("Found staged changes: " + getLogString(rootPath, stagedChanges));
+            LOG.debug("Found staged changes: {}", new LogString(rootPath, stagedChanges));
         }
         catch (VcsException e) {
             return Collections.singletonList(e);
@@ -338,7 +338,7 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
                 && !removed.contains(getBeforePath(change))
         );
         if (!excludedStagedChanges.isEmpty()) {
-            LOG.info("Staged changes excluded for commit: " + getLogString(rootPath, excludedStagedChanges));
+            LOG.info("Staged changes excluded for commit: {}", new LogString(rootPath, excludedStagedChanges));
             try {
                 reset(project, root, excludedStagedChanges);
             }
@@ -351,7 +351,7 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
         try {
             // 3. Stage what else is needed to commit
             List<FilePath> newPathsOfCaseRenames = map(caseOnlyRenames, ChangesUtil::getAfterPath);
-            LOG.debug("Updating index for added:" + added + "\n, removed: " + removed + "\n, and case-renames: " + newPathsOfCaseRenames);
+            LOG.debug("Updating index for added: {}\n, removed: {}\n, and case-renames: {}", added, removed, newPathsOfCaseRenames);
             Set<FilePath> toAdd = new HashSet<>(added);
             toAdd.addAll(newPathsOfCaseRenames);
             updateIndex(project, root, toAdd, removed, exceptions);
@@ -371,7 +371,7 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
         finally {
             // 5. Stage back the changes unstaged before commit
             if (!excludedStagedChanges.isEmpty()) {
-                LOG.debug("Restoring changes which were unstaged before commit: " + getLogString(rootPath, excludedStagedChanges));
+                LOG.debug("Restoring changes which were unstaged before commit: {}", new LogString(rootPath, excludedStagedChanges));
                 Set<FilePath> toAdd = map2SetNotNull(excludedStagedChanges, ChangesUtil::getAfterPath);
                 Predicate<Change> isMovedOrDeleted =
                     change -> change.getType() == Change.Type.MOVED || change.getType() == Change.Type.DELETED;
@@ -808,7 +808,7 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
         @Nonnull
         private String getToolTip(@Nonnull Project project, @Nonnull CheckinProjectPanel panel) {
             VcsUser user = getFirstItem(mapNotNull(panel.getRoots(), it -> GitUserRegistry.getInstance(project).getUser(it)));
-            String signature = user != null ? escapeXml(VcsUserUtil.toExactString(user)) : "";
+            String signature = user != null ? XmlStringUtil.escapeText(VcsUserUtil.toExactString(user)) : "";
             return "<html>Adds the following line at the end of the commit message:<br/>" +
                 "Signed-off by: " + signature + "</html>";
         }

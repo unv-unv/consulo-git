@@ -34,7 +34,7 @@ import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.action.DumbAwareAction;
 import consulo.ui.ex.awt.Messages;
 import consulo.ui.ex.awt.UIUtil;
-import consulo.util.lang.StringUtil;
+import consulo.util.lang.xml.XmlStringUtil;
 import consulo.versionControlSystem.ProjectLevelVcsManager;
 import consulo.versionControlSystem.VcsNotifier;
 import consulo.versionControlSystem.change.VcsDirtyScopeManager;
@@ -85,7 +85,7 @@ public class GitInit extends DumbAwareAction {
                 //noinspection RequiredXAction
                 if (GitUtil.isUnderGit(root) && Messages.showYesNoDialog(
                     project,
-                    GitLocalize.initWarningAlreadyUnderGit(StringUtil.escapeXml(root.getPresentableUrl())).get(),
+                    GitLocalize.initWarningAlreadyUnderGit(XmlStringUtil.escapeText(root.getPresentableUrl())).get(),
                     GitLocalize.initWarningTitle().get(),
                     UIUtil.getWarningIcon()
                 ) != Messages.YES) {

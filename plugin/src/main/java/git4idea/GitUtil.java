@@ -19,7 +19,6 @@ import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.Task;
 import consulo.git.localize.GitLocalize;
 import consulo.localize.LocalizeValue;
-import consulo.logging.Logger;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.awt.DialogBuilder;
@@ -59,6 +58,8 @@ import git4idea.util.GitUIUtil;
 import git4idea.util.StringScanner;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -98,7 +99,7 @@ public class GitUtil {
     public static final String MERGE_HEAD = "MERGE_HEAD";
 
     private static final String SUBMODULE_REPO_PATH_PREFIX = "gitdir:";
-    private final static Logger LOG = Logger.getInstance(GitUtil.class);
+    private final static Logger LOG = LoggerFactory.getLogger(GitUtil.class);
     private static final String HEAD_FILE = "HEAD";
 
     private static final Pattern HASH_STRING_PATTERN = Pattern.compile("[a-fA-F0-9]{40}");
@@ -193,7 +194,7 @@ public class GitUtil {
             content = readFile(dotGit);
         }
         catch (IOException e) {
-            LOG.error("Couldn't read the content of " + dotGit, e);
+            LOG.error("Couldn't read the content of {}", dotGit, e);
             return null;
         }
         return content;
@@ -210,7 +211,7 @@ public class GitUtil {
                 return new String(file.contentsToByteArray());
             }
             catch (IOException e) {
-                LOG.info(String.format("IOException while reading %s (attempt #%s)", file, attempt));
+                LOG.info("IOException while reading {} (attempt #{})", file, attempt);
                 if (attempt >= ATTEMPTS - 1) {
                     throw e;
                 }
@@ -337,7 +338,7 @@ public class GitUtil {
             return parseTimestamp(value);
         }
         catch (NumberFormatException e) {
-            LOG.error("annotate(). NFE. Handler: " + handler + ". Output: " + gitOutput, e);
+            LOG.error("annotate(). NFE. Handler: {}. Output: {}", handler, gitOutput, e);
             return new Date();
         }
     }
@@ -565,7 +566,7 @@ public class GitUtil {
         parametersSpecifier.accept(h);
 
         String output = h.run();
-        LOG.debug("getLocalCommittedChanges output: '" + output + "'");
+        LOG.debug("getLocalCommittedChanges output: '{}'", output);
         StringScanner s = new StringScanner(output);
         StringBuilder sb = new StringBuilder();
         boolean firstStep = true;
@@ -797,7 +798,7 @@ public class GitUtil {
         for (VirtualFile root : roots) {
             GitRepository repo = repositoryManager.getRepositoryForRoot(root);
             if (repo == null) {
-                LOG.error("Repository not found for root " + root);
+                LOG.error("Repository not found for root {}", root);
             }
             else {
                 repositories.add(repo);
@@ -823,7 +824,7 @@ public class GitUtil {
         String range = beforeRef + ".." + afterRef;
         GitCommandResult result = git.diff(repository, parameters, range);
         if (!result.success()) {
-            LOG.info(String.format("Couldn't get diff in range [%s] for repository [%s]", range, repository.toLogString()));
+            LOG.info("Couldn't get diff in range [{}] for repository [{}]", range, repository.toLogString());
             return Collections.emptyList();
         }
 
@@ -849,7 +850,7 @@ public class GitUtil {
         GitRepositoryManager manager = getRepositoryManager(project);
         GitRepository repository = manager.getRepositoryForRoot(root);
         if (repository == null) {
-            LOG.error("Repository is null for root " + root);
+            LOG.error("Repository is null for root {}", root);
         }
         return repository;
     }
@@ -957,7 +958,7 @@ public class GitUtil {
             file = LocalFileSystem.getInstance().refreshAndFindFileByPath(absolutePath);
         }
         if (file == null) {
-            LOG.warn("VirtualFile not found for " + absolutePath);
+            LOG.warn("VirtualFile not found for {}", absolutePath);
         }
         return file;
     }
@@ -990,21 +991,18 @@ public class GitUtil {
         for (String path : affectedPaths) {
             String absolutePath = relativePaths ? toAbsolute(root, path) : path;
             VirtualFile file = findRefreshFileOrLog(absolutePath);
-            if (file != null) {
-                Change change = changeListManager.getChange(file);
-                if (change != null) {
-                    affectedChanges.add(change);
-                }
-                else {
-                    String message = "Change is not found for " + file.getPath();
-                    if (changeListManager.isInUpdate()) {
-                        message += " because ChangeListManager is being updated.";
-                        LOG.debug(message);
-                    }
-                    else {
-                        LOG.info(message);
-                    }
-                }
+            if (file == null) {
+                continue;
+            }
+            Change change = changeListManager.getChange(file);
+            if (change != null) {
+                affectedChanges.add(change);
+            }
+            else if (changeListManager.isInUpdate()) {
+                LOG.debug("Change is not found for {} because ChangeListManager is being updated.", file.getPath());
+            }
+            else {
+                LOG.info("Change is not found for {}", file.getPath());
             }
         }
         return affectedChanges;
@@ -1102,30 +1100,32 @@ public class GitUtil {
     public static boolean isCaseOnlyChange(@Nonnull String oldPath, @Nonnull String newPath) {
         if (oldPath.equalsIgnoreCase(newPath)) {
             if (oldPath.equals(newPath)) {
-                LOG.error("Comparing perfectly equal paths: " + newPath);
+                LOG.error("Comparing perfectly equal paths: {}", newPath);
             }
             return true;
         }
         return false;
     }
 
-    @Nonnull
-    public static String getLogString(@Nonnull String root, @Nonnull Collection<Change> changes) {
-        return StringUtil.join(
-            changes,
-            change -> {
-                ContentRevision after = change.getAfterRevision();
-                ContentRevision before = change.getBeforeRevision();
-                return switch (change.getType()) {
-                    case NEW -> "A: " + getRelativePath(root, assertNotNull(after));
-                    case DELETED -> "D: " + getRelativePath(root, assertNotNull(before));
-                    case MOVED ->
-                        "M: " + getRelativePath(root, assertNotNull(before)) + " -> " + getRelativePath(root, assertNotNull(after));
-                    default -> "M: " + getRelativePath(root, assertNotNull(after));
-                };
-            },
-            ", "
-        );
+    public static record LogString(@Nonnull String root, @Nonnull Collection<Change> changes) {
+        @Override
+        public String toString() {
+            return StringUtil.join(
+                changes,
+                change -> {
+                    ContentRevision after = change.getAfterRevision();
+                    ContentRevision before = change.getBeforeRevision();
+                    return switch (change.getType()) {
+                        case NEW -> "A: " + getRelativePath(root, assertNotNull(after));
+                        case DELETED -> "D: " + getRelativePath(root, assertNotNull(before));
+                        case MOVED ->
+                            "M: " + getRelativePath(root, assertNotNull(before)) + " -> " + getRelativePath(root, assertNotNull(after));
+                        default -> "M: " + getRelativePath(root, assertNotNull(after));
+                    };
+                },
+                ", "
+            );
+        }
     }
 
     @Nullable
