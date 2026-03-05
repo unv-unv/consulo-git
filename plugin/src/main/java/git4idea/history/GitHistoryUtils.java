@@ -15,13 +15,11 @@
  */
 package git4idea.history;
 
-import consulo.application.Application;
 import consulo.application.util.Semaphore;
 import consulo.application.util.registry.Registry;
 import consulo.component.ProcessCanceledException;
 import consulo.git.localize.GitLocalize;
 import consulo.ide.ServiceManager;
-import consulo.logging.Logger;
 import consulo.process.ProcessOutputTypes;
 import consulo.project.Project;
 import consulo.util.collection.ArrayUtil;
@@ -59,6 +57,8 @@ import git4idea.log.GitLogProvider;
 import git4idea.log.GitRefManager;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -73,12 +73,12 @@ import static git4idea.history.GitLogParser.GitLogOption.*;
  * A collection of methods for retrieving history information from native Git.
  */
 public class GitHistoryUtils {
+    private static final Logger LOG = LoggerFactory.getLogger(GitHistoryUtils.class);
+
     /**
      * A parameter to {@code git log} which is equivalent to {@code --all}, but doesn't show the stuff from index or stash.
      */
     public static final List<String> LOG_ALL = Arrays.asList("HEAD", "--branches", "--remotes", "--tags");
-
-    private static final Logger LOG = Logger.getInstance(GitHistoryUtils.class);
 
     private GitHistoryUtils() {
     }
@@ -376,7 +376,7 @@ public class GitHistoryUtils {
                         }
                     }
                     catch (Throwable t) {
-                        LOG.error(t);
+                        LOG.error("Error while terminating process", t);
                         exceptionConsumer.accept(new VcsException("Internal error " + t.getMessage(), t));
                         criticalFailure.set(true);
                     }
@@ -614,7 +614,9 @@ public class GitHistoryUtils {
                     if (parseError.isNull()) {
                         parseError.set(t);
                         LOG.error(
-                            "Could not parse \" " + StringUtil.escapeStringCharacters(builder.toString()) + "\"\n" + "Command " + handler.printableCommandLine(),
+                            "Could not parse \"{}\"\nCommand {}",
+                            StringEscapeUtil.escape(builder, '"'),
+                            handler.printableCommandLine(),
                             t
                         );
                     }
@@ -731,7 +733,7 @@ public class GitHistoryUtils {
 
     @Nullable
     private static VcsLogObjectsFactory getObjectsFactoryWithDisposeCheck(@Nonnull Project project) {
-        return Application.get().runReadAction((Supplier<VcsLogObjectsFactory>) () -> {
+        return project.getApplication().runReadAction((Supplier<VcsLogObjectsFactory>) () -> {
             if (!project.isDisposed()) {
                 return ServiceManager.getService(project, VcsLogObjectsFactory.class);
             }
@@ -901,7 +903,7 @@ public class GitHistoryUtils {
                 for (VcsRef ref : refsInRecord) {
                     if (!refs.add(ref)) {
                         VcsRef otherRef = ContainerUtil.find(refs, r -> GitLogProvider.DONT_CONSIDER_SHA.equals(r, ref));
-                        LOG.error("Adding duplicate element " + ref + " to the set containing " + otherRef);
+                        LOG.error("Adding duplicate element {} to the set containing {}", ref, otherRef);
                     }
                 }
                 return commit;
