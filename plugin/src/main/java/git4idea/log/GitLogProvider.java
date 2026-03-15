@@ -28,7 +28,6 @@ import consulo.util.interner.Interner;
 import consulo.util.lang.ObjectUtil;
 import consulo.util.lang.StringUtil;
 import consulo.util.lang.function.ThrowableFunction;
-import consulo.util.nodep.ArrayUtilRt;
 import consulo.versionControlSystem.FilePath;
 import consulo.versionControlSystem.VcsException;
 import consulo.versionControlSystem.VcsKey;
@@ -343,7 +342,7 @@ public class GitLogProvider implements VcsLogProvider {
         Set<VcsRef> refs = new HashSet<>();
         Set<VcsCommitMetadata> commits = new HashSet<>();
         VcsFileUtil.foreachChunk(new ArrayList<>(unmatchedTags), 1, tagsChunk -> {
-            String[] parameters = ArrayUtilRt.toStringArray(ContainerUtil.concat(params, tagsChunk));
+            String[] parameters = ArrayUtil.toStringArray(ContainerUtil.concat(params, tagsChunk));
             DetailedLogData logData = GitHistoryUtils.loadMetadata(myProject, root, parameters);
             refs.addAll(logData.getRefs());
             commits.addAll(logData.getCommits());

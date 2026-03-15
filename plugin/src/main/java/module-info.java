@@ -6,7 +6,6 @@ module com.intellij.git {
     requires consulo.ide.api;
     requires ini4j;
     requires com.intellij.git.rt;
-    requires consulo.util.nodep;
 
     requires org.apache.commons.codec;
     requires org.slf4j;

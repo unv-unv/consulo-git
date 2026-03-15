@@ -17,12 +17,11 @@ package org.jetbrains.git4idea.rt.ssh;
 
 import com.trilead.ssh2.*;
 import com.trilead.ssh2.crypto.PEMDecoder;
-import consulo.util.nodep.ArrayUtilRt;
-import consulo.util.nodep.io.FileUtilRt;
 import jakarta.annotation.Nullable;
 import org.jetbrains.git4idea.rt.GitExternalApp;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.Semaphore;
 
@@ -372,7 +371,7 @@ public class SSHMain implements GitExternalApp
 			{
 				// if encrypted ask user for passphrase
 				String passphrase = null;
-				char[] text = FileUtilRt.loadFileText(file);
+				char[] text = Files.readString(file.toPath()).toCharArray();
 				if(isEncryptedKey(text))
 				{
 					// need to ask passphrase from user
@@ -548,7 +547,7 @@ public class SSHMain implements GitExternalApp
 			database.addHostkeys(knownHostFile);
 		}
 		final List<String> algorithms = myHost.getHostKeyAlgorithms();
-		c.setServerHostKeyAlgorithms(ArrayUtilRt.toStringArray(algorithms));
+		c.setServerHostKeyAlgorithms(algorithms.toArray(String[]::new));
 	}
 
 	/**
@@ -613,7 +612,7 @@ public class SSHMain implements GitExternalApp
 		{
 			if(numPrompts == 0)
 			{
-				return ArrayUtilRt.EMPTY_STRING_ARRAY;
+				return new String[0];
 			}
 			myPromptCount++;
 			Vector<String> vPrompts = new Vector<>(prompt.length);
@@ -633,7 +632,7 @@ public class SSHMain implements GitExternalApp
 			}
 			else
 			{
-				return ArrayUtilRt.toStringArray(result);
+				return result.toArray(String[]::new);
 			}
 		}
 	}

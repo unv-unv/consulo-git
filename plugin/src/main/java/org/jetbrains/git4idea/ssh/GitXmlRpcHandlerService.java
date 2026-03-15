@@ -20,7 +20,6 @@ import consulo.builtinWebServer.BuiltInServerManager;
 import consulo.builtinWebServer.xml.XmlRpcServer;
 import consulo.disposer.Disposable;
 import consulo.disposer.Disposer;
-import consulo.util.nodep.io.FileUtilRt;
 import org.apache.commons.codec.DecoderException;
 import org.apache.ws.commons.serialize.DOMSerializer;
 import org.apache.xmlrpc.XmlRpcConfig;
@@ -99,12 +98,13 @@ public abstract class GitXmlRpcHandlerService<T> {
   @Nonnull
   public File getScriptPath() throws IOException {
     ScriptGenerator generator = new ScriptGenerator(myScriptTempFilePrefix, myScriptMainClass);
-    generator.addClasses(XmlRpcClient.class,
-                         XmlRpcConfig.class,
-                         DOMSerializer.class,
-                         DecoderException.class,
-                         ProxyData.class,
-                         FileUtilRt.class);
+    generator.addClasses(
+        XmlRpcClient.class,
+        XmlRpcConfig.class,
+        DOMSerializer.class,
+        DecoderException.class,
+        ProxyData.class
+    );
     customizeScriptGenerator(generator);
 
     synchronized (SCRIPT_FILE_LOCK) {

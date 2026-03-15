@@ -15,11 +15,11 @@
  */
 package org.jetbrains.git4idea.rt.http;
 
-import consulo.util.nodep.Pair;
-import consulo.util.nodep.text.StringUtilRt;
 import org.jetbrains.git4idea.rt.GitExternalApp;
 
 import jakarta.annotation.Nonnull;
+
+import java.util.Map;
 
 /**
  * <p>This is a program that would be called by Git when an HTTP connection is needed, that requires authorization,
@@ -53,9 +53,9 @@ public class GitAskPassApp implements GitExternalApp {
         throw new IllegalArgumentException("No arguments specified!");
       }
 
-      Pair<Boolean, String> arguments = parseArguments(args[0]);
-      boolean usernameNeeded = arguments.getFirst();
-      String url = arguments.getSecond();
+      Map.Entry<Boolean, String> arguments = parseArguments(args[0]);
+      boolean usernameNeeded = arguments.getKey();
+      String url = arguments.getValue();
 
       String token = getNotNull(GitAskPassXmlRpcHandler.GIT_ASK_PASS_HANDLER_ENV);
       int xmlRpcPort = Integer.parseInt(getNotNull(GitAskPassXmlRpcHandler.GIT_ASK_PASS_PORT_ENV));
@@ -86,8 +86,8 @@ public class GitAskPassApp implements GitExternalApp {
   }
 
   @Nonnull
-  private static Pair<Boolean, String> parseArguments(@Nonnull String arg) {
-    boolean username = StringUtilRt.startsWithIgnoreCase(arg, "username");
+  private static Map.Entry<Boolean, String> parseArguments(@Nonnull String arg) {
+    boolean username = startsWithIgnoreCase(arg, "username");
     String url;
     String[] split = arg.split(" ");
     if (split.length > 2) {
@@ -96,7 +96,17 @@ public class GitAskPassApp implements GitExternalApp {
     else {
       url = ""; // XML RPC doesn't like nulls
     }
-    return Pair.create(username, url);
+    return Map.entry(username, url);
+  }
+
+  private static boolean startsWithIgnoreCase(String s, String start) {
+    if (s == null || start == null) return false;
+
+    if (s.length() >= start.length() && start.equalsIgnoreCase(s.substring(0, start.length()))) {
+      return true;
+    }
+
+    return false;
   }
 
   private static String parseUrl(@Nonnull String urlArg) {
@@ -113,5 +123,4 @@ public class GitAskPassApp implements GitExternalApp {
     }
     return url;
   }
-
 }
