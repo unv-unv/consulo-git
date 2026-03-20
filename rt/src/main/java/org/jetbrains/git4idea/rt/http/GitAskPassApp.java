@@ -15,11 +15,8 @@
  */
 package org.jetbrains.git4idea.rt.http;
 
-import org.jetbrains.git4idea.rt.GitExternalApp;
-
 import jakarta.annotation.Nonnull;
-
-import java.util.Map;
+import org.jetbrains.git4idea.rt.GitExternalApp;
 
 /**
  * <p>This is a program that would be called by Git when an HTTP connection is needed, that requires authorization,
@@ -44,6 +41,40 @@ import java.util.Map;
  * @author Kirill Likhodedov
  */
 public class GitAskPassApp implements GitExternalApp {
+  private record Arguments(boolean usernameNeeded, @Nonnull String url) {
+    @Nonnull
+    public static Arguments parse(@Nonnull String arg) {
+      boolean username = startsWithIgnoreCase(arg, "username");
+      String url;
+      String[] split = arg.split(" ");
+      if (split.length > 2) {
+        url = parseUrl(split[2]);
+      }
+      else {
+        url = ""; // XML RPC doesn't like nulls
+      }
+      return new Arguments(username, url);
+    }
+
+    private static boolean startsWithIgnoreCase(@Nonnull String s, @Nonnull String start) {
+      return s.regionMatches(true, 0, start, 0, start.length());
+    }
+
+    private static String parseUrl(@Nonnull String urlArg) {
+      // un-quote and remove the trailing colon
+      String url = urlArg;
+      if (url.startsWith("'")) {
+        url = url.substring(1);
+      }
+      if (url.endsWith(":")) {
+        url = url.substring(0, url.length() - 1);
+      }
+      if (url.endsWith("'")) {
+        url = url.substring(0, url.length() - 1);
+      }
+      return url;
+    }
+  }
 
   // STDOUT is used to provide credentials to Git process; STDERR is used to print error message to the main IDEA command line.
   @SuppressWarnings("UseOfSystemOutOrSystemErr")
@@ -53,20 +84,18 @@ public class GitAskPassApp implements GitExternalApp {
         throw new IllegalArgumentException("No arguments specified!");
       }
 
-      Map.Entry<Boolean, String> arguments = parseArguments(args[0]);
-      boolean usernameNeeded = arguments.getKey();
-      String url = arguments.getValue();
+      Arguments arguments = Arguments.parse(args[0]);
 
       String token = getNotNull(GitAskPassXmlRpcHandler.GIT_ASK_PASS_HANDLER_ENV);
       int xmlRpcPort = Integer.parseInt(getNotNull(GitAskPassXmlRpcHandler.GIT_ASK_PASS_PORT_ENV));
       GitAskPassXmlRpcClient xmlRpcClient = new GitAskPassXmlRpcClient(xmlRpcPort);
 
-      if (usernameNeeded) {
-        String username = xmlRpcClient.askUsername(token, url);
+      if (arguments.usernameNeeded()) {
+        String username = xmlRpcClient.askUsername(token, arguments.url());
         System.out.println(username);
       }
       else {
-        String pass = xmlRpcClient.askPassword(token, url);
+        String pass = xmlRpcClient.askPassword(token, arguments.url());
         System.out.println(pass);
       }
     }
@@ -83,44 +112,5 @@ public class GitAskPassApp implements GitExternalApp {
       throw new IllegalStateException(env + " environment variable is not defined!");
     }
     return handlerValue;
-  }
-
-  @Nonnull
-  private static Map.Entry<Boolean, String> parseArguments(@Nonnull String arg) {
-    boolean username = startsWithIgnoreCase(arg, "username");
-    String url;
-    String[] split = arg.split(" ");
-    if (split.length > 2) {
-      url = parseUrl(split[2]);
-    }
-    else {
-      url = ""; // XML RPC doesn't like nulls
-    }
-    return Map.entry(username, url);
-  }
-
-  private static boolean startsWithIgnoreCase(String s, String start) {
-    if (s == null || start == null) return false;
-
-    if (s.length() >= start.length() && start.equalsIgnoreCase(s.substring(0, start.length()))) {
-      return true;
-    }
-
-    return false;
-  }
-
-  private static String parseUrl(@Nonnull String urlArg) {
-    // un-quote and remove the trailing colon
-    String url = urlArg;
-    if (url.startsWith("'")) {
-      url = url.substring(1);
-    }
-    if (url.endsWith(":")) {
-      url = url.substring(0, url.length() - 1);
-    }
-    if (url.endsWith("'")) {
-      url = url.substring(0, url.length() - 1);
-    }
-    return url;
   }
 }
