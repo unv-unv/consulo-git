@@ -17,7 +17,6 @@ package org.jetbrains.git4idea.util;
 
 import consulo.platform.Platform;
 import consulo.util.collection.ContainerUtil;
-import consulo.util.io.ClassPathUtil;
 import consulo.util.io.FileUtil;
 import consulo.util.io.NioFiles;
 import consulo.util.io.URLUtil;
@@ -125,18 +124,6 @@ public class ScriptGenerator {
     }
 
     /**
-     * Add source for the specified resource
-     *
-     * @param base     the resource base
-     * @param resource the resource name
-     * @return this script generator
-     */
-    public ScriptGenerator addResource(Class base, String resource) {
-        addPath(getJarForResource(base, resource));
-        return this;
-    }
-
-    /**
      * Add internal parameters for the script
      *
      * @param parameters internal parameters
@@ -198,18 +185,5 @@ public class ScriptGenerator {
             line = line.replace('\\', '/');
         }
         return line;
-    }
-
-    /**
-     * Get path for resources.jar
-     *
-     * @param context a context class
-     * @param res     a resource
-     * @return a path to classpath entry
-     */
-    @SuppressWarnings({"SameParameterValue"})
-    public static String getJarForResource(Class context, String res) {
-        String resourceRoot = ClassPathUtil.getResourceRoot(context, res);
-        return new File(resourceRoot).getAbsoluteFile().getAbsolutePath();
     }
 }

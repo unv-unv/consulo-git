@@ -25,7 +25,6 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.jetbrains.git4idea.rt.ssh.GitSSHHandler;
 import org.jetbrains.git4idea.rt.ssh.SSHMain;
-import org.jetbrains.git4idea.rt.ssh.SSHMainBundle;
 import org.jetbrains.git4idea.util.ScriptGenerator;
 
 import java.util.UUID;
@@ -47,7 +46,6 @@ public class GitXmlRpcSshService extends GitXmlRpcHandlerService<GitSSHGUIHandle
   @Override
   protected void customizeScriptGenerator(@Nonnull ScriptGenerator generator) {
     generator.addClasses(KnownHosts.class);
-    generator.addResource(SSHMainBundle.class, "/org/jetbrains/git4idea/ssh/SSHMainBundle.properties");
   }
 
   @Nonnull
