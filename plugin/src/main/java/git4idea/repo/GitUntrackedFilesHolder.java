@@ -20,15 +20,19 @@ import consulo.disposer.Disposable;
 import consulo.ide.ServiceManager;
 import consulo.logging.Logger;
 import consulo.project.Project;
+import consulo.versionControlSystem.FilePath;
 import consulo.versionControlSystem.ProjectLevelVcsManager;
 import consulo.versionControlSystem.VcsException;
 import consulo.versionControlSystem.change.ChangeListManager;
 import consulo.versionControlSystem.change.VcsDirtyScopeManager;
+import consulo.versionControlSystem.change.VcsManagedFilesHolderListener;
+import consulo.versionControlSystem.util.VcsUtil;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.event.*;
 import git4idea.GitLocalBranch;
 import git4idea.GitUtil;
 import git4idea.commands.Git;
+import git4idea.ignore.GitRepositoryIgnoredFilesHolder;
 import git4idea.status.GitNewChangesCollector;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -93,6 +97,8 @@ public class GitUntrackedFilesHolder implements Disposable, BulkFileListener {
     private final Object LOCK = new Object();
     private final GitRepositoryManager myRepositoryManager;
 
+    private final MyGitRepositoryIgnoredFilesHolder myIgnoredFilesHolder = new MyGitRepositoryIgnoredFilesHolder();
+
     GitUntrackedFilesHolder(@Nonnull GitRepository repository, @Nonnull GitRepositoryFiles gitFiles) {
         myProject = repository.getProject();
         myRepository = repository;
@@ -110,6 +116,7 @@ public class GitUntrackedFilesHolder implements Disposable, BulkFileListener {
         if (!project.isDisposed()) {
             MessageBusConnection connection = project.getMessageBus().connect(this);
             connection.subscribe(BulkFileListener.class, this);
+            myIgnoredFilesHolder.scheduleUpdate();
         }
     }
 
@@ -120,8 +127,12 @@ public class GitUntrackedFilesHolder implements Disposable, BulkFileListener {
     }
 
     public boolean containsIgnoredFile(VirtualFile file) {
-        // TODO?
-        return false;
+        return myIgnoredFilesHolder.containsFile(VcsUtil.getFilePath(file));
+    }
+
+    @Nonnull
+    public GitRepositoryIgnoredFilesHolder getIgnoredFilesHolder() {
+        return myIgnoredFilesHolder;
     }
 
     @Override
@@ -132,6 +143,7 @@ public class GitUntrackedFilesHolder implements Disposable, BulkFileListener {
         synchronized (LOCK) {
             myPossiblyUntrackedFiles.clear();
         }
+        myIgnoredFilesHolder.clear();
     }
 
     /**
@@ -185,6 +197,7 @@ public class GitUntrackedFilesHolder implements Disposable, BulkFileListener {
         synchronized (LOCK) {
             myReady = false;
         }
+        myIgnoredFilesHolder.scheduleUpdate();
     }
 
     /**
@@ -328,5 +341,86 @@ public class GitUntrackedFilesHolder implements Disposable, BulkFileListener {
         // we shouldn't create a full instance repository here because it may lead to SOE while many unversioned files will be processed
         GitRepository repository = myRepositoryManager.getRepositoryForRootQuick(myVcsManager.getVcsRootFor(file));
         return repository != null && repository.getRoot().equals(myRoot);
+    }
+
+    /**
+     * Per-repository holder for ignored files.
+     * Loaded asynchronously in background; {@link #containsFile} returns false until the first load completes.
+     * Matches the role of {@code MyGitRepositoryIgnoredFilesHolder} from JetBrains' {@code GitUntrackedFilesHolder.kt}.
+     */
+    private class MyGitRepositoryIgnoredFilesHolder extends GitRepositoryIgnoredFilesHolder {
+        private final Object IGNORED_LOCK = new Object();
+        private volatile Set<FilePath> myIgnoredPaths = Collections.emptySet();
+        private volatile boolean myInitialized = false;
+        private volatile boolean myInUpdateMode = false;
+
+        @Override
+        public Set<FilePath> getIgnoredFilePaths() {
+            return Collections.unmodifiableSet(myIgnoredPaths);
+        }
+
+        @Override
+        public boolean isInitialized() {
+            return myInitialized;
+        }
+
+        @Override
+        public boolean isInUpdateMode() {
+            return myInUpdateMode;
+        }
+
+        @Override
+        public boolean containsFile(@Nonnull FilePath file) {
+            Set<FilePath> paths = myIgnoredPaths;
+            if (paths.isEmpty()) return false;
+            FilePath parent = file;
+            while (parent != null) {
+                if (paths.contains(parent)) return true;
+                parent = parent.getParentPath();
+            }
+            return false;
+        }
+
+        @Override
+        public void removeIgnoredFiles(@Nonnull Collection<FilePath> filePaths) {
+            synchronized (IGNORED_LOCK) {
+                Set<FilePath> newSet = new HashSet<>(myIgnoredPaths);
+                newSet.removeAll(filePaths);
+                myIgnoredPaths = Collections.unmodifiableSet(newSet);
+            }
+            scheduleUpdate();
+        }
+
+        void scheduleUpdate() {
+            if (myInUpdateMode || myProject.isDisposed()) return;
+            myInUpdateMode = true;
+            myProject.getApplication().executeOnPooledThread(() -> {
+                try {
+                    // Use path-based FilePaths so files not yet in the VFS are still tracked
+                    Set<FilePath> newPaths = myGit.ignoredFilePaths(myProject, myRoot);
+                    synchronized (IGNORED_LOCK) {
+                        myIgnoredPaths = Collections.unmodifiableSet(newPaths);
+                        myInitialized = true;
+                    }
+                    // Notify ChangeListManager to refresh file statuses now that ignored paths are updated
+                    if (!myProject.isDisposed()) {
+                        myProject.getMessageBus().syncPublisher(VcsManagedFilesHolderListener.class).updatingModeChanged();
+                    }
+                }
+                catch (VcsException e) {
+                    LOG.warn("Failed to collect ignored files for " + myRoot.getPath(), e);
+                }
+                finally {
+                    myInUpdateMode = false;
+                }
+            });
+        }
+
+        void clear() {
+            synchronized (IGNORED_LOCK) {
+                myIgnoredPaths = Collections.emptySet();
+                myInitialized = false;
+            }
+        }
     }
 }

@@ -20,6 +20,7 @@ import consulo.virtualFileSystem.VirtualFile;
 import git4idea.GitLocalBranch;
 import git4idea.GitVcs;
 import git4idea.branch.GitBranchesCollection;
+import git4idea.ignore.GitRepositoryIgnoredFilesHolder;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
@@ -117,4 +118,7 @@ public interface GitRepository extends Repository {
      */
     @Nonnull
     Collection<GitSubmoduleInfo> getSubmodules();
+
+    @Nonnull
+    GitRepositoryIgnoredFilesHolder getIgnoredFilesHolder();
 }

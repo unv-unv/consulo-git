@@ -26,6 +26,7 @@ import git4idea.GitLocalBranch;
 import git4idea.GitUtil;
 import git4idea.GitVcs;
 import git4idea.branch.GitBranchesCollection;
+import git4idea.ignore.GitRepositoryIgnoredFilesHolder;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 
@@ -162,6 +163,12 @@ public class GitRepositoryImpl extends RepositoryImpl implements GitRepository {
     @Override
     public Collection<GitSubmoduleInfo> getSubmodules() {
         return myInfo.submodules();
+    }
+
+    @Nonnull
+    @Override
+    public GitRepositoryIgnoredFilesHolder getIgnoredFilesHolder() {
+        return getUntrackedFilesHolder().getIgnoredFilesHolder();
     }
 
     /**

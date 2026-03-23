@@ -19,6 +19,7 @@ import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
 import consulo.ide.ServiceManager;
 import consulo.project.Project;
+import consulo.versionControlSystem.FilePath;
 import consulo.versionControlSystem.VcsException;
 import consulo.virtualFileSystem.VirtualFile;
 import git4idea.branch.GitRebaseParams;
@@ -69,6 +70,14 @@ public interface Git {
         @Nonnull VirtualFile root,
         @Nullable Collection<VirtualFile> files
     ) throws VcsException;
+
+    /**
+     * Returns files that are ignored by Git (match an ignore pattern).
+     * Runs {@code git ls-files --others --ignored --exclude-standard -z} on the given root.
+     * Returns path-based {@link FilePath} objects that do not depend on the VirtualFile system.
+     */
+    @Nonnull
+    Set<FilePath> ignoredFilePaths(@Nonnull Project project, @Nonnull VirtualFile root) throws VcsException;
 
     // relativePaths are guaranteed to fit into command line length limitations.
     @Nonnull

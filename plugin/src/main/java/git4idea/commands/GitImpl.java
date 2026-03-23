@@ -22,8 +22,10 @@ import consulo.util.collection.ContainerUtil;
 import consulo.util.dataholder.Key;
 import consulo.util.lang.ObjectUtil;
 import consulo.util.lang.StringUtil;
+import consulo.versionControlSystem.FilePath;
 import consulo.versionControlSystem.VcsException;
 import consulo.versionControlSystem.util.VcsFileUtil;
+import consulo.versionControlSystem.util.VcsUtil;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
 import git4idea.GitVcs;
@@ -105,6 +107,27 @@ public class GitImpl implements Git {
     }
 
     return untrackedFiles;
+  }
+
+  @Override
+  @Nonnull
+  public Set<FilePath> ignoredFilePaths(@Nonnull Project project, @Nonnull VirtualFile root) throws VcsException {
+    final Set<FilePath> ignoredFilePaths = new HashSet<>();
+    GitSimpleHandler h = new GitSimpleHandler(project, root, GitCommand.LS_FILES);
+    h.setSilent(true);
+    h.addParameters("--others", "--ignored", "--exclude-standard", "-z");
+    h.endOptions();
+    final String output = h.run();
+    if (!StringUtil.isEmptyOrSpaces(output)) {
+      String rootPath = root.getPath();
+      for (String relPath : output.split("\u0000")) {
+        if (!relPath.isEmpty()) {
+          // Use path-based FilePath (not VirtualFile-based) so files not in the VFS are still tracked
+          ignoredFilePaths.add(VcsUtil.getFilePath(new File(rootPath + "/" + relPath), false));
+        }
+      }
+    }
+    return ignoredFilePaths;
   }
 
   // relativePaths are guaranteed to fit into command line length limitations.
