@@ -59,7 +59,7 @@ import java.util.Map;
 @Singleton
 @ServiceAPI(ComponentScope.PROJECT)
 @ServiceImpl
-public class GitAnnotationProvider implements AnnotationProvider, VcsCacheableAnnotationProvider {
+public class GitAnnotationProvider implements AnnotationProvider, VcsCacheableAnnotationProvider, CacheableAnnotationProvider {
     /**
      * the context project
      */
@@ -273,6 +273,23 @@ public class GitAnnotationProvider implements AnnotationProvider, VcsCacheableAn
             }
         }
         return gitFileAnnotation;
+    }
+
+    // -------------------------------------------------------------------------
+    // CacheableAnnotationProvider — used by Code Vision pipeline
+    // -------------------------------------------------------------------------
+
+    @Override
+    public void populateCache(VirtualFile file) throws VcsException {
+        VcsCacheManager cacheManager = VcsCacheManager.getInstance(myProject);
+        if (cacheManager.isCached(file)) return;
+        FileAnnotation annotation = annotate(file);
+        cacheManager.cacheAnnotation(file, annotation);
+    }
+
+    @Override
+    public FileAnnotation getFromCache(VirtualFile file) {
+        return VcsCacheManager.getInstance(myProject).getCachedAnnotation(file);
     }
 
     /**
