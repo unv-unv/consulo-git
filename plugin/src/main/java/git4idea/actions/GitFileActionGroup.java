@@ -5,14 +5,13 @@ import consulo.annotation.component.ActionRef;
 import consulo.application.dumb.DumbAware;
 import consulo.codeEditor.Editor;
 import consulo.git.action.FileActionsGroup;
-import consulo.ui.ex.action.DefaultActionGroup;
-import consulo.virtualFileSystem.VirtualFile;
-import consulo.util.collection.JBIterable;
 import consulo.git.localize.GitLocalize;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
+import consulo.ui.ex.action.DefaultActionGroup;
 import consulo.ui.ex.action.Presentation;
-
+import consulo.util.collection.JBIterable;
+import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nonnull;
 
 import java.util.Arrays;
@@ -42,10 +41,10 @@ public class GitFileActionGroup extends DefaultActionGroup implements DumbAware 
 
         if (e.getData(Editor.KEY) == null && !selection.isEmpty()) {
             if (selection.get(0).isDirectory()) {
-                presentation.setTextValue(GitLocalize.actionSelectedDirectoryText(selection.size()));
+                presentation.setText(GitLocalize.actionSelectedDirectoryText(selection.size()));
             }
             else {
-                presentation.setTextValue(GitLocalize.actionSelectedFileText(selection.size()));
+                presentation.setText(GitLocalize.actionSelectedFileText(selection.size()));
             }
         }
     }

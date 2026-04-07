@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 @ActionImpl(id = "Git.Reset.In.Log")
 public class GitResetAction extends GitOneCommitPerRepoLogAction {
     public GitResetAction() {
-        getTemplatePresentation().setTextValue(GitLocalize.actionLogResetText());
+        getTemplatePresentation().setText(GitLocalize.actionLogResetText());
     }
 
     @Override

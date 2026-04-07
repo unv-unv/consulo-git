@@ -18,16 +18,16 @@ package git4idea.actions;
 import consulo.annotation.component.ActionImpl;
 import consulo.git.localize.GitLocalize;
 import consulo.ui.annotation.RequiredUIAccess;
-import jakarta.annotation.Nonnull;
 import consulo.versionControlSystem.log.Hash;
 import git4idea.history.wholeTree.GitCreateNewTag;
 import git4idea.repo.GitRepository;
+import jakarta.annotation.Nonnull;
 
 @ActionImpl(id = "Git.CreateNewTag")
 public class GitCreateTagAction extends GitLogSingleCommitAction {
     public GitCreateTagAction() {
-        getTemplatePresentation().setTextValue(GitLocalize.actionCreateNewTagText());
-        getTemplatePresentation().setDescriptionValue(GitLocalize.actionCreateNewTagDescription());
+        getTemplatePresentation().setText(GitLocalize.actionCreateNewTagText());
+        getTemplatePresentation().setDescription(GitLocalize.actionCreateNewTagDescription());
     }
 
     @Override

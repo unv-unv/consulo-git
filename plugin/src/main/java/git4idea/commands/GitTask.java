@@ -313,9 +313,9 @@ public class GitTask {
         @RequiredUIAccess
         private void justRun() {
             LocalizeValue oldTitle = myProgressIndicator.getTextValue();
-            myProgressIndicator.setTextValue(myTitle);
+            myProgressIndicator.setText(myTitle);
             myDelegate.run(myProgressIndicator);
-            myProgressIndicator.setTextValue(oldTitle);
+            myProgressIndicator.setText(oldTitle);
             if (myProgressIndicator.isCanceled()) {
                 onCancel();
             }

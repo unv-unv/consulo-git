@@ -28,7 +28,7 @@ import git4idea.actions.GitMenu;
 )
 public class VcsMenuGroup extends GitMenu {
     public VcsMenuGroup() {
-        getTemplatePresentation().setTextValue(GitLocalize.groupVcsMenuText());
+        getTemplatePresentation().setText(GitLocalize.groupVcsMenuText());
         setPopup(true);
     }
 }

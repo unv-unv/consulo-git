@@ -124,7 +124,7 @@ public class GitUpdateProcess {
     public GitUpdateResult update(UpdateMethod updateMethod) {
         LOG.info("update started|" + updateMethod);
         LocalizeValue oldText = myProgressIndicator.getTextValue();
-        myProgressIndicator.setTextValue(LocalizeValue.localizeTODO("Updating..."));
+        myProgressIndicator.setText(LocalizeValue.localizeTODO("Updating..."));
 
         for (GitRepository repository : myRepositories) {
             repository.update();
@@ -146,7 +146,7 @@ public class GitUpdateProcess {
         try (AccessToken ignored = DvcsUtil.workingTreeChangeStarted(myProject, "VCS Update")) {
             result = updateImpl(updateMethod);
         }
-        myProgressIndicator.setTextValue(oldText);
+        myProgressIndicator.setText(oldText);
         return result;
     }
 

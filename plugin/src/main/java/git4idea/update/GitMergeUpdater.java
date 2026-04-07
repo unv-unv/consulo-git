@@ -87,7 +87,7 @@ public class GitMergeUpdater extends GitUpdater {
             new GitUntrackedFilesOverwrittenByOperationDetector(myRoot);
 
         LocalizeValue originalText = myProgressIndicator.getTextValue();
-        myProgressIndicator.setTextValue(LocalizeValue.localizeTODO("Merging" + GitUtil.mention(myRepository) + "..."));
+        myProgressIndicator.setText(LocalizeValue.localizeTODO("Merging" + GitUtil.mention(myRepository) + "..."));
         try {
             GitCommandResult result = myGit.merge(
                 myRepository,
@@ -97,7 +97,7 @@ public class GitMergeUpdater extends GitUpdater {
                 untrackedFilesDetector,
                 GitStandardProgressAnalyzer.createListener(myProgressIndicator)
             );
-            myProgressIndicator.setTextValue(originalText);
+            myProgressIndicator.setText(originalText);
             return result.success()
                 ? GitUpdateResult.SUCCESS
                 : handleMergeFailure(mergeLineListener, untrackedFilesDetector, merger, result.getErrorOutputAsJoinedValue());

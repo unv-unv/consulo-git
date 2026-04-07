@@ -94,7 +94,7 @@ public class GitStashChangesSaver extends GitChangesSaver {
                     }
                 }
             }
-            myProgressIndicator.setTextValue(oldProgressTitle);
+            myProgressIndicator.setText(oldProgressTitle);
         }
     }
 
