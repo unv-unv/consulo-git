@@ -73,6 +73,7 @@ public class GitRebaser {
         mySkippedCommits = new ArrayList<>();
     }
 
+    @RequiredUIAccess
     public GitUpdateResult rebase(
         @Nonnull VirtualFile root,
         @Nonnull List<String> parameters,
@@ -95,17 +96,13 @@ public class GitRebaser {
         rebaseHandler.addLineListener(GitStandardProgressAnalyzer.createListener(myProgressIndicator));
 
         try (AccessToken ignored = DvcsUtil.workingTreeChangeStarted(myProject, "Rebase")) {
-            String oldText = myProgressIndicator.getText();
-            myProgressIndicator.setText("Rebasing...");
+            LocalizeValue oldText = myProgressIndicator.getText();
+            myProgressIndicator.setText(LocalizeValue.localizeTODO("Rebasing..."));
             GitCommandResult result = myGit.runCommand(rebaseHandler);
             myProgressIndicator.setText(oldText);
-            return result.success() ? GitUpdateResult.SUCCESS : handleRebaseFailure(
-                rebaseHandler,
-                root,
-                rebaseConflictDetector,
-                untrackedFilesDetector,
-                localChangesDetector
-            );
+            return result.success()
+                ? GitUpdateResult.SUCCESS
+                : handleRebaseFailure(rebaseHandler, root, rebaseConflictDetector, untrackedFilesDetector, localChangesDetector);
         }
         catch (ProcessCanceledException pce) {
             if (onCancel != null) {

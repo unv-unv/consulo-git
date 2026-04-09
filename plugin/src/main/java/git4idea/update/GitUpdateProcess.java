@@ -123,7 +123,7 @@ public class GitUpdateProcess {
     @RequiredUIAccess
     public GitUpdateResult update(UpdateMethod updateMethod) {
         LOG.info("update started|" + updateMethod);
-        LocalizeValue oldText = myProgressIndicator.getTextValue();
+        LocalizeValue oldText = myProgressIndicator.getText();
         myProgressIndicator.setText(LocalizeValue.localizeTODO("Updating..."));
 
         for (GitRepository repository : myRepositories) {
@@ -272,7 +272,7 @@ public class GitUpdateProcess {
                 GitUpdater updater = updaters.get(repo);
                 if (updater instanceof GitRebaseUpdater) {
                     String currentRef = updater.getSourceAndTarget().getBranch().getFullName();
-                    String baseRef = ObjectUtil.assertNotNull(updater.getSourceAndTarget().getDest()).getFullName();
+                    String baseRef = Objects.requireNonNull(updater.getSourceAndTarget().getDest()).getFullName();
                     return GitRebaseOverMergeProblem.hasProblem(myProject, repo.getRoot(), baseRef, currentRef) ? repo : null;
                 }
                 return null;

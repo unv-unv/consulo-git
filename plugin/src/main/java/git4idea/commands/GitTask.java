@@ -312,7 +312,7 @@ public class GitTask {
 
         @RequiredUIAccess
         private void justRun() {
-            LocalizeValue oldTitle = myProgressIndicator.getTextValue();
+            LocalizeValue oldTitle = myProgressIndicator.getText();
             myProgressIndicator.setText(myTitle);
             myDelegate.run(myProgressIndicator);
             myProgressIndicator.setText(oldTitle);

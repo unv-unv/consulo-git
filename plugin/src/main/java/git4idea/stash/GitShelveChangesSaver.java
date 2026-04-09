@@ -57,7 +57,7 @@ public class GitShelveChangesSaver extends GitChangesSaver {
         Map<String, Map<VirtualFile, Collection<Change>>> lists =
             new LocalChangesUnderRoots(myChangeManager, myVcsManager).getChangesByLists(rootsToSave);
 
-        LocalizeValue oldProgressTitle = myProgressIndicator.getTextValue();
+        LocalizeValue oldProgressTitle = myProgressIndicator.getText();
         myProgressIndicator.setText(GitLocalize.updateShelvingChanges());
         List<VcsException> exceptions = new ArrayList<>(1);
         myShelvedLists = new HashMap<>();
@@ -99,7 +99,7 @@ public class GitShelveChangesSaver extends GitChangesSaver {
     public void load() {
         if (myShelvedLists != null) {
             LOG.info("load ");
-            LocalizeValue oldProgressTitle = myProgressIndicator.getTextValue();
+            LocalizeValue oldProgressTitle = myProgressIndicator.getText();
             myProgressIndicator.setText(GitLocalize.updateUnshelvingChanges());
             for (ShelvedChangeList list : myShelvedLists.values()) {
                 GitShelveUtils.doSystemUnshelve(
