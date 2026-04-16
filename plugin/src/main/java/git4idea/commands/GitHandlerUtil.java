@@ -174,12 +174,12 @@ public class GitHandlerUtil {
             handler,
             () -> {
                 if (indicator != null) {
-                    indicator.setTextValue(
+                    indicator.setText(
                         operationName.isEmpty()
                             ? GitLocalize.gitRunning(handler.printableCommandLine())
                             : operationName
                     );
-                    indicator.setText2Value(LocalizeValue.empty());
+                    indicator.setText2(LocalizeValue.empty());
                     if (setIndeterminateFlag) {
                         indicator.setIndeterminate(true);
                     }

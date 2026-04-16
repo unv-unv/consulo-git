@@ -65,8 +65,8 @@ public class GitInit extends DumbAwareAction {
         }
         FileChooserDescriptor fcd = FileChooserDescriptorFactory.createSingleFolderDescriptor()
             .withShowFileSystemRoots(true)
-            .withTitleValue(GitLocalize.initDestinationDirectoryTitle())
-            .withDescriptionValue(GitLocalize.initDestinationDirectoryDescription())
+            .withTitle(GitLocalize.initDestinationDirectoryTitle())
+            .withDescription(GitLocalize.initDestinationDirectoryDescription())
             .withHideIgnored(false);
         VirtualFile baseDir = e.getData(VirtualFile.KEY);
         if (baseDir == null) {

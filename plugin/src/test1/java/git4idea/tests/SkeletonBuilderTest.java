@@ -16,20 +16,21 @@
 package git4idea.tests;
 
 import com.intellij.mock.MockVirtualFileSystem;
-import consulo.ui.ex.awt.ColumnInfo;
-import consulo.util.collection.ArrayUtil;
-import consulo.util.lang.StringUtil;
 import consulo.ide.impl.idea.openapi.vcs.Ring;
-import consulo.virtualFileSystem.VirtualFile;
 import consulo.ide.impl.idea.util.containers.Convertor;
 import consulo.ide.impl.idea.util.containers.ReadonlyList;
+import consulo.ui.ex.awt.ColumnInfo;
+import consulo.util.collection.ArrayUtil;
 import consulo.util.lang.EmptyRunnable;
+import consulo.util.lang.StringUtil;
 import consulo.util.lang.ref.Ref;
+import consulo.virtualFileSystem.BaseVirtualFile;
+import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.VirtualFileSystem;
-import git4idea.history.wholeTree.*;
+import git4idea.history.wholeTree.AbstractHash;
+import jakarta.annotation.Nonnull;
 import junit.framework.Assert;
 import junit.framework.TestCase;
-import jakarta.annotation.Nonnull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -776,7 +777,7 @@ public class SkeletonBuilderTest extends TestCase {
     System.out.println("2");
   }
 
-  private static class MyVf extends VirtualFile {
+  private static class MyVf extends BaseVirtualFile {
     @Nonnull
     @Override
     public String getName() {

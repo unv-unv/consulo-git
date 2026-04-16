@@ -51,7 +51,6 @@ import jakarta.annotation.Nonnull;
 import java.io.File;
 import java.util.*;
 
-import static consulo.util.lang.ObjectUtil.assertNotNull;
 import static java.util.Arrays.asList;
 
 /**
@@ -86,18 +85,18 @@ public class GitMergeUpdater extends GitUpdater {
         GitUntrackedFilesOverwrittenByOperationDetector untrackedFilesDetector =
             new GitUntrackedFilesOverwrittenByOperationDetector(myRoot);
 
-        LocalizeValue originalText = myProgressIndicator.getTextValue();
-        myProgressIndicator.setTextValue(LocalizeValue.localizeTODO("Merging" + GitUtil.mention(myRepository) + "..."));
+        LocalizeValue originalText = myProgressIndicator.getText();
+        myProgressIndicator.setText(LocalizeValue.localizeTODO("Merging" + GitUtil.mention(myRepository) + "..."));
         try {
             GitCommandResult result = myGit.merge(
                 myRepository,
-                assertNotNull(myBranchPair.getDest()).getName(),
+                Objects.requireNonNull(myBranchPair.getDest()).getName(),
                 asList("--no-stat", "-v"),
                 mergeLineListener,
                 untrackedFilesDetector,
                 GitStandardProgressAnalyzer.createListener(myProgressIndicator)
             );
-            myProgressIndicator.setTextValue(originalText);
+            myProgressIndicator.setText(originalText);
             return result.success()
                 ? GitUpdateResult.SUCCESS
                 : handleMergeFailure(mergeLineListener, untrackedFilesDetector, merger, result.getErrorOutputAsJoinedValue());

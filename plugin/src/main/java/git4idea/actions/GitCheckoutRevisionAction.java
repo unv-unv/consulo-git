@@ -27,7 +27,7 @@ import java.util.List;
 @ActionImpl(id = "Git.CheckoutRevision")
 public class GitCheckoutRevisionAction extends GitLogSingleCommitAction {
     public GitCheckoutRevisionAction() {
-        getTemplatePresentation().setTextValue(GitLocalize.actionCheckoutRevisionText());
+        getTemplatePresentation().setText(GitLocalize.actionCheckoutRevisionText());
     }
 
     @Override

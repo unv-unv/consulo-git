@@ -126,13 +126,13 @@ public class GitCloneDialog extends DialogWrapper {
 
         FileChooserDescriptor fcd = FileChooserDescriptorFactory.createSingleFolderDescriptor()
             .withShowFileSystemRoots(true)
-            .withTitleValue(GitLocalize.cloneDestinationDirectoryTitle())
-            .withDescriptionValue(GitLocalize.cloneDestinationDirectoryDescription())
+            .withTitle(GitLocalize.cloneDestinationDirectoryTitle())
+            .withDescription(GitLocalize.cloneDestinationDirectoryDescription())
             .withHideIgnored(false);
 
         myParentDirectory.addActionListener(new ComponentWithBrowseButton.BrowseFolderActionListener<>(
-            fcd.getTitleValue(),
-            fcd.getDescriptionValue(),
+            fcd.getTitle(),
+            fcd.getDescription(),
             myParentDirectory,
             myProject,
             fcd,

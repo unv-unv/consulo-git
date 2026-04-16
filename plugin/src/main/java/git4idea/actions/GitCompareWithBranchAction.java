@@ -17,7 +17,6 @@ package git4idea.actions;
 
 import consulo.annotation.component.ActionImpl;
 import consulo.git.localize.GitLocalize;
-import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.versionControlSystem.FilePath;
 import consulo.versionControlSystem.VcsException;
@@ -43,7 +42,7 @@ import java.util.List;
 @ActionImpl(id = "Git.CompareWithBranch")
 public class GitCompareWithBranchAction extends DvcsCompareWithBranchAction<GitRepository> {
     public GitCompareWithBranchAction() {
-        getTemplatePresentation().setTextValue(GitLocalize.actionCompareWithBranchText());
+        getTemplatePresentation().setText(GitLocalize.actionCompareWithBranchText());
     }
 
     @Override

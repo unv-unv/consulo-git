@@ -173,7 +173,7 @@ class GitBranchPopupActions {
             boolean isFresh = ContainerUtil.and(myRepositories, Repository::isFresh);
             if (isFresh) {
                 e.getPresentation().setEnabled(false);
-                e.getPresentation().setDescriptionValue(GitBranchesLocalize.actionCheckoutTagOrRevisionImpossibleDescription());
+                e.getPresentation().setDescription(GitBranchesLocalize.actionCheckoutTagOrRevisionImpossibleDescription());
             }
         }
     }
@@ -210,7 +210,7 @@ class GitBranchPopupActions {
             myGitBranchManager = project.getInstance(GitBranchManager.class);
 
             getTemplatePresentation().setDisabledMnemonic(true);
-            getTemplatePresentation().setTextValue(LocalizeValue.of(branchName));
+            getTemplatePresentation().setText(LocalizeValue.of(branchName));
         }
 
         protected class CompareAction extends DumbAwareAction {

@@ -22,7 +22,7 @@ import git4idea.actions.GitMenu;
 )
 public class ContextMenuGroup extends GitMenu {
     public ContextMenuGroup() {
-        getTemplatePresentation().setTextValue(GitLocalize.groupContextMenuText());
+        getTemplatePresentation().setText(GitLocalize.groupContextMenuText());
         setPopup(true);
     }
 }

@@ -110,7 +110,7 @@ public class GitAnnotationProvider implements AnnotationProvider, VcsCacheableAn
                 final FilePath currentFilePath = VcsUtil.getFilePath(file.getPath());
                 final FilePath realFilePath;
                 if (progress != null) {
-                    progress.setTextValue(GitLocalize.gettingHistory(file.getName()));
+                    progress.setText(GitLocalize.gettingHistory(file.getName()));
                 }
                 final List<VcsFileRevision> revisions = GitHistoryUtils.history(myProject, currentFilePath);
                 if (revision == null) {
@@ -120,7 +120,7 @@ public class GitAnnotationProvider implements AnnotationProvider, VcsCacheableAn
                     realFilePath = ((GitFileRevision)revision).getPath();
                 }
                 if (progress != null) {
-                    progress.setTextValue(GitLocalize.computingAnnotation(file.getName()));
+                    progress.setText(GitLocalize.computingAnnotation(file.getName()));
                 }
                 final GitFileAnnotation result = annotate(realFilePath, revision, revisions, file);
                 annotation[0] = result;

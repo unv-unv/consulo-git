@@ -15,8 +15,6 @@
  */
 package git4idea.actions;
 
-import java.util.Collections;
-
 import consulo.annotation.component.ActionImpl;
 import consulo.git.localize.GitLocalize;
 import consulo.project.Project;
@@ -27,11 +25,13 @@ import git4idea.branch.GitBrancher;
 import git4idea.repo.GitRepository;
 import jakarta.annotation.Nonnull;
 
+import java.util.Collections;
+
 @ActionImpl(id = "Git.CreateNewBranch")
 public class GitCreateNewBranchAction extends GitLogSingleCommitAction {
     public GitCreateNewBranchAction() {
-        getTemplatePresentation().setTextValue(GitLocalize.actionCreateNewBranchText());
-        getTemplatePresentation().setDescriptionValue(GitLocalize.actionCreateNewBranchDescription());
+        getTemplatePresentation().setText(GitLocalize.actionCreateNewBranchText());
+        getTemplatePresentation().setDescription(GitLocalize.actionCreateNewBranchDescription());
     }
 
     @Override

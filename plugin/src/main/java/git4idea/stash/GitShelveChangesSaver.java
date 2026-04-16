@@ -57,8 +57,8 @@ public class GitShelveChangesSaver extends GitChangesSaver {
         Map<String, Map<VirtualFile, Collection<Change>>> lists =
             new LocalChangesUnderRoots(myChangeManager, myVcsManager).getChangesByLists(rootsToSave);
 
-        LocalizeValue oldProgressTitle = myProgressIndicator.getTextValue();
-        myProgressIndicator.setTextValue(GitLocalize.updateShelvingChanges());
+        LocalizeValue oldProgressTitle = myProgressIndicator.getText();
+        myProgressIndicator.setText(GitLocalize.updateShelvingChanges());
         List<VcsException> exceptions = new ArrayList<>(1);
         myShelvedLists = new HashMap<>();
 
@@ -91,7 +91,7 @@ public class GitShelveChangesSaver extends GitChangesSaver {
                 GitRollbackEnvironment.resetHardLocal(myProject, root);
             }
         }
-        myProgressIndicator.setTextValue(oldProgressTitle);
+        myProgressIndicator.setText(oldProgressTitle);
     }
 
     @Override
@@ -99,8 +99,8 @@ public class GitShelveChangesSaver extends GitChangesSaver {
     public void load() {
         if (myShelvedLists != null) {
             LOG.info("load ");
-            LocalizeValue oldProgressTitle = myProgressIndicator.getTextValue();
-            myProgressIndicator.setTextValue(GitLocalize.updateUnshelvingChanges());
+            LocalizeValue oldProgressTitle = myProgressIndicator.getText();
+            myProgressIndicator.setText(GitLocalize.updateUnshelvingChanges());
             for (ShelvedChangeList list : myShelvedLists.values()) {
                 GitShelveUtils.doSystemUnshelve(
                     myProject,
@@ -110,7 +110,7 @@ public class GitShelveChangesSaver extends GitChangesSaver {
                     getConflictRightPanelTitle()
                 );
             }
-            myProgressIndicator.setTextValue(oldProgressTitle);
+            myProgressIndicator.setText(oldProgressTitle);
         }
     }
 
