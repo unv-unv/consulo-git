@@ -20,7 +20,7 @@ import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
 import consulo.builtinWebServer.BuiltInServerManager;
 import consulo.builtinWebServer.xml.XmlRpcServer;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitLineHandler;
 import jakarta.annotation.Nonnull;
@@ -73,7 +73,7 @@ public class GitRebaseEditorService {
      */
     @Nonnull
     public static GitRebaseEditorService getInstance() {
-      return ServiceManager.getService(GitRebaseEditorService.class);
+      return Application.get().getInstance(GitRebaseEditorService.class);
     }
 
     private void addInternalHandler() {

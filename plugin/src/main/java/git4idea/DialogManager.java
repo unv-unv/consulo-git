@@ -3,7 +3,7 @@ package git4idea;
 import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import consulo.project.Project;
 import consulo.ui.ex.awt.DialogWrapper;
 import consulo.ui.ex.awt.Messages;
@@ -90,6 +90,6 @@ public class DialogManager {
 
   @Nonnull
   private static DialogManager dialogManager() {
-    return ServiceManager.getService(DialogManager.class);
+    return Application.get().getInstance(DialogManager.class);
   }
 }

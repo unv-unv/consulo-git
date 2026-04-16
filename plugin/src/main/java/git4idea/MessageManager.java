@@ -18,7 +18,7 @@ package git4idea;
 import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import consulo.project.Project;
 import consulo.ui.ex.awt.Messages;
 import consulo.ui.image.Image;
@@ -35,7 +35,7 @@ import jakarta.inject.Singleton;
 public class MessageManager {
 
   public static MessageManager getInstance(@Nonnull Project project) {
-    return ServiceManager.getService(project, MessageManager.class);
+    return project.getInstance(MessageManager.class);
   }
 
   public static int showYesNoDialog(Project project,

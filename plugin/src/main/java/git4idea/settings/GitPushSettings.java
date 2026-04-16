@@ -18,7 +18,7 @@ package git4idea.settings;
 import consulo.component.persist.PersistentStateComponent;
 import consulo.component.persist.Storage;
 import consulo.component.persist.StoragePathMacros;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import consulo.project.Project;
 import git4idea.config.UpdateMethod;
 
@@ -35,7 +35,7 @@ public class GitPushSettings implements PersistentStateComponent<GitPushSettings
     }
 
     public static GitPushSettings getInstance(Project project) {
-        return ServiceManager.getService(project, GitPushSettings.class);
+        return project.getInstance(GitPushSettings.class);
     }
 
     @Override

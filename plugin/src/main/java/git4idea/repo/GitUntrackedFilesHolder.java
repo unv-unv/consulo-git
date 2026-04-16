@@ -17,7 +17,7 @@ package git4idea.repo;
 
 import consulo.component.messagebus.MessageBusConnection;
 import consulo.disposer.Disposable;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import consulo.logging.Logger;
 import consulo.project.Project;
 import consulo.versionControlSystem.FilePath;
@@ -105,7 +105,7 @@ public class GitUntrackedFilesHolder implements Disposable, BulkFileListener {
         myRoot = repository.getRoot();
         myChangeListManager = ChangeListManager.getInstance(myProject);
         myDirtyScopeManager = VcsDirtyScopeManager.getInstance(myProject);
-        myGit = ServiceManager.getService(Git.class);
+        myGit = Application.get().getInstance(Git.class);
         myVcsManager = ProjectLevelVcsManager.getInstance(myProject);
 
         myRepositoryManager = GitUtil.getRepositoryManager(myProject);

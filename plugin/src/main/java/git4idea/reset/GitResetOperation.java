@@ -19,7 +19,7 @@ import consulo.application.AccessToken;
 import consulo.application.Application;
 import consulo.application.progress.ProgressIndicator;
 import consulo.document.FileDocumentManager;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.project.ui.notification.NotificationService;
@@ -75,7 +75,7 @@ public class GitResetOperation {
         myCommits = targetCommits;
         myMode = mode;
         myIndicator = indicator;
-        myGit = ServiceManager.getService(Git.class);
+        myGit = Application.get().getInstance(Git.class);
         myNotificationService = NotificationService.getInstance();
         myUiHandler = new GitBranchUiHandlerImpl(myProject, myGit, indicator);
     }

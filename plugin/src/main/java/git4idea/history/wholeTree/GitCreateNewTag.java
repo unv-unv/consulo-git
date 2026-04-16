@@ -16,7 +16,7 @@
 package git4idea.history.wholeTree;
 
 import consulo.git.localize.GitLocalize;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.InputValidator;
@@ -68,7 +68,7 @@ public class GitCreateNewTag {
             }
         );
         if (name != null) {
-            GitBrancher brancher = ServiceManager.getService(myProject, GitBrancher.class);
+            GitBrancher brancher = myProject.getInstance(GitBrancher.class);
             brancher.createNewTag(name, myReference, Collections.singletonList(myRepository), myCallInAwtAfterExecution);
         }
     }

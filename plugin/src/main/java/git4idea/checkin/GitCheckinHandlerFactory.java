@@ -20,7 +20,7 @@ import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.ProgressManager;
 import consulo.application.progress.Task;
 import consulo.git.localize.GitLocalize;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import consulo.logging.Logger;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
@@ -117,7 +117,7 @@ public class GitCheckinHandlerFactory extends VcsCheckinHandlerFactory {
                 return ReturnResult.COMMIT;
             }
 
-            final Git git = ServiceManager.getService(Git.class);
+            final Git git = Application.get().getInstance(Git.class);
 
             final Collection<VirtualFile> files =
                 myPanel.getVirtualFiles(); // deleted files aren't included, but for them we don't care about CRLFs.

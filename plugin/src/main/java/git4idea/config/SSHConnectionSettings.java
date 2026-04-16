@@ -22,7 +22,7 @@ import consulo.component.persist.PersistentStateComponent;
 import consulo.component.persist.State;
 import consulo.component.persist.Storage;
 import consulo.component.persist.StoragePathMacros;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import consulo.util.xml.serializer.annotation.MapAnnotation;
 import consulo.util.xml.serializer.annotation.Property;
 import jakarta.inject.Singleton;
@@ -95,7 +95,7 @@ public class SSHConnectionSettings implements PersistentStateComponent<SSHConnec
      * @return the service instance
      */
     public static SSHConnectionSettings getInstance() {
-        return ServiceManager.getService(SSHConnectionSettings.class);
+        return Application.get().getInstance(SSHConnectionSettings.class);
     }
 
     /**

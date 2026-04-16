@@ -20,7 +20,7 @@ import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
 import consulo.application.ApplicationManager;
 import consulo.disposer.Disposable;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import consulo.logging.Logger;
 import consulo.project.Project;
 import consulo.util.collection.ContainerUtil;
@@ -65,7 +65,7 @@ public class GitUserRegistry implements Disposable, VcsListener {
   }
 
   public static GitUserRegistry getInstance(@Nonnull Project project) {
-    return ServiceManager.getService(project, GitUserRegistry.class);
+    return project.getInstance(GitUserRegistry.class);
   }
 
   public void activate() {

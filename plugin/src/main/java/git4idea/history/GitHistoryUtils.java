@@ -19,7 +19,7 @@ import consulo.application.util.Semaphore;
 import consulo.application.util.registry.Registry;
 import consulo.component.ProcessCanceledException;
 import consulo.git.localize.GitLocalize;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import consulo.process.ProcessOutputTypes;
 import consulo.project.Project;
 import consulo.util.collection.ArrayUtil;
@@ -735,7 +735,7 @@ public class GitHistoryUtils {
     private static VcsLogObjectsFactory getObjectsFactoryWithDisposeCheck(@Nonnull Project project) {
         return project.getApplication().runReadAction((Supplier<VcsLogObjectsFactory>) () -> {
             if (!project.isDisposed()) {
-                return ServiceManager.getService(project, VcsLogObjectsFactory.class);
+                return project.getInstance(VcsLogObjectsFactory.class);
             }
             return null;
         });

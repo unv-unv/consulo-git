@@ -18,7 +18,7 @@ package git4idea.rebase;
 import consulo.application.AccessToken;
 import consulo.application.Application;
 import consulo.application.progress.ProgressIndicator;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.project.Project;
@@ -87,7 +87,7 @@ class GitAbortRebaseProcess {
         myIndicator = progressIndicator;
         mySaver = changesSaver;
 
-        myGit = ServiceManager.getService(Git.class);
+        myGit = Application.get().getInstance(Git.class);
     }
 
     @RequiredUIAccess

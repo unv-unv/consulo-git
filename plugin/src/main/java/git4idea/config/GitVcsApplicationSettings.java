@@ -19,7 +19,7 @@ import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
 import consulo.component.persist.*;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 import jakarta.inject.Singleton;
@@ -57,7 +57,7 @@ public class GitVcsApplicationSettings implements PersistentStateComponent<GitVc
     }
 
     public static GitVcsApplicationSettings getInstance() {
-        return ServiceManager.getService(GitVcsApplicationSettings.class);
+        return Application.get().getInstance(GitVcsApplicationSettings.class);
     }
 
     @Override

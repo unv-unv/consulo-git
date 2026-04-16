@@ -20,7 +20,7 @@ import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
 import consulo.application.Application;
 import consulo.git.localize.GitLocalize;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import consulo.language.editor.ui.awt.*;
 import consulo.localize.LocalizeValue;
 import consulo.platform.Platform;
@@ -863,7 +863,7 @@ public class GitCheckinEnvironment implements CheckinEnvironment {
 
         @Nonnull
         private List<String> getUsersList(@Nonnull Project project) {
-            VcsUserRegistry userRegistry = ServiceManager.getService(project, VcsUserRegistry.class);
+            VcsUserRegistry userRegistry = project.getInstance(VcsUserRegistry.class);
             return map(userRegistry.getUsers(), VcsUserUtil::toExactString);
         }
 

@@ -17,7 +17,7 @@ package git4idea.branch;
 
 import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.Task;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.project.Project;
@@ -382,7 +382,7 @@ class GitDeleteBranchOperation extends GitBranchOperation {
         new Task.Backgroundable(myProject, LocalizeValue.localizeTODO("Deleting Remote Branch " + myBranchName + "...")) {
             @Override
             public void run(@Nonnull ProgressIndicator indicator) {
-                GitBrancher brancher = ServiceManager.getService(getProject(), GitBrancher.class);
+                GitBrancher brancher = getProject().getInstance(GitBrancher.class);
                 for (String remoteBranch : myTrackedBranches.keySet()) {
                     brancher.deleteRemoteBranch(remoteBranch, new ArrayList<>(myTrackedBranches.get(remoteBranch)));
                 }

@@ -5,7 +5,7 @@ import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
 import consulo.application.util.AtomicNotNullLazyValue;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import consulo.project.Project;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -22,7 +22,7 @@ import jakarta.annotation.Nonnull;
 @ServiceImpl
 public class GitExecutableManager {
     public static GitExecutableManager getInstance() {
-        return ServiceManager.getService(GitExecutableManager.class);
+        return Application.get().getInstance(GitExecutableManager.class);
     }
 
     @Nonnull

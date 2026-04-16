@@ -22,7 +22,7 @@ import consulo.component.persist.PersistentStateComponent;
 import consulo.component.persist.State;
 import consulo.component.persist.Storage;
 import consulo.component.persist.StoragePathMacros;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import consulo.project.Project;
 import consulo.util.collection.ArrayUtil;
 import consulo.util.lang.ObjectUtil;
@@ -112,7 +112,7 @@ public class GitVcsSettings implements PersistentStateComponent<GitVcsSettings.S
     }
 
     public static GitVcsSettings getInstance(Project project) {
-        return ServiceManager.getService(project, GitVcsSettings.class);
+        return project.getInstance(GitVcsSettings.class);
     }
 
     @Nonnull

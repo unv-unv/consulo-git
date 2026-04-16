@@ -21,7 +21,7 @@ import consulo.application.progress.ProgressManager;
 import consulo.application.progress.Task;
 import consulo.component.ProcessCanceledException;
 import consulo.git.localize.GitLocalize;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.project.Project;
@@ -96,7 +96,7 @@ public class GitRebaseProcess {
         myCustomMode = customMode;
         mySaver = rebaseSpec.getSaver();
 
-        myGit = ServiceManager.getService(Git.class);
+        myGit = Application.get().getInstance(Git.class);
         myChangeListManager = ChangeListManager.getInstance(myProject);
         myNotificationService = NotificationService.getInstance();
         myRepositoryManager = GitUtil.getRepositoryManager(myProject);

@@ -17,7 +17,7 @@ package git4idea.commands;
 
 import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import consulo.project.Project;
 import consulo.versionControlSystem.FilePath;
 import consulo.versionControlSystem.VcsException;
@@ -40,7 +40,7 @@ import java.util.function.Supplier;
 public interface Git {
     @Nonnull
     static Git getInstance() {
-        return ServiceManager.getService(Git.class);
+        return Application.get().getInstance(Git.class);
     }
 
     /**

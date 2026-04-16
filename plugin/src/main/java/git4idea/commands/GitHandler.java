@@ -18,7 +18,7 @@ package git4idea.commands;
 import consulo.component.ProcessCanceledException;
 import consulo.container.plugin.PluginManager;
 import consulo.http.HttpProxyManager;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import consulo.logging.Logger;
 import consulo.platform.Platform;
 import consulo.process.ExecutionException;
@@ -473,7 +473,7 @@ public abstract class GitHandler {
     }
 
     private void setupHttpAuthenticator() throws IOException {
-        GitHttpAuthService service = ServiceManager.getService(GitHttpAuthService.class);
+        GitHttpAuthService service = Application.get().getInstance(GitHttpAuthService.class);
         myEnv.put(GitAskPassXmlRpcHandler.GIT_ASK_PASS_ENV, service.getScriptPath().getPath());
         GitHttpAuthenticator httpAuthenticator = service.createAuthenticator(myProject, myCommand, ObjectUtil.assertNotNull(myUrls));
         myHttpHandler = service.registerHandler(httpAuthenticator, myProject);
@@ -505,7 +505,7 @@ public abstract class GitHandler {
     }
 
     private void setupSshAuthenticator() throws IOException {
-        GitXmlRpcSshService ssh = ServiceManager.getService(GitXmlRpcSshService.class);
+        GitXmlRpcSshService ssh = Application.get().getInstance(GitXmlRpcSshService.class);
         myEnv.put(GitSSHHandler.GIT_SSH_ENV, ssh.getScriptPath().getPath());
         mySshHandler = ssh.registerHandler(new GitSSHGUIHandler(myProject), myProject);
         myEnvironmentCleanedUp = false;
@@ -630,10 +630,10 @@ public abstract class GitHandler {
             return;
         }
         if (mySshHandler != null) {
-            ServiceManager.getService(GitXmlRpcSshService.class).unregisterHandler(mySshHandler);
+            Application.get().getInstance(GitXmlRpcSshService.class).unregisterHandler(mySshHandler);
         }
         if (myHttpHandler != null) {
-            ServiceManager.getService(GitHttpAuthService.class).unregisterHandler(myHttpHandler);
+            Application.get().getInstance(GitHttpAuthService.class).unregisterHandler(myHttpHandler);
         }
         myEnvironmentCleanedUp = true;
     }

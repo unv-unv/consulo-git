@@ -19,7 +19,7 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import consulo.git.localize.GitLocalize;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import consulo.logging.Logger;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
@@ -162,7 +162,7 @@ public class GitRebaseDialog extends DialogWrapper {
         setOKButtonText(GitLocalize.rebaseButton());
         init();
         myProject = project;
-        mySettings = ServiceManager.getService(myProject, GitRebaseSettings.class);
+        mySettings = myProject.getInstance(GitRebaseSettings.class);
         myRepositoryManager = GitUtil.getRepositoryManager(myProject);
         Runnable validateRunnable = this::validateFields;
         myOntoValidator = new GitReferenceValidator(

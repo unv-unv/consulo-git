@@ -21,7 +21,7 @@ import consulo.application.progress.Task;
 import consulo.application.ui.wm.ApplicationIdeFocusManager;
 import consulo.document.event.DocumentAdapter;
 import consulo.document.event.DocumentEvent;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.project.Project;
@@ -95,7 +95,7 @@ public class GitPushTargetPanel extends PushTargetPanel<GitPushTarget> {
     public GitPushTargetPanel(@Nonnull GitPushSupport support, @Nonnull GitRepository repository, @Nullable GitPushTarget defaultTarget) {
         myPushSupport = support;
         myRepository = repository;
-        myGit = ServiceManager.getService(Git.class);
+        myGit = Application.get().getInstance(Git.class);
         myProject = myRepository.getProject();
 
         myTargetRenderer = new VcsEditableTextComponent("", null);

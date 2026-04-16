@@ -24,7 +24,7 @@ import consulo.fileChooser.FileChooserDescriptor;
 import consulo.fileChooser.FileChooserDescriptorFactory;
 import consulo.fileChooser.IdeaFileChooser;
 import consulo.git.localize.GitLocalize;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.project.ProjectManager;
@@ -92,7 +92,7 @@ public class GitInit extends DumbAwareAction {
                     return;
                 }
 
-                GitCommandResult result = ServiceManager.getService(Git.class).init(project, root);
+                GitCommandResult result = Application.get().getInstance(Git.class).init(project, root);
                 if (!result.success()) {
                     GitVcs vcs = GitVcs.getInstance(project);
                     if (vcs != null && vcs.getExecutableValidator().checkExecutableAndNotifyIfNeeded()) {

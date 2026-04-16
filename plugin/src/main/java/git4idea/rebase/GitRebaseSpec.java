@@ -16,7 +16,7 @@
 package git4idea.rebase;
 
 import consulo.application.progress.ProgressIndicator;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import consulo.logging.Logger;
 import consulo.project.Project;
 import consulo.util.collection.ContainerUtil;
@@ -182,7 +182,7 @@ public class GitRebaseSpec {
 
     @Nonnull
     private static GitStashChangesSaver newSaver(@Nonnull Project project, @Nonnull ProgressIndicator indicator) {
-        Git git = ServiceManager.getService(Git.class);
+        Git git = Application.get().getInstance(Git.class);
         return new GitStashChangesSaver(project, git, indicator, "Uncommitted changes before rebase");
     }
 

@@ -22,7 +22,7 @@ import consulo.application.progress.ProgressIndicator;
 import consulo.application.progress.ProgressManager;
 import consulo.application.progress.Task;
 import consulo.git.localize.GitLocalize;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import consulo.localize.LocalizeValue;
 import consulo.logging.Logger;
 import consulo.platform.base.localize.CommonLocalize;
@@ -837,7 +837,7 @@ public class GitUnstashDialog extends DialogWrapper {
         private final StashInfo myStashInfo;
 
         public UnstashConflictResolver(Project project, VirtualFile root, StashInfo stashInfo) {
-            super(project, ServiceManager.getService(Git.class), Collections.singleton(root), makeParams(stashInfo));
+            super(project, Application.get().getInstance(Git.class), Collections.singleton(root), makeParams(stashInfo));
             myRoot = root;
             myStashInfo = stashInfo;
         }

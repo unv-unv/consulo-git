@@ -19,7 +19,7 @@ import consulo.annotation.component.ComponentScope;
 import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
 import consulo.git.localize.GitLocalize;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import consulo.project.Project;
 import consulo.versionControlSystem.FilePath;
 import consulo.versionControlSystem.VcsException;
@@ -258,7 +258,7 @@ public class GitRollbackEnvironment implements RollbackEnvironment {
      * @return a project-specific instance of the service
      */
     public static GitRollbackEnvironment getInstance(Project project) {
-        return ServiceManager.getService(project, GitRollbackEnvironment.class);
+        return project.getInstance(GitRollbackEnvironment.class);
     }
 
     public static void resetHardLocal(Project project, VirtualFile root) {

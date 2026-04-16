@@ -4,6 +4,20 @@
  */
 module com.intellij.git {
     requires consulo.ide.api;
+    requires consulo.ide.impl;
+    requires consulo.version.control.system.api;
+    requires consulo.version.control.system.log.api;
+    requires consulo.version.control.system.distributed.api;
+    requires consulo.language.editor.ui.api;
+    requires consulo.execution.api;
+    requires consulo.configurable.api;
+    requires consulo.ui.ex.api;
+    requires consulo.ui.ex.awt.api;
+    requires consulo.http.api;
+    requires consulo.process.api;
+    requires consulo.builtin.web.server.api;
+    requires consulo.credential.storage.api;
+    requires consulo.web.browser.api;
     requires ini4j;
     requires com.intellij.git.rt;
 

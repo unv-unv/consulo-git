@@ -22,7 +22,7 @@ import consulo.component.persist.PersistentStateComponent;
 import consulo.component.persist.State;
 import consulo.component.persist.Storage;
 import consulo.component.persist.StoragePathMacros;
-import consulo.ide.ServiceManager;
+import consulo.application.Application;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Singleton;
@@ -55,7 +55,7 @@ public class GitRememberedInputs implements PersistentStateComponent<GitRemember
     }
 
     public static GitRememberedInputs getInstance() {
-        return ServiceManager.getService(GitRememberedInputs.class);
+        return Application.get().getInstance(GitRememberedInputs.class);
     }
 
     @Override
