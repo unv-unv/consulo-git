@@ -16,11 +16,11 @@
 package git4idea.history;
 
 import consulo.application.util.function.AsynchConsumer;
-import consulo.ide.impl.idea.openapi.util.io.FileUtil;
 import consulo.ide.impl.idea.openapi.vcs.FilePathImpl;
 import consulo.ide.impl.idea.util.Consumer;
 import consulo.ide.impl.idea.util.Function;
 import consulo.util.collection.ArrayUtil;
+import consulo.util.io.FileUtil;
 import consulo.util.lang.Pair;
 import consulo.versionControlSystem.FilePath;
 import consulo.versionControlSystem.VcsException;

@@ -16,13 +16,12 @@
 package git4idea.test;
 
 import com.intellij.openapi.application.PluginPathManager;
-import consulo.ide.impl.idea.openapi.util.io.FileUtil;
-import consulo.util.io.CharsetToolkit;
-import consulo.virtualFileSystem.VirtualFile;
 import consulo.language.editor.WriteCommandAction;
 import consulo.project.Project;
+import consulo.util.io.CharsetToolkit;
+import consulo.util.io.FileUtil;
 import consulo.util.lang.ref.Ref;
-
+import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 

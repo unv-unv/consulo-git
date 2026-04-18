@@ -17,7 +17,7 @@ package git4idea.repo;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
-import consulo.ide.impl.idea.openapi.util.io.FileUtil;
+import consulo.util.io.FileUtil;
 import consulo.util.lang.StringUtil;
 import git4idea.GitBranch;
 import git4idea.GitLocalBranch;

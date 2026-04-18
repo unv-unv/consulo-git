@@ -15,17 +15,17 @@
  */
 package git4idea.test;
 
-import consulo.ide.impl.idea.openapi.util.io.FileUtil;
+import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory;
+import com.intellij.testFramework.fixtures.TempDirTestFixture;
+import com.intellij.testFramework.vcs.AbstractVcsTestCase;
 import consulo.ui.ex.awt.UIUtil;
+import consulo.ui.ex.awt.internal.GuiUtils;
+import consulo.util.io.FileUtil;
+import consulo.versionControlSystem.FilePath;
 import consulo.versionControlSystem.VcsConfiguration;
 import consulo.versionControlSystem.VcsShowConfirmationOption;
 import consulo.versionControlSystem.change.Change;
 import consulo.versionControlSystem.change.ContentRevision;
-import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory;
-import com.intellij.testFramework.fixtures.TempDirTestFixture;
-import com.intellij.testFramework.vcs.AbstractVcsTestCase;
-import consulo.ui.ex.awt.internal.GuiUtils;
-import consulo.versionControlSystem.FilePath;
 import git4idea.GitVcs;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;

@@ -16,17 +16,15 @@
 package git4idea.tests;
 
 import consulo.application.ApplicationManager;
-import consulo.ide.impl.idea.openapi.util.io.FileUtil;
 import consulo.ide.impl.idea.openapi.vcs.FilePathImpl;
-import consulo.ide.impl.idea.openapi.vfs.VfsUtil;
-import consulo.virtualFileSystem.VirtualFile;
 import consulo.ui.ex.awt.internal.GuiUtils;
+import consulo.util.io.FileUtil;
+import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.status.FileStatus;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
 import org.testng.annotations.Test;
 
-import static consulo.virtualFileSystem.status.FileStatus.ADDED;
-import static consulo.virtualFileSystem.status.FileStatus.DELETED;
-import static consulo.virtualFileSystem.status.FileStatus.MODIFIED;
+import static consulo.virtualFileSystem.status.FileStatus.*;
 
 /**
  * @author Kirill Likhodedov
@@ -70,7 +68,7 @@ public class GitChangeProviderVersionedTest extends GitChangeProviderTest {
           public void run() {
             final VirtualFile dir = myRepo.getVFRootDir().findChild("dir");
             myDirtyScope.addDirtyDirRecursively(new consulo.ide.impl.idea.openapi.vcs.FilePathImpl(dir));
-            FileUtil.delete(VfsUtil.virtualToIoFile(dir));
+            FileUtil.delete(VirtualFileUtil.virtualToIoFile(dir));
           }
         });
       }

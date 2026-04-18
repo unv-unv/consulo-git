@@ -15,19 +15,18 @@
  */
 package git4idea.history;
 
-import consulo.ide.impl.idea.openapi.util.io.FileUtil;
 import consulo.language.file.light.LightVirtualFile;
+import consulo.util.collection.ContainerUtil;
+import consulo.util.io.FileUtil;
 import consulo.util.lang.StringUtil;
 import consulo.versionControlSystem.FilePath;
 import consulo.versionControlSystem.VcsException;
 import consulo.versionControlSystem.change.Change;
 import consulo.virtualFileSystem.VirtualFile;
-import consulo.util.collection.ContainerUtil;
 import git4idea.GitUtil;
 import git4idea.test.GitTest;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 

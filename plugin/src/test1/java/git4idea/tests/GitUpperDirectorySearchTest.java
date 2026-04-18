@@ -15,15 +15,15 @@
  */
 package git4idea.tests;
 
-import consulo.ide.impl.idea.openapi.util.io.FileUtil;
-import consulo.ui.ex.awt.UIUtil;
-import consulo.virtualFileSystem.LocalFileSystem;
-import consulo.virtualFileSystem.VirtualFile;
 import com.intellij.testFramework.fixtures.IdeaProjectTestFixture;
 import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory;
 import com.intellij.testFramework.fixtures.TestFixtureBuilder;
-import consulo.ide.impl.idea.vcsUtil.VcsFileUtil;
 import consulo.application.util.SystemInfo;
+import consulo.ide.impl.idea.vcsUtil.VcsFileUtil;
+import consulo.ui.ex.awt.UIUtil;
+import consulo.util.io.FileUtil;
+import consulo.virtualFileSystem.LocalFileSystem;
+import consulo.virtualFileSystem.VirtualFile;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

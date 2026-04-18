@@ -16,13 +16,13 @@
 package git4idea.repo;
 
 import consulo.ide.ServiceManager;
-import consulo.ide.impl.idea.openapi.vfs.VfsUtil;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
 import git4idea.GitBranch;
 import git4idea.GitPlatformFacade;
 import git4idea.test.GitLightTest;
 import git4idea.test.GitTest;
-import jakarta.annotation.Nullable;
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -55,7 +55,7 @@ public class GitRepositoryTest extends GitTest {
     super.setUp(testMethod);
     GitPlatformFacade facade = ServiceManager.getService(myProject, GitPlatformFacade.class);
     myRepository = GitRepositoryImpl.getFullInstance(myRepo.getVFRootDir(), myProject, facade, myProject);
-    myReader = new GitRepositoryReader(new File(VfsUtil.virtualToIoFile(myRepository.getRoot()), ".git"));
+    myReader = new GitRepositoryReader(new File(VirtualFileUtil.virtualToIoFile(myRepository.getRoot()), ".git"));
   }
 
   @Test
