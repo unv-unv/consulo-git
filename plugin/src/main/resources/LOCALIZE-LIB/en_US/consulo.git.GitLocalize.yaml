@@ -296,10 +296,10 @@ delete.action.name:
     text: Delete
 dialog.message.enter.the.name.of.new.branch:
     text: 'Enter the name of new branch:'
-dialog.title.reset:
-    text: Git Reset
 dialog.title.checkout.new.branch.from.0:
     text: Checkout New Branch From {0}
+dialog.title.reset:
+    text: Git Reset
 diff.find.error:
     text: 'Finding revision for diff: {0}'
 error.commit.cant.create.message.file:
