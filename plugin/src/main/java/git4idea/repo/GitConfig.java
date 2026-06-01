@@ -25,7 +25,6 @@ import git4idea.GitRemoteBranch;
 import git4idea.branch.GitBranchUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.ini4j.Ini;
 import org.ini4j.Profile;
 
 import java.io.File;
@@ -58,7 +57,6 @@ public class GitConfig {
     @Nonnull
     private final Collection<BranchConfig> myTrackedInfos;
 
-
     private GitConfig(@Nonnull Collection<Remote> remotes, @Nonnull Collection<Url> urls, @Nonnull Collection<BranchConfig> trackedInfos) {
         myRemotes = remotes;
         myUrls = urls;
@@ -81,10 +79,7 @@ public class GitConfig {
         // populate GitRemotes with substituting urls when needed
         return ContainerUtil.map(
             myRemotes,
-            remote -> {
-                assert remote != null;
-                return convertRemoteToGitRemote(myUrls, remote);
-            }
+            remote -> convertRemoteToGitRemote(myUrls, Objects.requireNonNull(remote))
         );
     }
 
@@ -134,9 +129,9 @@ public class GitConfig {
             return emptyConfig;
         }
 
-        Ini ini;
+        SortedMap<String, Profile.Section> ini;
         try {
-            ini = GitConfigHelper.loadIniFile(configFile);
+            ini = new TreeMap<>(GitConfigHelper.loadIniFile(configFile));
         }
         catch (IOException e) {
             return emptyConfig;
@@ -149,7 +144,10 @@ public class GitConfig {
     }
 
     @Nonnull
-    private static Collection<BranchConfig> parseTrackedInfos(@Nonnull Ini ini, @Nonnull ClassLoader classLoader) {
+    private static Collection<BranchConfig> parseTrackedInfos(
+        @Nonnull SortedMap<String, Profile.Section> ini,
+        @Nonnull ClassLoader classLoader
+    ) {
         Collection<BranchConfig> configs = new ArrayList<>();
         for (Map.Entry<String, Profile.Section> stringSectionEntry : ini.entrySet()) {
             String sectionName = stringSectionEntry.getKey();
@@ -242,7 +240,10 @@ public class GitConfig {
     }
 
     @Nonnull
-    private static Pair<Collection<Remote>, Collection<Url>> parseRemotes(@Nonnull Ini ini, @Nonnull ClassLoader classLoader) {
+    private static Pair<Collection<Remote>, Collection<Url>> parseRemotes(
+        @Nonnull SortedMap<String, Profile.Section> ini,
+        @Nonnull ClassLoader classLoader
+    ) {
         Collection<Remote> remotes = new ArrayList<>();
         Collection<Url> urls = new ArrayList<>();
         for (Map.Entry<String, Profile.Section> stringSectionEntry : ini.entrySet()) {
