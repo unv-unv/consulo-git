@@ -25,6 +25,7 @@ import git4idea.GitRemoteBranch;
 import git4idea.branch.GitBranchUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import org.ini4j.Ini;
 import org.ini4j.Profile;
 
 import java.io.File;
@@ -87,7 +88,7 @@ public class GitConfig {
     private static GitRemote convertRemoteToGitRemote(@Nonnull Collection<Url> urls, @Nonnull Remote remote) {
         UrlsAndPushUrls substitutedUrls = substituteUrls(urls, remote);
         return new GitRemote(
-            remote.myName,
+            remote.name(),
             substitutedUrls.getUrls(),
             substitutedUrls.getPushUrls(),
             remote.getFetchSpecs(),
@@ -129,9 +130,9 @@ public class GitConfig {
             return emptyConfig;
         }
 
-        SortedMap<String, Profile.Section> ini;
+        Ini ini;
         try {
-            ini = new TreeMap<>(GitConfigHelper.loadIniFile(configFile));
+            ini = GitConfigHelper.loadIniFile(configFile);
         }
         catch (IOException e) {
             return emptyConfig;
@@ -144,11 +145,8 @@ public class GitConfig {
     }
 
     @Nonnull
-    private static Collection<BranchConfig> parseTrackedInfos(
-        @Nonnull SortedMap<String, Profile.Section> ini,
-        @Nonnull ClassLoader classLoader
-    ) {
-        Collection<BranchConfig> configs = new ArrayList<>();
+    private static Collection<BranchConfig> parseTrackedInfos(@Nonnull Ini ini, @Nonnull ClassLoader classLoader) {
+        Collection<BranchConfig> configs = new TreeSet<>();
         for (Map.Entry<String, Profile.Section> stringSectionEntry : ini.entrySet()) {
             String sectionName = stringSectionEntry.getKey();
             Profile.Section section = stringSectionEntry.getValue();
@@ -171,10 +169,10 @@ public class GitConfig {
         if (branchConfig == null) {
             return null;
         }
-        String branchName = branchConfig.getName();
-        String remoteName = branchConfig.getBean().getRemote();
-        String mergeName = branchConfig.getBean().getMerge();
-        String rebaseName = branchConfig.getBean().getRebase();
+        String branchName = branchConfig.name();
+        String remoteName = branchConfig.bean().getRemote();
+        String mergeName = branchConfig.bean().getMerge();
+        String rebaseName = branchConfig.bean().getRebase();
 
         if (StringUtil.isEmptyOrSpaces(mergeName) && StringUtil.isEmptyOrSpaces(rebaseName)) {
             LOG.info("No branch." + branchName + ".merge/rebase item in the .git/config");
@@ -240,12 +238,9 @@ public class GitConfig {
     }
 
     @Nonnull
-    private static Pair<Collection<Remote>, Collection<Url>> parseRemotes(
-        @Nonnull SortedMap<String, Profile.Section> ini,
-        @Nonnull ClassLoader classLoader
-    ) {
-        Collection<Remote> remotes = new ArrayList<>();
-        Collection<Url> urls = new ArrayList<>();
+    private static Pair<Collection<Remote>, Collection<Url>> parseRemotes(@Nonnull Ini ini, @Nonnull ClassLoader classLoader) {
+        Collection<Remote> remotes = new TreeSet<>();
+        Collection<Url> urls = new TreeSet<>();
         for (Map.Entry<String, Profile.Section> stringSectionEntry : ini.entrySet()) {
             String sectionName = stringSectionEntry.getKey();
             Profile.Section section = stringSectionEntry.getValue();
@@ -362,7 +357,7 @@ public class GitConfig {
 
     @Nonnull
     private static String substituteUrl(@Nonnull String remoteUrl, @Nonnull Url url, @Nonnull String insteadOf) {
-        return url.myName + remoteUrl.substring(insteadOf.length());
+        return url.name() + remoteUrl.substring(insteadOf.length());
     }
 
     @Nullable
@@ -387,39 +382,36 @@ public class GitConfig {
         return null;
     }
 
-    private static class Remote {
-        private final String myName;
-        private final RemoteBean myRemoteBean;
-
-        private Remote(@Nonnull String name, @Nonnull RemoteBean remoteBean) {
-            myRemoteBean = remoteBean;
-            myName = name;
-        }
-
+    private record Remote(String name, RemoteBean remoteBean) implements Comparable<Remote> {
         @Nonnull
         private Collection<String> getUrls() {
-            return nonNullCollection(myRemoteBean.getUrl());
+            return nonNullCollection(remoteBean().getUrl());
         }
 
         @Nonnull
         private Collection<String> getPushUrls() {
-            return nonNullCollection(myRemoteBean.getPushUrl());
+            return nonNullCollection(remoteBean().getPushUrl());
         }
 
         @Nonnull
         private Collection<String> getPuttyKeys() {
-            return nonNullCollection(myRemoteBean.getPuttyKeyFile());
+            return nonNullCollection(remoteBean().getPuttyKeyFile());
         }
 
         @Nonnull
         private List<String> getPushSpec() {
-            String[] push = myRemoteBean.getPush();
+            String[] push = remoteBean().getPush();
             return push == null ? Collections.<String>emptyList() : Arrays.asList(push);
         }
 
         @Nonnull
         private List<String> getFetchSpecs() {
-            return Arrays.asList(notNull(myRemoteBean.getFetch()));
+            return Arrays.asList(notNull(remoteBean().getFetch()));
+        }
+
+        @Override
+        public int compareTo(Remote that) {
+            return name().compareTo(that.name());
         }
     }
 
@@ -440,25 +432,22 @@ public class GitConfig {
         String[] getPuttyKeyFile();
     }
 
-    private static class Url {
-        private final String myName;
-        private final UrlBean myUrlBean;
-
-        private Url(String name, UrlBean urlBean) {
-            myUrlBean = urlBean;
-            myName = name;
-        }
-
-        @Nullable
+    private record Url(String name, UrlBean urlBean) implements Comparable<Url> {
         // null means to entry, i.e. nothing to substitute. Empty string means substituting everything
+        @Nullable
         public String getInsteadOf() {
-            return myUrlBean.getInsteadOf();
+            return urlBean().getInsteadOf();
         }
 
-        @Nullable
         // null means to entry, i.e. nothing to substitute. Empty string means substituting everything
+        @Nullable
         public String getPushInsteadOf() {
-            return myUrlBean.getPushInsteadOf();
+            return urlBean().getPushInsteadOf();
+        }
+
+        @Override
+        public int compareTo(Url that) {
+            return name().compareTo(that.name());
         }
     }
 
@@ -470,21 +459,10 @@ public class GitConfig {
         String getPushInsteadOf();
     }
 
-    private static class BranchConfig {
-        private final String myName;
-        private final BranchBean myBean;
-
-        public BranchConfig(String name, BranchBean bean) {
-            myName = name;
-            myBean = bean;
-        }
-
-        public String getName() {
-            return myName;
-        }
-
-        public BranchBean getBean() {
-            return myBean;
+    private record BranchConfig(String name, BranchBean bean) implements Comparable<BranchConfig> {
+        @Override
+        public int compareTo(BranchConfig that) {
+            return name().compareTo(that.name());
         }
     }
 
